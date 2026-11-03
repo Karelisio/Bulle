@@ -13,6 +13,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 
 /** Géométrie instantanée des deux bulles, en pixels, dans le repère de la fenêtre. */
 class LiquidGeometry(
+    val fill: androidx.compose.ui.graphics.Color,
+    val outline: androidx.compose.ui.graphics.Color,
+    val outlineWidth: Float,
+    val topCorner: Float,
     val mainCenterX: Float,
     val mainCenterY: Float,
     val mainHalfW: Float,
@@ -39,8 +43,14 @@ uniform float2 secCenter;
 uniform float secRadius;
 uniform float smoothK;
 uniform float alpha;
+uniform float topCorner;
+uniform half4 fillColor;
+uniform half4 outlineColor;
+uniform float outlineWidth;
 
-float sdRoundRect(float2 p, float2 b, float r) {
+// Rectangle arrondi avec des rayons différents en haut et en bas (y vers le bas).
+float sdRoundRect(float2 p, float2 b, float rTop, float rBottom) {
+    float r = p.y < 0.0 ? rTop : rBottom;
     float2 q = abs(p) - b + r;
     return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
 }
@@ -51,13 +61,16 @@ float smin(float a, float b, float k) {
 }
 
 half4 main(float2 p) {
-    float d = sdRoundRect(p - mainCenter, mainHalf, mainCorner);
+    float d = sdRoundRect(p - mainCenter, mainHalf, topCorner, mainCorner);
     if (secRadius > 0.5) {
         float d2 = length(p - secCenter) - secRadius;
         d = smin(d, d2, smoothK);
     }
     float a = (1.0 - smoothstep(-0.8, 0.8, d)) * alpha;
-    return half4(0.0, 0.0, 0.0, a);
+    // Contour : bande intérieure de largeur outlineWidth.
+    float o = outlineWidth > 0.0 ? smoothstep(-outlineWidth - 0.8, -outlineWidth + 0.8, d) : 0.0;
+    half4 c = mix(fillColor, outlineColor, o);
+    return c * a;
 }
 """
 
@@ -75,6 +88,10 @@ private class LiquidShader {
         shader.setFloatUniform("secRadius", g.secRadius)
         shader.setFloatUniform("smoothK", smoothK)
         shader.setFloatUniform("alpha", g.alpha)
+        shader.setFloatUniform("topCorner", g.topCorner.coerceIn(0f, half))
+        shader.setFloatUniform("fillColor", g.fill.red, g.fill.green, g.fill.blue, g.fill.alpha)
+        shader.setFloatUniform("outlineColor", g.outline.red, g.outline.green, g.outline.blue, g.outline.alpha)
+        shader.setFloatUniform("outlineWidth", g.outlineWidth)
         drawRect(brush)
     }
 }

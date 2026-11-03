@@ -10,6 +10,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -53,6 +56,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karelisio.bulle.core.island.IslandContent
+import com.karelisio.bulle.core.settings.CardStyle
+import com.karelisio.bulle.core.settings.IslandColorMode
+import com.karelisio.bulle.core.settings.StyleSettings
 import com.karelisio.bulle.core.island.IslandGesture
 import com.karelisio.bulle.island.IslandController
 import com.karelisio.bulle.island.IslandUiState
@@ -118,13 +124,22 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         else -> Mode.IDLE
     }
 
+    // --- Style ---
+    val style = state.style
+    val scheme = MaterialTheme.colorScheme
+    val fill = islandFill(style, scheme)
+    val outlineColor = scheme.primary
+    val outlinePx = if (style.outline) with(density) { style.outlineWidthDp.dp.toPx() } else 0f
+    val topFrac by animateFloatAsState(style.shape.topRadius, spring(dampingRatio = 0.7f), label = "shape")
+    val bottomFrac by animateFloatAsState(style.shape.bottomRadius, spring(dampingRatio = 0.7f), label = "shape")
+
     // Hauteur mesurée du contenu étendu (padding compris).
     var expandedContentHeight by remember { mutableIntStateOf(0) }
 
     val px = with(density) {
         object {
-            val margin = ExpandedMargin.toPx()
-            val maxW = ExpandedMaxWidth.toPx()
+            val margin = (if (style.cardStyle == CardStyle.WIDE) 6.dp else ExpandedMargin).toPx()
+            val maxW = if (style.cardStyle == CardStyle.WIDE) Float.MAX_VALUE else ExpandedMaxWidth.toPx()
             val corner = ExpandedCorner.toPx()
             val shadow = ShadowMargin.toPx()
             val slot = (state.primary?.compactSlotWidth ?: 0.dp).toPx()
@@ -207,11 +222,15 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         // Fond noir « liquide » commun aux deux bulles (Android 13+).
         LiquidBackground(smoothK = with(density) { 10.dp.toPx() }) {
             LiquidGeometry(
+                fill = fill,
+                outline = outlineColor,
+                outlineWidth = outlinePx,
+                topCorner = anim.corner.value * topFrac,
                 mainCenterX = size.width / 2 + anim.offsetX.value,
                 mainCenterY = anim.height.value / 2,
                 mainHalfW = anim.width.value / 2,
                 mainHalfH = anim.height.value / 2,
-                mainCorner = anim.corner.value,
+                mainCorner = anim.corner.value * bottomFrac,
                 secCenterX = size.width / 2 + secOffset.value,
                 secCenterY = secR,
                 secRadius = secRadius.value,
@@ -230,11 +249,13 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                 .graphicsLayer {
                     translationX = anim.offsetX.value
                     alpha = anim.alpha.value
-                    shape = RoundedCornerShape(anim.corner.value.coerceAtLeast(0f))
+                    val c = anim.corner.value.coerceAtLeast(0f)
+                    shape = RoundedCornerShape(topStart = c * topFrac, topEnd = c * topFrac, bottomEnd = c * bottomFrac, bottomStart = c * bottomFrac)
                     clip = true
-                    shadowElevation = if (mode == Mode.EXPANDED) 8.dp.toPx() else 0f
+                    shadowElevation = if (mode == Mode.EXPANDED || (style.shadow && mode != Mode.HIDDEN)) 8.dp.toPx() else 0f
                 }
-                .then(if (LiquidSupported) Modifier else Modifier.background(Color.Black))
+                .then(if (LiquidSupported) Modifier else Modifier.background(fill))
+                .then(if (!LiquidSupported && style.outline) Modifier.border(with(density) { outlinePx.toDp() }, outlineColor, RoundedCornerShape(50)) else Modifier)
                 .islandGestures(enabled = mode != Mode.HIDDEN, doubleTap = state.doubleTapEnabled, onGesture = controller::onGesture),
         ) {
             // Vue compacte : emplacements de part et d'autre de la caméra.
@@ -290,6 +311,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         // Bulle secondaire : contenu minimal, toucher = échanger les deux bulles.
         SecondaryBubble(
             content = lastSecondary.takeIf { secRadius.value > 0.5f || secondary != null },
+            fill = fill,
             offsetX = { secOffset.value },
             radius = { secRadius.value },
             fullRadius = secR,
@@ -301,6 +323,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
 @Composable
 private fun SecondaryBubble(
     content: IslandContent?,
+    fill: Color,
     offsetX: () -> Float,
     radius: () -> Float,
     fullRadius: Float,
@@ -322,12 +345,19 @@ private fun SecondaryBubble(
                 shape = CircleShape
                 clip = true
             }
-            .then(if (LiquidSupported) Modifier else Modifier.background(Color.Black))
+            .then(if (LiquidSupported) Modifier else Modifier.background(fill))
             .pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) },
         contentAlignment = Alignment.Center,
     ) {
         content.Minimal()
     }
+}
+
+/** Couleur de fond de l'île selon le style (noir pur par défaut pour se fondre avec la caméra). */
+fun islandFill(style: StyleSettings, darkScheme: androidx.compose.material3.ColorScheme): Color = when (style.colorMode) {
+    IslandColorMode.BLACK -> Color.Black
+    IslandColorMode.DYNAMIC -> androidx.compose.ui.graphics.lerp(darkScheme.primaryContainer, Color.Black, 0.55f)
+    IslandColorMode.CUSTOM -> Color(style.customColor.toInt()).copy(alpha = 1f)
 }
 
 /** Ligne compacte : [Leading] | caméra | [Trailing]. */

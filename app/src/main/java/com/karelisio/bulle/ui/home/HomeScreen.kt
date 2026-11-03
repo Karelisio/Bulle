@@ -32,6 +32,11 @@ import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.OpenWith
+import androidx.compose.material.icons.rounded.VisibilityOff
+import com.karelisio.bulle.ui.settings.IslandPreview
+import com.karelisio.bulle.ui.components.sharedElement
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -102,9 +107,9 @@ fun HomeScreen(onOpen: (String) -> Unit = {}) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(Modifier.height(32.dp))
-            BreathingBubble()
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(8.dp))
+            IslandPreview(settings.style, settings.motion, Modifier.sharedElement("island_preview").clickable { onOpen(com.karelisio.bulle.ui.Routes.STYLE) })
+            Spacer(Modifier.height(20.dp))
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayMedium,
@@ -260,6 +265,9 @@ private fun BreathingBubble() {
 private data class SettingsEntry(val route: String, val titleRes: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 
 private val settingsEntries = listOf(
+    SettingsEntry(com.karelisio.bulle.ui.Routes.STYLE, R.string.home_entry_style, Icons.Rounded.Palette),
+    SettingsEntry(com.karelisio.bulle.ui.Routes.POSITION, R.string.home_entry_position, Icons.Rounded.OpenWith),
+    SettingsEntry(com.karelisio.bulle.ui.Routes.VISIBILITY, R.string.home_entry_visibility, Icons.Rounded.VisibilityOff),
     SettingsEntry(com.karelisio.bulle.ui.Routes.LIVE, R.string.home_entry_live, Icons.Rounded.Timer),
     SettingsEntry(com.karelisio.bulle.ui.Routes.CALLS, R.string.home_entry_calls, Icons.Rounded.Call),
     SettingsEntry(com.karelisio.bulle.ui.Routes.ALERTS, R.string.home_entry_alerts, Icons.Rounded.NotificationsActive),

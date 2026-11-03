@@ -57,7 +57,7 @@ object CutoutLocator {
      * Calcule l'île compacte : elle épouse le cutout avec une petite marge,
      * puis applique le réglage fin manuel.
      */
-    fun geometry(info: ScreenInfo, tweak: PositionTweak): IslandGeometry {
+    fun geometry(info: ScreenInfo, tweak: PositionTweak, scale: Float = 1f): IslandGeometry {
         val d = info.density
         fun dp(v: Float) = (v * d).roundToInt()
         val padH = dp(8f)
@@ -80,6 +80,10 @@ object CutoutLocator {
             centerX = info.width / 2
             top = max(0, (info.statusBarHeight - height) / 2)
         }
+        // Taille choisie : l'île grandit autour de la caméra (le haut reste calé).
+        val sc = scale.coerceIn(0.6f, 2f)
+        width = (width * sc).roundToInt()
+        height = (height * sc).roundToInt()
         width += dp(tweak.extraWidthDp)
         height += dp(tweak.extraHeightDp)
         centerX += dp(tweak.offsetXDp)

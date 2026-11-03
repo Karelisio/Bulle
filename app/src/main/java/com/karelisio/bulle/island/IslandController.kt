@@ -19,6 +19,7 @@ import com.karelisio.bulle.modules.search.AppSearchPanel
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.MotionSettings
 import com.karelisio.bulle.core.settings.SettingsRepository
+import com.karelisio.bulle.core.settings.StyleSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -42,6 +43,7 @@ data class IslandUiState(
     val motion: MotionSettings = MotionSettings(),
     /** Le double toucher n'est détecté que s'il a une action (sinon le toucher simple serait retardé). */
     val doubleTapEnabled: Boolean = false,
+    val style: StyleSettings = StyleSettings(),
 )
 
 /** Ce que l'utilisateur a fait de l'île (étendue, échange des bulles, panneau ouvert). */
@@ -115,6 +117,7 @@ class IslandController(
             panel = i.panel,
             motion = s.motion,
             doubleTapEnabled = s.gestures.doubleTap.type != ActionType.NONE,
+            style = s.style,
         )
     }.stateIn(scope, SharingStarted.Eagerly, IslandUiState())
 

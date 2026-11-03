@@ -20,6 +20,7 @@ data class BulleSettings(
     val position: PositionTweak = PositionTweak(),
     val visibility: VisibilitySettings = VisibilitySettings(),
     val motion: MotionSettings = MotionSettings(),
+    val style: StyleSettings = StyleSettings(),
     val gestures: GestureSettings = GestureSettings(),
     val deck: DeckSettings = DeckSettings(),
     val rules: RulesSettings = RulesSettings(),
