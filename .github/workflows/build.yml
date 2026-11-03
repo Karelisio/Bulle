@@ -64,6 +64,9 @@ jobs:
             echo "::warning::Pas de keystore : build de vérification signé en debug."
           fi
 
+      - name: Tests (lancement de l'appli)
+        run: ./gradlew --no-daemon testDebugUnitTest
+
       - name: Build APK release
         env:
           BULLE_KEYSTORE_PASSWORD: ${{ secrets.BULLE_KEYSTORE_PASSWORD }}

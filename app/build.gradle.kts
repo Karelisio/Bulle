@@ -75,6 +75,16 @@ android {
         generateLocaleConfig = true
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all { test ->
+            // Miroir optionnel pour les jars Android de Robolectric (-Probolectric.repo=…).
+            (project.findProperty("robolectric.repo") as String?)?.let {
+                test.systemProperty("robolectric.dependency.repo.url", it)
+            }
+        }
+    }
+
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
@@ -123,4 +133,8 @@ dependencies {
     implementation(libs.palette)
     implementation(libs.coroutines.android)
     implementation(libs.serialization.json)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }

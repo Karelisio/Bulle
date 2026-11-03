@@ -84,6 +84,18 @@
             </intent-filter>
         </receiver>
 
+        <!-- WorkManager initialisé à la demande (BulleApp est un Configuration.Provider) -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
         <!-- Langue par appli (Android 13+) sur Android 12 -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

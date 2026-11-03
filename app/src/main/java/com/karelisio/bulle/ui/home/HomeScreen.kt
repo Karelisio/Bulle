@@ -62,6 +62,7 @@ import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.island.IslandAccessibilityService
 import com.karelisio.bulle.system.Reliability
 import com.karelisio.bulle.ui.components.MorphShape
+import com.karelisio.bulle.ui.components.rememberReduceMotion
 import kotlinx.coroutines.launch
 
 @Composable
@@ -179,13 +180,16 @@ private fun ServiceCard(running: Boolean, enabledInSystem: Boolean, onOpenAccess
 /** Forme M3 Expressive qui respire et morphe en continu (cercle ⇄ cookie). */
 @Composable
 private fun BreathingBubble() {
-    val transition = rememberInfiniteTransition(label = "breath")
-    val progress by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(2400), RepeatMode.Reverse),
-        label = "morph",
-    )
+    val progress = if (rememberReduceMotion()) 0f else {
+        val transition = rememberInfiniteTransition(label = "breath")
+        val p by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(2400), RepeatMode.Reverse),
+            label = "morph",
+        )
+        p
+    }
     val morph = remember { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
     Box(
         modifier = Modifier
