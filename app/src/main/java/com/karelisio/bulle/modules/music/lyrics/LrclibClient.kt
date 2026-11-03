@@ -1,0 +1,90 @@
+package com.karelisio.bulle.modules.music.lyrics
+
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
+import kotlin.math.abs
+
+/** Réponse (partielle) de l'API LRCLIB. */
+@Serializable
+data class LrclibTrack(
+    val trackName: String? = null,
+    val artistName: String? = null,
+    val duration: Double? = null,
+    val instrumental: Boolean = false,
+    val plainLyrics: String? = null,
+    val syncedLyrics: String? = null,
+)
+
+/**
+ * Client minimal de lrclib.net (API gratuite, sans clé). Seuls titre, artiste, album et durée sont envoyés.
+ * Appels bloquants : à lancer hors du thread principal.
+ */
+object LrclibClient {
+
+    private const val BASE = "https://lrclib.net/api"
+    private const val USER_AGENT = "Bulle (https://github.com/karelisio/bulle)"
+    private val json = Json { ignoreUnknownKeys = true }
+
+    /** Résultat : texte (LRC de préférence), null = introuvable. Lève IOException en cas d'erreur réseau. */
+    @Throws(IOException::class)
+    fun find(title: String, artist: String, album: String, durationMs: Long): String? {
+        val seconds = durationMs / 1000
+        if (seconds > 0) {
+            val params = buildList {
+                add("track_name" to title)
+                add("artist_name" to artist)
+                if (album.isNotBlank()) add("album_name" to album)
+                add("duration" to seconds.toString())
+            }
+            get("$BASE/get?${query(params)}")?.let { body ->
+                bestText(json.decodeFromString(LrclibTrack.serializer(), body))?.let { return it }
+            }
+        }
+        // Repli : recherche plus souple (titre nettoyé), en gardant une durée proche si connue.
+        val body = get("$BASE/search?${query(listOf("track_name" to cleanTitle(title), "artist_name" to artist))}") ?: return null
+        val results = json.decodeFromString(kotlinx.serialization.builtins.ListSerializer(LrclibTrack.serializer()), body)
+        return pickSearchResult(results, seconds)?.let(::bestText)
+    }
+
+    /** Parmi les résultats de recherche : durée à ±3 s si connue, paroles synchronisées en priorité. */
+    internal fun pickSearchResult(results: List<LrclibTrack>, seconds: Long): LrclibTrack? {
+        val close = results.filter { seconds <= 0 || it.duration == null || abs(it.duration - seconds) <= 3.0 }
+        return close.firstOrNull { !it.syncedLyrics.isNullOrBlank() } ?: close.firstOrNull { !it.plainLyrics.isNullOrBlank() }
+    }
+
+    private fun bestText(t: LrclibTrack): String? =
+        t.syncedLyrics?.takeIf { it.isNotBlank() } ?: t.plainLyrics?.takeIf { it.isNotBlank() }
+
+    /** Retire les mentions qui gênent la recherche : « (feat. …) », « - Remastered 2011 »… */
+    internal fun cleanTitle(title: String): String = title
+        .replace(Regex("""\s*[(\[](feat\.?|ft\.?|with|remaster(ed)?|live|radio edit|explicit|clean)[^)\]]*[)\]]""", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("""\s+-\s+(\d{4}\s+)?(remaster(ed)?|live|radio edit|mono|stereo|single version)\b.*$""", RegexOption.IGNORE_CASE), "")
+        .trim()
+        .ifEmpty { title }
+
+    private fun query(params: List<Pair<String, String>>) =
+        params.joinToString("&") { (k, v) -> "$k=${URLEncoder.encode(v, "UTF-8")}" }
+
+    /** GET : corps si 200, null si 404, IOException sinon. */
+    private fun get(url: String): String? {
+        val conn = URL(url).openConnection() as HttpURLConnection
+        try {
+            conn.connectTimeout = 8_000
+            conn.readTimeout = 10_000
+            conn.useCaches = false
+            conn.setRequestProperty("User-Agent", USER_AGENT)
+            conn.setRequestProperty("Accept", "application/json")
+            return when (val code = conn.responseCode) {
+                200 -> conn.inputStream.use { it.readBytes().decodeToString() }
+                404 -> null
+                else -> throw IOException("LRCLIB : HTTP $code")
+            }
+        } finally {
+            conn.disconnect()
+        }
+    }
+}
