@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.OpenWith
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -268,6 +269,7 @@ private val settingsEntries = listOf(
     SettingsEntry(com.karelisio.bulle.ui.Routes.STYLE, R.string.home_entry_style, Icons.Rounded.Palette),
     SettingsEntry(com.karelisio.bulle.ui.Routes.POSITION, R.string.home_entry_position, Icons.Rounded.OpenWith),
     SettingsEntry(com.karelisio.bulle.ui.Routes.VISIBILITY, R.string.home_entry_visibility, Icons.Rounded.VisibilityOff),
+    SettingsEntry(com.karelisio.bulle.ui.Routes.MUSIC, R.string.home_entry_music, Icons.Rounded.MusicNote),
     SettingsEntry(com.karelisio.bulle.ui.Routes.LIVE, R.string.home_entry_live, Icons.Rounded.Timer),
     SettingsEntry(com.karelisio.bulle.ui.Routes.CALLS, R.string.home_entry_calls, Icons.Rounded.Call),
     SettingsEntry(com.karelisio.bulle.ui.Routes.ALERTS, R.string.home_entry_alerts, Icons.Rounded.NotificationsActive),

@@ -182,4 +182,5 @@
     <string name="home_entry_style">Style</string>
     <string name="home_entry_position">Position</string>
     <string name="home_entry_visibility">Masquage</string>
+    <string name="home_entry_music">Musique</string>
 </resources>

@@ -24,6 +24,7 @@ import com.karelisio.bulle.modules.deck.ui.DeckSettingsScreen
 import com.karelisio.bulle.modules.deck.ui.DeckTabScreen
 import com.karelisio.bulle.modules.alerts.ui.AlertsSettingsScreen
 import com.karelisio.bulle.modules.call.ui.CallSettingsScreen
+import com.karelisio.bulle.modules.music.ui.MusicSettingsScreen
 import com.karelisio.bulle.modules.live.ui.LiveSettingsScreen
 import com.karelisio.bulle.modules.rules.ui.RulesScreen
 import com.karelisio.bulle.ui.home.HomeScreen
@@ -41,6 +42,7 @@ object Routes {
     const val LIVE = "live"
     const val CALLS = "calls"
     const val ALERTS = "alerts"
+    const val MUSIC = "music"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
 }
@@ -69,6 +71,7 @@ fun BulleNavHost() {
         composable(Routes.LIVE) { LiveSettingsScreen(onBack = back) }
         composable(Routes.CALLS) { CallSettingsScreen(onBack = back) }
         composable(Routes.ALERTS) { AlertsSettingsScreen(onBack = back) }
+        composable(Routes.MUSIC) { MusicSettingsScreen(onBack = back) }
         composable(Routes.DECK) { DeckSettingsScreen(onBack = back, onOpenTab = { nav.navigate(Routes.deckTab(it)) }) }
         composable(Routes.DECK_TAB) { entry ->
             DeckTabScreen(tabId = entry.arguments?.getString("id").orEmpty(), onBack = back)

@@ -180,4 +180,5 @@
     <string name="home_entry_style">Style</string>
     <string name="home_entry_position">Position</string>
     <string name="home_entry_visibility">Hiding</string>
+    <string name="home_entry_music">Music</string>
 </resources>

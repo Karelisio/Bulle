@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module Musique -->
+    <string name="module_music">Musique</string>
+    <string name="music_play">Lecture</string>
+    <string name="music_pause">Pause</string>
+    <string name="music_previous">Piste précédente</string>
+    <string name="music_next">Piste suivante</string>
+    <string name="music_open_player">Ouvrir le lecteur</string>
+    <string name="music_lyrics_source">Paroles : %1$s</string>
+    <string name="music_source_lrclib">LRCLIB</string>
+    <string name="music_source_player">lecteur</string>
+
+    <!-- Réglages -->
+    <string name="music_back">Retour</string>
+    <string name="music_setting_enable">Afficher la musique</string>
+    <string name="music_setting_enable_summary">Pochette et égaliseur autour de la caméra, lecteur complet au toucher.</string>
+    <string name="music_access_needed">Bulle a besoin de l’accès aux notifications pour voir ce qui est en cours de lecture. Rien ne quitte votre téléphone.</string>
+    <string name="music_access_grant">Autoriser l’accès</string>
+    <string name="music_setting_hide_paused">Masquer après une pause</string>
+    <string name="music_setting_hide_paused_summary">Le lecteur disparaît de l’île après %1$d min de pause.</string>
+    <string name="music_setting_lyrics">Paroles synchronisées</string>
+    <string name="music_setting_lyrics_summary">Affiche les paroles qui défilent en rythme dans la vue étendue (celles du lecteur ou du cache local).</string>
+    <string name="music_setting_online">Rechercher les paroles en ligne</string>
+    <string name="music_setting_online_summary">Utilise lrclib.net (gratuit, sans compte). Seuls le titre, l’artiste, l’album et la durée du morceau sont envoyés à lrclib.net.</string>
+    <string name="music_cache_title">Cache des paroles</string>
+    <plurals name="music_cache_count">
+        <item quantity="one">%1$d morceau enregistré sur l’appareil</item>
+        <item quantity="many">%1$d morceaux enregistrés sur l’appareil</item>
+        <item quantity="other">%1$d morceaux enregistrés sur l’appareil</item>
+    </plurals>
+    <string name="music_cache_clear">Vider</string>
+    <string name="music_cache_cleared">Cache des paroles vidé</string>
+</resources>
