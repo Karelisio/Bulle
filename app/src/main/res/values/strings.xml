@@ -87,4 +87,20 @@
     <string name="write_settings_needed">Autorise Bulle à modifier les paramètres système pour cette action.</string>
     <string name="home_settings_title">Réglages</string>
     <string name="back">Retour</string>
+
+    <string name="deck_title">Deck</string>
+    <string name="deck_add_tab">Onglet</string>
+    <string name="deck_tab_default">Onglet %1$d</string>
+    <string name="deck_no_favorites">Ajoute tes applis favorites dans Réglages › Deck.</string>
+    <string name="deck_themed_icons">Icônes thématiques</string>
+    <string name="deck_themed_icons_desc">Icônes monochromes aux couleurs du thème quand l’appli en propose.</string>
+    <string name="deck_tabs_hint">Touche un onglet pour le modifier, glisse-le vers la gauche pour le supprimer.</string>
+    <string name="deck_tab_summary">%1$d applis · %2$d raccourcis · %3$d widgets</string>
+    <string name="deck_tab_name">Nom de l’onglet</string>
+    <string name="deck_favorites">Applis favorites</string>
+    <string name="deck_shortcuts">Raccourcis</string>
+    <string name="deck_widgets">Widgets</string>
+    <string name="deck_add">Ajouter</string>
+    <string name="deck_swipe_hint">Glisse un élément vers la gauche pour le retirer.</string>
+    <string name="deck_pick_widget">Choisir un widget</string>
 </resources>

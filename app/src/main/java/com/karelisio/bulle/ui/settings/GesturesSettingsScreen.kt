@@ -179,7 +179,7 @@ private fun IslandGesture.icon(): ImageVector = when (this) {
 }
 
 @Composable
-private fun ActionList(current: ActionType?, onPick: (ActionType) -> Unit) {
+internal fun ActionList(current: ActionType?, onPick: (ActionType) -> Unit) {
     LazyColumn(contentPadding = PaddingValues(bottom = 32.dp)) {
         item {
             Text(
@@ -211,7 +211,7 @@ private fun ActionList(current: ActionType?, onPick: (ActionType) -> Unit) {
 }
 
 @Composable
-private fun AppList(onPick: (AppEntry) -> Unit) {
+internal fun AppList(onPick: (AppEntry) -> Unit) {
     val context = LocalContext.current
     var apps by remember { mutableStateOf<List<AppEntry>>(emptyList()) }
     LaunchedEffect(Unit) { apps = AppCatalog.apps(context) }

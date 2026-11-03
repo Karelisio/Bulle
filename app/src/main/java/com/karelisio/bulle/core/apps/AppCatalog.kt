@@ -4,6 +4,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.drawable.AdaptiveIconDrawable
+import android.os.Build
 import android.util.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -80,6 +82,27 @@ object AppCatalog {
                 context.packageManager.getActivityIcon(component)
                     .toBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
                     .asImageBitmap()
+            }.getOrNull()?.also { icons.put(key, it) }
+        }
+    }
+
+    /**
+     * Icône thématique (calque monochrome de l'icône adaptative, Android 13+), à teinter.
+     * null si l'appli n'en fournit pas.
+     */
+    suspend fun themedIcon(context: Context, component: ComponentName, sizePx: Int): ImageBitmap? {
+        if (Build.VERSION.SDK_INT < 33) return null
+        val key = "mono:" + component.flattenToShortString() + "@" + sizePx
+        icons.get(key)?.let { return it }
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val d = context.packageManager.getActivityIcon(component)
+                val mono = (d as? AdaptiveIconDrawable)?.monochrome ?: return@runCatching null
+                // Le calque occupe 108 dp dont 72 visibles : on recadre au centre.
+                val full = (sizePx * 1.5f).toInt()
+                val bmp = mono.toBitmap(full, full, Bitmap.Config.ARGB_8888)
+                val inset = (full - sizePx) / 2
+                Bitmap.createBitmap(bmp, inset, inset, sizePx, sizePx).asImageBitmap()
             }.getOrNull()?.also { icons.put(key, it) }
         }
     }

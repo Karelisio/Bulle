@@ -162,8 +162,8 @@ class IslandController(
         executor.run(action)
     }
 
-    /** Exécute une action (gestes, règles automatiques). */
-    fun runAction(action: GestureAction) = executor.run(action)
+    /** Exécute une action (gestes, règles automatiques, Deck). */
+    override fun runAction(action: GestureAction) = executor.run(action)
 
     fun toggleExpand() {
         val st = state.value

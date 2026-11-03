@@ -85,4 +85,20 @@
     <string name="write_settings_needed">Allow Bulle to modify system settings for this action.</string>
     <string name="home_settings_title">Settings</string>
     <string name="back">Back</string>
+
+    <string name="deck_title">Deck</string>
+    <string name="deck_add_tab">Tab</string>
+    <string name="deck_tab_default">Tab %1$d</string>
+    <string name="deck_no_favorites">Add your favorite apps in Settings › Deck.</string>
+    <string name="deck_themed_icons">Themed icons</string>
+    <string name="deck_themed_icons_desc">Monochrome icons in theme colors when the app provides one.</string>
+    <string name="deck_tabs_hint">Tap a tab to edit it, swipe it left to delete it.</string>
+    <string name="deck_tab_summary">%1$d apps · %2$d shortcuts · %3$d widgets</string>
+    <string name="deck_tab_name">Tab name</string>
+    <string name="deck_favorites">Favorite apps</string>
+    <string name="deck_shortcuts">Shortcuts</string>
+    <string name="deck_widgets">Widgets</string>
+    <string name="deck_add">Add</string>
+    <string name="deck_swipe_hint">Swipe an item left to remove it.</string>
+    <string name="deck_pick_widget">Choose a widget</string>
 </resources>

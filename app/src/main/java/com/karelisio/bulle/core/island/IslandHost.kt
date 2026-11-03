@@ -12,6 +12,8 @@ interface IslandHost {
     fun closePanel()
     /** Rend l'île focusable pour une saisie clavier (recherche). */
     fun requestInput(enabled: Boolean)
+    /** Exécute une action (raccourcis du Deck…). */
+    fun runAction(action: com.karelisio.bulle.core.actions.GestureAction)
 }
 
 /**

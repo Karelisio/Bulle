@@ -3,6 +3,7 @@ package com.karelisio.bulle.core.settings
 import com.karelisio.bulle.core.actions.GestureSettings
 import com.karelisio.bulle.modules.alerts.AlertSettings
 import com.karelisio.bulle.modules.call.CallSettings
+import com.karelisio.bulle.modules.deck.DeckSettings
 import com.karelisio.bulle.modules.live.LiveSettings
 import com.karelisio.bulle.modules.music.MusicSettings
 import kotlinx.serialization.Serializable
@@ -19,6 +20,7 @@ data class BulleSettings(
     val visibility: VisibilitySettings = VisibilitySettings(),
     val motion: MotionSettings = MotionSettings(),
     val gestures: GestureSettings = GestureSettings(),
+    val deck: DeckSettings = DeckSettings(),
     /** Activation par module (id → activé). Absent = valeur par défaut du module. */
     val modules: Map<String, Boolean> = emptyMap(),
     // Réglages propres à chaque module (un fichier par module).
