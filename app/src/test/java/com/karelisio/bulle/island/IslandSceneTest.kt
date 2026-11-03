@@ -42,6 +42,22 @@ private data class TestContent(override val postedAt: Long = 1) : IslandContent(
     }
 }
 
+private data class OtherContent(override val postedAt: Long = 0) : IslandContent() {
+    override val key = "other:test"
+    override val moduleId = "other"
+    override val priority = Priority.MEDIA
+
+    @Composable
+    override fun Leading() = Text("M")
+}
+
+private object OtherModule : com.karelisio.bulle.core.island.IslandModule {
+    override val id = "other"
+    override val titleRes = com.karelisio.bulle.R.string.app_name
+    val items = kotlinx.coroutines.flow.MutableStateFlow<List<IslandContent>>(emptyList())
+    override fun contents(env: com.karelisio.bulle.core.island.ModuleEnv) = items
+}
+
 /** Fait passer l'île par tous ses états pour vérifier qu'aucun ne plante. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
@@ -86,6 +102,39 @@ class IslandSceneTest {
         controller.dismiss("push:test")
         idle()
         assertEquals(null, controller.state.value.primary)
+        PushModule.remove("push:test")
+        scope.cancel()
+    }
+
+    @Test
+    fun secondaryBubbleAndSwap() {
+        Modules.registerAll()
+        com.karelisio.bulle.core.island.ModuleRegistry.register(OtherModule)
+        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val scope = MainScope()
+        val controller = IslandController(activity, scope, IslandWindow(activity))
+        controller.updateScreen {
+            it.copy(geometry = IslandGeometry(centerX = 540, top = 10, width = 180, height = 90, screenWidth = 1080, density = 3f))
+        }
+        activity.setContent { IslandScene(controller) }
+        PushModule.push(TestContent())
+        OtherModule.items.value = listOf(OtherContent())
+        idle()
+        assertEquals("push:test", controller.state.value.primary?.key)
+        assertEquals("other:test", controller.state.value.secondary?.key)
+
+        controller.swapBubbles()
+        idle()
+        assertEquals("other:test", controller.state.value.primary?.key)
+        assertEquals("push:test", controller.state.value.secondary?.key)
+
+        controller.swapBubbles()
+        idle()
+        assertEquals("push:test", controller.state.value.primary?.key)
+
+        OtherModule.items.value = emptyList()
+        idle()
+        assertEquals(null, controller.state.value.secondary)
         PushModule.remove("push:test")
         scope.cancel()
     }

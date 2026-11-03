@@ -19,9 +19,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +32,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -148,9 +151,24 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     val anim = remember { SurfaceAnim(target) }
     val currentController by rememberUpdatedState(controller)
 
-    LaunchedEffect(target, motion) {
+    // --- Bulle secondaire (détachée à droite de la principale, en mode compact) ---
+    val secondary = state.secondary.takeIf { mode == Mode.COMPACT }
+    var lastSecondary by remember { mutableStateOf<IslandContent?>(null) }
+    if (secondary != null) lastSecondary = secondary
+    val secR = g.height / 2f
+    val secGap = with(density) { 6.dp.toPx() }
+    // Visible : à droite, avec un petit espace. Cachée : rentrée dans l'extrémité droite de la principale.
+    val secTarget = if (secondary != null) Offset(target.width / 2 + secGap + secR, secR)
+    else Offset(max(0f, target.width / 2 - secR), 0f)
+    val secOffset = remember { Animatable(secTarget.x) }
+    val secRadius = remember { Animatable(secTarget.y) }
+
+    LaunchedEffect(target, secTarget, motion) {
+        val secExtent = { settled: Boolean ->
+            if (settled) secTarget.x + secTarget.y else max(secOffset.value + secRadius.value, secTarget.x + secTarget.y) * (1f + motion.overshoot / 4)
+        }
         // 1) La fenêtre englobe l'état courant ET la cible (+ dépassement du ressort).
-        currentController.applyWindow(envelope(anim, target, motion.overshoot, px.shadow, settled = false))
+        currentController.applyWindow(envelope(anim, target, motion.overshoot, px.shadow, settled = false, secExtent(false)))
         // 2) Animation au ressort : tout ensemble.
         val growing = target.width * target.height >= anim.width.value * anim.height.value
         val spec = if (growing) motion.grow() else motion.shrink()
@@ -160,9 +178,12 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
             launch { anim.corner.animateTo(target.corner, spec) }
             launch { anim.offsetX.animateTo(target.offsetX, spec) }
             launch { anim.alpha.animateTo(target.alpha, motion.fade()) }
+            // Scission liquide : la goutte s'éloigne en grossissant, ou revient se fondre.
+            launch { secOffset.animateTo(secTarget.x, if (secTarget.y > 0f) motion.detach() else motion.shrink()) }
+            launch { secRadius.animateTo(secTarget.y, if (secTarget.y > 0f) motion.grow() else motion.merge()) }
         }
         // 3) Une fois posée, la fenêtre se resserre exactement sur l'île.
-        currentController.applyWindow(envelope(anim, target, 0f, px.shadow, settled = true))
+        currentController.applyWindow(envelope(anim, target, 0f, px.shadow, settled = true, secExtent(true)))
     }
 
     // Retour haptique discret quand l'île s'ouvre ou se ferme.
@@ -183,6 +204,20 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     }
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        // Fond noir « liquide » commun aux deux bulles (Android 13+).
+        LiquidBackground(smoothK = with(density) { 10.dp.toPx() }) {
+            LiquidGeometry(
+                mainCenterX = size.width / 2 + anim.offsetX.value,
+                mainCenterY = anim.height.value / 2,
+                mainHalfW = anim.width.value / 2,
+                mainHalfH = anim.height.value / 2,
+                mainCorner = anim.corner.value,
+                secCenterX = size.width / 2 + secOffset.value,
+                secCenterY = secR,
+                secRadius = secRadius.value,
+                alpha = anim.alpha.value,
+            )
+        }
         Box(
             Modifier
                 .wrapContentSize(Alignment.TopCenter, unbounded = true)
@@ -199,7 +234,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                     clip = true
                     shadowElevation = if (mode == Mode.EXPANDED) 8.dp.toPx() else 0f
                 }
-                .background(Color.Black)
+                .then(if (LiquidSupported) Modifier else Modifier.background(Color.Black))
                 .islandGestures(enabled = mode != Mode.HIDDEN, doubleTap = state.doubleTapEnabled, onGesture = controller::onGesture),
         ) {
             // Vue compacte : emplacements de part et d'autre de la caméra.
@@ -252,6 +287,46 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                 }
             }
         }
+        // Bulle secondaire : contenu minimal, toucher = échanger les deux bulles.
+        SecondaryBubble(
+            content = lastSecondary.takeIf { secRadius.value > 0.5f || secondary != null },
+            offsetX = { secOffset.value },
+            radius = { secRadius.value },
+            fullRadius = secR,
+            onTap = controller::swapBubbles,
+        )
+    }
+}
+
+@Composable
+private fun SecondaryBubble(
+    content: IslandContent?,
+    offsetX: () -> Float,
+    radius: () -> Float,
+    fullRadius: Float,
+    onTap: () -> Unit,
+) {
+    if (content == null) return
+    val density = LocalDensity.current
+    val d = with(density) { (fullRadius * 2).toDp() }
+    Box(
+        Modifier
+            .size(d)
+            .graphicsLayer {
+                translationX = offsetX()
+                val p = (radius() / fullRadius).coerceIn(0f, 1.2f)
+                scaleX = p
+                scaleY = p
+                // Le contenu n'apparaît qu'une fois la goutte détachée.
+                alpha = ((p - 0.6f) / 0.4f).coerceIn(0f, 1f)
+                shape = CircleShape
+                clip = true
+            }
+            .then(if (LiquidSupported) Modifier else Modifier.background(Color.Black))
+            .pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) },
+        contentAlignment = Alignment.Center,
+    ) {
+        content.Minimal()
     }
 }
 
@@ -272,13 +347,13 @@ private fun CompactRow(content: IslandContent, baseWidthPx: Int, heightPx: Int, 
 }
 
 /** Taille de fenêtre qui contient l'île courante et sa cible, symétrique autour de la caméra. */
-private fun envelope(anim: SurfaceAnim, t: SurfaceTarget, overshoot: Float, shadow: Float, settled: Boolean): WindowRequest {
+private fun envelope(anim: SurfaceAnim, t: SurfaceTarget, overshoot: Float, shadow: Float, settled: Boolean, secExtent: Float): WindowRequest {
     fun span(cur: Float, tgt: Float) = max(cur, tgt) + abs(tgt - cur) * overshoot
     val halfW = if (settled) abs(t.offsetX) + t.width / 2 else max(
         abs(anim.offsetX.value) + anim.width.value / 2,
         abs(t.offsetX) + t.width / 2,
     ) + abs(t.width - anim.width.value) * overshoot / 2
-    var w = 2 * halfW
+    var w = 2 * max(halfW, secExtent)
     var h = if (settled) t.height else span(anim.height.value, t.height)
     val expanded = t.mode == Mode.EXPANDED || anim.height.value > t.height + 1f
     if (expanded) {

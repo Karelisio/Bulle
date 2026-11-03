@@ -29,6 +29,16 @@ class IslandMotion(private val settings: MotionSettings, private val reduceMotio
         MotionStyle.SOBER -> spring(dampingRatio = 1f, stiffness = k(700f), visibilityThreshold = 0.5f)
     }
 
+    /** La goutte secondaire s'éloigne : ressort étiré, un peu plus lent que le gonflement. */
+    fun detach(): AnimationSpec<Float> = if (reduceMotion) snap() else when (settings.style) {
+        MotionStyle.SOFT -> spring(dampingRatio = 0.62f, stiffness = k(180f), visibilityThreshold = 0.5f)
+        MotionStyle.SNAPPY -> spring(dampingRatio = 0.6f, stiffness = k(420f), visibilityThreshold = 0.5f)
+        MotionStyle.SOBER -> spring(dampingRatio = 1f, stiffness = k(380f), visibilityThreshold = 0.5f)
+    }
+
+    /** La goutte revient se fondre dans la principale. */
+    fun merge(): AnimationSpec<Float> = if (reduceMotion) snap() else spring(dampingRatio = 1f, stiffness = k(300f), visibilityThreshold = 0.5f)
+
     /** Dépassement maximal attendu, en fraction de l'écart (pour dimensionner la fenêtre). */
     val overshoot: Float = when (settings.style) {
         MotionStyle.SOFT -> 0.18f
