@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_tagline">Your Dynamic Island, around the camera.</string>
-    <string name="home_wip">The first bricks are laid. The island is coming soon.</string>
     <string name="home_version">Version %1$s</string>
+
+    <string name="home_service_title">Island service</string>
+    <string name="home_service_running">Active: the island sits on the camera.</string>
+    <string name="home_service_enabled_not_running">Enabled but stopped by the system.</string>
+    <string name="home_service_off">Off. Enable Bulle in Accessibility.</string>
+    <string name="home_open_accessibility">Open Accessibility</string>
+    <string name="home_island_switch">Show the island</string>
+
+    <string name="a11y_summary">Shows the island around the camera hole.</string>
+    <string name="a11y_description">Bulle uses accessibility only to draw the island over other apps, to know the name of the foreground app (to hide the island in apps you choose) and to run the gesture actions you set up (back, home, screenshot…). Bulle never reads screen content and nothing leaves your phone.</string>
+
+    <string name="keepalive_channel">Island keep-alive</string>
+    <string name="keepalive_channel_desc">Discreet notification that stops the system from killing Bulle.</string>
+    <string name="keepalive_title">Bulle is on watch</string>
+    <string name="keepalive_text">The island stays active in the background.</string>
+
+    <string name="tile_on">Island shown</string>
+    <string name="tile_off">Island hidden</string>
+    <string name="tile_service_off">Service off</string>
 </resources>

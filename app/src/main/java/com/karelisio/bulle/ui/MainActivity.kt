@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.karelisio.bulle.ui.home.HomeScreen
+import com.karelisio.bulle.system.Reliability
 import com.karelisio.bulle.ui.theme.BulleTheme
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        Reliability.ensureRunning(this)
 
         // La bulle du splash « éclate » : elle gonfle et se dissout en révélant l'appli.
         splash.setOnExitAnimationListener { provider ->

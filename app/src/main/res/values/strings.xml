@@ -1,7 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Bulle</string>
+    <string name="app_name" translatable="false">Bulle</string>
     <string name="home_tagline">Ta Dynamic Island, autour de la caméra.</string>
-    <string name="home_wip">Les premières briques sont posées. L’île arrive bientôt.</string>
     <string name="home_version">Version %1$s</string>
+
+    <string name="home_service_title">Service de l’île</string>
+    <string name="home_service_running">Actif : l’île est posée sur la caméra.</string>
+    <string name="home_service_enabled_not_running">Coché mais arrêté par le système.</string>
+    <string name="home_service_off">Désactivé. Active Bulle dans l’accessibilité.</string>
+    <string name="home_open_accessibility">Ouvrir l’accessibilité</string>
+    <string name="home_island_switch">Afficher l’île</string>
+
+    <string name="a11y_summary">Affiche l’île autour du trou de la caméra.</string>
+    <string name="a11y_description">Bulle utilise l’accessibilité uniquement pour afficher l’île par-dessus les autres applis, connaître le nom de l’appli au premier plan (pour masquer l’île dans les applis choisies) et exécuter les actions de gestes que tu configures (retour, accueil, capture…). Bulle ne lit jamais le contenu de l’écran et rien ne quitte ton téléphone.</string>
+
+    <string name="keepalive_channel">Maintien de l’île</string>
+    <string name="keepalive_channel_desc">Notification discrète qui empêche le système de couper Bulle.</string>
+    <string name="keepalive_title">Bulle veille</string>
+    <string name="keepalive_text">L’île reste active en arrière-plan.</string>
+
+    <string name="tile_label" translatable="false">Bulle</string>
+    <string name="tile_on">Île affichée</string>
+    <string name="tile_off">Île masquée</string>
+    <string name="tile_service_off">Service désactivé</string>
 </resources>

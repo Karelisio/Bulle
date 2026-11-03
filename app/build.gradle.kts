@@ -119,6 +119,7 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.work.runtime)
     implementation(libs.datastore.preferences)
+    implementation(libs.datastore)
     implementation(libs.palette)
     implementation(libs.coroutines.android)
     implementation(libs.serialization.json)

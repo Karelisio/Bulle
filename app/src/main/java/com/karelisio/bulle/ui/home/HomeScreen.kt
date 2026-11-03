@@ -1,76 +1,177 @@
 package com.karelisio.bulle.ui.home
 
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.Morph
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karelisio.bulle.BuildConfig
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.settings.BulleSettings
+import com.karelisio.bulle.core.settings.SettingsRepository
+import com.karelisio.bulle.island.IslandAccessibilityService
+import com.karelisio.bulle.system.Reliability
 import com.karelisio.bulle.ui.components.MorphShape
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val settings by remember { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
+    val running by IslandAccessibilityService.running.collectAsStateWithLifecycle()
+    var enabledInSystem by remember { mutableStateOf(Reliability.isAccessibilityEnabled(context)) }
+    LifecycleResumeEffect(Unit) {
+        enabledInSystem = Reliability.isAccessibilityEnabled(context)
+        onPauseOrDispose { }
+    }
+
     Scaffold { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            BreathingBubble()
             Spacer(Modifier.height(32.dp))
+            BreathingBubble()
+            Spacer(Modifier.height(24.dp))
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
-            Spacer(Modifier.height(8.dp))
             Text(
                 text = stringResource(R.string.home_tagline),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = stringResource(R.string.home_wip),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
+            Spacer(Modifier.height(32.dp))
+
+            ServiceCard(
+                running = running,
+                enabledInSystem = enabledInSystem,
+                onOpenAccessibility = {
+                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                },
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
+            Card(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+                Row(
+                    Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.home_island_switch),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(
+                        checked = settings.islandEnabled,
+                        onCheckedChange = { on ->
+                            scope.launch { SettingsRepository.update(context) { it.copy(islandEnabled = on) } }
+                        },
+                    )
+                }
+            }
+            Spacer(Modifier.height(24.dp))
             Text(
                 text = stringResource(R.string.home_version, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.outline,
             )
+        }
+    }
+}
+
+@Composable
+private fun ServiceCard(running: Boolean, enabledInSystem: Boolean, onOpenAccessibility: () -> Unit) {
+    val ok = running
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = if (ok) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
+        ),
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                AnimatedContent(ok, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "icon") { good ->
+                    Icon(
+                        if (good) Icons.Rounded.CheckCircle else Icons.Rounded.ErrorOutline,
+                        contentDescription = null,
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Text(stringResource(R.string.home_service_title), style = MaterialTheme.typography.titleMedium)
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(
+                    when {
+                        running -> R.string.home_service_running
+                        enabledInSystem -> R.string.home_service_enabled_not_running
+                        else -> R.string.home_service_off
+                    },
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            if (!running) {
+                Spacer(Modifier.height(12.dp))
+                Button(onClick = onOpenAccessibility) { Text(stringResource(R.string.home_open_accessibility)) }
+            }
         }
     }
 }
@@ -88,7 +189,7 @@ private fun BreathingBubble() {
     val morph = remember { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
     Box(
         modifier = Modifier
-            .size(140.dp)
+            .size(120.dp)
             .graphicsLayer {
                 val s = 1f + 0.06f * progress
                 scaleX = s; scaleY = s
@@ -100,7 +201,7 @@ private fun BreathingBubble() {
         Box(
             Modifier
                 .align(Alignment.Center)
-                .size(56.dp)
+                .size(48.dp)
                 .clip(MaterialShapes.Circle.toShape())
                 .background(MaterialTheme.colorScheme.primary),
         )
