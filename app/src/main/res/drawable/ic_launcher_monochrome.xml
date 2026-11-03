@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Grande bulle -->
+    <path
+        android:fillColor="#2EFFFFFF"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3"
+        android:pathData="M50,36a20,20 0,1 1,0 40a20,20 0,1 1,0 -40z" />
+    <!-- Reflet en arc -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:pathData="M37.5,52.5a13,13 0,0 1,9 -10" />
+    <!-- Petite bulle détachée -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M75,27a6,6 0,1 1,0 12a6,6 0,1 1,0 -12z" />
+</vector>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Prise en main -->
+    <string name="onb_skip">Passer</string>
+    <string name="onb_next">Suivant</string>
+    <string name="onb_later">Plus tard</string>
+    <string name="onb_allow">Autoriser</string>
+    <string name="onb_granted">C’est accordé</string>
+    <string name="onb_done_check">C’est fait</string>
+    <string name="onb_start">C’est parti</string>
+    <string name="onb_page_indicator">Page %1$d sur %2$d</string>
+    <string name="onb_step_label">Autorisation %1$d sur %2$d</string>
+
+    <string name="onb_intro1_title">Une île vivante</string>
+    <string name="onb_intro1_body">Bulle se pose autour de la caméra et change de forme selon ce qui se passe : une pilule discrète, une vue compacte, puis une carte complète d’un simple geste.</string>
+    <string name="onb_intro2_title">Deux choses à la fois</string>
+    <string name="onb_intro2_body">Un minuteur et ta musique ? La bulle se scinde en deux pour tout garder sous les yeux.</string>
+    <string name="onb_intro3_title">Faite pour tes doigts</string>
+    <string name="onb_intro3_body">Touche, glisse, maintiens : chaque geste déclenche l’action de ton choix. Et tout reste sur ton téléphone.</string>
+
+    <string name="onb_finish_title">Tout est prêt</string>
+    <string name="onb_finish_body">L’île t’attend autour de la caméra. Tu pourras revoir chaque autorisation dans les réglages de Bulle.</string>
+    <string name="onb_finish_missing">Autorisations indispensables manquantes : %1$d. Tu pourras y revenir plus tard.</string>
+
+    <!-- Autorisations -->
+    <string name="perm_restricted_title">Paramètres restreints</string>
+    <string name="perm_restricted_desc">Débloque l’accessibilité et l’accès aux notifications pour une appli installée hors Play Store.</string>
+    <string name="perm_restricted_body">Android bloque certains réglages sensibles pour les applis installées hors Play Store. Débloque-les une fois, avant de continuer.</string>
+    <string name="perm_restricted_step1">Ouvre la fiche de Bulle avec le bouton ci-dessous.</string>
+    <string name="perm_restricted_step2">Touche le menu ⋮ en haut à droite, puis « Autoriser les paramètres restreints » et confirme.</string>
+    <string name="perm_restricted_step3">Pas de menu ⋮ ? Essaie d’abord d’activer Bulle dans l’accessibilité (étape suivante) : l’option apparaît après le message « Paramètre restreint ».</string>
+    <string name="perm_restricted_open">Ouvrir la fiche de Bulle</string>
+
+    <string name="perm_accessibility_title">Service d’accessibilité</string>
+    <string name="perm_accessibility_desc">Affiche l’île par-dessus les autres applis et exécute tes gestes.</string>
+    <string name="perm_accessibility_body">C’est le cœur de Bulle : il dessine l’île autour de la caméra et exécute les gestes que tu choisis. Bulle ne lit jamais le contenu de l’écran.</string>
+    <string name="perm_accessibility_hint">Dans la liste, touche « Bulle » (parfois rangée sous « Applis installées » ou « Services téléchargés »), puis active-la.</string>
+
+    <string name="perm_notif_access_title">Accès aux notifications</string>
+    <string name="perm_notif_access_desc">Musique, minuteurs, appels et suivis en direct dans l’île.</string>
+    <string name="perm_notif_access_body">Bulle lit les notifications pour afficher la musique, les minuteurs, les appels et les suivis en direct. Rien n’est stocké ni envoyé ailleurs.</string>
+
+    <string name="perm_post_notif_title">Notifications de Bulle</string>
+    <string name="perm_post_notif_desc">La notification discrète qui garde l’île en vie.</string>
+    <string name="perm_post_notif_body">Bulle affiche une notification discrète pour que le système ne la coupe pas, et te prévient quand une mise à jour est prête.</string>
+
+    <string name="perm_install_title">Installation d’applis</string>
+    <string name="perm_install_desc">Installer les mises à jour de Bulle depuis l’appli.</string>
+    <string name="perm_install_body">Bulle n’est pas sur le Play Store : cette autorisation lui permet d’installer ses propres mises à jour en un geste.</string>
+
+    <string name="perm_battery_title">Batterie sans restriction</string>
+    <string name="perm_battery_desc">Empêche le système d’endormir l’île.</string>
+    <string name="perm_battery_body">Sans cette exemption, le système met Bulle en veille et l’île disparaît au bout de quelques minutes. L’impact sur l’autonomie est négligeable.</string>
+    <string name="perm_battery_honor">Indispensable sur Honor : MagicOS coupe les applis en arrière-plan de façon très agressive.</string>
+
+    <string name="perm_oem_title_honor">Lancement d’applis</string>
+    <string name="perm_oem_title">Optimisation du fabricant</string>
+    <string name="perm_oem_desc">Autoriser Bulle à démarrer et à rester active en arrière-plan.</string>
+    <string name="perm_oem_body_honor">MagicOS décide seul quelles applis peuvent tourner et finit par couper Bulle. Passe-la en gestion manuelle :</string>
+    <string name="perm_oem_step1_honor">Ouvre « Lancement d’applis » avec le bouton ci-dessous.</string>
+    <string name="perm_oem_step2_honor">Trouve Bulle et désactive « Gérer automatiquement ».</string>
+    <string name="perm_oem_step3_honor">Dans la fenêtre qui s’ouvre, active « Démarrage auto », « Démarrage secondaire » et « Exécution en arrière-plan ».</string>
+    <string name="perm_oem_body">Ton téléphone peut couper les applis en arrière-plan. Si l’île disparaît, autorise le démarrage automatique de Bulle dans les réglages du fabricant. Cette étape est facultative.</string>
+    <string name="perm_oem_open">Ouvrir les réglages du fabricant</string>
+    <string name="perm_oem_open_honor">Ouvrir « Lancement d’applis »</string>
+
+    <string name="perm_bluetooth_title">Appareils Bluetooth</string>
+    <string name="perm_bluetooth_desc">Batterie des écouteurs et des appareils connectés.</string>
+    <string name="perm_location_title">Localisation précise</string>
+    <string name="perm_location_desc">Nom du réseau Wi-Fi dans les alertes.</string>
+    <string name="perm_media_title">Lecture des images</string>
+    <string name="perm_media_desc">Aperçu des captures d’écran dans l’île.</string>
+    <string name="perm_write_settings_title">Modification des réglages système</string>
+    <string name="perm_write_settings_desc">Luminosité et rotation depuis le Deck.</string>
+    <string name="perm_secure_title">Réactivation automatique (adb)</string>
+    <string name="perm_secure_desc">Permet à Bulle de rallumer son service si le système le coupe. S’accorde depuis un ordinateur.</string>
+
+    <string name="permissions_title">Autorisations</string>
+    <string name="perm_section_essential">Indispensables</string>
+    <string name="perm_section_on_demand">Selon les fonctions</string>
+    <string name="perm_section_on_demand_desc">Demandées seulement quand tu actives la fonction concernée.</string>
+    <string name="perm_section_advanced">Avancé</string>
+    <string name="perm_state_granted">Accordée</string>
+    <string name="perm_state_denied">Refusée</string>
+    <string name="perm_state_pending">À confirmer</string>
+    <string name="perm_state_optional">Facultative</string>
+    <string name="perm_open">Ouvrir</string>
+    <string name="perm_manage">Gérer</string>
+    <string name="perm_copy_command">Copier la commande</string>
+
+    <!-- Fiabilité -->
+    <string name="reliability_title">Fiabilité</string>
+    <string name="rel_running_title">L’île est active</string>
+    <string name="rel_running_text">Le service d’accessibilité est relié. Tout va bien.</string>
+    <string name="rel_killed_title">Le système a coupé l’île</string>
+    <string name="rel_killed_text">Bulle est cochée dans l’accessibilité, mais le système a arrêté le service. Désactive puis réactive Bulle, ou utilise la réactivation automatique.</string>
+    <string name="rel_disabled_title">Service désactivé</string>
+    <string name="rel_disabled_text">Bulle n’est pas cochée dans l’accessibilité. Le système l’a peut-être retirée après une mise à jour ou un redémarrage.</string>
+    <string name="rel_open_accessibility">Ouvrir l’accessibilité</string>
+    <string name="rel_reenable_now">Réactiver maintenant</string>
+    <string name="rel_force_rebind">Forcer la reconnexion</string>
+    <string name="rel_reenabled">Demande envoyée au système</string>
+    <string name="rel_reenable_failed">Réactivation refusée : accorde d’abord l’autorisation via adb.</string>
+    <string name="rel_status_section">État</string>
+    <string name="rel_accessibility">Service d’accessibilité</string>
+    <string name="rel_state_active">Actif</string>
+    <string name="rel_state_killed">Coupé</string>
+    <string name="rel_state_off">Désactivé</string>
+    <string name="rel_notifications">Accès aux notifications</string>
+    <string name="rel_notif_connected">Connecté</string>
+    <string name="rel_notif_waiting">En attente</string>
+    <string name="rel_battery">Optimisation de la batterie</string>
+    <string name="rel_battery_exempt">Exclue</string>
+    <string name="rel_battery_active">Active</string>
+    <string name="rel_keepalive">Service de maintien</string>
+    <string name="rel_keepalive_stopped">Arrêté</string>
+    <string name="rel_restart">Relancer</string>
+    <string name="rel_adb_section">Réactivation automatique</string>
+    <string name="rel_adb_text">Avec cette autorisation spéciale, Bulle rallume elle-même son service d’accessibilité quand le système le coupe. Elle s’accorde une seule fois depuis un ordinateur : active le débogage USB, branche le téléphone, puis lance :</string>
+    <string name="rel_adb_note">L’autorisation reste valable jusqu’à la désinstallation de Bulle.</string>
+    <string name="rel_copied">Commande copiée</string>
+    <string name="rel_copy">Copier</string>
+    <string name="rel_oem_section">Lancement d’applis</string>
+</resources>

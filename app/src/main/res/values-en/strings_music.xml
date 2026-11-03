@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Music module -->
+    <string name="module_music">Music</string>
+    <string name="music_play">Play</string>
+    <string name="music_pause">Pause</string>
+    <string name="music_previous">Previous track</string>
+    <string name="music_next">Next track</string>
+    <string name="music_open_player">Open player</string>
+    <string name="music_lyrics_source">Lyrics: %1$s</string>
+    <string name="music_source_lrclib">LRCLIB</string>
+    <string name="music_source_player">player</string>
+
+    <!-- Settings -->
+    <string name="music_back">Back</string>
+    <string name="music_setting_enable">Show music</string>
+    <string name="music_setting_enable_summary">Artwork and equalizer around the camera, full player on tap.</string>
+    <string name="music_access_needed">Bulle needs notification access to see what is playing. Nothing leaves your phone.</string>
+    <string name="music_access_grant">Grant access</string>
+    <string name="music_setting_hide_paused">Hide when paused</string>
+    <string name="music_setting_hide_paused_summary">The player leaves the island after %1$d min of pause.</string>
+    <string name="music_setting_lyrics">Synced lyrics</string>
+    <string name="music_setting_lyrics_summary">Shows lyrics scrolling in time in the expanded view (from the player or the local cache).</string>
+    <string name="music_setting_online">Search lyrics online</string>
+    <string name="music_setting_online_summary">Uses lrclib.net (free, no account). Only the track title, artist, album and duration are sent to lrclib.net.</string>
+    <string name="music_cache_title">Lyrics cache</string>
+    <plurals name="music_cache_count">
+        <item quantity="one">%1$d track saved on this device</item>
+        <item quantity="other">%1$d tracks saved on this device</item>
+    </plurals>
+    <string name="music_cache_clear">Clear</string>
+    <string name="music_cache_cleared">Lyrics cache cleared</string>
+</resources>

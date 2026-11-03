@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mise à jour in-app -->
+    <string name="update_available_title">Nouvelle version disponible</string>
+    <string name="update_version_line">Bulle %1$s · vous avez %2$s</string>
+    <string name="update_whats_new">Nouveautés</string>
+    <string name="update_no_changelog">Aucune note de version.</string>
+    <string name="update_download">Télécharger et installer</string>
+    <string name="update_later">Plus tard</string>
+    <string name="update_skip">Ignorer cette version</string>
+    <string name="update_downloading">Téléchargement…</string>
+    <string name="update_bytes">%1$s sur %2$s</string>
+    <string name="update_installing">Installation…</string>
+    <string name="update_install_confirm_hint">Confirmez l’installation dans la fenêtre du système.</string>
+    <string name="update_failed">Échec : %1$s</string>
+    <string name="update_retry">Réessayer</string>
+    <string name="update_cancel">Annuler</string>
+    <string name="update_permission_needed">Pour installer la mise à jour, autorisez Bulle à installer des applis.</string>
+    <string name="update_permission_grant">Autoriser l’installation</string>
+    <string name="update_size">Taille : %1$s</string>
+    <string name="update_view_on_github">Voir sur GitHub</string>
+
+    <!-- Sauvegarde / restauration -->
+    <string name="backup_title">Sauvegarde</string>
+    <string name="backup_export">Exporter les réglages</string>
+    <string name="backup_export_desc">Enregistre tous vos réglages dans un fichier JSON de votre choix.</string>
+    <string name="backup_import">Importer des réglages</string>
+    <string name="backup_import_desc">Remplace vos réglages actuels par ceux d’un fichier exporté.</string>
+    <string name="backup_auto">Sauvegarde automatique</string>
+    <string name="backup_auto_desc">Une fois par jour, dans le stockage privé de l’appli. Les 7 dernières sont conservées.</string>
+    <string name="backup_auto_list">Sauvegardes automatiques</string>
+    <string name="backup_auto_empty">Aucune sauvegarde automatique pour l’instant.</string>
+    <string name="backup_now">Sauvegarder maintenant</string>
+    <string name="backup_restore">Restaurer</string>
+    <string name="backup_confirm_title">Remplacer les réglages ?</string>
+    <string name="backup_confirm_text">Vos réglages actuels seront écrasés par ceux de cette sauvegarde (version %1$s, %2$s). Cette action est irréversible.</string>
+    <string name="backup_confirm_ok">Remplacer</string>
+    <string name="backup_cancel">Annuler</string>
+    <string name="backup_exported">Réglages exportés.</string>
+    <string name="backup_restored">Réglages restaurés.</string>
+    <string name="backup_saved">Sauvegarde créée.</string>
+    <string name="backup_error_json">Ce fichier n’est pas un JSON valide.</string>
+    <string name="backup_error_format">Ce fichier n’est pas une sauvegarde Bulle.</string>
+    <string name="backup_error_schema">Sauvegarde créée par une version plus récente de Bulle : mettez l’appli à jour.</string>
+    <string name="backup_error_io">Lecture ou écriture impossible : %1$s</string>
+    <string name="backup_unknown_version">inconnue</string>
+    <string name="backup_last_auto">Dernière sauvegarde automatique : %1$s</string>
+
+    <!-- À propos -->
+    <string name="about_title">À propos</string>
+    <string name="about_version">Version %1$s (%2$d)</string>
+    <string name="about_tagline">La Dynamic Island, à la façon Android.</string>
+    <string name="about_check_update">Rechercher une mise à jour</string>
+    <string name="about_checking">Recherche…</string>
+    <string name="about_up_to_date">Bulle est à jour.</string>
+    <string name="about_update_available">Version %1$s disponible</string>
+    <string name="about_update_error">Vérification impossible : %1$s</string>
+    <string name="about_github">Code source sur GitHub</string>
+    <string name="about_changelog">Historique des versions</string>
+    <string name="about_changelog_missing">Historique indisponible.</string>
+    <string name="about_privacy_title">Vie privée</string>
+    <string name="about_privacy_local">100 % locale : tout reste sur votre téléphone.</string>
+    <string name="about_privacy_account">Aucun compte, aucune inscription.</string>
+    <string name="about_privacy_analytics">Aucune statistique d’usage, aucun traqueur, aucune publicité.</string>
+    <string name="about_permissions">Autorisations</string>
+    <string name="about_permissions_manage">Configurer les autorisations</string>
+    <string name="about_permission_open">Gérer</string>
+    <string name="about_permission_granted">Accordée</string>
+    <string name="about_permission_denied">Non accordée</string>
+    <string name="about_copy">Copier</string>
+    <string name="about_copied">Commande copiée.</string>
+
+    <string name="perm_accessibility">Accessibilité</string>
+    <string name="perm_accessibility_why">Affiche l’île par-dessus les autres applis et détecte le plein écran. Bulle ne lit pas le contenu de vos écrans.</string>
+    <string name="perm_listener">Accès aux notifications</string>
+    <string name="perm_listener_why">Transforme vos notifications, appels et lectures musicales en activités dans l’île.</string>
+    <string name="perm_notifications">Notifications</string>
+    <string name="perm_notifications_why">Notification discrète du service qui garde l’île en vie.</string>
+    <string name="perm_install">Installation d’applis</string>
+    <string name="perm_install_why">Installe les mises à jour de Bulle téléchargées depuis GitHub, après votre confirmation.</string>
+    <string name="perm_battery">Optimisation de la batterie</string>
+    <string name="perm_battery_why">Évite que le système n’arrête l’île en arrière-plan.</string>
+    <string name="perm_bluetooth">Bluetooth</string>
+    <string name="perm_bluetooth_why">Alerte de connexion d’écouteurs et niveau de batterie des appareils.</string>
+    <string name="perm_location">Localisation</string>
+    <string name="perm_location_why">Exigée par Android pour lire le nom du réseau Wi-Fi. Votre position n’est jamais utilisée.</string>
+    <string name="perm_images">Images</string>
+    <string name="perm_images_why">Détecte les nouvelles captures d’écran pour en afficher l’aperçu.</string>
+    <string name="perm_write_settings">Modification des réglages système</string>
+    <string name="perm_write_settings_why">Gestes qui changent la luminosité, la rotation ou d’autres réglages.</string>
+    <string name="perm_secure_settings">Réglages sécurisés (adb)</string>
+    <string name="perm_secure_settings_why">Optionnelle : réactive automatiquement le service d’accessibilité s’il est coupé. Accordée uniquement via adb ; pour la retirer :</string>
+    <string name="perm_internet">Internet</string>
+    <string name="perm_internet_why">Uniquement pour les paroles synchronisées (LRCLIB) et la recherche de mises à jour (GitHub). Aucune autre donnée n’est envoyée.</string>
+</resources>

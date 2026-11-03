@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Calls" module -->
+    <string name="module_call">Calls</string>
+    <string name="call_unknown">Call</string>
+    <string name="call_incoming">Incoming call</string>
+    <string name="call_incoming_video">Incoming video call</string>
+    <string name="call_screening">Screening call</string>
+    <string name="call_answer">Answer</string>
+    <string name="call_decline">Decline</string>
+    <string name="call_hang_up">Hang up</string>
+    <string name="call_settings_title">Calls</string>
+    <string name="call_settings_back">Back</string>
+    <string name="call_settings_enable">Show calls in the island</string>
+    <string name="call_settings_enable_summary">Incoming and ongoing calls, with their duration.</string>
+    <string name="call_settings_auto_expand">Open the island when ringing</string>
+    <string name="call_settings_auto_expand_summary">Answer and Decline buttons right under your thumb.</string>
+    <string name="call_settings_privacy">No phone permission: Bulle only uses the buttons of the call notification.</string>
+</resources>

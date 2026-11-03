@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chaînes du module Alertes système et du module Écho (français, langue par défaut). -->
+<resources>
+    <string name="alerts_module_title">Alertes système</string>
+    <string name="alerts_percent">%1$d %%</string>
+    <string name="alerts_on">Activé</string>
+    <string name="alerts_off">Désactivé</string>
+
+    <!-- Île -->
+    <string name="alerts_charging">En charge</string>
+    <string name="alerts_charging_fast">Charge rapide</string>
+    <string name="alerts_charging_wireless">Charge sans fil</string>
+    <string name="alerts_low_battery">Batterie faible</string>
+    <string name="alerts_low_battery_left">%1$d %% restants</string>
+    <string name="alerts_battery_saver">Économie d’énergie</string>
+    <string name="alerts_bt_connected">Connecté</string>
+    <string name="alerts_bt_device">Appareil Bluetooth</string>
+    <string name="alerts_bt_battery">batterie %1$d %%</string>
+    <string name="alerts_wifi_short">Wi-Fi</string>
+    <string name="alerts_wifi_connected">Wi-Fi connecté</string>
+    <string name="alerts_alarm">Alarme</string>
+    <string name="alerts_torch">Lampe torche</string>
+    <string name="alerts_torch_on">Allumée</string>
+    <string name="alerts_torch_off">Éteindre</string>
+    <string name="alerts_airplane">Mode avion</string>
+    <string name="alerts_dnd">Ne pas déranger</string>
+    <string name="alerts_screenshot">Capture d’écran</string>
+    <string name="alerts_screenshot_saved">Enregistrée dans la galerie</string>
+    <string name="alerts_share">Partager</string>
+    <string name="alerts_delete">Supprimer</string>
+    <string name="alerts_pkg_installed_short">Installée</string>
+    <string name="alerts_pkg_removed_short">Supprimée</string>
+    <string name="alerts_pkg_installed">Appli installée</string>
+    <string name="alerts_pkg_removed">Appli désinstallée</string>
+    <string name="alerts_pkg_open">Ouvrir</string>
+    <string name="alerts_pkg_reinstall">Réinstaller</string>
+    <string name="alerts_copied">Copié</string>
+
+    <!-- Réglages -->
+    <string name="alerts_settings_title">Alertes</string>
+    <string name="alerts_back">Retour</string>
+    <string name="alerts_master">Alertes système</string>
+    <string name="alerts_master_desc">De brèves animations dans l’île quand l’état du téléphone change.</string>
+    <string name="alerts_group_energy">Énergie</string>
+    <string name="alerts_group_connections">Connexions</string>
+    <string name="alerts_group_system">Système</string>
+    <string name="alerts_preview">Aperçu</string>
+    <string name="alerts_grant">Autoriser</string>
+    <string name="alerts_open_settings">Réglages</string>
+    <string name="alerts_notif_access_needed">L’alarme et Écho ont besoin de l’accès aux notifications.</string>
+    <string name="alerts_needs_notif_access">Accès aux notifications requis.</string>
+    <string name="alerts_perm_denied">Permission refusée : l’alerte reste désactivée.</string>
+    <string name="alerts_perm_missing">Permission retirée : l’alerte ne peut plus fonctionner.</string>
+    <string name="alerts_perm_bluetooth_denied">Sans l’autorisation « Appareils à proximité », Bulle ne voit pas tes appareils Bluetooth. Alerte désactivée.</string>
+    <string name="alerts_perm_wifi_denied">Sans la localisation précise, Android masque le nom du réseau : l’île affichera seulement « Wi-Fi connecté ».</string>
+    <string name="alerts_perm_screenshot_denied">Sans l’accès aux photos, Bulle ne peut pas repérer les captures. Alerte désactivée.</string>
+    <string name="alerts_set_low_battery">Batterie faible</string>
+    <string name="alerts_set_low_battery_desc">Batterie qui clignote quand un seuil est franchi.</string>
+    <string name="alerts_set_thresholds">Prévenir à</string>
+    <string name="alerts_set_charging">Branchement</string>
+    <string name="alerts_set_charging_desc">Niveau et remplissage animé, charge rapide ou sans fil.</string>
+    <string name="alerts_set_bluetooth">Appareils Bluetooth</string>
+    <string name="alerts_set_bluetooth_desc">Casque, enceinte ou montre connectés, avec leur batterie.</string>
+    <string name="alerts_set_wifi">Wi-Fi</string>
+    <string name="alerts_set_wifi_desc">Connexion à un réseau, avec son nom (localisation précise).</string>
+    <string name="alerts_set_airplane">Mode avion</string>
+    <string name="alerts_set_airplane_desc">Activation et désactivation.</string>
+    <string name="alerts_set_alarm">Alarme qui sonne</string>
+    <string name="alerts_set_alarm_desc">Arrêter ou répéter depuis l’île, même en plein écran.</string>
+    <string name="alerts_set_torch">Lampe torche</string>
+    <string name="alerts_set_torch_desc">Reste dans l’île tant qu’elle est allumée, avec variateur.</string>
+    <string name="alerts_set_dnd">Ne pas déranger</string>
+    <string name="alerts_set_dnd_desc">Activation et désactivation.</string>
+    <string name="alerts_set_screenshot">Captures d’écran</string>
+    <string name="alerts_set_screenshot_desc">Miniature, partage et suppression rapide.</string>
+    <string name="alerts_set_packages">Applis installées</string>
+    <string name="alerts_set_packages_desc">Installation et désinstallation d’applis.</string>
+    <string name="alerts_set_clipboard">Presse-papiers</string>
+    <string name="alerts_set_clipboard_desc">« Copié », sans jamais lire le contenu. Peut ne pas fonctionner en arrière-plan selon Android.</string>
+    <string name="alerts_privacy">Tout est détecté sur le téléphone : rien n’est enregistré ni envoyé.</string>
+    <string name="alerts_preview_wifi">Maison</string>
+    <string name="alerts_preview_bt">Écouteurs</string>
+
+    <!-- Écho -->
+    <string name="echo_module_title">Écho</string>
+    <string name="echo_name" translatable="false">Écho</string>
+    <string name="echo_default_title">Nouveau message</string>
+    <string name="echo_preview_title">Une pensée pour toi</string>
+    <string name="echo_group">Écho</string>
+    <string name="echo_set">Cœur Écho</string>
+    <string name="echo_set_desc">Un cœur qui bat dans l’île à chaque notification d’Écho.</string>
+</resources>

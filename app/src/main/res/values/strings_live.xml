@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module « Activités en cours » (Live updates) -->
+    <string name="module_live">Activités en cours</string>
+    <string name="live_settings_title">Activités en cours</string>
+    <string name="live_settings_back">Retour</string>
+    <string name="live_settings_enable">Afficher les activités en cours</string>
+    <string name="live_settings_enable_summary">Minuteurs, chronos, guidage, livraisons, VTC… dans l’île.</string>
+    <string name="live_settings_generic">Téléchargements et progressions</string>
+    <string name="live_settings_generic_summary">Inclure aussi les barres de progression ordinaires des applis.</string>
+    <string name="live_settings_now_header">En ce moment</string>
+    <string name="live_settings_now_empty">Aucune activité en cours détectée.</string>
+    <string name="live_settings_excluded_header">Applis exclues</string>
+    <string name="live_settings_excluded_empty">Aucune appli exclue.</string>
+    <string name="live_settings_exclude">Exclure</string>
+    <string name="live_settings_include">Réafficher</string>
+    <string name="live_settings_privacy">Les activités sont lues dans tes notifications, uniquement sur ton téléphone.</string>
+</resources>
