@@ -9,7 +9,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.ui.draw.drawWithContent
+import com.karelisio.bulle.core.island.Priority
 import androidx.compose.foundation.border
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -166,6 +170,16 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     val anim = remember { SurfaceAnim(target) }
     val currentController by rememberUpdatedState(controller)
 
+    // --- Éclat : la fenêtre s'élargit le temps que les bulles s'envolent ---
+    val burstPad = with(density) { 44.dp.toPx() }.toInt()
+    val burstState = remember { BurstState() }
+    fun applyWin(r: WindowRequest) {
+        burstState.lastRequest = r
+        currentController.applyWindow(
+            if (burstState.active) r.copy(width = r.width + 2 * burstPad, height = r.height + burstPad, touchable = r.touchable) else r,
+        )
+    }
+
     // --- Bulle secondaire (détachée à droite de la principale, en mode compact) ---
     val secondary = state.secondary.takeIf { mode == Mode.COMPACT }
     var lastSecondary by remember { mutableStateOf<IslandContent?>(null) }
@@ -183,7 +197,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
             if (settled) secTarget.x + secTarget.y else max(secOffset.value + secRadius.value, secTarget.x + secTarget.y) * (1f + motion.overshoot / 4)
         }
         // 1) La fenêtre englobe l'état courant ET la cible (+ dépassement du ressort).
-        currentController.applyWindow(envelope(anim, target, motion.overshoot, px.shadow, settled = false, secExtent(false)))
+        applyWin(envelope(anim, target, motion.overshoot, px.shadow, settled = false, secExtent(false)))
         // 2) Animation au ressort : tout ensemble.
         val growing = target.width * target.height >= anim.width.value * anim.height.value
         val spec = if (growing) motion.grow() else motion.shrink()
@@ -198,7 +212,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
             launch { secRadius.animateTo(secTarget.y, if (secTarget.y > 0f) motion.grow() else motion.merge()) }
         }
         // 3) Une fois posée, la fenêtre se resserre exactement sur l'île.
-        currentController.applyWindow(envelope(anim, target, 0f, px.shadow, settled = true, secExtent(true)))
+        applyWin(envelope(anim, target, 0f, px.shadow, settled = true, secExtent(true)))
     }
 
     // Retour haptique discret quand l'île s'ouvre ou se ferme.
@@ -209,6 +223,33 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
             view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
         }
         lastMode = mode.ordinal
+    }
+
+    // Éclat à chaque alerte ponctuelle, reflet irisé à chaque changement de contenu.
+    val burstAnim = remember { Animatable(0f) }
+    val shimmer = remember { Animatable(0f) }
+    val primary = state.primary
+    val accent = primary?.accent ?: scheme.primary
+    LaunchedEffect(primary?.key) {
+        if (reduceMotion || primary == null || mode == Mode.HIDDEN) return@LaunchedEffect
+        launch {
+            if (style.shimmer) {
+                shimmer.snapTo(0f)
+                shimmer.animateTo(1f, tween((900 / state.motion.speed.coerceIn(0.5f, 2f)).toInt(), easing = LinearEasing))
+            }
+        }
+        if (primary.priority != Priority.ALERT || primary.timeoutMs == null) return@LaunchedEffect
+        burstState.burst = Burst(primary.key.hashCode() xor primary.postedAt.toInt(), accent)
+        try {
+            burstState.active = true
+            burstState.lastRequest?.let(::applyWin)
+            burstAnim.snapTo(0f)
+            burstAnim.animateTo(1f, tween(1300, easing = LinearEasing))
+        } finally {
+            burstState.active = false
+            burstState.burst = null
+            burstState.lastRequest?.let(::applyWin)
+        }
     }
 
     val compactAlpha = remember { Animatable(0f) }
@@ -255,6 +296,10 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                     shadowElevation = if (mode == Mode.EXPANDED || (style.shadow && mode != Mode.HIDDEN)) 8.dp.toPx() else 0f
                 }
                 .then(if (LiquidSupported) Modifier else Modifier.background(fill))
+                .drawWithContent {
+                    drawContent()
+                    drawShimmer(shimmer.value, accent)
+                }
                 .then(if (!LiquidSupported && style.outline) Modifier.border(with(density) { outlinePx.toDp() }, outlineColor, RoundedCornerShape(50)) else Modifier)
                 .islandGestures(enabled = mode != Mode.HIDDEN, doubleTap = state.doubleTapEnabled, onGesture = controller::onGesture),
         ) {
@@ -317,7 +362,19 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
             fullRadius = secR,
             onTap = controller::swapBubbles,
         )
+        // Éclat : bulles irisées autour de l'île.
+        Canvas(Modifier.fillMaxSize()) {
+            val b = burstState.burst ?: return@Canvas
+            b.draw(this, burstAnim.value, size.width / 2 + anim.offsetX.value, 0f, anim.width.value, anim.height.value, density.density)
+        }
     }
+}
+
+/** État de l'éclat en cours (lu hors composition). */
+private class BurstState {
+    var active = false
+    var burst: Burst? = null
+    var lastRequest: WindowRequest? = null
 }
 
 @Composable
