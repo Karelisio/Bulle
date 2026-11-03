@@ -187,16 +187,20 @@ fun HomeScreen(onOpen: (String) -> Unit = {}) {
 
 @Composable
 private fun ServiceCard(running: Boolean, enabledInSystem: Boolean, onOpenAccessibility: () -> Unit) {
+    val reason by com.karelisio.bulle.island.islandHiddenReason.collectAsStateWithLifecycle()
+    val base = stringResource(
+        when {
+            running -> R.string.home_service_running
+            enabledInSystem -> R.string.home_service_enabled_not_running
+            else -> R.string.home_service_off
+        },
+    )
+    // Diagnostic : pourquoi l'île est masquée en ce moment.
+    val why = if (running) reason?.let { stringResource(R.string.home_hidden_reason, stringResource(it.labelRes())) } else null
     StatusCard(
         ok = running,
         title = stringResource(R.string.home_service_title),
-        text = stringResource(
-            when {
-                running -> R.string.home_service_running
-                enabledInSystem -> R.string.home_service_enabled_not_running
-                else -> R.string.home_service_off
-            },
-        ),
+        text = if (why != null) "$base\n$why" else base,
         action = stringResource(R.string.home_open_accessibility),
         onAction = onOpenAccessibility,
     )
@@ -281,4 +285,13 @@ private fun SettingsSection(onOpen: (String) -> Unit) {
             }
         }
     }
+}
+
+private fun com.karelisio.bulle.island.HiddenReason.labelRes(): Int = when (this) {
+    com.karelisio.bulle.island.HiddenReason.DISABLED -> R.string.hidden_disabled
+    com.karelisio.bulle.island.HiddenReason.RULE -> R.string.hidden_rule
+    com.karelisio.bulle.island.HiddenReason.FULLSCREEN -> R.string.hidden_fullscreen
+    com.karelisio.bulle.island.HiddenReason.LANDSCAPE -> R.string.hidden_landscape
+    com.karelisio.bulle.island.HiddenReason.LOCKSCREEN -> R.string.hidden_lockscreen
+    com.karelisio.bulle.island.HiddenReason.HIDDEN_APP -> R.string.hidden_app
 }

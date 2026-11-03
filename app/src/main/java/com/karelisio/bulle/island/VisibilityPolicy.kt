@@ -13,15 +13,21 @@ data class ScreenEnv(
 )
 
 /** Décide si l'île doit être visible. */
+/** Pourquoi l'île est masquée (null = visible). */
+enum class HiddenReason { DISABLED, RULE, FULLSCREEN, LANDSCAPE, LOCKSCREEN, HIDDEN_APP }
+
 object VisibilityPolicy {
-    fun isVisible(settings: BulleSettings, screen: ScreenEnv, foregroundPackage: String?): Boolean {
-        if (!settings.islandEnabled) return false
-        screen.ruleVisibility?.let { return it }
+    fun isVisible(settings: BulleSettings, screen: ScreenEnv, foregroundPackage: String?): Boolean =
+        hiddenReason(settings, screen, foregroundPackage) == null
+
+    fun hiddenReason(settings: BulleSettings, screen: ScreenEnv, foregroundPackage: String?): HiddenReason? {
+        if (!settings.islandEnabled) return HiddenReason.DISABLED
+        screen.ruleVisibility?.let { return if (it) null else HiddenReason.RULE }
         val v = settings.visibility
-        if (v.hideInFullscreen && !screen.statusBarVisible && !screen.locked) return false
-        if (v.hideInLandscape && screen.landscape) return false
-        if (v.hideOnLockscreen && screen.locked) return false
-        if (!screen.locked && foregroundPackage != null && foregroundPackage in v.hiddenApps) return false
-        return true
+        if (v.hideInFullscreen && !screen.statusBarVisible && !screen.locked) return HiddenReason.FULLSCREEN
+        if (v.hideInLandscape && screen.landscape) return HiddenReason.LANDSCAPE
+        if (v.hideOnLockscreen && screen.locked) return HiddenReason.LOCKSCREEN
+        if (!screen.locked && foregroundPackage != null && foregroundPackage in v.hiddenApps) return HiddenReason.HIDDEN_APP
+        return null
     }
 }
