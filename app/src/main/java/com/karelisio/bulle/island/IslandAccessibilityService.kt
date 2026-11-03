@@ -112,6 +112,7 @@ class IslandAccessibilityService : AccessibilityService() {
         _controller.value = null
         runCatching { getSystemService(DisplayManager::class.java).unregisterDisplayListener(displayListener) }
         runCatching { unregisterReceiver(screenReceiver) }
+        controller?.release()
         window?.destroy()
         window = null
         controller = null

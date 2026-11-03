@@ -13,6 +13,8 @@ import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.IslandPanel
 import com.karelisio.bulle.core.island.ModuleEnv
 import com.karelisio.bulle.core.island.Panels
+import com.karelisio.bulle.modules.rules.RuleEffects
+import com.karelisio.bulle.modules.rules.RuleEngine
 import com.karelisio.bulle.modules.search.AppSearchPanel
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.MotionSettings
@@ -67,8 +69,27 @@ class IslandController(
     private val window: IslandWindow,
 ) : IslandHost {
 
-    val settings: StateFlow<BulleSettings> =
+    /** Réglages enregistrés. */
+    val storedSettings: StateFlow<BulleSettings> =
         SettingsRepository.flow(context).stateIn(scope, SharingStarted.Eagerly, BulleSettings())
+
+    private val ruleEffects = MutableStateFlow(RuleEffects())
+
+    /** Réglages effectifs (avec les effets des règles automatiques actives). */
+    val settings: StateFlow<BulleSettings> = combine(storedSettings, ruleEffects) { s, e ->
+        e.motionStyle?.let { s.copy(motion = s.motion.copy(style = it)) } ?: s
+    }.stateIn(scope, SharingStarted.Eagerly, BulleSettings())
+
+    private val rules = RuleEngine(
+        context = context,
+        scope = scope,
+        rules = storedSettings.map { it.rules.rules }.stateIn(scope, SharingStarted.Eagerly, emptyList()),
+        onEffects = { e ->
+            ruleEffects.value = e
+            screen.update { it.copy(ruleVisibility = e.visibility) }
+        },
+        onRun = { runAction(it) },
+    )
 
     private val hub = ContentHub(ModuleEnv(context, scope, settings))
     private val screen = MutableStateFlow(ScreenEnv())
@@ -101,6 +122,7 @@ class IslandController(
     private val seenKeys = HashSet<String>()
 
     init {
+        rules.start()
         // Extension automatique à l'arrivée d'un contenu qui la demande (alerte, appel…).
         scope.launch {
             arrangement.map { it.primary }.collect { primary ->
@@ -207,6 +229,9 @@ class IslandController(
     }
 
     override fun requestInput(enabled: Boolean) = window.setFocusable(enabled)
+
+    /** À appeler quand l'île s'arrête. */
+    fun release() = rules.stop()
 
     /** Échange la bulle principale et la secondaire. */
     fun swapBubbles() {
