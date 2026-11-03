@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Onboarding -->
+    <string name="onb_skip">Skip</string>
+    <string name="onb_next">Next</string>
+    <string name="onb_later">Later</string>
+    <string name="onb_allow">Allow</string>
+    <string name="onb_granted">Granted</string>
+    <string name="onb_done_check">Done</string>
+    <string name="onb_start">Let’s go</string>
+    <string name="onb_page_indicator">Page %1$d of %2$d</string>
+    <string name="onb_step_label">Permission %1$d of %2$d</string>
+
+    <string name="onb_intro1_title">A living island</string>
+    <string name="onb_intro1_body">Bulle sits around the camera and changes shape with what’s happening: a discreet pill, a compact view, then a full card with a single gesture.</string>
+    <string name="onb_intro2_title">Two things at once</string>
+    <string name="onb_intro2_body">A timer and your music? The bubble splits in two so everything stays in sight.</string>
+    <string name="onb_intro3_title">Made for your fingers</string>
+    <string name="onb_intro3_body">Tap, swipe, hold: every gesture triggers the action you choose. And everything stays on your phone.</string>
+
+    <string name="onb_finish_title">All set</string>
+    <string name="onb_finish_body">The island is waiting around your camera. You can review every permission in Bulle’s settings.</string>
+    <string name="onb_finish_missing">Essential permissions still missing: %1$d. You can come back to them later.</string>
+
+    <!-- Permissions -->
+    <string name="perm_restricted_title">Restricted settings</string>
+    <string name="perm_restricted_desc">Unlocks accessibility and notification access for an app installed outside the Play Store.</string>
+    <string name="perm_restricted_body">Android blocks some sensitive settings for apps installed outside the Play Store. Unlock them once before going on.</string>
+    <string name="perm_restricted_step1">Open Bulle’s app info with the button below.</string>
+    <string name="perm_restricted_step2">Tap the ⋮ menu at the top right, then “Allow restricted settings” and confirm.</string>
+    <string name="perm_restricted_step3">No ⋮ menu? First try to enable Bulle in accessibility (next step): the option appears after the “Restricted setting” message.</string>
+    <string name="perm_restricted_open">Open Bulle’s app info</string>
+
+    <string name="perm_accessibility_title">Accessibility service</string>
+    <string name="perm_accessibility_desc">Draws the island over other apps and runs your gestures.</string>
+    <string name="perm_accessibility_body">This is the heart of Bulle: it draws the island around the camera and runs the gestures you choose. Bulle never reads your screen content.</string>
+    <string name="perm_accessibility_hint">In the list, tap “Bulle” (sometimes under “Installed apps” or “Downloaded services”), then turn it on.</string>
+
+    <string name="perm_notif_access_title">Notification access</string>
+    <string name="perm_notif_access_desc">Music, timers, calls and live updates in the island.</string>
+    <string name="perm_notif_access_body">Bulle reads notifications to show music, timers, calls and live updates. Nothing is stored or sent anywhere.</string>
+
+    <string name="perm_post_notif_title">Bulle’s notifications</string>
+    <string name="perm_post_notif_desc">The discreet notification that keeps the island alive.</string>
+    <string name="perm_post_notif_body">Bulle shows a discreet notification so the system doesn’t stop it, and tells you when an update is ready.</string>
+
+    <string name="perm_install_title">Install apps</string>
+    <string name="perm_install_desc">Install Bulle updates from within the app.</string>
+    <string name="perm_install_body">Bulle isn’t on the Play Store: this permission lets it install its own updates in one tap.</string>
+
+    <string name="perm_battery_title">Unrestricted battery</string>
+    <string name="perm_battery_desc">Stops the system from putting the island to sleep.</string>
+    <string name="perm_battery_body">Without this exemption, the system puts Bulle to sleep and the island disappears after a few minutes. The impact on battery life is negligible.</string>
+    <string name="perm_battery_honor">Essential on Honor: MagicOS kills background apps very aggressively.</string>
+
+    <string name="perm_oem_title_honor">App launch</string>
+    <string name="perm_oem_title">Manufacturer optimisation</string>
+    <string name="perm_oem_desc">Allow Bulle to start and stay active in the background.</string>
+    <string name="perm_oem_body_honor">MagicOS decides on its own which apps may run and eventually stops Bulle. Switch it to manual management:</string>
+    <string name="perm_oem_step1_honor">Open “App launch” with the button below.</string>
+    <string name="perm_oem_step2_honor">Find Bulle and turn off “Manage automatically”.</string>
+    <string name="perm_oem_step3_honor">In the dialog, turn on “Auto-launch”, “Secondary launch” and “Run in background”.</string>
+    <string name="perm_oem_body">Your phone may stop apps in the background. If the island disappears, allow Bulle to auto-start in the manufacturer’s settings. This step is optional.</string>
+    <string name="perm_oem_open">Open manufacturer settings</string>
+    <string name="perm_oem_open_honor">Open “App launch”</string>
+
+    <string name="perm_bluetooth_title">Bluetooth devices</string>
+    <string name="perm_bluetooth_desc">Battery of earbuds and connected devices.</string>
+    <string name="perm_location_title">Precise location</string>
+    <string name="perm_location_desc">Wi-Fi network name in alerts.</string>
+    <string name="perm_media_title">Read images</string>
+    <string name="perm_media_desc">Screenshot previews in the island.</string>
+    <string name="perm_write_settings_title">Modify system settings</string>
+    <string name="perm_write_settings_desc">Brightness and rotation from the Deck.</string>
+    <string name="perm_secure_title">Automatic re-enable (adb)</string>
+    <string name="perm_secure_desc">Lets Bulle restart its service if the system stops it. Granted from a computer.</string>
+
+    <string name="permissions_title">Permissions</string>
+    <string name="perm_section_essential">Essential</string>
+    <string name="perm_section_on_demand">Feature-specific</string>
+    <string name="perm_section_on_demand_desc">Only requested when you turn on the related feature.</string>
+    <string name="perm_section_advanced">Advanced</string>
+    <string name="perm_state_granted">Granted</string>
+    <string name="perm_state_denied">Denied</string>
+    <string name="perm_state_pending">To confirm</string>
+    <string name="perm_state_optional">Optional</string>
+    <string name="perm_open">Open</string>
+    <string name="perm_manage">Manage</string>
+    <string name="perm_copy_command">Copy command</string>
+
+    <!-- Reliability -->
+    <string name="reliability_title">Reliability</string>
+    <string name="rel_running_title">The island is active</string>
+    <string name="rel_running_text">The accessibility service is connected. All good.</string>
+    <string name="rel_killed_title">The system stopped the island</string>
+    <string name="rel_killed_text">Bulle is checked in accessibility, but the system stopped the service. Turn Bulle off and on again, or use automatic re-enable.</string>
+    <string name="rel_disabled_title">Service turned off</string>
+    <string name="rel_disabled_text">Bulle isn’t checked in accessibility. The system may have removed it after an update or a reboot.</string>
+    <string name="rel_open_accessibility">Open accessibility</string>
+    <string name="rel_reenable_now">Re-enable now</string>
+    <string name="rel_force_rebind">Force reconnection</string>
+    <string name="rel_reenabled">Request sent to the system</string>
+    <string name="rel_reenable_failed">Re-enable refused: grant the permission via adb first.</string>
+    <string name="rel_status_section">Status</string>
+    <string name="rel_accessibility">Accessibility service</string>
+    <string name="rel_state_active">Active</string>
+    <string name="rel_state_killed">Stopped</string>
+    <string name="rel_state_off">Off</string>
+    <string name="rel_notifications">Notification access</string>
+    <string name="rel_notif_connected">Connected</string>
+    <string name="rel_notif_waiting">Waiting</string>
+    <string name="rel_battery">Battery optimisation</string>
+    <string name="rel_battery_exempt">Excluded</string>
+    <string name="rel_battery_active">Active</string>
+    <string name="rel_keepalive">Keep-alive service</string>
+    <string name="rel_keepalive_stopped">Stopped</string>
+    <string name="rel_restart">Restart</string>
+    <string name="rel_adb_section">Automatic re-enable</string>
+    <string name="rel_adb_text">With this special permission, Bulle turns its accessibility service back on by itself when the system stops it. It is granted once, from a computer: enable USB debugging, plug in the phone, then run:</string>
+    <string name="rel_adb_note">The permission stays valid until Bulle is uninstalled.</string>
+    <string name="rel_copied">Command copied</string>
+    <string name="rel_copy">Copy</string>
+    <string name="rel_oem_section">App launch</string>
+</resources>
