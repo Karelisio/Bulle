@@ -33,7 +33,10 @@ class LiquidGeometry(
  * sont fusionnées par une union douce de champs de distance. Quand la secondaire s'éloigne,
  * un pont liquide s'étire puis se rompt, comme une goutte qui se détache.
  */
-val LiquidSupported: Boolean = Build.VERSION.SDK_INT >= 33
+val LiquidSupported: Boolean by lazy {
+    // Le shader est compilé une fois : en cas d'échec sur un appareil, repli sur le rendu simple.
+    Build.VERSION.SDK_INT >= 33 && runCatching { RuntimeShader(LIQUID_AGSL) }.isSuccess
+}
 
 private const val LIQUID_AGSL = """
 uniform float2 mainCenter;
@@ -44,8 +47,8 @@ uniform float secRadius;
 uniform float smoothK;
 uniform float alpha;
 uniform float topCorner;
-uniform half4 fillColor;
-uniform half4 outlineColor;
+uniform float4 fillColor;
+uniform float4 outlineColor;
 uniform float outlineWidth;
 
 // Rectangle arrondi avec des rayons différents en haut et en bas (y vers le bas).
@@ -69,8 +72,8 @@ half4 main(float2 p) {
     float a = (1.0 - smoothstep(-0.8, 0.8, d)) * alpha;
     // Contour : bande intérieure de largeur outlineWidth.
     float o = outlineWidth > 0.0 ? smoothstep(-outlineWidth - 0.8, -outlineWidth + 0.8, d) : 0.0;
-    half4 c = mix(fillColor, outlineColor, o);
-    return c * a;
+    float4 c = mix(fillColor, outlineColor, o);
+    return half4(c * a);
 }
 """
 
@@ -102,7 +105,7 @@ private class LiquidShader {
  */
 @Composable
 fun LiquidBackground(smoothK: Float, geometry: DrawScope.() -> LiquidGeometry) {
-    if (!LiquidSupported) return
+    if (Build.VERSION.SDK_INT < 33 || !LiquidSupported) return
     LiquidCanvas(smoothK, geometry)
 }
 
