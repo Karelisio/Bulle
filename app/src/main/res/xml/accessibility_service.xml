@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Seuls les changements de fenêtre sont écoutés (nom de l'appli au premier plan).
-     Le contenu de l'écran n'est jamais lu. -->
+<!-- Écoute : changements de fenêtre (appli au premier plan) et liste des fenêtres
+     (présence de la barre d'état, pour détecter le plein écran).
+     Le contenu des fenêtres n'est jamais lu (getRoot n'est jamais appelé). -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagDefault"
-    android:canRetrieveWindowContent="false"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows"
+    android:canRetrieveWindowContent="true"
     android:description="@string/a11y_description"
     android:isAccessibilityTool="false"
     android:notificationTimeout="100"
