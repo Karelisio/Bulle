@@ -138,4 +138,6 @@
     <string name="rules_wifi_hint">Le nom du réseau nécessite l’autorisation de localisation.</string>
     <string name="cancel">Annuler</string>
     <string name="save">Enregistrer</string>
+    <string name="home_entry_live">Activités en cours</string>
+    <string name="home_entry_calls">Appels</string>
 </resources>

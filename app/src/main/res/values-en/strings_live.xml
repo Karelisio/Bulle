@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Live activities" module (Live updates) -->
+    <string name="module_live">Live activities</string>
+    <string name="live_settings_title">Live activities</string>
+    <string name="live_settings_back">Back</string>
+    <string name="live_settings_enable">Show live activities</string>
+    <string name="live_settings_enable_summary">Timers, stopwatches, navigation, deliveries, rides… in the island.</string>
+    <string name="live_settings_generic">Downloads and progress</string>
+    <string name="live_settings_generic_summary">Also include regular progress bars from apps.</string>
+    <string name="live_settings_now_header">Right now</string>
+    <string name="live_settings_now_empty">No live activity detected.</string>
+    <string name="live_settings_excluded_header">Excluded apps</string>
+    <string name="live_settings_excluded_empty">No excluded app.</string>
+    <string name="live_settings_exclude">Exclude</string>
+    <string name="live_settings_include">Show again</string>
+    <string name="live_settings_privacy">Activities are read from your notifications, on your phone only.</string>
+</resources>

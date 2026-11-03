@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CallSettings(
     val enabled: Boolean = true,
+    /** Ouvrir l'île automatiquement quand un appel arrive (boutons Décrocher / Refuser). */
+    val autoExpand: Boolean = true,
 )

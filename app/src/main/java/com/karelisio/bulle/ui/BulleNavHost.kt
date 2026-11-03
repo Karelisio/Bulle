@@ -13,6 +13,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.karelisio.bulle.modules.deck.ui.DeckSettingsScreen
 import com.karelisio.bulle.modules.deck.ui.DeckTabScreen
+import com.karelisio.bulle.modules.call.ui.CallSettingsScreen
+import com.karelisio.bulle.modules.live.ui.LiveSettingsScreen
 import com.karelisio.bulle.modules.rules.ui.RulesScreen
 import com.karelisio.bulle.ui.home.HomeScreen
 import com.karelisio.bulle.ui.settings.GesturesSettingsScreen
@@ -23,6 +25,8 @@ object Routes {
     const val GESTURES = "gestures"
     const val DECK = "deck"
     const val RULES = "rules"
+    const val LIVE = "live"
+    const val CALLS = "calls"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
 }
@@ -42,6 +46,8 @@ fun BulleNavHost() {
         composable(Routes.HOME) { HomeScreen(onOpen = { nav.navigate(it) }) }
         composable(Routes.GESTURES) { GesturesSettingsScreen(onBack = back) }
         composable(Routes.RULES) { RulesScreen(onBack = back) }
+        composable(Routes.LIVE) { LiveSettingsScreen(onBack = back) }
+        composable(Routes.CALLS) { CallSettingsScreen(onBack = back) }
         composable(Routes.DECK) { DeckSettingsScreen(onBack = back, onOpenTab = { nav.navigate(Routes.deckTab(it)) }) }
         composable(Routes.DECK_TAB) { entry ->
             DeckTabScreen(tabId = entry.arguments?.getString("id").orEmpty(), onBack = back)

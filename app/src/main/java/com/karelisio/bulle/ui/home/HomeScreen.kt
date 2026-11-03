@@ -30,6 +30,8 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Dashboard
+import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.foundation.clickable
@@ -257,6 +259,8 @@ private fun BreathingBubble() {
 private data class SettingsEntry(val route: String, val titleRes: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 
 private val settingsEntries = listOf(
+    SettingsEntry(com.karelisio.bulle.ui.Routes.LIVE, R.string.home_entry_live, Icons.Rounded.Timer),
+    SettingsEntry(com.karelisio.bulle.ui.Routes.CALLS, R.string.home_entry_calls, Icons.Rounded.Call),
     SettingsEntry(com.karelisio.bulle.ui.Routes.GESTURES, R.string.gestures_title, Icons.Rounded.TouchApp),
     SettingsEntry(com.karelisio.bulle.ui.Routes.DECK, R.string.deck_title, Icons.Rounded.Dashboard),
     SettingsEntry(com.karelisio.bulle.ui.Routes.RULES, R.string.rules_title, Icons.Rounded.AutoAwesome),
