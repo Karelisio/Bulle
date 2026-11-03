@@ -77,6 +77,7 @@ android {
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        unitTests.isReturnDefaultValues = true
         unitTests.all { test ->
             // Miroir optionnel pour les jars Android de Robolectric (-Probolectric.repo=…).
             (project.findProperty("robolectric.repo") as String?)?.let {

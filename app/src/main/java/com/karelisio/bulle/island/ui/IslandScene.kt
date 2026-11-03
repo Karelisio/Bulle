@@ -1,0 +1,324 @@
+package com.karelisio.bulle.island.ui
+
+import android.view.HapticFeedbackConstants
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.karelisio.bulle.core.island.IslandContent
+import com.karelisio.bulle.core.island.IslandGesture
+import com.karelisio.bulle.island.IslandController
+import com.karelisio.bulle.island.IslandUiState
+import com.karelisio.bulle.island.WindowRequest
+import com.karelisio.bulle.ui.components.rememberReduceMotion
+import com.karelisio.bulle.ui.theme.bulleColorScheme
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
+
+private enum class Mode { HIDDEN, IDLE, COMPACT, EXPANDED }
+
+/** Cible géométrique de la surface de l'île (pixels). offsetX : décalage du centre par rapport à la caméra. */
+private data class SurfaceTarget(
+    val mode: Mode,
+    val width: Float,
+    val height: Float,
+    val corner: Float,
+    val offsetX: Float,
+    val alpha: Float,
+)
+
+/** Animatables de la surface : largeur, hauteur, coins, décalage et opacité animés ensemble. */
+private class SurfaceAnim(t: SurfaceTarget) {
+    val width = Animatable(t.width)
+    val height = Animatable(t.height)
+    val corner = Animatable(t.corner)
+    val offsetX = Animatable(t.offsetX)
+    val alpha = Animatable(t.alpha)
+}
+
+private val ExpandedMargin = 10.dp
+private val ExpandedMaxWidth = 440.dp
+private val ExpandedCorner = 34.dp
+private val ShadowMargin = 10.dp
+
+@Composable
+fun IslandScene(controller: IslandController) {
+    val state by controller.state.collectAsStateWithLifecycle()
+    MaterialTheme(colorScheme = bulleColorScheme(dark = true)) {
+        CompositionLocalProvider(LocalContentColor provides Color.White) {
+            IslandSurface(state, controller)
+        }
+    }
+}
+
+@Composable
+private fun IslandSurface(state: IslandUiState, controller: IslandController) {
+    val g = state.geometry
+    if (g.width == 0) return
+    val density = LocalDensity.current
+    val view = LocalView.current
+    val reduceMotion = rememberReduceMotion()
+    val motion = remember(state.motion, reduceMotion) { IslandMotion(state.motion, reduceMotion) }
+
+    val mode = when {
+        !state.visible -> Mode.HIDDEN
+        state.expanded -> Mode.EXPANDED
+        state.primary != null -> Mode.COMPACT
+        else -> Mode.IDLE
+    }
+
+    // Hauteur mesurée du contenu étendu (padding compris).
+    var expandedContentHeight by remember { mutableIntStateOf(0) }
+
+    val px = with(density) {
+        object {
+            val margin = ExpandedMargin.toPx()
+            val maxW = ExpandedMaxWidth.toPx()
+            val corner = ExpandedCorner.toPx()
+            val shadow = ShadowMargin.toPx()
+            val slot = (state.primary?.compactSlotWidth ?: 0.dp).toPx()
+        }
+    }
+    val expandedWidth = min(g.screenWidth - 2 * px.margin, px.maxW)
+    val compactWidth = g.width + 2 * px.slot
+
+    val target = when (mode) {
+        Mode.HIDDEN -> SurfaceTarget(mode, g.width.toFloat(), g.height.toFloat(), g.height / 2f, 0f, 0f)
+        Mode.IDLE -> SurfaceTarget(mode, g.width.toFloat(), g.height.toFloat(), g.height / 2f, 0f, 1f)
+        Mode.COMPACT -> SurfaceTarget(mode, compactWidth, g.height.toFloat(), g.height / 2f, 0f, 1f)
+        Mode.EXPANDED -> {
+            val h = if (expandedContentHeight > 0) expandedContentHeight.toFloat() else g.height * 4f
+            // Carte centrée sur la caméra, mais jamais hors de l'écran.
+            val center = g.centerX.toFloat().coerceIn(
+                expandedWidth / 2 + px.margin,
+                g.screenWidth - expandedWidth / 2 - px.margin,
+            )
+            SurfaceTarget(mode, expandedWidth, max(h, g.height * 2f), px.corner, center - g.centerX, 1f)
+        }
+    }
+
+    val anim = remember { SurfaceAnim(target) }
+    val currentController by rememberUpdatedState(controller)
+
+    LaunchedEffect(target, motion) {
+        // 1) La fenêtre englobe l'état courant ET la cible (+ dépassement du ressort).
+        currentController.applyWindow(envelope(anim, target, motion.overshoot, px.shadow, settled = false))
+        // 2) Animation au ressort : tout ensemble.
+        val growing = target.width * target.height >= anim.width.value * anim.height.value
+        val spec = if (growing) motion.grow() else motion.shrink()
+        coroutineScope {
+            launch { anim.width.animateTo(target.width, spec) }
+            launch { anim.height.animateTo(target.height, spec) }
+            launch { anim.corner.animateTo(target.corner, spec) }
+            launch { anim.offsetX.animateTo(target.offsetX, spec) }
+            launch { anim.alpha.animateTo(target.alpha, motion.fade()) }
+        }
+        // 3) Une fois posée, la fenêtre se resserre exactement sur l'île.
+        currentController.applyWindow(envelope(anim, target, 0f, px.shadow, settled = true))
+    }
+
+    // Retour haptique discret quand l'île s'ouvre ou se ferme.
+    var lastMode by remember { mutableIntStateOf(mode.ordinal) }
+    LaunchedEffect(mode) {
+        val was = Mode.entries[lastMode]
+        if ((was == Mode.EXPANDED) != (mode == Mode.EXPANDED) && was != Mode.HIDDEN && mode != Mode.HIDDEN) {
+            view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+        }
+        lastMode = mode.ordinal
+    }
+
+    val compactAlpha = remember { Animatable(0f) }
+    val expandedAlpha = remember { Animatable(0f) }
+    LaunchedEffect(mode, motion) {
+        launch { compactAlpha.animateTo(if (mode == Mode.COMPACT) 1f else 0f, if (mode == Mode.COMPACT) motion.contentIn() else motion.contentOut()) }
+        launch { expandedAlpha.animateTo(if (mode == Mode.EXPANDED) 1f else 0f, if (mode == Mode.EXPANDED) motion.contentIn() else motion.contentOut()) }
+    }
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        Box(
+            Modifier
+                .wrapContentSize(Alignment.TopCenter, unbounded = true)
+                .layout { measurable, _ ->
+                    val w = anim.width.value.roundToInt().coerceAtLeast(1)
+                    val h = anim.height.value.roundToInt().coerceAtLeast(1)
+                    val p = measurable.measure(Constraints.fixed(w, h))
+                    layout(w, h) { p.place(0, 0) }
+                }
+                .graphicsLayer {
+                    translationX = anim.offsetX.value
+                    alpha = anim.alpha.value
+                    shape = RoundedCornerShape(anim.corner.value.coerceAtLeast(0f))
+                    clip = true
+                    shadowElevation = if (mode == Mode.EXPANDED) 8.dp.toPx() else 0f
+                }
+                .background(Color.Black)
+                .islandGestures(enabled = mode != Mode.HIDDEN, onGesture = controller::onGesture),
+        ) {
+            // Vue compacte : emplacements de part et d'autre de la caméra.
+            if (mode == Mode.COMPACT || compactAlpha.value > 0f) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .wrapContentSize(Alignment.TopCenter, unbounded = true)
+                        .graphicsLayer { alpha = compactAlpha.value },
+                ) {
+                    AnimatedContent(
+                        targetState = state.primary,
+                        contentKey = { it?.key },
+                        transitionSpec = {
+                            (fadeIn(tween(220, 90)) + scaleIn(tween(260, 60), initialScale = 0.85f))
+                                .togetherWith(fadeOut(tween(90)))
+                                .using(SizeTransform(clip = false))
+                        },
+                        contentAlignment = Alignment.TopCenter,
+                        label = "compact",
+                    ) { content ->
+                        if (content != null) CompactRow(content, g.width, g.height, density)
+                    }
+                }
+            }
+            // Vue étendue : contenu sous la caméra, en fondu décalé avec flou.
+            if (mode == Mode.EXPANDED || expandedAlpha.value > 0f) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .requiredWidth(with(density) { expandedWidth.toDp() })
+                        .wrapContentHeight(Alignment.Top, unbounded = true)
+                        .onSizeChanged { expandedContentHeight = it.height }
+                        .graphicsLayer {
+                            val a = expandedAlpha.value
+                            alpha = a
+                            val s = 0.94f + 0.06f * a
+                            scaleX = s; scaleY = s
+                            transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0f)
+                            val blur = (1f - a) * 12.dp.toPx()
+                            renderEffect = if (blur > 0.5f) BlurEffect(blur, blur, TileMode.Decal) else null
+                        }
+                        .padding(top = with(density) { g.height.toDp() } + 4.dp, bottom = 18.dp, start = 18.dp, end = 18.dp),
+                ) {
+                    val panel = state.panel
+                    when {
+                        panel != null -> panel.Content(controller)
+                        else -> state.primary?.Expanded(controller)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Ligne compacte : [Leading] | caméra | [Trailing]. */
+@Composable
+private fun CompactRow(content: IslandContent, baseWidthPx: Int, heightPx: Int, density: androidx.compose.ui.unit.Density) {
+    with(density) {
+        Row(Modifier.height(heightPx.toDp()), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.width(content.compactSlotWidth).padding(start = 8.dp), contentAlignment = Alignment.CenterStart) {
+                content.Leading()
+            }
+            Spacer(Modifier.width(baseWidthPx.toDp()))
+            Box(Modifier.width(content.compactSlotWidth).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
+                content.Trailing()
+            }
+        }
+    }
+}
+
+/** Taille de fenêtre qui contient l'île courante et sa cible, symétrique autour de la caméra. */
+private fun envelope(anim: SurfaceAnim, t: SurfaceTarget, overshoot: Float, shadow: Float, settled: Boolean): WindowRequest {
+    fun span(cur: Float, tgt: Float) = max(cur, tgt) + abs(tgt - cur) * overshoot
+    val halfW = if (settled) abs(t.offsetX) + t.width / 2 else max(
+        abs(anim.offsetX.value) + anim.width.value / 2,
+        abs(t.offsetX) + t.width / 2,
+    ) + abs(t.width - anim.width.value) * overshoot / 2
+    var w = 2 * halfW
+    var h = if (settled) t.height else span(anim.height.value, t.height)
+    val expanded = t.mode == Mode.EXPANDED || anim.height.value > t.height + 1f
+    if (expanded) {
+        w += 2 * shadow
+        h += shadow
+    }
+    return WindowRequest(
+        width = w.roundToInt() + 2,
+        height = h.roundToInt() + 2,
+        touchable = t.mode != Mode.HIDDEN,
+        watchOutside = t.mode == Mode.EXPANDED,
+    )
+}
+
+/** Reconnaissance des gestes sur l'île : toucher, appui long et glissements. */
+private fun Modifier.islandGestures(enabled: Boolean, onGesture: (IslandGesture) -> Unit): Modifier {
+    if (!enabled) return this
+    return this
+        .pointerInput(Unit) {
+            detectTapGestures(
+                onTap = { onGesture(IslandGesture.TAP) },
+                onLongPress = { onGesture(IslandGesture.LONG_PRESS) },
+            )
+        }
+        .pointerInput(Unit) {
+            var total = Offset.Zero
+            val threshold = 24.dp.toPx()
+            detectDragGestures(
+                onDragStart = { total = Offset.Zero },
+                onDrag = { change, amount -> change.consume(); total += amount },
+                onDragEnd = {
+                    val g = when {
+                        abs(total.x) > abs(total.y) && total.x > threshold -> IslandGesture.SWIPE_RIGHT
+                        abs(total.x) > abs(total.y) && total.x < -threshold -> IslandGesture.SWIPE_LEFT
+                        total.y > threshold -> IslandGesture.SWIPE_DOWN
+                        total.y < -threshold -> IslandGesture.SWIPE_UP
+                        else -> null
+                    }
+                    g?.let(onGesture)
+                },
+            )
+        }
+}

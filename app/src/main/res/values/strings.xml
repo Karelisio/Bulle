@@ -23,4 +23,10 @@
     <string name="tile_on">Île affichée</string>
     <string name="tile_off">Île masquée</string>
     <string name="tile_service_off">Service désactivé</string>
+
+    <string name="home_test_island">Tester l’île</string>
+    <string name="module_push">Contenus de Bulle</string>
+    <string name="demo_title">Bulle est prête</string>
+    <string name="demo_text">Touche la bulle pour l’ouvrir, touche à côté pour la refermer.</string>
+    <string name="demo_close">Fermer</string>
 </resources>

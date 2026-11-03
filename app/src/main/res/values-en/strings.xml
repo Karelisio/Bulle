@@ -21,4 +21,10 @@
     <string name="tile_on">Island shown</string>
     <string name="tile_off">Island hidden</string>
     <string name="tile_service_off">Service off</string>
+
+    <string name="home_test_island">Test the island</string>
+    <string name="module_push">Bulle content</string>
+    <string name="demo_title">Bulle is ready</string>
+    <string name="demo_text">Tap the bubble to open it, tap outside to close it.</string>
+    <string name="demo_close">Close</string>
 </resources>

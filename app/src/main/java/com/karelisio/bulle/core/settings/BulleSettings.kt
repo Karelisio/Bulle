@@ -11,6 +11,10 @@ import kotlinx.serialization.Serializable
 data class BulleSettings(
     val islandEnabled: Boolean = true,
     val position: PositionTweak = PositionTweak(),
+    val visibility: VisibilitySettings = VisibilitySettings(),
+    val motion: MotionSettings = MotionSettings(),
+    /** Activation par module (id → activé). Absent = valeur par défaut du module. */
+    val modules: Map<String, Boolean> = emptyMap(),
 )
 
 /** Réglage fin manuel, en dp, appliqué par-dessus la position calée sur le cutout. */
@@ -20,4 +24,24 @@ data class PositionTweak(
     val offsetYDp: Float = 0f,
     val extraWidthDp: Float = 0f,
     val extraHeightDp: Float = 0f,
+)
+
+/** Quand masquer l'île automatiquement. */
+@Serializable
+data class VisibilitySettings(
+    val hideInFullscreen: Boolean = true,
+    val hideInLandscape: Boolean = true,
+    val hideOnLockscreen: Boolean = false,
+    val hiddenApps: Set<String> = emptySet(),
+)
+
+@Serializable
+enum class MotionStyle { SOFT, SNAPPY, SOBER }
+
+/** Style et vitesse des animations de l'île. */
+@Serializable
+data class MotionSettings(
+    val style: MotionStyle = MotionStyle.SOFT,
+    /** Multiplicateur de vitesse (0.5 = lent, 2 = rapide). */
+    val speed: Float = 1f,
 )

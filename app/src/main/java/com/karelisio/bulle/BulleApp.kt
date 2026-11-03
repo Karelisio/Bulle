@@ -2,6 +2,7 @@ package com.karelisio.bulle
 
 import android.app.Application
 import androidx.work.Configuration
+import com.karelisio.bulle.modules.Modules
 import com.karelisio.bulle.system.Reliability
 
 class BulleApp : Application(), Configuration.Provider {
@@ -12,6 +13,7 @@ class BulleApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        Modules.registerAll()
         Reliability.scheduleWatchdog(this)
     }
 }

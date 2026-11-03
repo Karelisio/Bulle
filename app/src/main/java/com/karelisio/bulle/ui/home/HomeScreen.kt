@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
@@ -60,6 +61,8 @@ import com.karelisio.bulle.R
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.island.IslandAccessibilityService
+import com.karelisio.bulle.modules.push.DemoContent
+import com.karelisio.bulle.modules.push.PushModule
 import com.karelisio.bulle.system.Reliability
 import com.karelisio.bulle.ui.components.MorphShape
 import com.karelisio.bulle.ui.components.rememberReduceMotion
@@ -127,6 +130,11 @@ fun HomeScreen() {
                     )
                 }
             }
+            Spacer(Modifier.height(16.dp))
+            FilledTonalButton(
+                enabled = running && settings.islandEnabled,
+                onClick = { PushModule.push(DemoContent()) },
+            ) { Text(stringResource(R.string.home_test_island)) }
             Spacer(Modifier.height(24.dp))
             Text(
                 text = stringResource(R.string.home_version, BuildConfig.VERSION_NAME),
