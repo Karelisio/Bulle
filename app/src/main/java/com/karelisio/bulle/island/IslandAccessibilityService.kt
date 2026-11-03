@@ -33,6 +33,7 @@ class IslandAccessibilityService : AccessibilityService() {
     private var controller: IslandController? = null
     private var volet: com.karelisio.bulle.modules.volet.VoletController? = null
     private val screenTick = MutableStateFlow(0)
+    private var windowListWorks = false
 
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) = Unit
@@ -63,7 +64,8 @@ class IslandAccessibilityService : AccessibilityService() {
         _controller.value = c
         w.onOutsideTouch = c::onOutsideTouch
         w.onBack = c::onBack
-        w.onStatusBarVisibility = { visible -> c.updateScreen { it.copy(statusBarVisible = visible) } }
+        // Signal de secours (insets) seulement si la liste des fenêtres est indisponible.
+        w.onStatusBarVisibility = { visible -> if (!windowListWorks) c.updateScreen { it.copy(statusBarVisible = visible) } }
 
         // Géométrie : recalculée à chaque rotation / changement d'écran / réglage fin.
         scope.launch {
@@ -83,6 +85,15 @@ class IslandAccessibilityService : AccessibilityService() {
         volet = VoletController(this, scope, c).also { it.start(); VoletController.register(it) }
     }
 
+    /** Plein écran : présence de la fenêtre de barre d'état dans la liste des fenêtres. */
+    private fun refreshFullscreen() {
+        val c = controller ?: return
+        val info = CutoutLocator.screenInfo(this)
+        val visible = FullscreenDetector.statusBarVisible(this, info.width, info.statusBarHeight) ?: return
+        windowListWorks = true
+        c.updateScreen { it.copy(statusBarVisible = visible) }
+    }
+
     private fun refreshLock() {
         val locked = getSystemService(KeyguardManager::class.java).isKeyguardLocked
         controller?.updateScreen { it.copy(locked = locked) }
@@ -94,9 +105,13 @@ class IslandAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            ForegroundApp.onWindowChanged(event.packageName?.toString())
-            refreshLock()
+        when (event?.eventType) {
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                ForegroundApp.onWindowChanged(event.packageName?.toString())
+                refreshLock()
+                refreshFullscreen()
+            }
+            AccessibilityEvent.TYPE_WINDOWS_CHANGED -> refreshFullscreen()
         }
     }
 

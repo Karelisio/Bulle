@@ -12,7 +12,7 @@
     <string name="home_island_switch">Afficher l’île</string>
 
     <string name="a11y_summary">Affiche l’île autour du trou de la caméra.</string>
-    <string name="a11y_description">Bulle utilise l’accessibilité uniquement pour afficher l’île par-dessus les autres applis, connaître le nom de l’appli au premier plan (pour masquer l’île dans les applis choisies) et exécuter les actions de gestes que tu configures (retour, accueil, capture…). Bulle ne lit jamais le contenu de l’écran et rien ne quitte ton téléphone.</string>
+    <string name="a11y_description">Bulle utilise l’accessibilité uniquement pour afficher l’île par-dessus les autres applis, connaître le nom de l’appli au premier plan et la position des fenêtres (pour masquer l’île en plein écran ou dans les applis choisies) et exécuter les actions de gestes que tu configures (retour, accueil, capture…). Bulle ne lit jamais le contenu de l’écran ni des fenêtres, et rien ne quitte ton téléphone.</string>
 
     <string name="keepalive_channel">Maintien de l’île</string>
     <string name="keepalive_channel_desc">Notification discrète qui empêche le système de couper Bulle.</string>
