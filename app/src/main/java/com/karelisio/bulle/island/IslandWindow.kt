@@ -32,6 +32,7 @@ class IslandWindow(private val context: Context) {
     var onOutsideTouch: () -> Unit = {}
     var onStatusBarVisibility: (Boolean) -> Unit = {}
     var onBack: () -> Boolean = { false }
+    private var statusBarSignalReliable = false
 
     private val params = LP(
         1, 1,
@@ -63,7 +64,12 @@ class IslandWindow(private val context: Context) {
         val r = RootView(context).apply { addView(compose) }
         owner.attachTo(r)
         r.setOnApplyWindowInsetsListener { _, insets ->
-            onStatusBarVisibility(insets.isVisible(WindowInsets.Type.statusBars()))
+            // La fenêtre d'accessibilité est au-dessus de la barre d'état : sur certains systèmes
+            // celle-ci n'est jamais signalée visible. On n'utilise le signal « masquée » que si
+            // on l'a déjà vue visible au moins une fois (sinon l'île serait masquée en permanence).
+            val visible = insets.isVisible(WindowInsets.Type.statusBars())
+            if (visible) statusBarSignalReliable = true
+            onStatusBarVisibility(visible || !statusBarSignalReliable)
             insets
         }
         try {

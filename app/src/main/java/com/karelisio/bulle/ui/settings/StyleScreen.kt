@@ -126,8 +126,8 @@ fun StyleScreen(onBack: () -> Unit) {
                     Slider(
                         value = style.size,
                         onValueChange = { v -> scope.launch { SettingsRepository.update(context) { it.copy(style = it.style.copy(size = v)) } } },
-                        valueRange = 0.8f..1.6f,
-                        steps = 7,
+                        valueRange = 0.5f..1.6f,
+                        steps = 21,
                     )
                     Text(stringResource(R.string.style_size_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }

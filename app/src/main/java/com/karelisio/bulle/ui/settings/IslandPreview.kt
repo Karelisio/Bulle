@@ -84,7 +84,7 @@ fun IslandPreview(
             phase = 0; delay(900)
         }
     }
-    val s = style.size.coerceIn(0.6f, 2f)
+    val s = style.size.coerceIn(0.4f, 2f)
     val baseW = 46f * s
     val baseH = 26f * s
     val targetW = when (phase) { 0 -> baseW; 1 -> baseW + 2 * 40f; else -> 280f }

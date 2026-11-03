@@ -146,7 +146,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
             val maxW = if (style.cardStyle == CardStyle.WIDE) Float.MAX_VALUE else ExpandedMaxWidth.toPx()
             val corner = ExpandedCorner.toPx()
             val shadow = ShadowMargin.toPx()
-            val slot = (state.primary?.compactSlotWidth ?: 0.dp).toPx()
+            val slot = (state.primary?.compactSlotWidth ?: 0.dp).toPx() * state.style.size.coerceIn(0.5f, 1.6f)
         }
     }
     val expandedWidth = min(g.screenWidth - 2 * px.margin, px.maxW)
@@ -322,7 +322,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                         contentAlignment = Alignment.TopCenter,
                         label = "compact",
                     ) { content ->
-                        if (content != null) CompactRow(content, g.width, g.height, density)
+                        if (content != null) CompactRow(content, g.width, g.height, density, state.style.size.coerceIn(0.5f, 1.6f))
                     }
                 }
             }
@@ -419,15 +419,28 @@ fun islandFill(style: StyleSettings, darkScheme: androidx.compose.material3.Colo
 
 /** Ligne compacte : [Leading] | caméra | [Trailing]. */
 @Composable
-private fun CompactRow(content: IslandContent, baseWidthPx: Int, heightPx: Int, density: androidx.compose.ui.unit.Density) {
+private fun CompactRow(content: IslandContent, baseWidthPx: Int, heightPx: Int, density: androidx.compose.ui.unit.Density, scale: Float) {
     with(density) {
         Row(Modifier.height(heightPx.toDp()), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.width(content.compactSlotWidth).padding(start = 8.dp), contentAlignment = Alignment.CenterStart) {
-                content.Leading()
+            // Les emplacements suivent la taille choisie : le contenu est dessiné à l'échelle.
+            Box(Modifier.width(content.compactSlotWidth * scale), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier
+                        .requiredWidth(content.compactSlotWidth)
+                        .graphicsLayer { scaleX = scale; scaleY = scale }
+                        .padding(start = 8.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) { content.Leading() }
             }
             Spacer(Modifier.width(baseWidthPx.toDp()))
-            Box(Modifier.width(content.compactSlotWidth).padding(end = 8.dp), contentAlignment = Alignment.CenterEnd) {
-                content.Trailing()
+            Box(Modifier.width(content.compactSlotWidth * scale), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier
+                        .requiredWidth(content.compactSlotWidth)
+                        .graphicsLayer { scaleX = scale; scaleY = scale }
+                        .padding(end = 8.dp),
+                    contentAlignment = Alignment.CenterEnd,
+                ) { content.Trailing() }
             }
         }
     }
