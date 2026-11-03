@@ -188,4 +188,11 @@
     <string name="home_entry_permissions">Permissions</string>
     <string name="home_entry_backup">Backup</string>
     <string name="home_entry_about">About</string>
+    <string name="home_hidden_reason">Island hidden: %1$s</string>
+    <string name="hidden_disabled">turned off</string>
+    <string name="hidden_rule">automatic rule</string>
+    <string name="hidden_fullscreen">full screen detected</string>
+    <string name="hidden_landscape">landscape</string>
+    <string name="hidden_lockscreen">lock screen</string>
+    <string name="hidden_app">excluded app</string>
 </resources>

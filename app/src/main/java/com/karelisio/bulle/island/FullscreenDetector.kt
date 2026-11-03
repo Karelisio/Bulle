@@ -16,11 +16,12 @@ object FullscreenDetector {
         val windows = runCatching { service.windows }.getOrNull()
         if (windows.isNullOrEmpty()) return null
         val r = Rect()
-        val maxH = (statusBarHeight * 2).coerceAtLeast(1)
+        // Certaines surcouches ont une fenêtre de barre d'état plus haute que la barre elle-même.
+        val maxH = (statusBarHeight * 4).coerceAtLeast(1)
         return windows.any { w ->
             w.getBoundsInScreen(r)
             w.type == AccessibilityWindowInfo.TYPE_SYSTEM && r.top <= 0 &&
-                r.width() >= screenWidth * 0.9f && r.height() in 1..maxH
+                r.width() >= screenWidth * 0.8f && r.height() in 1..maxH
         }
     }
 }

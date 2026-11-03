@@ -65,6 +65,10 @@ data class WindowRequest(
  * Gestionnaire d'état central de l'île : agrège les contenus des modules,
  * applique la file de priorité, le masquage automatique et les interactions.
  */
+/** Raison du masquage en cours, pour le diagnostic (null = visible). */
+private val _hiddenReason = MutableStateFlow<HiddenReason?>(null)
+val islandHiddenReason: StateFlow<HiddenReason?> = _hiddenReason
+
 class IslandController(
     override val context: Context,
     private val scope: CoroutineScope,
@@ -107,7 +111,9 @@ class IslandController(
     val state: StateFlow<IslandUiState> = combine(
         settings, screen, ForegroundApp.packageName, arrangement, interaction,
     ) { s, scr, fg, arr, i ->
-        val policyVisible = VisibilityPolicy.isVisible(s, scr, fg)
+        val reason = VisibilityPolicy.hiddenReason(s, scr, fg)
+        _hiddenReason.value = reason
+        val policyVisible = reason == null
         val forced = s.islandEnabled && arr.primary?.showWhenHidden == true
         val primary = arr.primary
         val expanded = i.panel != null || (primary != null && primary.expandable && i.expandedKey == primary.key)

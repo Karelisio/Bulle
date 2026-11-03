@@ -190,4 +190,11 @@
     <string name="home_entry_permissions">Autorisations</string>
     <string name="home_entry_backup">Sauvegarde</string>
     <string name="home_entry_about">À propos</string>
+    <string name="home_hidden_reason">Île masquée : %1$s</string>
+    <string name="hidden_disabled">désactivée</string>
+    <string name="hidden_rule">règle automatique</string>
+    <string name="hidden_fullscreen">plein écran détecté</string>
+    <string name="hidden_landscape">paysage</string>
+    <string name="hidden_lockscreen">écran verrouillé</string>
+    <string name="hidden_app">appli exclue</string>
 </resources>
