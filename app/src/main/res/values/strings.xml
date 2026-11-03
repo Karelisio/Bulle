@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bulle</string>
+    <string name="home_tagline">Ta Dynamic Island, autour de la caméra.</string>
+    <string name="home_wip">Les premières briques sont posées. L’île arrive bientôt.</string>
+    <string name="home_version">Version %1$s</string>
+</resources>
