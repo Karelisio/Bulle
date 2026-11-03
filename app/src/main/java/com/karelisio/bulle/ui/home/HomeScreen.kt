@@ -63,6 +63,7 @@ import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.island.IslandAccessibilityService
 import com.karelisio.bulle.modules.push.DemoContent
 import com.karelisio.bulle.modules.push.PushModule
+import com.karelisio.bulle.notifications.NotificationRepository
 import com.karelisio.bulle.system.Reliability
 import com.karelisio.bulle.ui.components.MorphShape
 import com.karelisio.bulle.ui.components.rememberReduceMotion
@@ -75,8 +76,10 @@ fun HomeScreen() {
     val settings by remember { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
     val running by IslandAccessibilityService.running.collectAsStateWithLifecycle()
     var enabledInSystem by remember { mutableStateOf(Reliability.isAccessibilityEnabled(context)) }
+    var notifGranted by remember { mutableStateOf(NotificationRepository.isAccessGranted(context)) }
     LifecycleResumeEffect(Unit) {
         enabledInSystem = Reliability.isAccessibilityEnabled(context)
+        notifGranted = NotificationRepository.isAccessGranted(context)
         onPauseOrDispose { }
     }
 
@@ -109,6 +112,20 @@ fun HomeScreen() {
                 enabledInSystem = enabledInSystem,
                 onOpenAccessibility = {
                     context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                },
+            )
+            Spacer(Modifier.height(12.dp))
+            StatusCard(
+                ok = notifGranted,
+                title = stringResource(R.string.home_notif_title),
+                text = stringResource(if (notifGranted) R.string.home_notif_on else R.string.home_notif_off),
+                action = stringResource(R.string.home_open_notif_access),
+                onAction = {
+                    context.startActivity(
+                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
+                            .putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, NotificationRepository.component(context).flattenToString())
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
                 },
             )
             Spacer(Modifier.height(12.dp))
@@ -147,7 +164,23 @@ fun HomeScreen() {
 
 @Composable
 private fun ServiceCard(running: Boolean, enabledInSystem: Boolean, onOpenAccessibility: () -> Unit) {
-    val ok = running
+    StatusCard(
+        ok = running,
+        title = stringResource(R.string.home_service_title),
+        text = stringResource(
+            when {
+                running -> R.string.home_service_running
+                enabledInSystem -> R.string.home_service_enabled_not_running
+                else -> R.string.home_service_off
+            },
+        ),
+        action = stringResource(R.string.home_open_accessibility),
+        onAction = onOpenAccessibility,
+    )
+}
+
+@Composable
+private fun StatusCard(ok: Boolean, title: String, text: String, action: String, onAction: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -164,22 +197,13 @@ private fun ServiceCard(running: Boolean, enabledInSystem: Boolean, onOpenAccess
                     )
                 }
                 Spacer(Modifier.width(12.dp))
-                Text(stringResource(R.string.home_service_title), style = MaterialTheme.typography.titleMedium)
+                Text(title, style = MaterialTheme.typography.titleMedium)
             }
             Spacer(Modifier.height(8.dp))
-            Text(
-                stringResource(
-                    when {
-                        running -> R.string.home_service_running
-                        enabledInSystem -> R.string.home_service_enabled_not_running
-                        else -> R.string.home_service_off
-                    },
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            if (!running) {
+            Text(text, style = MaterialTheme.typography.bodyMedium)
+            if (!ok) {
                 Spacer(Modifier.height(12.dp))
-                Button(onClick = onOpenAccessibility) { Text(stringResource(R.string.home_open_accessibility)) }
+                Button(onClick = onAction) { Text(action) }
             }
         }
     }

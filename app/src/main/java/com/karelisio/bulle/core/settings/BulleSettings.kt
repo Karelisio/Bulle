@@ -1,5 +1,9 @@
 package com.karelisio.bulle.core.settings
 
+import com.karelisio.bulle.modules.alerts.AlertSettings
+import com.karelisio.bulle.modules.call.CallSettings
+import com.karelisio.bulle.modules.live.LiveSettings
+import com.karelisio.bulle.modules.music.MusicSettings
 import kotlinx.serialization.Serializable
 
 /**
@@ -15,6 +19,11 @@ data class BulleSettings(
     val motion: MotionSettings = MotionSettings(),
     /** Activation par module (id → activé). Absent = valeur par défaut du module. */
     val modules: Map<String, Boolean> = emptyMap(),
+    // Réglages propres à chaque module (un fichier par module).
+    val music: MusicSettings = MusicSettings(),
+    val live: LiveSettings = LiveSettings(),
+    val calls: CallSettings = CallSettings(),
+    val alerts: AlertSettings = AlertSettings(),
 )
 
 /** Réglage fin manuel, en dp, appliqué par-dessus la position calée sur le cutout. */

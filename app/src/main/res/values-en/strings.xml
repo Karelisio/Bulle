@@ -27,4 +27,8 @@
     <string name="demo_title">Bulle is ready</string>
     <string name="demo_text">Tap the bubble to open it, tap outside to close it.</string>
     <string name="demo_close">Close</string>
+    <string name="home_notif_title">Notification access</string>
+    <string name="home_notif_on">Granted: music, live activities and calls available.</string>
+    <string name="home_notif_off">Needed for music, live activities and calls.</string>
+    <string name="home_open_notif_access">Grant access</string>
 </resources>

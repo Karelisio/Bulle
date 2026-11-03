@@ -29,4 +29,8 @@
     <string name="demo_title">Bulle est prête</string>
     <string name="demo_text">Touche la bulle pour l’ouvrir, touche à côté pour la refermer.</string>
     <string name="demo_close">Fermer</string>
+    <string name="home_notif_title">Accès aux notifications</string>
+    <string name="home_notif_on">Accordé : musique, activités en cours et appels disponibles.</string>
+    <string name="home_notif_off">Nécessaire pour la musique, les activités en cours et les appels.</string>
+    <string name="home_open_notif_access">Autoriser l’accès</string>
 </resources>
