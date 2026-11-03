@@ -13,6 +13,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.karelisio.bulle.core.island.Priority
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -112,6 +113,8 @@ data class TorchContent(
     val maxLevel: Int,
 ) : AlertContent() {
     override val key = "alerts:torch"
+    // État durable : passe sous les alertes ponctuelles, comme une activité en cours.
+    override val priority = Priority.LIVE
     override val accent = TorchYellow
     override val timeoutMs: Long? = null
     override val canBeSecondary = true
