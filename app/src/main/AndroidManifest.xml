@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Mise à jour in-app : installation de l'APK téléchargé depuis GitHub -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Optionnelle, accordée uniquement via adb : réactivation auto de l'accessibilité -->
     <uses-permission
         android:name="android.permission.WRITE_SECURE_SETTINGS"
@@ -124,6 +126,11 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+
+        <!-- Statut de la session PackageInstaller (mise à jour in-app) -->
+        <receiver
+            android:name=".core.update.InstallStatusReceiver"
+            android:exported="false" />
 
         <!-- WorkManager initialisé à la demande (BulleApp est un Configuration.Provider) -->
         <provider

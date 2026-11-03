@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- In-app update -->
+    <string name="update_available_title">New version available</string>
+    <string name="update_version_line">Bulle %1$s · you have %2$s</string>
+    <string name="update_whats_new">What’s new</string>
+    <string name="update_no_changelog">No release notes.</string>
+    <string name="update_download">Download and install</string>
+    <string name="update_later">Later</string>
+    <string name="update_skip">Skip this version</string>
+    <string name="update_downloading">Downloading…</string>
+    <string name="update_bytes">%1$s of %2$s</string>
+    <string name="update_installing">Installing…</string>
+    <string name="update_install_confirm_hint">Confirm the installation in the system dialog.</string>
+    <string name="update_failed">Failed: %1$s</string>
+    <string name="update_retry">Retry</string>
+    <string name="update_cancel">Cancel</string>
+    <string name="update_permission_needed">To install the update, allow Bulle to install apps.</string>
+    <string name="update_permission_grant">Allow installing</string>
+    <string name="update_size">Size: %1$s</string>
+    <string name="update_view_on_github">View on GitHub</string>
+
+    <!-- Backup / restore -->
+    <string name="backup_title">Backup</string>
+    <string name="backup_export">Export settings</string>
+    <string name="backup_export_desc">Saves all your settings to a JSON file of your choice.</string>
+    <string name="backup_import">Import settings</string>
+    <string name="backup_import_desc">Replaces your current settings with those from an exported file.</string>
+    <string name="backup_auto">Automatic backup</string>
+    <string name="backup_auto_desc">Once a day, in the app’s private storage. The last 7 are kept.</string>
+    <string name="backup_auto_list">Automatic backups</string>
+    <string name="backup_auto_empty">No automatic backup yet.</string>
+    <string name="backup_now">Back up now</string>
+    <string name="backup_restore">Restore</string>
+    <string name="backup_confirm_title">Replace settings?</string>
+    <string name="backup_confirm_text">Your current settings will be overwritten by this backup (version %1$s, %2$s). This cannot be undone.</string>
+    <string name="backup_confirm_ok">Replace</string>
+    <string name="backup_cancel">Cancel</string>
+    <string name="backup_exported">Settings exported.</string>
+    <string name="backup_restored">Settings restored.</string>
+    <string name="backup_saved">Backup created.</string>
+    <string name="backup_error_json">This file is not valid JSON.</string>
+    <string name="backup_error_format">This file is not a Bulle backup.</string>
+    <string name="backup_error_schema">Backup made by a newer version of Bulle: please update the app.</string>
+    <string name="backup_error_io">Could not read or write: %1$s</string>
+    <string name="backup_unknown_version">unknown</string>
+    <string name="backup_last_auto">Last automatic backup: %1$s</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s (%2$d)</string>
+    <string name="about_tagline">The Dynamic Island, the Android way.</string>
+    <string name="about_check_update">Check for updates</string>
+    <string name="about_checking">Checking…</string>
+    <string name="about_up_to_date">Bulle is up to date.</string>
+    <string name="about_update_available">Version %1$s available</string>
+    <string name="about_update_error">Could not check: %1$s</string>
+    <string name="about_github">Source code on GitHub</string>
+    <string name="about_changelog">Version history</string>
+    <string name="about_changelog_missing">History unavailable.</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_privacy_local">100% local: everything stays on your phone.</string>
+    <string name="about_privacy_account">No account, no sign-up.</string>
+    <string name="about_privacy_analytics">No usage analytics, no trackers, no ads.</string>
+    <string name="about_permissions">Permissions</string>
+    <string name="about_permissions_manage">Set up permissions</string>
+    <string name="about_permission_open">Manage</string>
+    <string name="about_permission_granted">Granted</string>
+    <string name="about_permission_denied">Not granted</string>
+    <string name="about_copy">Copy</string>
+    <string name="about_copied">Command copied.</string>
+
+    <string name="perm_accessibility">Accessibility</string>
+    <string name="perm_accessibility_why">Draws the island over other apps and detects fullscreen. Bulle does not read your screen content.</string>
+    <string name="perm_listener">Notification access</string>
+    <string name="perm_listener_why">Turns your notifications, calls and music playback into island activities.</string>
+    <string name="perm_notifications">Notifications</string>
+    <string name="perm_notifications_why">Discreet notification for the service that keeps the island alive.</string>
+    <string name="perm_install">Install apps</string>
+    <string name="perm_install_why">Installs Bulle updates downloaded from GitHub, after your confirmation.</string>
+    <string name="perm_battery">Battery optimization</string>
+    <string name="perm_battery_why">Prevents the system from stopping the island in the background.</string>
+    <string name="perm_bluetooth">Bluetooth</string>
+    <string name="perm_bluetooth_why">Headphone connection alerts and device battery levels.</string>
+    <string name="perm_location">Location</string>
+    <string name="perm_location_why">Required by Android to read the Wi-Fi network name. Your location is never used.</string>
+    <string name="perm_images">Images</string>
+    <string name="perm_images_why">Detects new screenshots to show a preview.</string>
+    <string name="perm_write_settings">Modify system settings</string>
+    <string name="perm_write_settings_why">Gestures that change brightness, rotation or other settings.</string>
+    <string name="perm_secure_settings">Secure settings (adb)</string>
+    <string name="perm_secure_settings_why">Optional: automatically re-enables the accessibility service if it gets turned off. Only granted through adb; to revoke it:</string>
+    <string name="perm_internet">Internet</string>
+    <string name="perm_internet_why">Only for synced lyrics (LRCLIB) and update checks (GitHub). No other data is sent.</string>
+</resources>

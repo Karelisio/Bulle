@@ -101,6 +101,34 @@ kotlin {
     }
 }
 
+// CHANGELOG.md (racine) embarqué dans les assets pour l'écran À propos.
+abstract class CopyChangelogTask : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val source: RegularFileProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun copy() {
+        val out = outputDir.get().asFile
+        out.deleteRecursively()
+        out.mkdirs()
+        source.get().asFile.copyTo(File(out, "CHANGELOG.md"), overwrite = true)
+    }
+}
+
+val copyChangelogAsset = tasks.register<CopyChangelogTask>("copyChangelogAsset") {
+    source.set(rootProject.layout.projectDirectory.file("CHANGELOG.md"))
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyChangelogAsset, CopyChangelogTask::outputDir)
+    }
+}
+
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
