@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.karelisio.bulle.modules.deck.ui.DeckSettingsScreen
 import com.karelisio.bulle.modules.deck.ui.DeckTabScreen
+import com.karelisio.bulle.modules.alerts.ui.AlertsSettingsScreen
 import com.karelisio.bulle.modules.call.ui.CallSettingsScreen
 import com.karelisio.bulle.modules.live.ui.LiveSettingsScreen
 import com.karelisio.bulle.modules.rules.ui.RulesScreen
@@ -27,6 +28,7 @@ object Routes {
     const val RULES = "rules"
     const val LIVE = "live"
     const val CALLS = "calls"
+    const val ALERTS = "alerts"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
 }
@@ -48,6 +50,7 @@ fun BulleNavHost() {
         composable(Routes.RULES) { RulesScreen(onBack = back) }
         composable(Routes.LIVE) { LiveSettingsScreen(onBack = back) }
         composable(Routes.CALLS) { CallSettingsScreen(onBack = back) }
+        composable(Routes.ALERTS) { AlertsSettingsScreen(onBack = back) }
         composable(Routes.DECK) { DeckSettingsScreen(onBack = back, onOpenTab = { nav.navigate(Routes.deckTab(it)) }) }
         composable(Routes.DECK_TAB) { entry ->
             DeckTabScreen(tabId = entry.arguments?.getString("id").orEmpty(), onBack = back)

@@ -2,8 +2,10 @@ package com.karelisio.bulle.modules
 
 import com.karelisio.bulle.core.island.ModuleRegistry
 import com.karelisio.bulle.core.island.Panels
+import com.karelisio.bulle.modules.alerts.AlertsModule
 import com.karelisio.bulle.modules.call.CallModule
 import com.karelisio.bulle.modules.deck.DeckPanel
+import com.karelisio.bulle.modules.echo.EchoModule
 import com.karelisio.bulle.modules.live.LiveModule
 import com.karelisio.bulle.modules.push.PushModule
 
@@ -13,6 +15,8 @@ object Modules {
         ModuleRegistry.register(PushModule)
         ModuleRegistry.register(LiveModule)
         ModuleRegistry.register(CallModule)
+        ModuleRegistry.register(AlertsModule)
+        ModuleRegistry.register(EchoModule)
         Panels.deck = DeckPanel
     }
 }

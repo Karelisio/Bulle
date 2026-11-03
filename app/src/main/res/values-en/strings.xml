@@ -138,4 +138,5 @@
     <string name="save">Save</string>
     <string name="home_entry_live">Live activities</string>
     <string name="home_entry_calls">Calls</string>
+    <string name="home_entry_alerts">Alerts and Echo</string>
 </resources>
