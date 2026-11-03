@@ -16,3 +16,6 @@ keystore.properties
 google-services.json
 # OS
 .DS_Store
+
+# Worktrees locaux des agents
+.claude/worktrees/
