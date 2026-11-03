@@ -12,6 +12,25 @@
         android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- Module Alertes système (modules/alerts) : les permissions d'exécution
+         ne sont demandées qu'à l'activation de l'alerte concernée. -->
+    <!-- Wi-Fi : état du réseau ; le nom (SSID) exige en plus la localisation précise. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Bluetooth : appareils connectés et leur batterie. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Captures d'écran : lecture des images (Android 13+ / Android 12). -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- Applis installées : nom et icône (distribution hors Play Store). -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
     <application
         android:name=".BulleApp"
         android:allowBackup="false"
