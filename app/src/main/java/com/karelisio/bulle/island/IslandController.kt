@@ -1,6 +1,9 @@
 package com.karelisio.bulle.island
 
 import android.content.Context
+import com.karelisio.bulle.core.actions.ActionExecutor
+import com.karelisio.bulle.core.actions.ActionType
+import com.karelisio.bulle.core.actions.GestureAction
 import com.karelisio.bulle.core.island.Arrangement
 import com.karelisio.bulle.core.island.ContentHub
 import com.karelisio.bulle.core.island.IslandArbiter
@@ -9,6 +12,8 @@ import com.karelisio.bulle.core.island.IslandGesture
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.IslandPanel
 import com.karelisio.bulle.core.island.ModuleEnv
+import com.karelisio.bulle.core.island.Panels
+import com.karelisio.bulle.modules.search.AppSearchPanel
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.MotionSettings
 import com.karelisio.bulle.core.settings.SettingsRepository
@@ -33,6 +38,8 @@ data class IslandUiState(
     val expanded: Boolean = false,
     val panel: IslandPanel? = null,
     val motion: MotionSettings = MotionSettings(),
+    /** Le double toucher n'est détecté que s'il a une action (sinon le toucher simple serait retardé). */
+    val doubleTapEnabled: Boolean = false,
 )
 
 /** Ce que l'utilisateur a fait de l'île (étendue, échange des bulles, panneau ouvert). */
@@ -86,6 +93,7 @@ class IslandController(
             expanded = expanded,
             panel = i.panel,
             motion = s.motion,
+            doubleTapEnabled = s.gestures.doubleTap.type != ActionType.NONE,
         )
     }.stateIn(scope, SharingStarted.Eagerly, IslandUiState())
 
@@ -122,19 +130,55 @@ class IslandController(
 
     // --- Gestes ---
 
+    private val executor = ActionExecutor(
+        context,
+        object : ActionExecutor.IslandActions {
+            override fun toggleExpand() = this@IslandController.toggleExpand()
+            override fun swapBubbles() = this@IslandController.swapBubbles()
+            override fun openAppSearch() = openPanel(AppSearchPanel)
+            override fun openDeck() {
+                val deck = Panels.deck
+                if (deck != null) openPanel(deck) else toggleExpand()
+            }
+        },
+    )
+
     fun onGesture(gesture: IslandGesture) {
         autoCollapseJob?.cancel()
         val st = state.value
-        when (gesture) {
-            IslandGesture.TAP -> when {
-                st.expanded && st.panel != null -> closePanel()
-                st.expanded -> if (st.primary?.onExpandedTap(this) != true) collapse()
-                st.primary?.expandable == true -> expand(st.primary.key)
-            }
-            IslandGesture.SWIPE_DOWN -> st.primary?.takeIf { it.expandable && !st.expanded }?.let { expand(it.key) }
-            IslandGesture.SWIPE_UP -> if (st.expanded) { closePanel(); collapse() }
-            else -> Unit // Actions configurables : étape « gestes ».
+        // Gestes contextuels quand l'île est étendue.
+        if (gesture == IslandGesture.SWIPE_UP) {
+            if (st.expanded) { closePanel(); collapse() }
+            return
         }
+        if (st.expanded && gesture == IslandGesture.TAP) {
+            when {
+                st.panel != null -> closePanel()
+                st.primary?.onExpandedTap(this) != true -> collapse()
+            }
+            return
+        }
+        val action = settings.value.gestures.actionFor(gesture) ?: return
+        executor.run(action)
+    }
+
+    /** Exécute une action (gestes, règles automatiques). */
+    fun runAction(action: GestureAction) = executor.run(action)
+
+    fun toggleExpand() {
+        val st = state.value
+        when {
+            st.expanded -> { closePanel(); collapse() }
+            st.primary?.expandable == true -> expand(st.primary.key)
+        }
+    }
+
+    /** Touche Retour pendant une saisie : ferme le panneau. */
+    fun onBack(): Boolean {
+        if (!state.value.expanded) return false
+        closePanel()
+        collapse()
+        return true
     }
 
     fun onOutsideTouch() {

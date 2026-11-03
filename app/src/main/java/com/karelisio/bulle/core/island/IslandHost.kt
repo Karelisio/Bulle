@@ -27,3 +27,9 @@ interface IslandPanel {
 
 /** Gestes reconnus sur l'île. */
 enum class IslandGesture { TAP, DOUBLE_TAP, LONG_PRESS, SWIPE_LEFT, SWIPE_RIGHT, SWIPE_DOWN, SWIPE_UP }
+
+/** Panneaux fournis par les modules (le Deck est enregistré par son module). */
+object Panels {
+    @Volatile
+    var deck: IslandPanel? = null
+}

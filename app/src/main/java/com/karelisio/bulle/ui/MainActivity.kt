@@ -10,7 +10,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.karelisio.bulle.ui.home.HomeScreen
 import com.karelisio.bulle.system.Reliability
 import com.karelisio.bulle.ui.theme.BulleTheme
 
@@ -42,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             BulleTheme {
-                HomeScreen()
+                BulleNavHost()
             }
         }
     }

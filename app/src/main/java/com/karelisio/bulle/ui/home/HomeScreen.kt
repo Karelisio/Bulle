@@ -28,6 +28,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.TouchApp
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalButton
@@ -70,7 +75,7 @@ import com.karelisio.bulle.ui.components.rememberReduceMotion
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onOpen: (String) -> Unit = {}) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settings by remember { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
@@ -147,6 +152,8 @@ fun HomeScreen() {
                     )
                 }
             }
+            Spacer(Modifier.height(24.dp))
+            SettingsSection(onOpen)
             Spacer(Modifier.height(16.dp))
             FilledTonalButton(
                 enabled = running && settings.islandEnabled,
@@ -241,5 +248,35 @@ private fun BreathingBubble() {
                 .clip(MaterialShapes.Circle.toShape())
                 .background(MaterialTheme.colorScheme.primary),
         )
+    }
+}
+
+/** Entrées des écrans de réglages. */
+private data class SettingsEntry(val route: String, val titleRes: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+
+private val settingsEntries = listOf(
+    SettingsEntry(com.karelisio.bulle.ui.Routes.GESTURES, R.string.gestures_title, Icons.Rounded.TouchApp),
+)
+
+@Composable
+private fun SettingsSection(onOpen: (String) -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        Text(
+            stringResource(R.string.home_settings_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+        )
+        Card(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+            settingsEntries.forEach { entry ->
+                ListItem(
+                    headlineContent = { Text(stringResource(entry.titleRes)) },
+                    leadingContent = { Icon(entry.icon, contentDescription = null) },
+                    trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) },
+                    colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+                    modifier = Modifier.clickable { onOpen(entry.route) },
+                )
+            }
+        }
     }
 }

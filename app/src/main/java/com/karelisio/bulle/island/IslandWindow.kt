@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.util.Log
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -30,6 +31,7 @@ class IslandWindow(private val context: Context) {
 
     var onOutsideTouch: () -> Unit = {}
     var onStatusBarVisibility: (Boolean) -> Unit = {}
+    var onBack: () -> Boolean = { false }
 
     private val params = LP(
         1, 1,
@@ -130,6 +132,14 @@ class IslandWindow(private val context: Context) {
                 return true
             }
             return super.dispatchTouchEvent(ev)
+        }
+
+        override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+            if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+                if (event.action == KeyEvent.ACTION_UP) onBack()
+                return true
+            }
+            return super.dispatchKeyEvent(event)
         }
     }
 

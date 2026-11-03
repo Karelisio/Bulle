@@ -12,6 +12,17 @@
         android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- Applis lançables et raccourcis d'applis (gestes, recherche, Deck) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CREATE_SHORTCUT" />
+        </intent>
+    </queries>
+
     <application
         android:name=".BulleApp"
         android:allowBackup="false"

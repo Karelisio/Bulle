@@ -60,6 +60,7 @@ class IslandAccessibilityService : AccessibilityService() {
         val c = IslandController(this, scope, w).also { controller = it }
         _controller.value = c
         w.onOutsideTouch = c::onOutsideTouch
+        w.onBack = c::onBack
         w.onStatusBarVisibility = { visible -> c.updateScreen { it.copy(statusBarVisible = visible) } }
 
         // Géométrie : recalculée à chaque rotation / changement d'écran / réglage fin.

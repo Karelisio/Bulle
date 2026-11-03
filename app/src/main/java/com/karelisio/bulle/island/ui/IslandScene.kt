@@ -200,7 +200,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                     shadowElevation = if (mode == Mode.EXPANDED) 8.dp.toPx() else 0f
                 }
                 .background(Color.Black)
-                .islandGestures(enabled = mode != Mode.HIDDEN, onGesture = controller::onGesture),
+                .islandGestures(enabled = mode != Mode.HIDDEN, doubleTap = state.doubleTapEnabled, onGesture = controller::onGesture),
         ) {
             // Vue compacte : emplacements de part et d'autre de la caméra.
             if (mode == Mode.COMPACT || compactAlpha.value > 0f) {
@@ -294,12 +294,13 @@ private fun envelope(anim: SurfaceAnim, t: SurfaceTarget, overshoot: Float, shad
 }
 
 /** Reconnaissance des gestes sur l'île : toucher, appui long et glissements. */
-private fun Modifier.islandGestures(enabled: Boolean, onGesture: (IslandGesture) -> Unit): Modifier {
+private fun Modifier.islandGestures(enabled: Boolean, doubleTap: Boolean, onGesture: (IslandGesture) -> Unit): Modifier {
     if (!enabled) return this
     return this
-        .pointerInput(Unit) {
+        .pointerInput(doubleTap) {
             detectTapGestures(
                 onTap = { onGesture(IslandGesture.TAP) },
+                onDoubleTap = if (doubleTap) ({ onGesture(IslandGesture.DOUBLE_TAP) }) else null,
                 onLongPress = { onGesture(IslandGesture.LONG_PRESS) },
             )
         }
