@@ -1,6 +1,8 @@
 package com.karelisio.bulle.core.settings
 
 import com.karelisio.bulle.core.actions.GestureSettings
+import com.karelisio.bulle.core.backup.BackupSettings
+import com.karelisio.bulle.core.update.UpdateSettings
 import com.karelisio.bulle.modules.alerts.AlertSettings
 import com.karelisio.bulle.modules.call.CallSettings
 import com.karelisio.bulle.modules.deck.DeckSettings
@@ -17,6 +19,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BulleSettings(
     val islandEnabled: Boolean = true,
+    /** Onboarding terminé (premier lancement). */
+    val onboardingDone: Boolean = false,
     val position: PositionTweak = PositionTweak(),
     val visibility: VisibilitySettings = VisibilitySettings(),
     val motion: MotionSettings = MotionSettings(),
@@ -24,6 +28,8 @@ data class BulleSettings(
     val gestures: GestureSettings = GestureSettings(),
     val deck: DeckSettings = DeckSettings(),
     val rules: RulesSettings = RulesSettings(),
+    val update: UpdateSettings = UpdateSettings(),
+    val backup: BackupSettings = BackupSettings(),
     /** Activation par module (id → activé). Absent = valeur par défaut du module. */
     val modules: Map<String, Boolean> = emptyMap(),
     // Réglages propres à chaque module (un fichier par module).
