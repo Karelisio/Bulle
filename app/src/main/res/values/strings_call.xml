@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module « Appels » -->
+    <string name="module_call">Appels</string>
+    <string name="call_unknown">Appel</string>
+    <string name="call_incoming">Appel entrant</string>
+    <string name="call_incoming_video">Appel vidéo entrant</string>
+    <string name="call_screening">Filtrage de l’appel</string>
+    <string name="call_answer">Décrocher</string>
+    <string name="call_decline">Refuser</string>
+    <string name="call_hang_up">Raccrocher</string>
+    <string name="call_settings_title">Appels</string>
+    <string name="call_settings_back">Retour</string>
+    <string name="call_settings_enable">Afficher les appels dans l’île</string>
+    <string name="call_settings_enable_summary">Appels entrants et en cours, avec leur durée.</string>
+    <string name="call_settings_auto_expand">Ouvrir l’île quand ça sonne</string>
+    <string name="call_settings_auto_expand_summary">Les boutons Décrocher et Refuser à portée de pouce.</string>
+    <string name="call_settings_privacy">Aucune permission téléphonie : Bulle utilise seulement les boutons de la notification d’appel.</string>
+</resources>

@@ -6,4 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LiveSettings(
     val enabled: Boolean = true,
+    /** Paquets dont les activités en cours ne doivent jamais apparaître dans l'île. */
+    val excludedPackages: Set<String> = emptySet(),
+    /** Afficher aussi les téléchargements et progressions génériques (non promus). */
+    val showGenericProgress: Boolean = true,
 )
