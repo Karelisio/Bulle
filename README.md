@@ -8,6 +8,34 @@ Une « Dynamic Island » pour Android : une bulle animée posée autour du trou 
 - Kotlin + Jetpack Compose, Material 3 Expressive
 - minSdk 31 · targetSdk 36
 
+## Fonctionnalités (V1)
+
+- **L'île** : bulle noire calée automatiquement sur le trou de caméra (pilule du Honor Magic7 Pro comprise), réglage fin au demi-dp, taille, forme (pilule, goutte, arrondie), couleur, contour, ombre.
+- **Gonflement** au ressort, contenu en fondu décalé, rebond au repli ; **scission liquide** (shader AGSL) de la bulle secondaire ; **éclat** de bulles irisées à chaque alerte ; reflet irisé au changement de contenu.
+- **Musique** : pochette qui respire, égaliseur aux couleurs de la pochette, carte avec scrubber ondulé, lecture/pause en morphing, paroles synchronisées (lecteur ou LRCLIB en option, cache local).
+- **Activités en cours** : minuteurs, chronos, navigation, livraisons, VTC, téléchargements (dont ProgressStyle d'Android 16).
+- **Appels** : entrant (décrocher / raccrocher) et en cours avec la durée.
+- **Alertes** activables une à une : batterie faible, charge, casque Bluetooth, Wi-Fi, alarme, lampe torche (+ variateur), mode avion, Ne pas déranger, capture d'écran, appli installée/désinstallée, presse-papiers. **Écho** : cœur pulsé.
+- **Gestes** configurables (toucher, double toucher, appui long, glissements) vers plus de 25 actions, dont la recherche d'applis directement sur l'île.
+- **Deck** : onglets d'applis favorites (icônes thématiques), raccourcis et widgets.
+- **Règles** : « Quand <déclencheur>, <action> » (appli, casque, charge, heure, Wi-Fi).
+- **Masquage auto** : plein écran, paysage, écran verrouillé, applis choisies.
+- **Fiabilité** : service au premier plan discret, surveillance WorkManager, redémarrage au boot, tuile Réglages rapides.
+
+## Architecture
+
+```
+core/island    IslandContent, IslandModule + ModuleRegistry, Priority, ContentHub, IslandArbiter
+core/settings  BulleSettings (JSON, DataStore) — un sous-objet par fonctionnalité
+core/actions   Gestes → actions (ActionExecutor)
+island/        Service d'accessibilité, fenêtre d'overlay, contrôleur d'état, rendu Compose
+modules/       Un dossier par contenu : music, live, call, alerts, echo, deck, rules, push, search
+notifications/ NotificationListenerService partagé
+system/        Maintien en vie, surveillance, boot, tuile
+```
+
+Chaque contenu de l'île est un **module indépendant** (source + priorité + vue compacte + vue étendue) enregistré dans `modules/Modules.kt` : ajouter un module ne touche pas au cœur.
+
 ## Installation
 
 Télécharger le dernier APK depuis les [Releases](https://github.com/karelisio/bulle/releases/latest). L'appli se met ensuite à jour toute seule.
