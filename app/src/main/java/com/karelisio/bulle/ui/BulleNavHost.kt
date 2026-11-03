@@ -22,7 +22,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.karelisio.bulle.modules.deck.ui.DeckSettingsScreen
 import com.karelisio.bulle.modules.deck.ui.DeckTabScreen
+import com.karelisio.bulle.core.backup.BackupScreen
 import com.karelisio.bulle.modules.alerts.ui.AlertsSettingsScreen
+import com.karelisio.bulle.ui.about.AboutScreen
+import com.karelisio.bulle.ui.onboarding.PermissionsScreen
+import com.karelisio.bulle.ui.onboarding.ReliabilityScreen
 import com.karelisio.bulle.modules.call.ui.CallSettingsScreen
 import com.karelisio.bulle.modules.music.ui.MusicSettingsScreen
 import com.karelisio.bulle.modules.live.ui.LiveSettingsScreen
@@ -43,6 +47,10 @@ object Routes {
     const val CALLS = "calls"
     const val ALERTS = "alerts"
     const val MUSIC = "music"
+    const val PERMISSIONS = "permissions"
+    const val RELIABILITY = "reliability"
+    const val BACKUP = "backup"
+    const val ABOUT = "about"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
 }
@@ -72,6 +80,10 @@ fun BulleNavHost() {
         composable(Routes.CALLS) { CallSettingsScreen(onBack = back) }
         composable(Routes.ALERTS) { AlertsSettingsScreen(onBack = back) }
         composable(Routes.MUSIC) { MusicSettingsScreen(onBack = back) }
+        composable(Routes.PERMISSIONS) { PermissionsScreen(onBack = back) }
+        composable(Routes.RELIABILITY) { ReliabilityScreen(onBack = back) }
+        composable(Routes.BACKUP) { BackupScreen(onBack = back) }
+        composable(Routes.ABOUT) { AboutScreen(onBack = back, onOpenPermissions = { nav.navigate(Routes.PERMISSIONS) }) }
         composable(Routes.DECK) { DeckSettingsScreen(onBack = back, onOpenTab = { nav.navigate(Routes.deckTab(it)) }) }
         composable(Routes.DECK_TAB) { entry ->
             DeckTabScreen(tabId = entry.arguments?.getString("id").orEmpty(), onBack = back)

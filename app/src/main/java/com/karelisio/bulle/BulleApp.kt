@@ -2,6 +2,7 @@ package com.karelisio.bulle
 
 import android.app.Application
 import androidx.work.Configuration
+import com.karelisio.bulle.core.backup.BackupScheduler
 import com.karelisio.bulle.modules.Modules
 import com.karelisio.bulle.system.Reliability
 
@@ -15,5 +16,6 @@ class BulleApp : Application(), Configuration.Provider {
         super.onCreate()
         Modules.registerAll()
         Reliability.scheduleWatchdog(this)
+        BackupScheduler.schedule(this)
     }
 }

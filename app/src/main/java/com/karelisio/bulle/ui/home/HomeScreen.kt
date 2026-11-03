@@ -32,6 +32,11 @@ import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.HealthAndSafety
+import androidx.compose.material.icons.rounded.VerifiedUser
+import androidx.compose.material.icons.rounded.SettingsBackupRestore
+import androidx.compose.material.icons.rounded.Info
+import com.karelisio.bulle.ui.components.cascade
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.OpenWith
@@ -227,75 +232,52 @@ private fun StatusCard(ok: Boolean, title: String, text: String, action: String,
     }
 }
 
-/** Forme M3 Expressive qui respire et morphe en continu (cercle ⇄ cookie). */
-@Composable
-private fun BreathingBubble() {
-    val progress = if (rememberReduceMotion()) 0f else {
-        val transition = rememberInfiniteTransition(label = "breath")
-        val p by transition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(tween(2400), RepeatMode.Reverse),
-            label = "morph",
-        )
-        p
-    }
-    val morph = remember { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
-    Box(
-        modifier = Modifier
-            .size(120.dp)
-            .graphicsLayer {
-                val s = 1f + 0.06f * progress
-                scaleX = s; scaleY = s
-                rotationZ = 40f * progress
-            }
-            .clip(MorphShape(morph, progress))
-            .background(MaterialTheme.colorScheme.primaryContainer),
-    ) {
-        Box(
-            Modifier
-                .align(Alignment.Center)
-                .size(48.dp)
-                .clip(MaterialShapes.Circle.toShape())
-                .background(MaterialTheme.colorScheme.primary),
-        )
-    }
-}
-
-/** Entrées des écrans de réglages. */
+/** Entrées des écrans de réglages, groupées. */
 private data class SettingsEntry(val route: String, val titleRes: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 
-private val settingsEntries = listOf(
-    SettingsEntry(com.karelisio.bulle.ui.Routes.STYLE, R.string.home_entry_style, Icons.Rounded.Palette),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.POSITION, R.string.home_entry_position, Icons.Rounded.OpenWith),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.VISIBILITY, R.string.home_entry_visibility, Icons.Rounded.VisibilityOff),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.MUSIC, R.string.home_entry_music, Icons.Rounded.MusicNote),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.LIVE, R.string.home_entry_live, Icons.Rounded.Timer),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.CALLS, R.string.home_entry_calls, Icons.Rounded.Call),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.ALERTS, R.string.home_entry_alerts, Icons.Rounded.NotificationsActive),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.GESTURES, R.string.gestures_title, Icons.Rounded.TouchApp),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.DECK, R.string.deck_title, Icons.Rounded.Dashboard),
-    SettingsEntry(com.karelisio.bulle.ui.Routes.RULES, R.string.rules_title, Icons.Rounded.AutoAwesome),
+private val settingsGroups: List<Pair<Int, List<SettingsEntry>>> = listOf(
+    R.string.home_group_island to listOf(
+        SettingsEntry(com.karelisio.bulle.ui.Routes.STYLE, R.string.home_entry_style, Icons.Rounded.Palette),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.POSITION, R.string.home_entry_position, Icons.Rounded.OpenWith),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.VISIBILITY, R.string.home_entry_visibility, Icons.Rounded.VisibilityOff),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.GESTURES, R.string.gestures_title, Icons.Rounded.TouchApp),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.DECK, R.string.deck_title, Icons.Rounded.Dashboard),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.RULES, R.string.rules_title, Icons.Rounded.AutoAwesome),
+    ),
+    R.string.home_group_contents to listOf(
+        SettingsEntry(com.karelisio.bulle.ui.Routes.MUSIC, R.string.home_entry_music, Icons.Rounded.MusicNote),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.LIVE, R.string.home_entry_live, Icons.Rounded.Timer),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.CALLS, R.string.home_entry_calls, Icons.Rounded.Call),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.ALERTS, R.string.home_entry_alerts, Icons.Rounded.NotificationsActive),
+    ),
+    R.string.home_group_app to listOf(
+        SettingsEntry(com.karelisio.bulle.ui.Routes.RELIABILITY, R.string.home_entry_reliability, Icons.Rounded.HealthAndSafety),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.PERMISSIONS, R.string.home_entry_permissions, Icons.Rounded.VerifiedUser),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.BACKUP, R.string.home_entry_backup, Icons.Rounded.SettingsBackupRestore),
+        SettingsEntry(com.karelisio.bulle.ui.Routes.ABOUT, R.string.home_entry_about, Icons.Rounded.Info),
+    ),
 )
 
 @Composable
 private fun SettingsSection(onOpen: (String) -> Unit) {
     Column(Modifier.fillMaxWidth()) {
-        Text(
-            stringResource(R.string.home_settings_title),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
-        )
-        Card(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
-            settingsEntries.forEach { entry ->
-                ListItem(
-                    headlineContent = { Text(stringResource(entry.titleRes)) },
-                    leadingContent = { Icon(entry.icon, contentDescription = null) },
-                    trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) },
-                    colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
-                    modifier = Modifier.clickable { onOpen(entry.route) },
-                )
+        settingsGroups.forEachIndexed { g, (titleRes, entries) ->
+            Text(
+                stringResource(titleRes),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp, top = if (g == 0) 0.dp else 16.dp),
+            )
+            Card(Modifier.fillMaxWidth().cascade(g), shape = MaterialTheme.shapes.extraLarge) {
+                entries.forEach { entry ->
+                    ListItem(
+                        headlineContent = { Text(stringResource(entry.titleRes)) },
+                        leadingContent = { Icon(entry.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                        trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null) },
+                        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+                        modifier = Modifier.clickable { onOpen(entry.route) },
+                    )
+                }
             }
         }
     }

@@ -183,4 +183,11 @@
     <string name="home_entry_position">Position</string>
     <string name="home_entry_visibility">Masquage</string>
     <string name="home_entry_music">Musique</string>
+    <string name="home_group_island">L’île</string>
+    <string name="home_group_contents">Contenus</string>
+    <string name="home_group_app">Appli</string>
+    <string name="home_entry_reliability">Fiabilité</string>
+    <string name="home_entry_permissions">Autorisations</string>
+    <string name="home_entry_backup">Sauvegarde</string>
+    <string name="home_entry_about">À propos</string>
 </resources>
