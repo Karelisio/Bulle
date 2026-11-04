@@ -173,16 +173,7 @@ class VoletController(
         if (panel == null) return
         val cur = anim.value
         val v = velocityPxPerSec / (if (cur < 1f) halfDistance else fullDistance)
-        var target = when {
-            v > 1.2f -> if (cur >= 1f) 2f else 1f
-            v < -1.2f -> if (cur > 1.02f) 1f else 0f
-            cur < 0.4f -> 0f
-            cur < 1.45f -> 1f
-            else -> 2f
-        }
-        if (zone == VoletZone.QUICK_SETTINGS && dragLimit == 2f && cur < 1f && v > 1.2f && target == 1f && cur > 0.15f) target = 2f
-        target = target.coerceAtMost(dragLimit.coerceAtLeast(1f))
-        animateTo(target, v)
+        animateTo(VoletMotion.settleTarget(cur, v, zone, dragLimit), v)
     }
 
     override fun close() = animateTo(0f, 0f)
@@ -296,3 +287,23 @@ class VoletController(
     }
 }
 
+
+/** Logique pure du relâchement (testable). */
+object VoletMotion {
+    /**
+     * Position d'arrivée après relâchement : 0 fermé, 1 à demi, 2 complet.
+     * [velocity] est exprimée en « expansions par seconde » (positive vers le bas).
+     */
+    fun settleTarget(cur: Float, velocity: Float, zone: VoletZone, dragLimit: Float): Float {
+        var target = when {
+            velocity > 1.2f -> if (cur >= 1f) 2f else 1f
+            velocity < -1.2f -> if (cur > 1.02f) 1f else 0f
+            cur < 0.4f -> 0f
+            cur < 1.45f -> 1f
+            else -> 2f
+        }
+        // Depuis la zone des réglages rapides, un lancer vers le bas ouvre directement la grille.
+        if (zone == VoletZone.QUICK_SETTINGS && dragLimit >= 2f && cur in 0.15f..1f && velocity > 1.2f) target = 2f
+        return target.coerceAtMost(dragLimit.coerceAtLeast(1f))
+    }
+}
