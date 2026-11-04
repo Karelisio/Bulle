@@ -95,6 +95,9 @@ class IslandController(
 
     private val hub = ContentHub(ModuleEnv(context, scope, settings))
     private val screen = MutableStateFlow(ScreenEnv())
+
+    /** État de l'écran (géométrie de l'île, plein écran, verrouillage), lu par le Volet. */
+    val screenEnv: StateFlow<ScreenEnv> get() = screen
     private val interaction = MutableStateFlow(Interaction())
 
     private val arrangement: StateFlow<Arrangement> =
@@ -231,7 +234,7 @@ class IslandController(
         window.setFocusable(false)
     }
 
-    override fun requestInput(enabled: Boolean) = window.setFocusable(enabled)
+    override fun requestInput(enabled: Boolean) = window.setFocusable(enabled, showKeyboard = enabled)
 
     /** À appeler quand l'île s'arrête. */
     fun release() = rules.stop()

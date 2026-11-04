@@ -8,7 +8,7 @@ import com.karelisio.bulle.core.island.IslandModule
 import com.karelisio.bulle.core.island.ModuleEnv
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.modules.live.LiveModule
-import com.karelisio.bulle.modules.live.NotificationIcons
+import com.karelisio.bulle.notifications.NotificationIcons
 import com.karelisio.bulle.notifications.NotificationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

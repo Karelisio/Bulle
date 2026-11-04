@@ -1,5 +1,6 @@
 package com.karelisio.bulle.modules.call
 
+import com.karelisio.bulle.notifications.NotificationIntents
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -58,7 +59,6 @@ import com.karelisio.bulle.R
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
-import com.karelisio.bulle.modules.live.NotificationIntents
 import com.karelisio.bulle.modules.live.ui.CompactDigits
 import com.karelisio.bulle.modules.live.ui.RollingText
 import com.karelisio.bulle.modules.live.ui.rememberWallClock

@@ -10,6 +10,7 @@ import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.view.accessibility.AccessibilityEvent
 import com.karelisio.bulle.island.ui.IslandScene
+import com.karelisio.bulle.modules.volet.VoletController
 import com.karelisio.bulle.system.Reliability
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -30,6 +31,7 @@ class IslandAccessibilityService : AccessibilityService() {
     private val scope = MainScope()
     private var window: IslandWindow? = null
     private var controller: IslandController? = null
+    private var volet: com.karelisio.bulle.modules.volet.VoletController? = null
     private val screenTick = MutableStateFlow(0)
 
     private val displayListener = object : DisplayManager.DisplayListener {
@@ -77,6 +79,8 @@ class IslandAccessibilityService : AccessibilityService() {
         }
         refreshLock()
         w.show { IslandScene(c) }
+        // Volet : créé après l'île ; ne pose aucune fenêtre tant qu'il est désactivé.
+        volet = VoletController(this, scope, c).also { it.start(); VoletController.register(it) }
     }
 
     private fun refreshLock() {
@@ -115,6 +119,9 @@ class IslandAccessibilityService : AccessibilityService() {
         _controller.value = null
         runCatching { getSystemService(DisplayManager::class.java).unregisterDisplayListener(displayListener) }
         runCatching { unregisterReceiver(screenReceiver) }
+        VoletController.register(null)
+        volet?.destroy()
+        volet = null
         controller?.release()
         window?.destroy()
         window = null
