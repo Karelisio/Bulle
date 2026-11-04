@@ -109,6 +109,6 @@ object NotifModelFactory {
 
     /** Réglage système « afficher le contenu sensible sur l'écran verrouillé » (masqué par défaut). */
     private fun allowPrivateOnLockscreen(context: Context): Boolean = runCatching {
-        Settings.Secure.getInt(context.contentResolver, "lock_screen_allow_private_notifications", 0) != 0
+        Settings.Secure.getInt(context.contentResolver, "lock_screen_allow_private_notifications", 1) != 0
     }.getOrDefault(false)
 }

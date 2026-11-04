@@ -74,16 +74,16 @@ internal fun rememberNotifListModel(host: VoletHost): NotifListModel {
     val active by NotificationRepository.active.collectAsState()
     val rankingVersion by NotificationRepository.rankingVersion.collectAsState()
     val locked = host.locked
-    val excluded = host.settings.excludedApps
     val context = host.context
-    return remember(active, rankingVersion, locked, excluded) {
+    return remember(active, rankingVersion, locked) {
         runCatching {
             NotifModelFactory.build(
                 context,
                 active.values,
                 ranking = { key -> NotificationRepository.ranking(key)?.let(RankInfo::from) },
                 locked = locked,
-                excludedApps = excluded,
+                // Les applis exclues désactivent seulement l'ouverture du Volet, pas leurs notifications.
+                excludedApps = emptySet(),
             )
         }.getOrDefault(NotifListModel.EMPTY)
     }
