@@ -111,30 +111,6 @@ class IslandAccessibilityService : AccessibilityService() {
         return FullscreenDetector.statusBarVisible(this, info.width, info.statusBarHeight)
     }
 
-    /** Plein écran : présence de la fenêtre de barre d'état dans la liste des fenêtres. */
-    private fun refreshFullscreen() {
-        val c = controller ?: return
-        val visible = detectStatusBar() ?: return
-        if (visible) windowListWorks = true
-        // Tant que la barre d'état n'a jamais été repérée, le signal n'est pas fiable sur cet appareil.
-        if (!windowListWorks) return
-        fullscreenJob?.cancel()
-        if (visible) {
-            c.updateScreen { it.copy(statusBarVisible = true) }
-        } else {
-            // Anti-rebond : pendant les transitions, la barre peut manquer un instant.
-            fullscreenJob = scope.launch {
-                delay(700)
-                if (detectStatusBar() == false) c.updateScreen { it.copy(statusBarVisible = false) }
-            }
-        }
-    }
-
-    private fun detectStatusBar(): Boolean? {
-        val info = CutoutLocator.screenInfo(this)
-        return FullscreenDetector.statusBarVisible(this, info.width, info.statusBarHeight)
-    }
-
     private fun refreshLock() {
         val locked = getSystemService(KeyguardManager::class.java).isKeyguardLocked
         controller?.updateScreen { it.copy(locked = locked) }
