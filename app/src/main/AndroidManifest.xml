@@ -35,9 +35,13 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
-    <!-- Module Volet (modules/volet/settings) : tuile « Ne pas déranger » des réglages
-         rapides ; l'accès est accordé par l'utilisateur dans les réglages système. -->
+    <!-- Module Volet, réglages rapides (modules/volet/qs) -->
+    <!-- Ne pas déranger : indispensable pour figurer dans « Accès Ne pas déranger ». -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <!-- Rotation auto, luminosité (accordée par l'utilisateur dans « Modifier les paramètres système »). -->
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
 
     <!-- Applis lançables et raccourcis d'applis (gestes, recherche, Deck) -->
     <queries>
@@ -149,6 +153,15 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+        <!-- Shizuku (facultatif) : reçoit le binder de Shizuku pour les bascules système du Volet. -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
         <!-- Langue par appli (Android 13+) sur Android 12 -->
         <service

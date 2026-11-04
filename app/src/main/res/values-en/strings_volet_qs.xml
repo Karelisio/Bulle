@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Volet: quick settings -->
+    <string name="volet_qs_wifi">Wi-Fi</string>
+    <string name="volet_qs_bluetooth">Bluetooth</string>
+    <string name="volet_qs_data">Mobile data</string>
+    <string name="volet_qs_nfc">NFC</string>
+    <string name="volet_qs_hotspot">Hotspot</string>
+    <string name="volet_qs_torch">Flashlight</string>
+    <string name="volet_qs_dnd">Do Not Disturb</string>
+    <string name="volet_qs_rotation">Auto-rotate</string>
+    <string name="volet_qs_auto_brightness">Auto brightness</string>
+    <string name="volet_qs_airplane">Airplane mode</string>
+    <string name="volet_qs_location">Location</string>
+    <string name="volet_qs_screenshot">Screenshot</string>
+    <string name="volet_qs_lock">Lock</string>
+    <string name="volet_qs_state_on">On</string>
+    <string name="volet_qs_state_off">Off</string>
+    <string name="volet_qs_state_unknown">Unknown</string>
+    <string name="volet_qs_brightness">Brightness</string>
+    <string name="volet_qs_edit_hint">Long-press and drag to rearrange</string>
+    <string name="volet_qs_edit_reset">Reset</string>
+    <string name="volet_qs_edit_done">Done</string>
+    <string name="volet_qs_available">Available tiles</string>
+    <string name="volet_qs_available_none">All tiles are shown.</string>
+    <string name="volet_qs_add_tile">Add %1$s</string>
+    <string name="volet_qs_remove_tile">Remove %1$s</string>
+</resources>
