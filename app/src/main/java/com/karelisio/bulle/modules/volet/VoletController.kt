@@ -236,8 +236,17 @@ class VoletController(
         p.setFocusable(true)
         panel = p
         blurJob = scope.launch {
+            var lastStep = 0
             snapshotFlow { anim.value }.collect { e ->
                 p.setBlur((settings.blurRadiusDp * density * min(e, 1f)).roundToInt())
+                // Petit cran haptique au passage de la demi-ouverture et de l'ouverture complète.
+                val step = when {
+                    e >= 1.98f -> 2
+                    e >= 0.98f -> 1
+                    else -> 0
+                }
+                if (step > lastStep) p.view?.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                lastStep = step
             }
         }
         return true
