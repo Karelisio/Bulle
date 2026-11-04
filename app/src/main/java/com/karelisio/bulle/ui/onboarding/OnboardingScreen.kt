@@ -73,6 +73,7 @@ import com.karelisio.bulle.system.OemSettings
 import com.karelisio.bulle.ui.components.cascade
 import com.karelisio.bulle.ui.components.rememberReduceMotion
 import com.karelisio.bulle.ui.settings.IslandPreview
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -97,7 +98,10 @@ fun OnboardingScreen(onFinished: () -> Unit) {
     val reduce = rememberReduceMotion()
     val permissions = rememberPermissionController()
     val family = remember { OemSettings.family }
-    val steps = remember { PermissionLogic.onboardingSteps(Build.VERSION.SDK_INT, family) }
+    // Pages propres au Volet (réglages système, Ne pas déranger) : seulement s'il est activé.
+    val voletEnabled by remember { SettingsRepository.flow(context).map { it.volet.enabled } }
+        .collectAsStateWithLifecycle(false)
+    val steps = remember(voletEnabled) { PermissionLogic.onboardingSteps(Build.VERSION.SDK_INT, family, voletEnabled) }
     val pages = remember(steps) {
         buildList {
             repeat(INTRO_COUNT) { add(OnboardingPage.Intro(it)) }
@@ -334,6 +338,8 @@ private fun PermissionPage(page: OnboardingPage.Permission, permissions: Permiss
             PermissionKey.INSTALL_PACKAGES -> R.string.perm_install_body
             PermissionKey.BATTERY -> R.string.perm_battery_body
             PermissionKey.OEM_LAUNCH -> if (honor) R.string.perm_oem_body_honor else R.string.perm_oem_body
+            PermissionKey.WRITE_SETTINGS -> R.string.perm_write_settings_volet_body
+            PermissionKey.DND_ACCESS -> R.string.perm_dnd_body
             else -> texts.desc
         }
         Text(

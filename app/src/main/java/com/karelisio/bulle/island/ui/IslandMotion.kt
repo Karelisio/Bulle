@@ -48,7 +48,7 @@ class IslandMotion(private val settings: MotionSettings, private val reduceMotio
 
     /** Apparition du contenu, décalée pour attendre que la bulle soit gonflée. */
     fun contentIn(): AnimationSpec<Float> =
-        if (reduceMotion) snap() else tween(durationMillis = (220 / speed).toInt(), delayMillis = (130 / speed).toInt())
+        if (reduceMotion) snap() else tween(durationMillis = (170 / speed).toInt(), delayMillis = (50 / speed).toInt())
 
     fun contentOut(): AnimationSpec<Float> = if (reduceMotion) snap() else tween(durationMillis = (90 / speed).toInt())
 

@@ -60,6 +60,7 @@ object EchoModule : IslandModule {
                 text = n.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString(),
                 contentIntent = n.contentIntent,
                 postedAt = alertNow(),
+                sourceKey = e.sbn.key,
             ) as IslandContent?
         }
         .latestAlive()
@@ -71,8 +72,10 @@ data class EchoContent(
     val text: String?,
     val contentIntent: PendingIntent?,
     override val postedAt: Long,
+    val sourceKey: String? = null,
 ) : IslandContent() {
     override val key = "echo:$postedAt"
+    override val notificationKey: String? get() = sourceKey
     override val moduleId = EchoModule.ID
     override val priority = Priority.ALERT
     override val timeoutMs = 4_000L

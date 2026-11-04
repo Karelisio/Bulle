@@ -1,5 +1,6 @@
 package com.karelisio.bulle.modules.live
 
+import com.karelisio.bulle.notifications.NotificationIntents
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -67,6 +68,7 @@ data class LiveContent(
     override val postedAt: Long,
 ) : IslandContent() {
     override val key = "live:" + activity.key
+    override val notificationKey: String get() = activity.key
     override val moduleId = LiveModule.ID
     override val priority = Priority.LIVE
 

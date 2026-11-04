@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Volet : réglages rapides -->
+    <string name="volet_qs_wifi">Wi-Fi</string>
+    <string name="volet_qs_bluetooth">Bluetooth</string>
+    <string name="volet_qs_data">Données mobiles</string>
+    <string name="volet_qs_nfc">NFC</string>
+    <string name="volet_qs_hotspot">Point d\'accès</string>
+    <string name="volet_qs_torch">Lampe torche</string>
+    <string name="volet_qs_dnd">Ne pas déranger</string>
+    <string name="volet_qs_rotation">Rotation auto</string>
+    <string name="volet_qs_auto_brightness">Luminosité auto</string>
+    <string name="volet_qs_airplane">Mode Avion</string>
+    <string name="volet_qs_location">Localisation</string>
+    <string name="volet_qs_screenshot">Capture d\'écran</string>
+    <string name="volet_qs_lock">Verrouiller</string>
+    <string name="volet_qs_state_on">Activé</string>
+    <string name="volet_qs_state_off">Désactivé</string>
+    <string name="volet_qs_state_unknown">État inconnu</string>
+    <string name="volet_qs_brightness">Luminosité</string>
+    <string name="volet_qs_edit_hint">Appui long puis glisser pour réorganiser</string>
+    <string name="volet_qs_edit_reset">Réinitialiser</string>
+    <string name="volet_qs_edit_done">OK</string>
+    <string name="volet_qs_available">Tuiles disponibles</string>
+    <string name="volet_qs_available_none">Toutes les tuiles sont affichées.</string>
+    <string name="volet_qs_add_tile">Ajouter %1$s</string>
+    <string name="volet_qs_remove_tile">Retirer %1$s</string>
+</resources>

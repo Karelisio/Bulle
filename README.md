@@ -20,6 +20,7 @@ Une « Dynamic Island » pour Android : une bulle animée posée autour du trou 
 - **Deck** : onglets d'applis favorites (icônes thématiques), raccourcis et widgets.
 - **Règles** : « Quand <déclencheur>, <action> » (appli, casque, charge, heure, Wi-Fi).
 - **Masquage auto** : plein écran, paysage, écran verrouillé, applis choisies.
+- **Volet** (0.2.0) : volet de notifications et de réglages rapides Material You à la place de celui de MagicOS, sans root (glisser depuis le haut, à gauche ou à droite de l'île). Shizuku facultatif pour basculer Wi-Fi, données, NFC et mode avion.
 - **Fiabilité** : service au premier plan discret, surveillance WorkManager, redémarrage au boot, tuile Réglages rapides.
 
 ## Architecture

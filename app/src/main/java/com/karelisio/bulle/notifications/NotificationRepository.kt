@@ -37,6 +37,22 @@ object NotificationRepository {
     /** Flux des publications / retraits, pour les réactions ponctuelles (Écho, alertes). */
     val events: SharedFlow<NotificationEvent> = _events.asSharedFlow()
 
+    private val _rankingVersion = MutableStateFlow(0)
+
+    /** Change à chaque mise à jour du classement (importance, conversation…). */
+    val rankingVersion: StateFlow<Int> = _rankingVersion.asStateFlow()
+
+    /** Classement système d'une notification (importance, conversation, canal), ou null. */
+    fun ranking(key: String): android.service.notification.NotificationListenerService.Ranking? {
+        val l = listener ?: return null
+        val r = android.service.notification.NotificationListenerService.Ranking()
+        return runCatching { if (l.currentRanking?.getRanking(key, r) == true) r else null }.getOrNull()
+    }
+
+    internal fun onRankingUpdate() {
+        _rankingVersion.update { it + 1 }
+    }
+
     private val _connected = MutableStateFlow(false)
 
     /** Le système a relié le listener (accès aux notifications accordé et actif). */

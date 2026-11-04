@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_section_conversations">Conversations</string>
+    <string name="notif_section_alerting">Alerting</string>
+    <string name="notif_section_silent">Silent</string>
+    <string name="notif_clear_all">Clear all</string>
+    <string name="notif_empty">No notifications</string>
+    <string name="notif_hidden">Contents hidden</string>
+    <string name="notif_time_now">Now</string>
+    <string name="notif_time_min">%1$d min</string>
+    <string name="notif_time_hour">%1$d h</string>
+    <string name="notif_time_day">%1$d d</string>
+    <string name="notif_settings">Notification settings</string>
+    <string name="notif_mute">Silence</string>
+    <string name="notif_snooze">Snooze for</string>
+    <string name="notif_snooze_15">15 min</string>
+    <string name="notif_snooze_60">1 h</string>
+    <string name="notif_snooze_120">2 h</string>
+    <string name="notif_done">Done</string>
+    <string name="notif_reply_hint">Reply…</string>
+    <string name="notif_send">Send</string>
+    <string name="notif_sending">Sending…</string>
+    <string name="notif_sent">Sent</string>
+    <string name="notif_expand">Expand</string>
+    <string name="notif_collapse">Collapse</string>
+    <string name="notif_more">+%1$d</string>
+    <string name="notif_dismiss">Dismiss</string>
+    <string name="notif_close_reply">Close reply</string>
+</resources>

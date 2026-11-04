@@ -1,5 +1,7 @@
 package com.karelisio.bulle.modules.live
 
+import com.karelisio.bulle.notifications.NotificationIcons
+
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.SystemClock

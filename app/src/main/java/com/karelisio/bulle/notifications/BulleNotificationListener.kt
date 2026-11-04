@@ -26,6 +26,10 @@ class BulleNotificationListener : NotificationListenerService() {
         NotificationRepository.onPosted(sbn)
     }
 
+    override fun onNotificationRankingUpdate(rankingMap: RankingMap?) {
+        NotificationRepository.onRankingUpdate()
+    }
+
     override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
         if (sbn == null || sbn.packageName == packageName) return
         NotificationRepository.onRemoved(sbn, reason)

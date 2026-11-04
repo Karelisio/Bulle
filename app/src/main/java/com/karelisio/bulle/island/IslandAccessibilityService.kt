@@ -10,9 +10,11 @@ import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.view.accessibility.AccessibilityEvent
 import com.karelisio.bulle.island.ui.IslandScene
+import com.karelisio.bulle.modules.volet.VoletController
 import com.karelisio.bulle.system.Reliability
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +32,10 @@ class IslandAccessibilityService : AccessibilityService() {
     private val scope = MainScope()
     private var window: IslandWindow? = null
     private var controller: IslandController? = null
+    private var volet: com.karelisio.bulle.modules.volet.VoletController? = null
     private val screenTick = MutableStateFlow(0)
+    private var windowListWorks = false
+    private var fullscreenJob: kotlinx.coroutines.Job? = null
 
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) = Unit
@@ -61,7 +66,8 @@ class IslandAccessibilityService : AccessibilityService() {
         _controller.value = c
         w.onOutsideTouch = c::onOutsideTouch
         w.onBack = c::onBack
-        w.onStatusBarVisibility = { visible -> c.updateScreen { it.copy(statusBarVisible = visible) } }
+        // Signal de secours (insets) seulement si la liste des fenêtres est indisponible.
+        w.onStatusBarVisibility = { visible -> if (!windowListWorks) c.updateScreen { it.copy(statusBarVisible = visible) } }
 
         // Géométrie : recalculée à chaque rotation / changement d'écran / réglage fin.
         scope.launch {
@@ -77,6 +83,34 @@ class IslandAccessibilityService : AccessibilityService() {
         }
         refreshLock()
         w.show { IslandScene(c) }
+        // Volet : créé après l'île ; ne pose aucune fenêtre tant qu'il est désactivé.
+        volet = VoletController(this, scope, c).also { it.start(); VoletController.register(it) }
+        // Historique des notifications (si activé dans les réglages du Volet).
+        com.karelisio.bulle.modules.volet.history.NotificationHistory.start(this, scope, c.storedSettings.map { it.volet })
+    }
+
+    /** Plein écran : présence de la fenêtre de barre d'état dans la liste des fenêtres. */
+    private fun refreshFullscreen() {
+        val c = controller ?: return
+        val visible = detectStatusBar() ?: return
+        if (visible) windowListWorks = true
+        // Tant que la barre d'état n'a jamais été repérée, le signal n'est pas fiable sur cet appareil.
+        if (!windowListWorks) return
+        fullscreenJob?.cancel()
+        if (visible) {
+            c.updateScreen { it.copy(statusBarVisible = true) }
+        } else {
+            // Anti-rebond : pendant les transitions, la barre peut manquer un instant.
+            fullscreenJob = scope.launch {
+                delay(700)
+                if (detectStatusBar() == false) c.updateScreen { it.copy(statusBarVisible = false) }
+            }
+        }
+    }
+
+    private fun detectStatusBar(): Boolean? {
+        val info = CutoutLocator.screenInfo(this)
+        return FullscreenDetector.statusBarVisible(this, info.width, info.statusBarHeight)
     }
 
     private fun refreshLock() {
@@ -90,9 +124,13 @@ class IslandAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            ForegroundApp.onWindowChanged(event.packageName?.toString())
-            refreshLock()
+        when (event?.eventType) {
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                ForegroundApp.onWindowChanged(event.packageName?.toString())
+                refreshLock()
+                refreshFullscreen()
+            }
+            AccessibilityEvent.TYPE_WINDOWS_CHANGED -> refreshFullscreen()
         }
     }
 
@@ -115,6 +153,9 @@ class IslandAccessibilityService : AccessibilityService() {
         _controller.value = null
         runCatching { getSystemService(DisplayManager::class.java).unregisterDisplayListener(displayListener) }
         runCatching { unregisterReceiver(screenReceiver) }
+        VoletController.register(null)
+        volet?.destroy()
+        volet = null
         controller?.release()
         window?.destroy()
         window = null

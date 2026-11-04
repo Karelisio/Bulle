@@ -65,6 +65,10 @@ data class WindowRequest(
  * Gestionnaire d'état central de l'île : agrège les contenus des modules,
  * applique la file de priorité, le masquage automatique et les interactions.
  */
+/** Raison du masquage en cours, pour le diagnostic (null = visible). */
+private val _hiddenReason = MutableStateFlow<HiddenReason?>(null)
+val islandHiddenReason: StateFlow<HiddenReason?> = _hiddenReason
+
 class IslandController(
     override val context: Context,
     private val scope: CoroutineScope,
@@ -95,6 +99,9 @@ class IslandController(
 
     private val hub = ContentHub(ModuleEnv(context, scope, settings))
     private val screen = MutableStateFlow(ScreenEnv())
+
+    /** État de l'écran (géométrie de l'île, plein écran, verrouillage), lu par le Volet. */
+    val screenEnv: StateFlow<ScreenEnv> get() = screen
     private val interaction = MutableStateFlow(Interaction())
 
     private val arrangement: StateFlow<Arrangement> =
@@ -104,7 +111,9 @@ class IslandController(
     val state: StateFlow<IslandUiState> = combine(
         settings, screen, ForegroundApp.packageName, arrangement, interaction,
     ) { s, scr, fg, arr, i ->
-        val policyVisible = VisibilityPolicy.isVisible(s, scr, fg)
+        val reason = VisibilityPolicy.hiddenReason(s, scr, fg)
+        _hiddenReason.value = reason
+        val policyVisible = reason == null
         val forced = s.islandEnabled && arr.primary?.showWhenHidden == true
         val primary = arr.primary
         val expanded = i.panel != null || (primary != null && primary.expandable && i.expandedKey == primary.key)
@@ -176,6 +185,17 @@ class IslandController(
             if (st.expanded) { closePanel(); collapse() }
             return
         }
+        // Appui long sur un contenu issu d'une notification : ouvre le Volet dessus.
+        if (gesture == IslandGesture.LONG_PRESS) {
+            val key = st.primary?.notificationKey
+            val volet = com.karelisio.bulle.modules.volet.VoletController.current.value
+            if (key != null && volet != null && volet.settings.enabled) {
+                closePanel()
+                collapse()
+                volet.openFor(key)
+                return
+            }
+        }
         if (st.expanded && gesture == IslandGesture.TAP) {
             when {
                 st.panel != null -> closePanel()
@@ -231,7 +251,7 @@ class IslandController(
         window.setFocusable(false)
     }
 
-    override fun requestInput(enabled: Boolean) = window.setFocusable(enabled)
+    override fun requestInput(enabled: Boolean) = window.setFocusable(enabled, showKeyboard = enabled)
 
     /** À appeler quand l'île s'arrête. */
     fun release() = rules.stop()

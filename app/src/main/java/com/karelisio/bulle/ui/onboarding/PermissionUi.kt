@@ -37,6 +37,7 @@ import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.DoNotDisturbOn
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.LockOpen
@@ -110,6 +111,7 @@ fun PermissionKey.texts(family: OemSettings.Family = OemSettings.family): Permis
     PermissionKey.MEDIA_IMAGES -> PermissionTexts(Icons.Rounded.Image, R.string.perm_media_title, R.string.perm_media_desc)
     PermissionKey.WRITE_SETTINGS -> PermissionTexts(Icons.Rounded.Settings, R.string.perm_write_settings_title, R.string.perm_write_settings_desc)
     PermissionKey.SECURE_SETTINGS -> PermissionTexts(Icons.Rounded.Terminal, R.string.perm_secure_title, R.string.perm_secure_desc)
+    PermissionKey.DND_ACCESS -> PermissionTexts(Icons.Rounded.DoNotDisturbOn, R.string.perm_dnd_title, R.string.perm_dnd_desc)
 }
 
 /**

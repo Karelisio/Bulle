@@ -1,4 +1,4 @@
-package com.karelisio.bulle.modules.live
+package com.karelisio.bulle.notifications
 
 import android.content.Context
 import android.graphics.drawable.Icon

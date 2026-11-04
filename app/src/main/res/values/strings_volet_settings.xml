@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Module Volet : réglages, historique, fiabilité, autorisations. -->
+<resources>
+    <string name="vset_title">Volet</string>
+    <string name="vset_enable">Activer le Volet</string>
+    <string name="vset_enable_desc">Remplace visuellement le volet de MagicOS par un volet Material You : glissez depuis le haut de l’écran. Désactivé, il n’a aucun impact.</string>
+    <string name="vset_zones">Zones de déclenchement</string>
+    <string name="vset_zones_desc">Bandes invisibles en haut de l’écran, de part et d’autre de l’île.</string>
+    <string name="vset_zones_split">Normal</string>
+    <string name="vset_zones_reversed">Inversé</string>
+    <string name="vset_zones_single">Une zone</string>
+    <string name="vset_zones_split_desc">Gauche : notifications. Droite : réglages rapides.</string>
+    <string name="vset_zones_reversed_desc">Gauche : réglages rapides. Droite : notifications.</string>
+    <string name="vset_zones_single_desc">Tout le haut de l’écran ouvre les notifications.</string>
+    <string name="vset_trigger_height">Hauteur</string>
+    <string name="vset_edge_inset">Marge des bords</string>
+    <string name="vset_auto">Auto</string>
+    <string name="vset_dp">%1$d dp</string>
+    <string name="vset_percent">%1$d %%</string>
+    <string name="vset_zones_preview_hint">Les zones sont teintées à l’écran pendant le réglage.</string>
+    <string name="vset_look">Apparence</string>
+    <string name="vset_blur">Intensité du flou</string>
+    <string name="vset_scrim">Opacité du voile</string>
+    <string name="vset_corners">Rayon des coins</string>
+    <string name="vset_tiles">Tuiles à demi-ouverture</string>
+    <string name="vset_density">Densité</string>
+    <string name="vset_density_comfortable">Confort</string>
+    <string name="vset_density_compact">Compacte</string>
+    <string name="vset_behaviour">Comportement</string>
+    <string name="vset_lockscreen">Sur l’écran de verrouillage</string>
+    <string name="vset_lockscreen_desc">Le Volet s’ouvre aussi quand le téléphone est verrouillé.</string>
+    <string name="vset_excluded">Applis exclues</string>
+    <string name="vset_excluded_desc">Le Volet ne s’ouvre pas quand elles sont au premier plan (jeux, vidéo…).</string>
+    <string name="vset_add">Ajouter</string>
+    <string name="vset_remove">Retirer</string>
+    <string name="vset_history">Historique des notifications</string>
+    <string name="vset_history_enable">Garder un historique</string>
+    <string name="vset_history_desc">7 jours, sur l’appareil uniquement. Les notifications en cours ne sont pas gardées.</string>
+    <string name="vset_history_open">Voir l’historique</string>
+    <string name="vset_permissions">Autorisations</string>
+    <string name="vset_allow">Autoriser</string>
+    <string name="vset_manage">Gérer</string>
+
+    <!-- Fiabilité (MagicOS) -->
+    <string name="vset_rel_channel">Alertes de fiabilité</string>
+    <string name="vset_rel_channel_desc">Prévient quand le système a coupé un service dont le Volet a besoin.</string>
+    <string name="vset_rel_title">Le Volet ne fonctionne plus</string>
+    <string name="vset_rel_text_accessibility">Le système a désactivé ou arrêté le service d’accessibilité de Bulle. Réactivez-le pour retrouver le Volet.</string>
+    <string name="vset_rel_text_listener">L’accès aux notifications de Bulle a été coupé : le Volet ne peut plus afficher vos notifications.</string>
+    <string name="vset_rel_action">Réactiver</string>
+
+    <!-- Autorisations ajoutées pour le Volet -->
+    <string name="perm_dnd_title">Accès « Ne pas déranger »</string>
+    <string name="perm_dnd_desc">Tuile Ne pas déranger du Volet.</string>
+    <string name="perm_dnd_body">Facultatif : permet à la tuile « Ne pas déranger » du Volet d’activer ou couper ce mode directement.</string>
+    <string name="perm_write_settings_volet_body">Facultatif : permet aux tuiles du Volet de régler la luminosité, la rotation automatique et d’autres réglages système.</string>
+
+    <!-- Historique -->
+    <string name="vhist_title">Historique</string>
+    <string name="vhist_search">Rechercher dans l’historique</string>
+    <string name="vhist_search_clear">Effacer la recherche</string>
+    <string name="vhist_clear">Vider</string>
+    <string name="vhist_clear_title">Vider l’historique ?</string>
+    <string name="vhist_clear_text">Toutes les notifications gardées seront supprimées de l’appareil.</string>
+    <string name="vhist_cancel">Annuler</string>
+    <string name="vhist_today">Aujourd’hui</string>
+    <string name="vhist_yesterday">Hier</string>
+    <string name="vhist_empty">Aucune notification enregistrée.</string>
+    <string name="vhist_no_result">Aucun résultat.</string>
+</resources>

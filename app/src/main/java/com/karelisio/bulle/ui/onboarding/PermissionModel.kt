@@ -2,6 +2,7 @@ package com.karelisio.bulle.ui.onboarding
 
 import android.Manifest
 import android.app.ActivityManager
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -32,6 +33,9 @@ enum class PermissionKey {
     MEDIA_IMAGES,
     WRITE_SETTINGS,
     SECURE_SETTINGS,
+
+    /** Accès « Ne pas déranger » (tuile du Volet). */
+    DND_ACCESS,
 }
 
 /** Commande adb qui accorde WRITE_SECURE_SETTINGS (réactivation automatique de l'accessibilité). */
@@ -53,7 +57,7 @@ enum class ServiceHealth {
 object PermissionLogic {
 
     /** Autorisations présentées pendant la prise en main, dans l'ordre. */
-    fun onboardingSteps(sdk: Int, family: OemSettings.Family): List<PermissionKey> = buildList {
+    fun onboardingSteps(sdk: Int, family: OemSettings.Family, volet: Boolean = false): List<PermissionKey> = buildList {
         if (sdk >= 33) add(PermissionKey.RESTRICTED)
         add(PermissionKey.ACCESSIBILITY)
         add(PermissionKey.NOTIFICATION_ACCESS)
@@ -61,7 +65,16 @@ object PermissionLogic {
         add(PermissionKey.INSTALL_PACKAGES)
         add(PermissionKey.BATTERY)
         if (family != OemSettings.Family.STOCK) add(PermissionKey.OEM_LAUNCH)
+        // Réglages rapides du Volet (luminosité, Ne pas déranger) : seulement s'il est activé.
+        if (volet) addAll(voletSteps)
     }
+
+    /** Autorisations propres au Volet (en plus de l'accessibilité et de l'accès aux notifications). */
+    val voletSteps: List<PermissionKey> = listOf(PermissionKey.WRITE_SETTINGS, PermissionKey.DND_ACCESS)
+
+    /** Autorisations nécessaires au Volet, dans l'ordre d'affichage de ses réglages. */
+    val voletRequired: List<PermissionKey> =
+        listOf(PermissionKey.ACCESSIBILITY, PermissionKey.NOTIFICATION_ACCESS) + voletSteps
 
     /** Autorisations demandées seulement à l'activation d'une fonction. */
     val onDemand: List<PermissionKey> = listOf(
@@ -69,6 +82,7 @@ object PermissionLogic {
         PermissionKey.LOCATION,
         PermissionKey.MEDIA_IMAGES,
         PermissionKey.WRITE_SETTINGS,
+        PermissionKey.DND_ACCESS,
     )
 
     /** Autorisation d'exécution Android correspondante, ou null si c'est un réglage spécial. */
@@ -136,6 +150,7 @@ object PermissionChecks {
             PermissionKey.OEM_LAUNCH -> isConfirmed(context, key)
             PermissionKey.WRITE_SETTINGS -> Settings.System.canWrite(context)
             PermissionKey.SECURE_SETTINGS -> Reliability.canWriteSecureSettings(context)
+            PermissionKey.DND_ACCESS -> isDndAccessGranted(context)
             else -> false
         }
     }
@@ -143,6 +158,9 @@ object PermissionChecks {
     /** État de toutes les autorisations, d'un coup. */
     fun snapshot(context: Context): Map<PermissionKey, Boolean> =
         PermissionKey.entries.associateWith { isGranted(context, it) }
+
+    fun isDndAccessGranted(context: Context): Boolean =
+        context.getSystemService(NotificationManager::class.java)?.isNotificationPolicyAccessGranted == true
 
     fun isIgnoringBatteryOptimizations(context: Context): Boolean =
         context.getSystemService(PowerManager::class.java)?.isIgnoringBatteryOptimizations(context.packageName) == true
@@ -171,6 +189,7 @@ object PermissionChecks {
         PermissionKey.INSTALL_PACKAGES -> Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageUri(context))
         PermissionKey.BATTERY -> Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, packageUri(context))
         PermissionKey.WRITE_SETTINGS -> Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, packageUri(context))
+        PermissionKey.DND_ACCESS -> Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
         PermissionKey.SECURE_SETTINGS -> null
         PermissionKey.OEM_LAUNCH -> null // Voir OemSettings.openLaunchManager.
         else -> OemSettings.appDetailsIntent(context)

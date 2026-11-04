@@ -11,7 +11,7 @@
     <string name="home_island_switch">Show the island</string>
 
     <string name="a11y_summary">Shows the island around the camera hole.</string>
-    <string name="a11y_description">Bulle uses accessibility only to draw the island over other apps, to know the name of the foreground app (to hide the island in apps you choose) and to run the gesture actions you set up (back, home, screenshot…). Bulle never reads screen content and nothing leaves your phone.</string>
+    <string name="a11y_description">Bulle uses accessibility only to draw the island over other apps, to know the foreground app name and the position of windows (to hide the island in full screen or in apps you choose) and to run the gesture actions you set up (back, home, screenshot…). Bulle never reads the content of the screen or windows, and nothing leaves your phone.</string>
 
     <string name="keepalive_channel">Island keep-alive</string>
     <string name="keepalive_channel_desc">Discreet notification that stops the system from killing Bulle.</string>
@@ -188,4 +188,12 @@
     <string name="home_entry_permissions">Permissions</string>
     <string name="home_entry_backup">Backup</string>
     <string name="home_entry_about">About</string>
+    <string name="home_hidden_reason">Island hidden: %1$s</string>
+    <string name="hidden_disabled">turned off</string>
+    <string name="hidden_rule">automatic rule</string>
+    <string name="hidden_fullscreen">full screen detected</string>
+    <string name="hidden_landscape">landscape</string>
+    <string name="hidden_lockscreen">lock screen</string>
+    <string name="hidden_app">excluded app</string>
+    <string name="home_entry_volet">Shade</string>
 </resources>

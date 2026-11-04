@@ -53,6 +53,8 @@ internal fun PlayPauseButton(
     contentDescription: String,
     onClick: () -> Unit,
     size: Dp = 64.dp,
+    /** Couleur de l'icône (noir par défaut, sur l'accent clair de l'île). */
+    iconColor: Color = Color.Black,
 ) {
     val reduceMotion = rememberReduceMotion()
     val morph = remember { Morph(MaterialShapes.Square.normalized(), MaterialShapes.Cookie9Sided.normalized()) }
@@ -112,7 +114,7 @@ internal fun PlayPauseButton(
         Box(
             Modifier
                 .size(size * 0.5f)
-                .drawBehind { drawPlayPause(progress.value.coerceIn(0f, 1f), Color.Black) },
+                .drawBehind { drawPlayPause(progress.value.coerceIn(0f, 1f), iconColor) },
         )
     }
 }

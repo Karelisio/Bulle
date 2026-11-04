@@ -81,7 +81,7 @@ object CutoutLocator {
             top = max(0, (info.statusBarHeight - height) / 2)
         }
         // Taille choisie : l'île grandit autour de la caméra (le haut reste calé).
-        val sc = scale.coerceIn(0.6f, 2f)
+        val sc = scale.coerceIn(0.4f, 2f)
         width = (width * sc).roundToInt()
         height = (height * sc).roundToInt()
         width += dp(tweak.extraWidthDp)

@@ -1,4 +1,4 @@
-package com.karelisio.bulle.modules.live
+package com.karelisio.bulle.notifications
 
 import android.app.ActivityOptions
 import android.app.PendingIntent
@@ -12,10 +12,11 @@ import android.os.Build
  */
 object NotificationIntents {
 
-    fun send(context: Context, intent: PendingIntent?): Boolean {
+    /** [fillIn] : intent complémentaire (réponse directe RemoteInput). */
+    fun send(context: Context, intent: PendingIntent?, fillIn: android.content.Intent? = null): Boolean {
         if (intent == null) return false
         return runCatching {
-            intent.send(context, 0, null, null, null, null, options())
+            intent.send(context, 0, fillIn, null, null, null, options())
             true
         }.getOrDefault(false)
     }

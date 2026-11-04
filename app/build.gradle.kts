@@ -162,6 +162,9 @@ dependencies {
     implementation(libs.palette)
     implementation(libs.coroutines.android)
     implementation(libs.serialization.json)
+    // Shizuku (optionnel à l'exécution) : bascules système des réglages rapides du Volet.
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

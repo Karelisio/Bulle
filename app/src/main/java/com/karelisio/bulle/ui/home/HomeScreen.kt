@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.SettingsBackupRestore
@@ -128,6 +129,7 @@ fun HomeScreen(onOpen: (String) -> Unit = {}) {
             )
             Spacer(Modifier.height(32.dp))
 
+            com.karelisio.bulle.modules.volet.settings.VoletReliabilityBanner(Modifier.fillMaxWidth().padding(bottom = 12.dp))
             ServiceCard(
                 running = running,
                 enabledInSystem = enabledInSystem,
@@ -187,16 +189,20 @@ fun HomeScreen(onOpen: (String) -> Unit = {}) {
 
 @Composable
 private fun ServiceCard(running: Boolean, enabledInSystem: Boolean, onOpenAccessibility: () -> Unit) {
+    val reason by com.karelisio.bulle.island.islandHiddenReason.collectAsStateWithLifecycle()
+    val base = stringResource(
+        when {
+            running -> R.string.home_service_running
+            enabledInSystem -> R.string.home_service_enabled_not_running
+            else -> R.string.home_service_off
+        },
+    )
+    // Diagnostic : pourquoi l'île est masquée en ce moment.
+    val why = if (running) reason?.let { stringResource(R.string.home_hidden_reason, stringResource(it.labelRes())) } else null
     StatusCard(
         ok = running,
         title = stringResource(R.string.home_service_title),
-        text = stringResource(
-            when {
-                running -> R.string.home_service_running
-                enabledInSystem -> R.string.home_service_enabled_not_running
-                else -> R.string.home_service_off
-            },
-        ),
+        text = if (why != null) "$base\n$why" else base,
         action = stringResource(R.string.home_open_accessibility),
         onAction = onOpenAccessibility,
     )
@@ -245,6 +251,7 @@ private val settingsGroups: List<Pair<Int, List<SettingsEntry>>> = listOf(
         SettingsEntry(com.karelisio.bulle.ui.Routes.RULES, R.string.rules_title, Icons.Rounded.AutoAwesome),
     ),
     R.string.home_group_contents to listOf(
+        SettingsEntry(com.karelisio.bulle.ui.Routes.VOLET, R.string.home_entry_volet, Icons.Rounded.Notifications),
         SettingsEntry(com.karelisio.bulle.ui.Routes.MUSIC, R.string.home_entry_music, Icons.Rounded.MusicNote),
         SettingsEntry(com.karelisio.bulle.ui.Routes.LIVE, R.string.home_entry_live, Icons.Rounded.Timer),
         SettingsEntry(com.karelisio.bulle.ui.Routes.CALLS, R.string.home_entry_calls, Icons.Rounded.Call),
@@ -281,4 +288,13 @@ private fun SettingsSection(onOpen: (String) -> Unit) {
             }
         }
     }
+}
+
+private fun com.karelisio.bulle.island.HiddenReason.labelRes(): Int = when (this) {
+    com.karelisio.bulle.island.HiddenReason.DISABLED -> R.string.hidden_disabled
+    com.karelisio.bulle.island.HiddenReason.RULE -> R.string.hidden_rule
+    com.karelisio.bulle.island.HiddenReason.FULLSCREEN -> R.string.hidden_fullscreen
+    com.karelisio.bulle.island.HiddenReason.LANDSCAPE -> R.string.hidden_landscape
+    com.karelisio.bulle.island.HiddenReason.LOCKSCREEN -> R.string.hidden_lockscreen
+    com.karelisio.bulle.island.HiddenReason.HIDDEN_APP -> R.string.hidden_app
 }
