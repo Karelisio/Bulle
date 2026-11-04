@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shade module: settings, history, reliability, permissions. -->
+<resources>
+    <string name="vset_title">Shade</string>
+    <string name="vset_enable">Enable the Shade</string>
+    <string name="vset_enable_desc">Visually replaces the MagicOS shade with a Material You one: swipe down from the top of the screen. When off, it has no impact.</string>
+    <string name="vset_zones">Trigger zones</string>
+    <string name="vset_zones_desc">Invisible strips at the top of the screen, on each side of the island.</string>
+    <string name="vset_zones_split">Normal</string>
+    <string name="vset_zones_reversed">Reversed</string>
+    <string name="vset_zones_single">Single</string>
+    <string name="vset_zones_split_desc">Left: notifications. Right: quick settings.</string>
+    <string name="vset_zones_reversed_desc">Left: quick settings. Right: notifications.</string>
+    <string name="vset_zones_single_desc">The whole top edge opens notifications.</string>
+    <string name="vset_trigger_height">Height</string>
+    <string name="vset_edge_inset">Edge margin</string>
+    <string name="vset_auto">Auto</string>
+    <string name="vset_dp">%1$d dp</string>
+    <string name="vset_percent">%1$d%%</string>
+    <string name="vset_zones_preview_hint">Zones are tinted on screen while you adjust them.</string>
+    <string name="vset_look">Appearance</string>
+    <string name="vset_blur">Blur strength</string>
+    <string name="vset_scrim">Scrim opacity</string>
+    <string name="vset_corners">Corner radius</string>
+    <string name="vset_tiles">Tiles when half open</string>
+    <string name="vset_density">Density</string>
+    <string name="vset_density_comfortable">Comfortable</string>
+    <string name="vset_density_compact">Compact</string>
+    <string name="vset_behaviour">Behaviour</string>
+    <string name="vset_lockscreen">On the lock screen</string>
+    <string name="vset_lockscreen_desc">The Shade also opens when the phone is locked.</string>
+    <string name="vset_excluded">Excluded apps</string>
+    <string name="vset_excluded_desc">The Shade does not open while they are in the foreground (games, video…).</string>
+    <string name="vset_add">Add</string>
+    <string name="vset_remove">Remove</string>
+    <string name="vset_history">Notification history</string>
+    <string name="vset_history_enable">Keep a history</string>
+    <string name="vset_history_desc">7 days, on this device only. Ongoing notifications are not kept.</string>
+    <string name="vset_history_open">View history</string>
+    <string name="vset_permissions">Permissions</string>
+    <string name="vset_allow">Allow</string>
+    <string name="vset_manage">Manage</string>
+
+    <string name="vset_rel_channel">Reliability alerts</string>
+    <string name="vset_rel_channel_desc">Warns you when the system has stopped a service the Shade needs.</string>
+    <string name="vset_rel_title">The Shade has stopped working</string>
+    <string name="vset_rel_text_accessibility">The system disabled or stopped Bulle’s accessibility service. Turn it back on to get the Shade back.</string>
+    <string name="vset_rel_text_listener">Bulle’s notification access was cut: the Shade can no longer show your notifications.</string>
+    <string name="vset_rel_action">Turn back on</string>
+
+    <string name="perm_dnd_title">Do Not Disturb access</string>
+    <string name="perm_dnd_desc">Do Not Disturb tile in the Shade.</string>
+    <string name="perm_dnd_body">Optional: lets the Shade’s Do Not Disturb tile turn the mode on or off directly.</string>
+    <string name="perm_write_settings_volet_body">Optional: lets the Shade’s tiles change brightness, auto-rotate and other system settings.</string>
+
+    <string name="vhist_title">History</string>
+    <string name="vhist_search">Search history</string>
+    <string name="vhist_search_clear">Clear search</string>
+    <string name="vhist_clear">Clear</string>
+    <string name="vhist_clear_title">Clear history?</string>
+    <string name="vhist_clear_text">All saved notifications will be deleted from this device.</string>
+    <string name="vhist_cancel">Cancel</string>
+    <string name="vhist_today">Today</string>
+    <string name="vhist_yesterday">Yesterday</string>
+    <string name="vhist_empty">No notifications saved.</string>
+    <string name="vhist_no_result">No results.</string>
+</resources>

@@ -35,6 +35,10 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
+    <!-- Module Volet (modules/volet/settings) : tuile « Ne pas déranger » des réglages
+         rapides ; l'accès est accordé par l'utilisateur dans les réglages système. -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+
     <!-- Applis lançables et raccourcis d'applis (gestes, recherche, Deck) -->
     <queries>
         <intent>
