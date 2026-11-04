@@ -77,6 +77,7 @@ data class AlarmContent(
     val notifKey: String,
 ) : IslandContent() {
     override val key = "alerts:alarm:$notifKey"
+    override val notificationKey: String get() = notifKey
     override val moduleId = AlertsModule.ID
     override val priority = Priority.ALARM
     override val postedAt = android.os.SystemClock.elapsedRealtime()

@@ -68,6 +68,7 @@ data class LiveContent(
     override val postedAt: Long,
 ) : IslandContent() {
     override val key = "live:" + activity.key
+    override val notificationKey: String get() = activity.key
     override val moduleId = LiveModule.ID
     override val priority = Priority.LIVE
 

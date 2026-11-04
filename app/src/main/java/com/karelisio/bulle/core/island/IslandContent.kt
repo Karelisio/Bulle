@@ -45,6 +45,9 @@ abstract class IslandContent {
     /** Possède une vue étendue. */
     open val expandable: Boolean = true
 
+    /** Clé de la notification d'origine : l'appui long ouvre le Volet dessus. */
+    open val notificationKey: String? = null
+
     /** Reste visible même quand l'île est masquée (plein écran, appli exclue…). Ex. : appel entrant. */
     open val showWhenHidden: Boolean = false
 

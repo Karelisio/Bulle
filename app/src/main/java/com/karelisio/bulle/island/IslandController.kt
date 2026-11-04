@@ -185,6 +185,17 @@ class IslandController(
             if (st.expanded) { closePanel(); collapse() }
             return
         }
+        // Appui long sur un contenu issu d'une notification : ouvre le Volet dessus.
+        if (gesture == IslandGesture.LONG_PRESS) {
+            val key = st.primary?.notificationKey
+            val volet = com.karelisio.bulle.modules.volet.VoletController.current.value
+            if (key != null && volet != null && volet.settings.enabled) {
+                closePanel()
+                collapse()
+                volet.openFor(key)
+                return
+            }
+        }
         if (st.expanded && gesture == IslandGesture.TAP) {
             when {
                 st.panel != null -> closePanel()

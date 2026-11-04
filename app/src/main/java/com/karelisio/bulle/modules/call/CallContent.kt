@@ -81,6 +81,7 @@ data class CallContent(
     override val postedAt: Long,
 ) : IslandContent() {
     override val key = "call:" + call.state.name.lowercase() + ":" + call.key
+    override val notificationKey: String get() = call.key
     override val moduleId = CallModule.ID
     override val priority = Priority.CALL
     override val showWhenHidden = true
