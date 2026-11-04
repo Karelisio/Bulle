@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.SettingsBackupRestore
@@ -128,6 +129,7 @@ fun HomeScreen(onOpen: (String) -> Unit = {}) {
             )
             Spacer(Modifier.height(32.dp))
 
+            com.karelisio.bulle.modules.volet.settings.VoletReliabilityBanner(Modifier.fillMaxWidth().padding(bottom = 12.dp))
             ServiceCard(
                 running = running,
                 enabledInSystem = enabledInSystem,
@@ -249,6 +251,7 @@ private val settingsGroups: List<Pair<Int, List<SettingsEntry>>> = listOf(
         SettingsEntry(com.karelisio.bulle.ui.Routes.RULES, R.string.rules_title, Icons.Rounded.AutoAwesome),
     ),
     R.string.home_group_contents to listOf(
+        SettingsEntry(com.karelisio.bulle.ui.Routes.VOLET, R.string.home_entry_volet, Icons.Rounded.Notifications),
         SettingsEntry(com.karelisio.bulle.ui.Routes.MUSIC, R.string.home_entry_music, Icons.Rounded.MusicNote),
         SettingsEntry(com.karelisio.bulle.ui.Routes.LIVE, R.string.home_entry_live, Icons.Rounded.Timer),
         SettingsEntry(com.karelisio.bulle.ui.Routes.CALLS, R.string.home_entry_calls, Icons.Rounded.Call),

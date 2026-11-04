@@ -31,7 +31,7 @@ data class VoletSettings(
     val scrimOpacity: Float = 0.55f,
     val cornerRadiusDp: Float = 28f,
     val density: VoletDensity = VoletDensity.COMFORTABLE,
-    /** Applis dont les notifications ne sont pas affichées dans le volet. */
+    /** Applis au premier plan dans lesquelles le Volet ne s'ouvre pas (le volet système reste disponible). */
     val excludedApps: Set<String> = emptySet(),
     val showOnLockscreen: Boolean = true,
     /** Historique des notifications (7 jours, local). */

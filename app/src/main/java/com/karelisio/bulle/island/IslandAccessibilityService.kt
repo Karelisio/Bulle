@@ -85,6 +85,8 @@ class IslandAccessibilityService : AccessibilityService() {
         w.show { IslandScene(c) }
         // Volet : créé après l'île ; ne pose aucune fenêtre tant qu'il est désactivé.
         volet = VoletController(this, scope, c).also { it.start(); VoletController.register(it) }
+        // Historique des notifications (si activé dans les réglages du Volet).
+        com.karelisio.bulle.modules.volet.history.NotificationHistory.start(this, scope, c.storedSettings.map { it.volet })
     }
 
     /** Plein écran : présence de la fenêtre de barre d'état dans la liste des fenêtres. */

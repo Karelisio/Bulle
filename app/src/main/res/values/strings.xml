@@ -197,4 +197,5 @@
     <string name="hidden_landscape">paysage</string>
     <string name="hidden_lockscreen">écran verrouillé</string>
     <string name="hidden_app">appli exclue</string>
+    <string name="home_entry_volet">Volet</string>
 </resources>

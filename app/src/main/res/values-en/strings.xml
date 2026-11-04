@@ -195,4 +195,5 @@
     <string name="hidden_landscape">landscape</string>
     <string name="hidden_lockscreen">lock screen</string>
     <string name="hidden_app">excluded app</string>
+    <string name="home_entry_volet">Shade</string>
 </resources>
