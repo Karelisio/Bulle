@@ -54,6 +54,9 @@ internal fun WavyScrubber(
     onScrub: (Float?) -> Unit,
     onSeek: (Float) -> Unit,
     modifier: Modifier = Modifier,
+    /** Partie restante (trait plat) et pouce : blancs par défaut, sur le fond noir de l'île. */
+    trackColor: Color = Color.White.copy(alpha = 0.22f),
+    thumbColor: Color = Color.White,
 ) {
     val reduceMotion = rememberReduceMotion()
     val view = LocalView.current
@@ -143,7 +146,7 @@ internal fun WavyScrubber(
                 val restStart = min(x + gap, end)
                 if (end - restStart > 0.5f) {
                     drawLine(
-                        Color.White.copy(alpha = 0.22f),
+                        trackColor,
                         Offset(restStart, cy),
                         Offset(end, cy),
                         strokeWidth = stroke,
@@ -170,7 +173,7 @@ internal fun WavyScrubber(
                 val tw = 4.dp.toPx()
                 val th = 18.dp.toPx() * thumb.value
                 drawRoundRect(
-                    Color.White,
+                    thumbColor,
                     topLeft = Offset(x - tw / 2f, cy - th / 2f),
                     size = Size(tw, th),
                     cornerRadius = CornerRadius(tw / 2f),

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Carte média du volet -->
+    <string name="volet_media_play">Lecture</string>
+    <string name="volet_media_pause">Pause</string>
+    <string name="volet_media_previous">Titre précédent</string>
+    <string name="volet_media_next">Titre suivant</string>
+    <string name="volet_media_open_player">Ouvrir %1$s</string>
+    <string name="volet_media_output_switch">Sortie audio : %1$s. Changer de sortie</string>
+    <string name="volet_media_output_phone">Ce téléphone</string>
+    <string name="volet_media_output_headphones">Écouteurs filaires</string>
+    <string name="volet_media_output_bluetooth">Bluetooth</string>
+    <string name="volet_media_output_usb">Audio USB</string>
+    <string name="volet_media_output_tv">Téléviseur</string>
+    <string name="volet_media_output_cast">Diffusion</string>
+</resources>

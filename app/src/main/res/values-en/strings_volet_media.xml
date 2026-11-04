@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shade media card -->
+    <string name="volet_media_play">Play</string>
+    <string name="volet_media_pause">Pause</string>
+    <string name="volet_media_previous">Previous track</string>
+    <string name="volet_media_next">Next track</string>
+    <string name="volet_media_open_player">Open %1$s</string>
+    <string name="volet_media_output_switch">Audio output: %1$s. Switch output</string>
+    <string name="volet_media_output_phone">This phone</string>
+    <string name="volet_media_output_headphones">Wired headphones</string>
+    <string name="volet_media_output_bluetooth">Bluetooth</string>
+    <string name="volet_media_output_usb">USB audio</string>
+    <string name="volet_media_output_tv">TV</string>
+    <string name="volet_media_output_cast">Casting</string>
+</resources>
