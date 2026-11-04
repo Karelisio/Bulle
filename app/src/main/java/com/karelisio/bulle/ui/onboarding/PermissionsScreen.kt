@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -46,10 +47,13 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.system.OemSettings
 import com.karelisio.bulle.ui.components.cascade
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Copie la commande adb et le confirme par un Snackbar (et une petite vibration). */
@@ -97,7 +101,10 @@ fun PermissionsScreen(onBack: () -> Unit) {
     val snackbar = remember { SnackbarHostState() }
     val permissions = rememberPermissionController()
     val family = remember { OemSettings.family }
-    val essential = remember { PermissionLogic.onboardingSteps(Build.VERSION.SDK_INT, family) }
+    val voletEnabled by remember { SettingsRepository.flow(context).map { it.volet.enabled } }
+        .collectAsStateWithLifecycle(false)
+    val essential = remember(voletEnabled) { PermissionLogic.onboardingSteps(Build.VERSION.SDK_INT, family, voletEnabled) }
+    val onDemand = remember(essential) { PermissionLogic.onDemand - essential.toSet() }
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val copied = stringResource(R.string.rel_copied)
 
@@ -130,7 +137,7 @@ fun PermissionsScreen(onBack: () -> Unit) {
                     stringResource(R.string.perm_section_on_demand_desc),
                 )
             }
-            PermissionLogic.onDemand.forEach { key ->
+            onDemand.forEach { key ->
                 val i = index++
                 item(key.name) { PermissionRow(key, permissions, family, optional = true, index = i) }
             }
