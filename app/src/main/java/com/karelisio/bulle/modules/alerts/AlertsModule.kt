@@ -15,6 +15,17 @@ import com.karelisio.bulle.modules.alerts.sources.PackageSource
 import com.karelisio.bulle.modules.alerts.sources.ScreenshotSource
 import com.karelisio.bulle.modules.alerts.sources.TorchSource
 import com.karelisio.bulle.modules.alerts.sources.WifiSource
+import com.karelisio.bulle.modules.alerts.sources.CameraUseSource
+import com.karelisio.bulle.modules.alerts.sources.CellularSource
+import com.karelisio.bulle.modules.alerts.sources.FiveGSource
+import com.karelisio.bulle.modules.alerts.sources.HotspotSource
+import com.karelisio.bulle.modules.alerts.sources.MediaVolumeSource
+import com.karelisio.bulle.modules.alerts.sources.MicUseSource
+import com.karelisio.bulle.modules.alerts.sources.RingerSource
+import com.karelisio.bulle.modules.alerts.sources.UsbSource
+import com.karelisio.bulle.modules.alerts.sources.VpnSource
+import com.karelisio.bulle.modules.alerts.ui.styled
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -49,14 +60,30 @@ object AlertsModule : IslandModule {
         ScreenshotSource,
         PackageSource,
         ClipboardSource,
+        CellularSource,
+        FiveGSource,
+        VpnSource,
+        HotspotSource,
+        RingerSource,
+        MediaVolumeSource,
+        UsbSource,
+        CameraUseSource,
+        MicUseSource,
     )
+
+    /** Styles par alerte, publiés dans [AlertStyleBook] (durées) avant tout contenu. */
+    internal fun styles(env: ModuleEnv): Flow<Map<String, AlertStyle>> = env.settings
+        .map { it.alerts.styles }
+        .distinctUntilChanged()
+        .onEach { AlertStyleBook.styles = it }
 
     override fun isEnabled(settings: BulleSettings): Boolean =
         (settings.modules[id] ?: enabledByDefault) && settings.alerts.enabled
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = combine(
-        sources.map { source ->
+        styles(env),
+        combine(sources.map { source ->
             env.settings
                 .map { source.isEnabled(it.alerts) }
                 .distinctUntilChanged()
@@ -70,6 +97,6 @@ object AlertsModule : IslandModule {
                             .catch { emit(emptyList()) }
                     }
                 }
-        },
-    ) { lists -> lists.flatMap { it } }
+        }) { lists -> lists.flatMap { it } },
+    ) { styles, all -> all.map { styled(it, styles) } }
 }

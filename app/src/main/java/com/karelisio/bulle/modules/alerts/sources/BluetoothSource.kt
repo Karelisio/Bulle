@@ -126,6 +126,7 @@ data class BluetoothContent(
     override val postedAt: Long,
 ) : AlertContent() {
     override val key = "alerts:bluetooth:$postedAt"
+    override val alertId = "bluetooth"
     override val accent = BtBlue
     override val compactSlotWidth = 60.dp
 
@@ -148,7 +149,7 @@ data class BluetoothContent(
         } else {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 AlertLabel(stringResource(R.string.alerts_percent, b))
-                BatteryGlyph(b, if (b <= 20) Color(0xFFFF5D5D) else Color.White, width = 20.dp)
+                BatteryGlyph(b, if (b <= 20) Color(0xFFFF5D5D) else Color.White, width = 20.dp, followTint = false)
             }
         }
     }

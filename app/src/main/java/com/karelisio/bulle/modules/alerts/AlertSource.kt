@@ -39,8 +39,16 @@ interface AlertSource {
 abstract class AlertContent : IslandContent() {
     override val moduleId: String get() = AlertsModule.ID
     override val priority: Priority get() = Priority.ALERT
-    override val timeoutMs: Long? get() = DEFAULT_TIMEOUT_MS
     override val canBeSecondary: Boolean get() = false
+
+    /** Identifiant du réglage de l'alerte (personnalisation par alerte), null si aucun. */
+    open val alertId: String? get() = null
+
+    /** Durée de vie par défaut ; null = contenu persistant (lampe, caméra utilisée…). */
+    open val baseTimeoutMs: Long? get() = DEFAULT_TIMEOUT_MS
+
+    /** Durée effective : celle choisie par l'utilisateur pour cette alerte, sinon [baseTimeoutMs]. */
+    final override val timeoutMs: Long? get() = AlertStyleBook.timeout(alertId, baseTimeoutMs)
 
     companion object {
         const val DEFAULT_TIMEOUT_MS = 4_000L

@@ -181,9 +181,10 @@ data class ScreenshotContent(
     override val postedAt: Long,
 ) : AlertContent() {
     override val key = "alerts:screenshot:$postedAt"
+    override val alertId = "screenshot"
     override val accent = ShotWhite
     override val compactSlotWidth = 44.dp
-    override val timeoutMs = 6_000L
+    override val baseTimeoutMs: Long? = 6_000L
 
     @Composable
     override fun Leading() = CheckGlyph(ShotWhite)

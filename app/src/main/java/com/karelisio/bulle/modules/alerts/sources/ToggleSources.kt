@@ -81,8 +81,9 @@ data class ToggleContent(
     override val postedAt: Long,
 ) : AlertContent() {
     override val key = "alerts:${kind.name.lowercase()}:$postedAt"
+    override val alertId = kind.name.lowercase()
     override val compactSlotWidth = 84.dp
-    override val timeoutMs = 3_000L
+    override val baseTimeoutMs: Long? = 3_000L
     override val accent: Color = when {
         !on -> Color(0xFFB8C0CC)
         kind == ToggleKind.AIRPLANE -> Color(0xFFFFA24C)
