@@ -8,7 +8,7 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.test.core.app.ApplicationProvider
 import com.karelisio.bulle.R
 import com.karelisio.bulle.core.actions.GestureAction
@@ -60,7 +60,7 @@ class LiveDownloadsRenderTest {
             actions = if (withActions) listOf(LiveAction("Pause", intent(i * 10)), LiveAction("Annuler", intent(i * 10 + 1))) else emptyList(),
             contentIntent = intent(i),
         )
-        val icon = if (i % 3 == 0) ImageBitmap(32, 32) else null
+        val icon = if (i % 3 == 0) android.graphics.Bitmap.createBitmap(32, 32, android.graphics.Bitmap.Config.ARGB_8888).asImageBitmap() else null
         return LiveContent(a, LiveVisuals("Appli $i", icon, null), postedAt = 1_000L + i)
     }
 
