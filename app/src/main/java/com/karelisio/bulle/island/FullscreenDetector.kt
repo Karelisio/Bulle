@@ -11,6 +11,13 @@ import android.view.accessibility.AccessibilityWindowInfo
  */
 object FullscreenDetector {
 
+    /** Vrai si l'événement concerne une de nos propres fenêtres d'overlay (île, volet). */
+    fun isOwnOverlay(service: AccessibilityService, windowId: Int): Boolean {
+        if (windowId < 0) return false
+        val windows = runCatching { service.windows }.getOrNull() ?: return false
+        return windows.any { it.id == windowId && it.type == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY }
+    }
+
     /** null si la liste est indisponible (on garde alors l'autre signal). */
     fun statusBarVisible(service: AccessibilityService, screenWidth: Int, statusBarHeight: Int): Boolean? {
         val windows = runCatching { service.windows }.getOrNull()

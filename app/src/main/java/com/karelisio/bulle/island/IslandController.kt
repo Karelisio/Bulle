@@ -112,6 +112,9 @@ class IslandController(
         settings, screen, ForegroundApp.packageName, arrangement, interaction,
     ) { s, scr, fg, arr, i ->
         val reason = VisibilityPolicy.hiddenReason(s, scr, fg)
+        if (_hiddenReason.value != reason) {
+            IslandLog.log(if (reason == null) "Île affichée" else "Île masquée : $reason" + (fg?.let { " ($it)" } ?: ""))
+        }
         _hiddenReason.value = reason
         val policyVisible = reason == null
         val forced = s.islandEnabled && arr.primary?.showWhenHidden == true

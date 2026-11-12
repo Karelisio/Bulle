@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+- Île : correction du scintillement. La détection du plein écran ignorait mal les changements des propres fenêtres de Bulle et pouvait masquer puis réafficher l'île en boucle. Elle ignore maintenant ces changements, ne masque l'île qu'après deux contrôles espacés, et se coupe d'elle-même si elle oscille encore (l'île reste alors affichée).
+- Nouveau « Journal de l'île » dans Réglages › Fiabilité : apparitions, masquages et leur raison, mises à jour de la fenêtre (en mémoire uniquement), à copier pour diagnostiquer un problème d'affichage.
+
 ## 0.2.1
 Version de correctifs issue d'une relecture complète de l'appli.
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="journal_title">Island log</string>
+    <string name="journal_text">Shows, hides and their reason, window updates. Kept in memory only. If the island flickers, copy the log right after and send it.</string>
+    <string name="journal_empty">Nothing yet.</string>
+    <string name="journal_copy">Copy the log</string>
+    <string name="journal_clear">Clear</string>
+    <string name="journal_copied">Log copied</string>
+</resources>

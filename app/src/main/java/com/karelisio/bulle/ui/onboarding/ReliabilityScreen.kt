@@ -250,6 +250,61 @@ fun ReliabilityScreen(onBack: () -> Unit) {
                     OemCard(family, Modifier.cascade(3))
                 }
             }
+            item("journal") {
+                IslandJournalCard(snackbar, Modifier.cascade(4))
+            }
+        }
+    }
+}
+
+/**
+ * Journal de l'île (en mémoire) : apparitions, masquages et leur raison, mises à jour de la fenêtre.
+ * À copier et envoyer pour diagnostiquer un scintillement.
+ */
+@Composable
+private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val entries by com.karelisio.bulle.island.IslandLog.entries.collectAsStateWithLifecycle()
+    val copied = stringResource(R.string.journal_copied)
+    Card(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            Text(stringResource(R.string.journal_title), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(R.string.journal_text),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(10.dp))
+            val last = entries.takeLast(12).asReversed()
+            if (last.isEmpty()) {
+                Text(stringResource(R.string.journal_empty), style = MaterialTheme.typography.bodySmall)
+            } else {
+                last.forEach { e ->
+                    Text(
+                        e.format(),
+                        style = MaterialTheme.typography.labelSmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace),
+                        maxLines = 1,
+                    )
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            Row {
+                androidx.compose.material3.FilledTonalButton(onClick = {
+                    val cm = context.getSystemService(android.content.ClipboardManager::class.java)
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("Journal Bulle", com.karelisio.bulle.island.IslandLog.dump()))
+                    scope.launch { snackbar.showSnackbar(copied) }
+                }) { Text(stringResource(R.string.journal_copy)) }
+                Spacer(Modifier.width(8.dp))
+                androidx.compose.material3.TextButton(onClick = { com.karelisio.bulle.island.IslandLog.clear() }) {
+                    Text(stringResource(R.string.journal_clear))
+                }
+            }
         }
     }
 }

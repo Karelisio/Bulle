@@ -38,6 +38,8 @@ class IslandAccessibilityService : AccessibilityService() {
     private val screenTick = MutableStateFlow(0)
     private var windowListWorks = false
     private var fullscreenJob: kotlinx.coroutines.Job? = null
+    private val fullscreenFlips = ArrayDeque<Long>()
+    private var fullscreenUnstable = false
 
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) = Unit
@@ -55,6 +57,10 @@ class IslandAccessibilityService : AccessibilityService() {
         // (sinon fenêtre orpheline, receiver et coroutines en double).
         teardown()
         if (!scope.isActive) scope = MainScope()
+        IslandLog.log("Service connecté")
+        fullscreenFlips.clear()
+        fullscreenUnstable = false
+        windowListWorks = false
         _running.value = true
         Reliability.ensureRunning(this)
         getSystemService(DisplayManager::class.java).registerDisplayListener(displayListener, null)
@@ -96,23 +102,48 @@ class IslandAccessibilityService : AccessibilityService() {
         com.karelisio.bulle.modules.volet.history.NotificationHistory.start(this, scope, c.storedSettings.map { it.volet })
     }
 
-    /** Plein écran : présence de la fenêtre de barre d'état dans la liste des fenêtres. */
+    /**
+     * Plein écran : présence de la fenêtre de barre d'état dans la liste des fenêtres.
+     * Hystérésis : affichage immédiat, masquage seulement si la barre reste absente sur deux
+     * contrôles espacés. Garde-fou : si la détection oscille, elle est coupée pour cette session
+     * (l'île reste affichée plutôt que de scintiller).
+     */
     private fun refreshFullscreen() {
         val c = controller ?: return
+        if (fullscreenUnstable) return
         val visible = detectStatusBar() ?: return
         if (visible) windowListWorks = true
         // Tant que la barre d'état n'a jamais été repérée, le signal n'est pas fiable sur cet appareil.
         if (!windowListWorks) return
-        fullscreenJob?.cancel()
         if (visible) {
-            c.updateScreen { it.copy(statusBarVisible = true) }
-        } else {
+            fullscreenJob?.cancel()
+            fullscreenJob = null
+            setStatusBarVisible(c, true)
+        } else if (fullscreenJob?.isActive != true && c.screenEnv.value.statusBarVisible) {
             // Anti-rebond : pendant les transitions, la barre peut manquer un instant.
             fullscreenJob = scope.launch {
-                delay(700)
-                if (detectStatusBar() == false) c.updateScreen { it.copy(statusBarVisible = false) }
+                delay(600)
+                if (detectStatusBar() != false) return@launch
+                delay(600)
+                if (detectStatusBar() == false) setStatusBarVisible(c, false)
             }
         }
+    }
+
+    private fun setStatusBarVisible(c: IslandController, visible: Boolean) {
+        if (c.screenEnv.value.statusBarVisible == visible) return
+        val now = android.os.SystemClock.uptimeMillis()
+        fullscreenFlips.addLast(now)
+        while (fullscreenFlips.isNotEmpty() && now - fullscreenFlips.first() > FLAP_WINDOW_MS) fullscreenFlips.removeFirst()
+        if (fullscreenFlips.size >= FLAP_LIMIT) {
+            fullscreenUnstable = true
+            fullscreenJob?.cancel()
+            IslandLog.log("Plein écran : détection instable (${fullscreenFlips.size} bascules en 1 min), désactivée pour cette session")
+            c.updateScreen { it.copy(statusBarVisible = true) }
+            return
+        }
+        IslandLog.log(if (visible) "Barre d'état visible" else "Plein écran détecté")
+        c.updateScreen { it.copy(statusBarVisible = visible) }
     }
 
     private fun detectStatusBar(): Boolean? {
@@ -137,7 +168,10 @@ class IslandAccessibilityService : AccessibilityService() {
                 refreshLock()
                 refreshFullscreen()
             }
-            AccessibilityEvent.TYPE_WINDOWS_CHANGED -> refreshFullscreen()
+            // Les changements de nos propres fenêtres (animations de l'île, volet) ne disent rien
+            // de la barre d'état : les ignorer évite une boucle masquage ↔ affichage.
+            AccessibilityEvent.TYPE_WINDOWS_CHANGED ->
+                if (!FullscreenDetector.isOwnOverlay(this, event.windowId)) refreshFullscreen()
         }
     }
 
@@ -156,11 +190,13 @@ class IslandAccessibilityService : AccessibilityService() {
 
     private fun teardown() {
         if (window == null && controller == null) return
+        IslandLog.log("Service arrêté")
         // Ne touche à l'état global que s'il décrit encore cette instance du service.
         if (_controller.value === controller) {
             _running.value = false
             _controller.value = null
         }
+        fullscreenJob?.cancel()
         fullscreenJob = null
         runCatching { getSystemService(DisplayManager::class.java).unregisterDisplayListener(displayListener) }
         runCatching { unregisterReceiver(screenReceiver) }
@@ -177,6 +213,9 @@ class IslandAccessibilityService : AccessibilityService() {
     }
 
     companion object {
+        private const val FLAP_WINDOW_MS = 60_000L
+        private const val FLAP_LIMIT = 6
+
         private val _running = MutableStateFlow(false)
         /** Vrai tant que le système fait réellement tourner le service. */
         val running: StateFlow<Boolean> = _running.asStateFlow()
