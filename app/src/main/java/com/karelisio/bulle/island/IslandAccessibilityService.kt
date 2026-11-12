@@ -95,6 +95,7 @@ class IslandAccessibilityService : AccessibilityService() {
         }
         refreshLock()
         ForegroundApp.refreshInputMethods(this)
+        HomeApp.refresh(this)
         w.show { IslandScene(c) }
         // Volet : créé après l'île ; ne pose aucune fenêtre tant qu'il est désactivé.
         volet = VoletController(this, scope, c).also { it.start(); VoletController.register(it) }

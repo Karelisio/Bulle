@@ -31,4 +31,8 @@
     </plurals>
     <string name="music_cache_clear">Vider</string>
     <string name="music_cache_cleared">Cache des paroles vidé</string>
+    <string name="music_setting_keep_lyrics_open">Garder les paroles ouvertes</string>
+    <string name="music_setting_keep_lyrics_open_summary">Pendant des paroles synchronisées, toucher ailleurs ne referme pas le lecteur. Touchez l’île ou glissez vers le haut pour le fermer.</string>
+    <string name="music_setting_visible_lyrics">Toujours visible avec les paroles</string>
+    <string name="music_setting_visible_lyrics_summary">Pendant la lecture d’un morceau aux paroles synchronisées, l’île reste affichée même en plein écran ou dans une appli où elle est masquée.</string>
 </resources>

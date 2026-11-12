@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="style_max_compact">Max compact width: %1$d %% of the screen</string>
+    <string name="style_max_expanded">Max card width: %1$d %% of the screen</string>
+    <string name="style_stable_window">Stable rendering</string>
+    <string name="style_stable_window_hint">The island is drawn in a fixed window that never moves: prevents flickering. Turn off only if you notice a problem.</string>
+</resources>

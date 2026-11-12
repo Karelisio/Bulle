@@ -17,4 +17,11 @@ data class MusicSettings(
     val hideWhenPaused: Boolean = true,
     /** Délai avant de masquer un lecteur en pause, en minutes. */
     val pausedHideMinutes: Int = 10,
+    /** La carte étendue reste ouverte (toucher extérieur ignoré) pendant des paroles synchronisées. */
+    val keepLyricsOpen: Boolean = true,
+    /**
+     * Pendant la lecture d'un morceau aux paroles synchronisées, l'île reste visible même si le
+     * masquage automatique (plein écran, écran d'accueil, appli exclue) la cacherait.
+     */
+    val stayVisibleWithLyrics: Boolean = true,
 )

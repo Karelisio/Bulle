@@ -21,6 +21,8 @@ import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.PauseCircle
 import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material.icons.rounded.PushPin
+import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -168,6 +170,22 @@ fun MusicSettingsScreen(onBack: () -> Unit) {
                 checked = music.onlineLyrics,
                 enabled = enabled && music.lyricsEnabled,
             ) { on -> updateMusic { it.copy(onlineLyrics = on) } }
+
+            SwitchRow(
+                icon = Icons.Rounded.PushPin,
+                title = stringResource(R.string.music_setting_keep_lyrics_open),
+                summary = stringResource(R.string.music_setting_keep_lyrics_open_summary),
+                checked = music.keepLyricsOpen,
+                enabled = enabled && music.lyricsEnabled,
+            ) { on -> updateMusic { it.copy(keepLyricsOpen = on) } }
+
+            SwitchRow(
+                icon = Icons.Rounded.Visibility,
+                title = stringResource(R.string.music_setting_visible_lyrics),
+                summary = stringResource(R.string.music_setting_visible_lyrics_summary),
+                checked = music.stayVisibleWithLyrics,
+                enabled = enabled && music.lyricsEnabled,
+            ) { on -> updateMusic { it.copy(stayVisibleWithLyrics = on) } }
 
             ListItem(
                 leadingContent = { Icon(Icons.Rounded.DeleteSweep, contentDescription = null) },

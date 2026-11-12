@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
@@ -160,11 +161,16 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
             val maxW = if (style.cardStyle == CardStyle.WIDE) Float.MAX_VALUE else ExpandedMaxWidth.toPx()
             val corner = ExpandedCorner.toPx()
             val shadow = ShadowMargin.toPx()
-            val slot = (state.primary?.compactSlotWidth ?: 0.dp).toPx() * state.style.size.coerceIn(0.5f, 1.6f)
+            val rawSlot = (state.primary?.compactSlotWidth ?: 0.dp).toPx() * state.style.size.coerceIn(0.5f, 1.6f)
         }
     }
-    val expandedWidth = min(g.screenWidth - 2 * px.margin, px.maxW)
-    val compactWidth = g.width + 2 * px.slot
+    // Largeur maximale en compact : les emplacements (et leur contenu) rétrécissent pour tenir.
+    val maxCompactPx = g.screenWidth * style.maxCompactWidth.coerceIn(0.2f, 1f)
+    val slotFit = if (px.rawSlot > 0f) ((maxCompactPx - g.width) / 2f / px.rawSlot).coerceIn(0.35f, 1f) else 1f
+    val slotPx = px.rawSlot * slotFit
+    val compactScale = style.size.coerceIn(0.5f, 1.6f) * slotFit
+    val expandedWidth = min(min(g.screenWidth - 2 * px.margin, px.maxW), g.screenWidth * style.maxExpandedWidth.coerceIn(0.3f, 1f))
+    val compactWidth = g.width + 2 * slotPx
     // Sens d'ouverture : le bord côté caméra reste fixe et l'île s'étend du côté choisi.
     val direction = g.openDirection
 
@@ -198,7 +204,8 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     fun applyWin(r: WindowRequest) {
         burstState.lastRequest = r
         currentController.applyWindow(
-            if (burstState.active) r.copy(width = r.width + 2 * burstPad, height = r.height + burstPad, touchable = r.touchable) else r,
+            // En rendu stable, la fenêtre d'affichage a déjà la place : la zone tactile reste celle de l'île.
+            if (burstState.active && !style.stableWindow) r.copy(width = r.width + 2 * burstPad, height = r.height + burstPad, touchable = r.touchable) else r,
         )
     }
 
@@ -288,7 +295,15 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         launch { expandedAlpha.animateTo(if (mode == Mode.EXPANDED) 1f else 0f, if (mode == Mode.EXPANDED) motion.contentIn() else motion.contentOut()) }
     }
 
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+    // Rendu stable : la fenêtre couvre toute la largeur depuis le haut de l'écran ; on place
+    // donc l'île sur la caméra par un décalage (la fenêtre, elle, ne bouge jamais).
+    val stable = style.stableWindow
+    Box(
+        Modifier
+            .fillMaxSize()
+            .then(if (stable) Modifier.offset { IntOffset(g.centerX - g.screenWidth / 2, g.top) } else Modifier),
+        contentAlignment = Alignment.TopCenter,
+    ) {
         // Fond noir « liquide » commun aux deux bulles (Android 13+).
         LiquidBackground(smoothK = with(density) { 10.dp.toPx() }) {
             LiquidGeometry(
@@ -361,7 +376,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                     ) { content ->
                         if (content != null) {
                             CompactRow(
-                                content, g.width, g.height, density, state.style.size.coerceIn(0.5f, 1.6f),
+                                content, g.width, g.height, density, compactScale,
                                 direction = direction,
                                 marquee = style.marquee && !reduceMotion,
                                 subtitle = content.compactSubtitle

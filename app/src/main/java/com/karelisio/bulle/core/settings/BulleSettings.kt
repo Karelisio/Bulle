@@ -66,6 +66,13 @@ data class VisibilitySettings(
     val hideInLandscape: Boolean = true,
     val hideOnLockscreen: Boolean = false,
     val hiddenApps: Set<String> = emptySet(),
+    /** Applis où le plein écran ne masque jamais l'île (les autres conditions restent valables). */
+    val fullscreenIgnoredApps: Set<String> = emptySet(),
+    /**
+     * Sur l'écran d'accueil, jamais de masquage plein écran : beaucoup de launchers (dont celui
+     * de MagicOS) masquent la barre d'état ou trompent la détection.
+     */
+    val ignoreFullscreenOnLauncher: Boolean = true,
 )
 
 @Serializable

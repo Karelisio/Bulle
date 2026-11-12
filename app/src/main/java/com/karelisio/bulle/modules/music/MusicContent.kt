@@ -32,6 +32,10 @@ data class MusicContent(
     val lyrics: LyricsState,
     override val postedAt: Long,
     override val timeoutMs: Long?,
+    /** Réglage [MusicSettings.keepLyricsOpen] au moment de la publication. */
+    val keepLyricsOpen: Boolean = true,
+    /** Réglage [MusicSettings.stayVisibleWithLyrics] au moment de la publication. */
+    val stayVisibleWithLyrics: Boolean = true,
 ) : IslandContent() {
     override val key = "music:${track.packageName}"
     override val moduleId = MusicModule.id
@@ -40,6 +44,17 @@ data class MusicContent(
     override val compactSlotWidth: Dp = 42.dp
 
     val isPlaying: Boolean get() = playback.isPlaying
+
+    /**
+     * Paroles synchronisées disponibles pour ce morceau (donc affichées dans la carte étendue).
+     * Ne dépend que de l'état des paroles : ne change pas à chaque tick de position.
+     */
+    val hasSyncedLyrics: Boolean
+        get() = (lyrics as? LyricsState.Found)?.lyrics?.let { it.synced && it.lines.isNotEmpty() } == true
+
+    // Calculés à la construction : l'arbitre et le contrôleur les lisent souvent.
+    override val stayExpandedOnOutsideTouch: Boolean = keepLyricsOpen && hasSyncedLyrics
+    override val showWhenHidden: Boolean = stayVisibleWithLyrics && isPlaying && hasSyncedLyrics
 
     @Composable
     override fun Leading() = CompactArtwork(artwork?.image, isPlaying, accent)

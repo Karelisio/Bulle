@@ -46,4 +46,13 @@ data class StyleSettings(
     val marquee: Boolean = false,
     /** Mode compact sur deux lignes (si le contenu fournit un sous-titre et que la hauteur le permet). */
     val twoLineCompact: Boolean = false,
+    /** Largeur maximale en mode compact, en fraction de la largeur d'écran (1 = sans limite). */
+    val maxCompactWidth: Float = 1f,
+    /** Largeur maximale de la carte étendue, en fraction de la largeur d'écran (1 = sans limite). */
+    val maxExpandedWidth: Float = 1f,
+    /**
+     * Rendu stable : l'île est dessinée dans une fenêtre fixe qui n'est jamais redimensionnée
+     * (une petite fenêtre invisible suit l'île pour les touchers). Évite le scintillement.
+     */
+    val stableWindow: Boolean = true,
 )

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hiding: full screen exceptions -->
+    <string name="visibility_fullscreen_launcher">Never on the home screen</string>
+    <string name="visibility_fullscreen_launcher_desc">Some home screens hide the status bar: the island stays anyway.</string>
+    <string name="visibility_fullscreen_apps">Apps where full screen keeps the island</string>
+    <string name="visibility_fullscreen_apps_desc">In these apps, the island stays visible even in full screen.</string>
+    <string name="visibility_remove_app">Remove %1$s</string>
+</resources>
