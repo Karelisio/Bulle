@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="journal_title">Journal de l’île</string>
+    <string name="journal_text">Apparitions, masquages et leur raison, mises à jour de la fenêtre. Gardé en mémoire uniquement. Si l’île scintille, copie le journal juste après et envoie-le.</string>
+    <string name="journal_empty">Rien pour l’instant.</string>
+    <string name="journal_copy">Copier le journal</string>
+    <string name="journal_clear">Effacer</string>
+    <string name="journal_copied">Journal copié</string>
+</resources>

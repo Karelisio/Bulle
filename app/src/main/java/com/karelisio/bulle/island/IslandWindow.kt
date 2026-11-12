@@ -50,6 +50,7 @@ class IslandWindow(context: Context) : OverlayWindow(context, "Bulle") {
         params.width = w
         params.height = h
         params.flags = flags
+        IslandLog.log("Fenêtre ${w}×$h à ($x,$top)" + (if (touchable) "" else " non touchable"))
         commit()
     }
 }
