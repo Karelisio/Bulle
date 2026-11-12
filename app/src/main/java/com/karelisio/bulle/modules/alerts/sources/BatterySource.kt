@@ -22,6 +22,8 @@ import com.karelisio.bulle.modules.alerts.AlertRules
 import com.karelisio.bulle.modules.alerts.AlertSettings
 import com.karelisio.bulle.modules.alerts.AlertSource
 import com.karelisio.bulle.modules.alerts.ChargeKind
+import com.karelisio.bulle.modules.alerts.SignalRules
+import com.karelisio.bulle.modules.alerts.UsbChargeLink
 import com.karelisio.bulle.modules.alerts.alertNow
 import com.karelisio.bulle.modules.alerts.broadcasts
 import com.karelisio.bulle.modules.alerts.latestAlive
@@ -30,7 +32,10 @@ import com.karelisio.bulle.modules.alerts.ui.AlertLabel
 import com.karelisio.bulle.modules.alerts.ui.BatteryGlyph
 import com.karelisio.bulle.modules.alerts.ui.BoltGlyph
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
 
 private val ChargeGreen = Color(0xFF5BE38A)
 private val LowRed = Color(0xFFFF5D5D)
@@ -44,7 +49,8 @@ object BatterySource : AlertSource {
 
     override fun isEnabled(settings: AlertSettings) = settings.lowBattery || settings.charging
 
-    override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = flow<IslandContent?> {
+    override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = channelFlow<IslandContent?> {
+        var pendingUsb: Job? = null
         var prevLevel: Int? = null
         var prevPlugged: Int? = null
         var charge: ChargingContent? = null
@@ -63,18 +69,31 @@ object BatterySource : AlertSource {
             val now = alertNow()
             val shown = charge
             when {
+                // Branchement USB avec l'alerte USB active : on attend de savoir si c'est un câble de
+                // données (ordinateur) ; si oui, l'alerte USB combinée (avec le %) remplace celle-ci.
+                AlertRules.justPlugged(prevPlugged, plugged) && s.charging && s.usb && plugged == SignalRules.PLUGGED_USB -> {
+                    pendingUsb?.cancel()
+                    pendingUsb = launch {
+                        val deadline = alertNow() + UsbChargeLink.WAIT_MS
+                        while (!UsbChargeLink.dataConnected && alertNow() < deadline) delay(100)
+                        if (!SignalRules.mergeUsbCharge(true, plugged, UsbChargeLink.dataConnected)) {
+                            charge = ChargingContent(pct, kind, alertNow()).also { send(it) }
+                        }
+                    }
+                }
                 AlertRules.justPlugged(prevPlugged, plugged) && s.charging -> {
-                    charge = ChargingContent(pct, kind, now).also { emit(it) }
+                    charge = ChargingContent(pct, kind, now).also { send(it) }
                 }
                 // Mise à jour pendant l'affichage : le courant max n'est souvent connu qu'après quelques instants.
                 shown != null && plugged != 0 && now < (shown.expiresAt ?: 0) -> {
                     val updated = shown.copy(percent = pct, kind = if (shown.kind == ChargeKind.NORMAL) kind else shown.kind)
-                    if (updated != shown) { charge = updated; emit(updated) }
+                    if (updated != shown) { charge = updated; send(updated) }
                 }
-                plugged == 0 && shown != null -> { charge = null; emit(null) }
+                plugged == 0 && shown != null -> { charge = null; send(null) }
             }
+            if (plugged == 0) { pendingUsb?.cancel(); pendingUsb = null }
             val crossed = AlertRules.crossedLowThreshold(prevLevel, pct, s.lowBatteryLevels, charging = plugged != 0)
-            if (crossed != null && s.lowBattery) emit(LowBatteryContent(pct, now))
+            if (crossed != null && s.lowBattery) send(LowBatteryContent(pct, now))
             prevLevel = pct
             prevPlugged = plugged
         }

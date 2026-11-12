@@ -5,7 +5,6 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.os.Build
 import android.service.notification.StatusBarNotification
-import android.text.format.DateFormat
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material3.Button
@@ -14,7 +13,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,11 +27,11 @@ import com.karelisio.bulle.modules.alerts.AlertSource
 import com.karelisio.bulle.modules.alerts.ui.AlertExpanded
 import com.karelisio.bulle.modules.alerts.ui.AlertLabel
 import com.karelisio.bulle.modules.alerts.ui.ShakingIcon
+import com.karelisio.bulle.modules.alerts.ui.rememberClockText
 import com.karelisio.bulle.notifications.NotificationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import java.util.Date
 
 private val AlarmOrange = Color(0xFFFFB347)
 
@@ -116,8 +114,8 @@ data class AlarmContent(
 
     @Composable
     override fun Trailing() {
-        val ctx = LocalContext.current
-        AlertLabel(DateFormat.getTimeFormat(ctx).format(Date()), color = AlarmOrange)
+        // Heure qui avance pendant que l'alarme sonne (minute pile).
+        AlertLabel(rememberClockText(), color = AlarmOrange)
     }
 
     @Composable

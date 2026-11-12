@@ -2,7 +2,6 @@ package com.karelisio.bulle.modules.music.ui
 
 import android.media.session.PlaybackState
 import android.os.SystemClock
-import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -56,7 +55,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,7 +83,7 @@ internal fun formatTime(ms: Long): String {
 @Composable
 internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
     val reduceMotion = rememberReduceMotion()
-    val view = LocalView.current
+    val haptics = LocalHapticFeedback.current
     val controls = content.controller.transportControls
     val duration = content.track.durationMs
     val accent by animateColorAsState(content.accent, tween(700), label = "accent")
@@ -173,7 +173,7 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
                 accent = accent,
                 contentDescription = stringResource(if (playing) R.string.music_pause else R.string.music_play),
                 onClick = {
-                    view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                     if (playing) controls.pause() else controls.play()
                     setPlaying(!playing)
                 },
@@ -254,10 +254,10 @@ private fun TimeRow(elapsed: () -> Long, duration: Long) {
 private fun SkipButton(icon: ImageVector, label: String, direction: Float, enabled: Boolean, onClick: () -> Unit) {
     val nudge = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
-    val view = LocalView.current
+    val haptics = LocalHapticFeedback.current
     IconButton(
         onClick = {
-            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            haptics.performHapticFeedback(HapticFeedbackType.VirtualKey)
             onClick()
             scope.launch {
                 nudge.animateTo(direction, tween(90))

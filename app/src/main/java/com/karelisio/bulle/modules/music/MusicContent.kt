@@ -43,6 +43,12 @@ data class MusicContent(
     override val accent: Color = artwork?.accent ?: ArtworkLoader.DefaultAccent
     override val compactSlotWidth: Dp = 42.dp
 
+    /**
+     * Seconde ligne compacte : l'artiste. (La ligne de paroles courante obligerait à recréer
+     * le contenu à chaque ligne : on s'en tient à l'artiste, stable pendant tout le morceau.)
+     */
+    override val compactSubtitle: String? = track.artist.trim().takeIf { it.isNotEmpty() }
+
     val isPlaying: Boolean get() = playback.isPlaying
 
     /**

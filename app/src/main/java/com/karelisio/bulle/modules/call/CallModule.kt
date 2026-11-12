@@ -36,6 +36,7 @@ object CallModule : IslandModule {
         // Avatar converti une seule fois par publication de notification (clé → (postTime, image)).
         val avatars = HashMap<String, Pair<Long, ImageBitmap?>>()
         val labels = HashMap<String, String?>()
+        val starts = CallStartTracker()
         fun avatarOf(key: String, postTime: Long, load: () -> ImageBitmap?): ImageBitmap? {
             avatars[key]?.let { (time, image) -> if (time == postTime) return image }
             return load().also { avatars[key] = postTime to it }
@@ -48,19 +49,24 @@ object CallModule : IslandModule {
             val calls = active.values
                 .filter { it.packageName != context.packageName }
                 .mapNotNull { sbn -> CallParser.parse(sbn)?.let { sbn to it } }
-            firstSeen.keys.retainAll(calls.mapTo(HashSet()) { stateKey(it.second) })
+            val liveKeys = calls.mapTo(HashSet()) { stateKey(it.second) }
+            firstSeen.keys.retainAll(liveKeys)
+            starts.retain(liveKeys)
             avatars.keys.retainAll(calls.mapTo(HashSet()) { it.first.key })
             calls.map { (sbn, call) ->
                 val seen = firstSeen.getOrPut(stateKey(call)) { SystemClock.elapsedRealtime() to System.currentTimeMillis() }
+                val appLabel = labels.getOrPut(sbn.packageName) { LiveModule.appLabel(context, sbn) }
                 CallContent(
                     call = call,
                     avatar = avatarOf(sbn.key, sbn.postTime) {
                         NotificationIcons.load(context, call.personIcon ?: call.largeIcon, avatarPx)
                     },
-                    appLabel = labels.getOrPut(sbn.packageName) { LiveModule.appLabel(context, sbn) },
+                    appLabel = appLabel,
+                    compactSubtitle = CallContent.compactSubtitle(call, appLabel) { context.getString(it) },
                     autoExpand = settings.autoExpand,
-                    // Sans `when` fiable, la durée part du moment où l'appel a été vu en cours.
-                    startWallMillis = call.startWallMillis?.takeIf { it <= System.currentTimeMillis() + 1_000 } ?: seen.second,
+                    // Plus ancien `when` connu (notification reconstruite) ; sans `when` fiable, la durée
+                    // part du moment où l'appel a été vu en cours.
+                    startWallMillis = starts.resolve(stateKey(call), call.startWallMillis, System.currentTimeMillis(), seen.second),
                     postedAt = seen.first,
                 )
             }

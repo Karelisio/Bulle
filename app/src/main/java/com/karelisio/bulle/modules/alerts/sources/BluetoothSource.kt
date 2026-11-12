@@ -58,6 +58,8 @@ object BluetoothSource : AlertSource {
 
     override fun isEnabled(settings: AlertSettings) = settings.bluetooth
 
+    override val requiredPermissions: List<String> get() = listOf(Manifest.permission.BLUETOOTH_CONNECT)
+
     @SuppressLint("MissingPermission") // Permission vérifiée avant tout abonnement.
     override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = flow<IslandContent?> {
         val ctx = env.context.applicationContext

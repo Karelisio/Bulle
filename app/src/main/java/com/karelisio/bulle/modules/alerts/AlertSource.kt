@@ -31,6 +31,13 @@ interface AlertSource {
     /** Cette alerte est-elle cochée dans les réglages ? */
     fun isEnabled(settings: AlertSettings): Boolean
 
+    /**
+     * Permissions d'exécution sans lesquelles la source ne peut pas démarrer. Le module
+     * réévalue régulièrement « cochée ET autorisée » : une permission accordée plus tard
+     * (réglages système) démarre la source sans redémarrer le service.
+     */
+    val requiredPermissions: List<String> get() = emptyList()
+
     /** Contenus actuellement affichés par la source. */
     fun contents(env: ModuleEnv): Flow<List<IslandContent>>
 }
