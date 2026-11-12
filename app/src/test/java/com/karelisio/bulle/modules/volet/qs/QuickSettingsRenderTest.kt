@@ -19,7 +19,15 @@ import com.karelisio.bulle.modules.volet.VoletHost
 import com.karelisio.bulle.modules.volet.VoletSettings
 import com.karelisio.bulle.modules.volet.VoletZone
 import com.karelisio.bulle.ui.theme.BulleTheme
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.karelisio.bulle.modules.volet.ui.LocalVoletHaptics
+import com.karelisio.bulle.modules.volet.ui.NoHapticFeedback
+import com.karelisio.bulle.modules.volet.ui.ProvideVoletHaptics
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -83,6 +91,45 @@ class QuickSettingsRenderTest {
         idle()
         host.editingTiles = false
         idle()
+    }
+
+    @Test
+    fun rendersPagedGrid() {
+        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val host = TestHost(activity)
+        val supported = QsTileRegistry.current(activity, emptyList())
+        // Toutes les tuiles prises en charge : au-delà de 8, la grille passe en pages.
+        host.settings = host.settings.copy(tiles = supported.map { it.id })
+        activity.setContent {
+            BulleTheme { QuickSettingsSection(host, Modifier.fillMaxWidth()) }
+        }
+        idle()
+        for (e in listOf(2f, 1.4f, 1f, 2f)) {
+            host.expansion = e
+            idle()
+        }
+        assertEquals(supported.size > 8, QsPaging.pageCount(supported.size) > 1)
+    }
+
+    @Test
+    fun hapticsSwitch() {
+        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        var off: HapticFeedback? = null
+        var on: HapticFeedback? = null
+        var allowedOff = true
+        activity.setContent {
+            ProvideVoletHaptics(false) {
+                off = LocalHapticFeedback.current
+                allowedOff = LocalVoletHaptics.current
+            }
+            ProvideVoletHaptics(true) { on = LocalHapticFeedback.current }
+        }
+        idle()
+        assertSame(NoHapticFeedback, off)
+        assertFalse(allowedOff)
+        assertNotSame(NoHapticFeedback, on)
+        // Réglage par défaut de l'hôte : haptique active.
+        assertTrue(TestHost(activity).haptics)
     }
 
     @Test

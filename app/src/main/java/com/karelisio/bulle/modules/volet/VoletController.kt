@@ -64,6 +64,8 @@ class VoletController(
     override var focusKey by mutableStateOf<String?>(null)
         private set
     override var editingTiles by mutableStateOf(false)
+    override var haptics by mutableStateOf(true)
+        private set
 
     /** Progression du geste Retour prédictif (0 – 1). */
     var backProgress by mutableFloatStateOf(0f)
@@ -85,6 +87,9 @@ class VoletController(
 
     fun start() {
         jobs += scope.launch { settingsFlow.collect { settings = it; if (!it.enabled) closeNow() } }
+        jobs += scope.launch {
+            island.storedSettings.map { it.motion.haptics }.distinctUntilChanged().collect { haptics = it }
+        }
         // Appareil verrouillé pendant que le volet est ouvert (écran éteint…) : on le referme,
         // comme le volet du système, plutôt que de le laisser ouvert par-dessus l'écran de verrouillage.
         jobs += scope.launch {
@@ -152,7 +157,7 @@ class VoletController(
             return
         }
         settleJob?.cancel()
-        panel?.view?.performHapticFeedback(HapticFeedbackConstants.GESTURE_START)
+        if (haptics) panel?.view?.performHapticFeedback(HapticFeedbackConstants.GESTURE_START)
     }
 
     override fun onStripDrag(dyPx: Float) {
@@ -263,7 +268,7 @@ class VoletController(
                     e >= 0.98f -> 1
                     else -> 0
                 }
-                if (step > lastStep) p.view?.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
+                if (step > lastStep && haptics) p.view?.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK)
                 lastStep = step
             }
         }
