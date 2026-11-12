@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Barre de navigation flottante -->
+    <string name="nav_tab_home">Accueil</string>
+    <string name="nav_tab_look">Style</string>
+    <string name="nav_tab_contents">Contenus</string>
+    <string name="nav_tab_settings">Réglages</string>
+    <string name="nav_bar_description">Navigation principale</string>
+
+    <!-- En-têtes des onglets -->
+    <string name="nav_title_look">Style</string>
+    <string name="nav_subtitle_look">Façonne l’île : sa matière, sa place, ses gestes.</string>
+    <string name="nav_title_contents">Contenus</string>
+    <string name="nav_subtitle_contents">Ce que l’île affiche, et ce qui gravite autour.</string>
+    <string name="nav_title_settings">Réglages</string>
+    <string name="nav_subtitle_settings">Pour que Bulle tienne bon, et tes réglages avec.</string>
+
+    <!-- Groupes -->
+    <string name="nav_group_appearance">Apparence</string>
+    <string name="nav_group_behaviour">Comportement</string>
+    <string name="nav_group_on_island">Sur l’île</string>
+    <string name="nav_group_around">Autour de l’île</string>
+    <string name="nav_group_care">Bon fonctionnement</string>
+
+    <!-- Résumés des entrées -->
+    <string name="nav_sum_style">Forme, couleurs, matière et ressorts</string>
+    <string name="nav_sum_position">Caler l’île au pixel près sur la caméra</string>
+    <string name="nav_sum_visibility">Quand et où l’île se fait discrète</string>
+    <string name="nav_sum_gestures">Appuis, appuis longs et glissés</string>
+    <string name="nav_sum_music">Pochette, progression et paroles</string>
+    <string name="nav_sum_live">Livraisons, trajets, minuteurs…</string>
+    <string name="nav_sum_calls">Appel entrant et durée en cours</string>
+    <string name="nav_sum_alerts">Batterie, Bluetooth, alarmes… et Écho</string>
+    <string name="nav_sum_volet">Le panneau qui se déroule depuis l’île</string>
+    <string name="nav_sum_deck">Applis, raccourcis et widgets en onglets</string>
+    <string name="nav_sum_rules">Comportements selon l’appli ou l’heure</string>
+    <string name="nav_sum_reliability">Garder le service en vie sur ton téléphone</string>
+    <string name="nav_sum_permissions">Ce que Bulle peut voir et faire</string>
+    <string name="nav_sum_backup">Exporter ou restaurer tes réglages</string>
+    <string name="nav_sum_about">Version, nouveautés et mises à jour</string>
+</resources>

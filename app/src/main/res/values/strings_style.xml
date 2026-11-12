@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Style d'animation « Accentué » (aussi utilisé par les règles). -->
+    <string name="motion_playful">accentué</string>
+    <string name="style_corners">Angles</string>
+    <string name="style_corner_smoothing">Lissage des angles</string>
+    <string name="style_corner_round">Arcs</string>
+    <string name="style_corner_squircle">Squircle</string>
+    <string name="style_text">Texte</string>
+    <string name="style_font">Police</string>
+    <string name="style_font_default">Système</string>
+    <string name="style_font_rounded">Arrondie</string>
+    <string name="style_font_condensed">Étroite</string>
+    <string name="style_font_serif">Serif</string>
+    <string name="style_font_mono">Chasse fixe</string>
+    <string name="style_text_size">Taille du texte</string>
+    <string name="style_marquee">Faire défiler les textes trop longs</string>
+    <string name="style_two_line">Compact sur deux lignes</string>
+    <string name="style_two_line_hint">Une petite seconde ligne apparaît sous l’élément de droite quand le contenu en propose une et que l’île est assez haute.</string>
+    <string name="style_text_sample_lead">12:45</string>
+    <string name="style_text_sample_long">Lecture en cours : un titre bien trop long pour tenir dans l’île</string>
+    <string name="style_text_sample_sub">encore 4 min</string>
+    <string name="style_blur">Flou des transitions</string>
+    <string name="style_haptics">Retour haptique</string>
+    <string name="position_direction">Sens d’ouverture</string>
+    <string name="position_direction_hint">Le bord côté caméra reste fixe et l’île s’agrandit du côté choisi : pratique si la caméra est décentrée.</string>
+    <string name="position_direction_center">Centré</string>
+    <string name="position_direction_left">Vers la gauche</string>
+    <string name="position_direction_right">Vers la droite</string>
+    <string name="position_nudge">Réglage au pixel</string>
+    <string name="position_nudge_hint">Chaque appui décale l’île d’un pixel réel. Maintiens le doigt pour accélérer.</string>
+    <string name="position_nudge_value">X %1$s px · Y %2$s px</string>
+    <string name="position_nudge_up">Monter d’un pixel</string>
+    <string name="position_nudge_down">Descendre d’un pixel</string>
+    <string name="position_nudge_left">Décaler d’un pixel à gauche</string>
+    <string name="position_nudge_right">Décaler d’un pixel à droite</string>
+</resources>

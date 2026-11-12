@@ -25,7 +25,11 @@ import com.karelisio.bulle.core.island.IslandModule
 import com.karelisio.bulle.core.island.ModuleEnv
 import com.karelisio.bulle.core.island.Priority
 import com.karelisio.bulle.core.settings.BulleSettings
+import com.karelisio.bulle.modules.alerts.AlertStyleBook
+import com.karelisio.bulle.modules.alerts.AlertsModule
 import com.karelisio.bulle.modules.alerts.alertNow
+import com.karelisio.bulle.modules.alerts.ui.styled
+import kotlinx.coroutines.flow.combine
 import com.karelisio.bulle.modules.alerts.latestAlive
 import com.karelisio.bulle.modules.alerts.sources.sendFromIsland
 import com.karelisio.bulle.modules.alerts.ui.AlertLabel
@@ -35,6 +39,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 /**
  * Écho : chaque notification publiée par l'appli Écho déclenche un cœur pulsé dans l'île.
@@ -50,7 +55,12 @@ object EchoModule : IslandModule {
     override fun isEnabled(settings: BulleSettings): Boolean =
         (settings.modules[id] ?: enabledByDefault) && settings.alerts.echoEnabled
 
-    override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = NotificationRepository.events
+    override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = combine(
+        AlertsModule.styles(env),
+        notifications(),
+    ) { styles, list -> list.map { styled(it, styles) } }
+
+    private fun notifications(): Flow<List<IslandContent>> = NotificationRepository.events
         .filterIsInstance<NotificationEvent.Posted>()
         .filter { it.sbn.packageName == ECHO_PACKAGE && it.sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY == 0 }
         .map { e ->
@@ -64,6 +74,7 @@ object EchoModule : IslandModule {
             ) as IslandContent?
         }
         .latestAlive()
+        .onStart { emit(emptyList()) }
 }
 
 /** Notification d'Écho : cœur qui bat, halo rose, petits cœurs qui montent. */
@@ -78,7 +89,8 @@ data class EchoContent(
     override val notificationKey: String? get() = sourceKey
     override val moduleId = EchoModule.ID
     override val priority = Priority.ALERT
-    override val timeoutMs = 4_000L
+    /** 4 s par défaut, ou la durée choisie pour l'alerte « echo ». */
+    override val timeoutMs: Long? get() = AlertStyleBook.timeout("echo", 4_000L)
     override val autoExpandMs = 2_600L
     override val accent = EchoPink
     override val compactSlotWidth = 84.dp

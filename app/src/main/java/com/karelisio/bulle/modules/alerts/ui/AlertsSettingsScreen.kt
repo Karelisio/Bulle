@@ -1,17 +1,21 @@
 package com.karelisio.bulle.modules.alerts.ui
 
-import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,24 +30,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Alarm
-import androidx.compose.material.icons.rounded.AirplanemodeActive
-import androidx.compose.material.icons.rounded.BatteryAlert
-import androidx.compose.material.icons.rounded.BatteryChargingFull
-import androidx.compose.material.icons.rounded.Bluetooth
-import androidx.compose.material.icons.rounded.ContentCopy
-import androidx.compose.material.icons.rounded.DoNotDisturbOn
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FlashlightOn
-import androidx.compose.material.icons.rounded.InstallMobile
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Screenshot
-import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -71,156 +64,44 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karelisio.bulle.R
-import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.SettingsRepository
+import com.karelisio.bulle.modules.alerts.AlertCatalog
+import com.karelisio.bulle.modules.alerts.AlertCategory
+import com.karelisio.bulle.modules.alerts.AlertDef
 import com.karelisio.bulle.modules.alerts.AlertSettings
-import com.karelisio.bulle.modules.alerts.ChargeKind
-import com.karelisio.bulle.modules.alerts.alertNow
+import com.karelisio.bulle.modules.alerts.CategoryCount
 import com.karelisio.bulle.modules.alerts.hasPermission
-import com.karelisio.bulle.modules.alerts.sources.BluetoothContent
-import com.karelisio.bulle.modules.alerts.sources.BtKind
-import com.karelisio.bulle.modules.alerts.sources.ChargingContent
-import com.karelisio.bulle.modules.alerts.sources.ClipboardContent
-import com.karelisio.bulle.modules.alerts.sources.LowBatteryContent
-import com.karelisio.bulle.modules.alerts.sources.PackageContent
-import com.karelisio.bulle.modules.alerts.sources.ScreenshotSource
-import com.karelisio.bulle.modules.alerts.sources.ToggleContent
-import com.karelisio.bulle.modules.alerts.sources.ToggleKind
-import com.karelisio.bulle.modules.alerts.sources.WifiContent
-import com.karelisio.bulle.modules.echo.EchoContent
 import com.karelisio.bulle.modules.push.PushModule
 import com.karelisio.bulle.notifications.NotificationRepository
+import com.karelisio.bulle.ui.components.rememberReduceMotion
 import kotlinx.coroutines.launch
-
-/** Une ligne de réglage d'alerte. */
-private class AlertItem(
-    val id: String,
-    val icon: ImageVector,
-    val tint: Color,
-    val titleRes: Int,
-    val descRes: Int,
-    val get: (AlertSettings) -> Boolean,
-    val set: (AlertSettings, Boolean) -> AlertSettings,
-    /** Permissions d'exécution demandées à l'activation. */
-    val permissions: List<String> = emptyList(),
-    /** Si vrai, l'alerte fonctionne aussi sans la permission (en mode réduit). */
-    val permissionOptional: Boolean = false,
-    /** Explication si la permission est refusée. */
-    val deniedRes: Int = R.string.alerts_perm_denied,
-    /** Nécessite l'accès aux notifications de Bulle. */
-    val needsNotificationAccess: Boolean = false,
-    /** Contenu d'aperçu envoyé à l'île (bouton ▶). */
-    val preview: ((android.content.Context) -> IslandContent)? = null,
-)
-
-private val energy = listOf(
-    AlertItem(
-        "lowBattery", Icons.Rounded.BatteryAlert, Color(0xFFFF5D5D),
-        R.string.alerts_set_low_battery, R.string.alerts_set_low_battery_desc,
-        { it.lowBattery }, { s, v -> s.copy(lowBattery = v) },
-        preview = { LowBatteryContent(15, alertNow()) },
-    ),
-    AlertItem(
-        "charging", Icons.Rounded.BatteryChargingFull, Color(0xFF5BE38A),
-        R.string.alerts_set_charging, R.string.alerts_set_charging_desc,
-        { it.charging }, { s, v -> s.copy(charging = v) },
-        preview = { ChargingContent(64, ChargeKind.FAST, alertNow()) },
-    ),
-)
-
-private val connections = listOf(
-    AlertItem(
-        "bluetooth", Icons.Rounded.Bluetooth, Color(0xFF6AB0FF),
-        R.string.alerts_set_bluetooth, R.string.alerts_set_bluetooth_desc,
-        { it.bluetooth }, { s, v -> s.copy(bluetooth = v) },
-        permissions = listOf(Manifest.permission.BLUETOOTH_CONNECT),
-        deniedRes = R.string.alerts_perm_bluetooth_denied,
-        preview = { BluetoothContent("00:00", it.getString(R.string.alerts_preview_bt), BtKind.HEADPHONES, 82, alertNow()) },
-    ),
-    AlertItem(
-        "wifi", Icons.Rounded.Wifi, Color(0xFF5ED6E8),
-        R.string.alerts_set_wifi, R.string.alerts_set_wifi_desc,
-        { it.wifi }, { s, v -> s.copy(wifi = v) },
-        permissions = listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-        permissionOptional = true,
-        deniedRes = R.string.alerts_perm_wifi_denied,
-        preview = { WifiContent(it.getString(R.string.alerts_preview_wifi), alertNow()) },
-    ),
-    AlertItem(
-        "airplane", Icons.Rounded.AirplanemodeActive, Color(0xFFFFA24C),
-        R.string.alerts_set_airplane, R.string.alerts_set_airplane_desc,
-        { it.airplane }, { s, v -> s.copy(airplane = v) },
-        preview = { ToggleContent(ToggleKind.AIRPLANE, true, alertNow()) },
-    ),
-)
-
-private val system = listOf(
-    AlertItem(
-        "alarm", Icons.Rounded.Alarm, Color(0xFFFFB347),
-        R.string.alerts_set_alarm, R.string.alerts_set_alarm_desc,
-        { it.alarm }, { s, v -> s.copy(alarm = v) },
-        needsNotificationAccess = true,
-    ),
-    AlertItem(
-        "torch", Icons.Rounded.FlashlightOn, Color(0xFFFFE07A),
-        R.string.alerts_set_torch, R.string.alerts_set_torch_desc,
-        { it.torch }, { s, v -> s.copy(torch = v) },
-    ),
-    AlertItem(
-        "dnd", Icons.Rounded.DoNotDisturbOn, Color(0xFFB39CFF),
-        R.string.alerts_set_dnd, R.string.alerts_set_dnd_desc,
-        { it.dnd }, { s, v -> s.copy(dnd = v) },
-        preview = { ToggleContent(ToggleKind.DND, true, alertNow()) },
-    ),
-    AlertItem(
-        "screenshot", Icons.Rounded.Screenshot, Color(0xFFE8ECF4),
-        R.string.alerts_set_screenshot, R.string.alerts_set_screenshot_desc,
-        { it.screenshot }, { s, v -> s.copy(screenshot = v) },
-        permissions = listOf(ScreenshotSource.permission),
-        deniedRes = R.string.alerts_perm_screenshot_denied,
-    ),
-    AlertItem(
-        "packages", Icons.Rounded.InstallMobile, Color(0xFF7BE0A8),
-        R.string.alerts_set_packages, R.string.alerts_set_packages_desc,
-        { it.packages }, { s, v -> s.copy(packages = v) },
-        preview = { PackageContent("com.karelisio.bulle", "Bulle", true, alertNow()) },
-    ),
-    AlertItem(
-        "clipboard", Icons.Rounded.ContentCopy, Color(0xFFC9A7FF),
-        R.string.alerts_set_clipboard, R.string.alerts_set_clipboard_desc,
-        { it.clipboard }, { s, v -> s.copy(clipboard = v) },
-        preview = { ClipboardContent(alertNow()) },
-    ),
-)
-
-private val echo = listOf(
-    AlertItem(
-        "echo", Icons.Rounded.Favorite, Color(0xFFFF6FA5),
-        R.string.echo_set, R.string.echo_set_desc,
-        { it.echoEnabled }, { s, v -> s.copy(echoEnabled = v) },
-        needsNotificationAccess = true,
-        preview = { EchoContent(it.getString(R.string.echo_preview_title), null, null, alertNow()) },
-    ),
-)
 
 /** Seuils proposés pour la batterie faible. */
 private val thresholdChoices = listOf(5, 10, 15, 20, 30)
 
-/** Écran des réglages des alertes système et d'Écho. */
+/**
+ * Écran des réglages des alertes système et d'Écho, rangées par catégories repliables.
+ * Toucher une alerte ouvre la feuille de personnalisation (icône, couleur, animation, durée).
+ */
 @Composable
-fun AlertsSettingsScreen(onBack: () -> Unit) {
+fun AlertsSettingsScreen(onBack: () -> Unit, initiallyExpanded: Set<AlertCategory> = emptySet()) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val haptics = LocalHapticFeedback.current
     val settings by SettingsRepository.flow(context).collectAsStateWithLifecycle(initialValue = BulleSettings())
     val alerts = settings.alerts
 
@@ -235,35 +116,38 @@ fun AlertsSettingsScreen(onBack: () -> Unit) {
         onPauseOrDispose { }
     }
     val notifAccess = remember(refresh) { NotificationRepository.isAccessGranted(context) }
+    val granted: (String) -> Boolean = { context.hasPermission(it) }
 
     var pending by rememberSaveable { mutableStateOf<String?>(null) }
     var denied by rememberSaveable { mutableStateOf<String?>(null) }
-    val all = remember { energy + connections + system + echo }
+    var editing by rememberSaveable { mutableStateOf<String?>(null) }
+    var expanded by rememberSaveable { mutableStateOf(initiallyExpanded.map { it.name }.toSet()) }
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-        val item = all.firstOrNull { it.id == pending } ?: return@rememberLauncherForActivityResult
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        val def = pending?.let(AlertCatalog::def) ?: return@rememberLauncherForActivityResult
         pending = null
-        val granted = context.hasPermission(item.permissions.first())
+        val ok = context.hasPermission(def.permissions.first())
         when {
-            granted -> { denied = null; update { item.set(it, true) } }
-            item.permissionOptional -> { denied = item.id; update { item.set(it, true) } }
-            else -> { denied = item.id; update { item.set(it, false) } }
+            ok -> { denied = null; update { def.set(it, true) } }
+            def.permissionOptional -> { denied = def.id; update { def.set(it, true) } }
+            else -> { denied = def.id; update { def.set(it, false) } }
         }
         refresh++
     }
 
-    fun toggle(item: AlertItem, on: Boolean) {
+    // La permission n'est demandée qu'au moment où l'utilisateur active l'alerte.
+    fun toggle(def: AlertDef, on: Boolean) {
         if (!on) {
-            if (denied == item.id) denied = null
-            update { item.set(it, false) }
+            if (denied == def.id) denied = null
+            update { def.set(it, false) }
             return
         }
-        val missing = item.permissions.filterNot { context.hasPermission(it) }
+        val missing = def.permissions.filterNot { context.hasPermission(it) }
         if (missing.isEmpty()) {
-            update { item.set(it, true) }
+            update { def.set(it, true) }
         } else {
-            pending = item.id
-            launcher.launch(item.permissions.toTypedArray())
+            pending = def.id
+            launcher.launch(def.permissions.toTypedArray())
         }
     }
 
@@ -287,9 +171,9 @@ fun AlertsSettingsScreen(onBack: () -> Unit) {
             contentPadding = PaddingValues(
                 start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding() + 24.dp,
             ),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item {
+            item(key = "master") {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                     shape = MaterialTheme.shapes.extraLarge,
@@ -305,7 +189,7 @@ fun AlertsSettingsScreen(onBack: () -> Unit) {
                 }
             }
             if (!notifAccess) {
-                item {
+                item(key = "notif") {
                     NoticeCard(stringResource(R.string.alerts_notif_access_needed), stringResource(R.string.alerts_grant)) {
                         runCatching {
                             context.startActivity(
@@ -315,92 +199,199 @@ fun AlertsSettingsScreen(onBack: () -> Unit) {
                     }
                 }
             }
-            val groups = listOf(
-                R.string.alerts_group_energy to energy,
-                R.string.alerts_group_connections to connections,
-                R.string.alerts_group_system to system,
-                R.string.echo_group to echo,
-            )
-            groups.forEach { (titleRes, items) ->
-                item(key = "h$titleRes") {
-                    Text(
-                        stringResource(titleRes),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 4.dp),
-                    )
-                }
-                items(items, key = { it.id }) { item ->
-                    val checked = item.get(alerts)
-                    val permMissing = remember(refresh, checked) {
-                        checked && item.permissions.isNotEmpty() && !context.hasPermission(item.permissions.first())
+            AlertCategory.entries.forEach { category ->
+                item(key = "cat:${category.name}") {
+                    val count = remember(alerts, refresh, notifAccess) {
+                        AlertCatalog.count(category, alerts, granted, notifAccess)
                     }
-                    AlertRow(
-                        item = item,
-                        checked = checked,
-                        enabled = alerts.enabled,
-                        note = when {
-                            denied == item.id -> stringResource(item.deniedRes)
-                            permMissing -> stringResource(R.string.alerts_perm_missing)
-                            checked && item.needsNotificationAccess && !notifAccess -> stringResource(R.string.alerts_needs_notif_access)
-                            else -> null
+                    val open = category.name in expanded
+                    CategoryCard(
+                        category = category,
+                        count = count,
+                        expanded = open,
+                        onToggle = {
+                            haptics.performHapticFeedback(if (open) HapticFeedbackType.ToggleOff else HapticFeedbackType.ToggleOn)
+                            expanded = if (open) expanded - category.name else expanded + category.name
                         },
-                        onNoteClick = {
-                            context.startActivity(
-                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
-                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                            )
-                        }.takeIf { denied == item.id || permMissing },
-                        onToggle = { toggle(item, it) },
                     ) {
-                        if (item.id == "lowBattery" && checked) {
-                            ThresholdChips(alerts.lowBatteryLevels) { levels -> update { it.copy(lowBatteryLevels = levels) } }
+                        AlertCatalog.defsOf(category).forEach { def ->
+                            val ui = AlertUis.of(def.id)
+                            val checked = def.get(alerts)
+                            val permMissing = remember(refresh, checked) {
+                                checked && def.permissions.isNotEmpty() && !context.hasPermission(def.permissions.first())
+                            }
+                            AlertRow(
+                                ui = ui,
+                                checked = checked,
+                                enabled = alerts.enabled,
+                                customized = !alerts.styleOf(def.id).isDefault,
+                                pushable = ui.pushable && !def.persistent,
+                                note = when {
+                                    denied == def.id -> stringResource(ui.deniedRes)
+                                    permMissing -> stringResource(R.string.alerts_perm_missing)
+                                    checked && def.needsNotificationAccess && !notifAccess -> stringResource(R.string.alerts_needs_notif_access)
+                                    else -> null
+                                },
+                                onNoteClick = {
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                    )
+                                }.takeIf { denied == def.id || permMissing },
+                                onToggle = { toggle(def, it) },
+                                onEdit = { editing = def.id },
+                                onPreview = { PushModule.push(styled(sampleOf(ui, context), alerts.styles)) },
+                            ) {
+                                if (def.id == "lowBattery" && checked) {
+                                    ThresholdChips(alerts.lowBatteryLevels) { levels -> update { it.copy(lowBatteryLevels = levels) } }
+                                }
+                            }
                         }
                     }
                 }
             }
-            item {
-                Text(
-                    stringResource(R.string.alerts_privacy),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(8.dp, 16.dp),
-                )
+            item(key = "privacy") {
+                Column(Modifier.padding(8.dp, 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        stringResource(R.string.alerts_privacy),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        stringResource(R.string.alerts_privacy_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
+        }
+    }
+
+    editing?.let { id ->
+        AlertStyleSheet(
+            ui = AlertUis.of(id),
+            def = AlertCatalog.def(id),
+            style = alerts.styleOf(id),
+            onChange = { s -> update { it.withStyle(id, s) } },
+            onDismiss = { editing = null },
+        )
+    }
+}
+
+/** Carte d'une catégorie : en-tête avec compteurs et chevron, liste dépliée au ressort. */
+@Composable
+private fun CategoryCard(
+    category: AlertCategory,
+    count: CategoryCount,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val ui = category.ui()
+    val reduce = rememberReduceMotion()
+    val turn by animateFloatAsState(
+        if (expanded) 180f else 0f,
+        if (reduce) snap() else spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMediumLow),
+        label = "chevron",
+    )
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clickable(role = Role.Button, onClickLabel = stringResource(R.string.alerts_cat_expand), onClick = onToggle)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier.size(42.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer),
+                contentAlignment = Alignment.Center,
+            ) { Icon(ui.icon, null, tint = MaterialTheme.colorScheme.onSecondaryContainer) }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(ui.titleRes), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(
+                    pluralStringResource(R.plurals.alerts_cat_count, count.enabled, count.enabled, count.total),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (count.missing > 0) {
+                    Text(
+                        pluralStringResource(R.plurals.alerts_cat_missing, count.missing, count.missing),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+            Icon(Icons.Rounded.ExpandMore, null, Modifier.graphicsLayer { rotationZ = turn })
+        }
+        AnimatedVisibility(
+            visible = expanded,
+            enter = if (reduce) fadeIn(snap()) else expandVertically(
+                spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMediumLow),
+            ) + fadeIn(spring(stiffness = Spring.StiffnessMediumLow)),
+            exit = if (reduce) fadeOut(snap()) else shrinkVertically(
+                spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium),
+            ) + fadeOut(spring(stiffness = Spring.StiffnessMedium)),
+        ) {
+            Column(
+                Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) { content() }
         }
     }
 }
 
 @Composable
 private fun AlertRow(
-    item: AlertItem,
+    ui: AlertUi,
     checked: Boolean,
     enabled: Boolean,
+    customized: Boolean,
+    pushable: Boolean,
     note: String?,
     onNoteClick: (() -> Unit)?,
     onToggle: (Boolean) -> Unit,
+    onEdit: () -> Unit,
+    onPreview: () -> Unit,
     below: @Composable () -> Unit,
 ) {
-    val context = LocalContext.current
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
         shape = MaterialTheme.shapes.large,
     ) {
         ListItem(
+            modifier = Modifier.clickable(onClickLabel = stringResource(R.string.alerts_customize), onClick = onEdit),
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             leadingContent = {
                 Box(
-                    Modifier.size(40.dp).clip(CircleShape).background(item.tint.copy(alpha = 0.22f)),
+                    Modifier.size(40.dp).clip(CircleShape).background(ui.tint.copy(alpha = 0.22f)),
                     contentAlignment = Alignment.Center,
-                ) { Icon(item.icon, null, tint = MaterialTheme.colorScheme.onSurface) }
+                ) { Icon(ui.icon, null, tint = MaterialTheme.colorScheme.onSurface) }
             },
-            headlineContent = { Text(stringResource(item.titleRes)) },
-            supportingContent = { Text(stringResource(item.descRes)) },
+            headlineContent = { Text(stringResource(ui.titleRes)) },
+            supportingContent = {
+                Column {
+                    Text(stringResource(ui.descRes))
+                    if (customized) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+                            Icon(Icons.Rounded.Palette, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                stringResource(R.string.alerts_style_customized),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
+            },
             trailingContent = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    val preview = item.preview
-                    if (preview != null && checked && enabled) {
-                        IconButton(onClick = { PushModule.push(preview(context)) }) {
+                    if (pushable && checked && enabled) {
+                        IconButton(onClick = onPreview) {
                             Icon(Icons.Rounded.PlayArrow, stringResource(R.string.alerts_preview))
                         }
                     }

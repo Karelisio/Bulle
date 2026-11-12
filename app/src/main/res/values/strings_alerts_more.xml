@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Alertes ajoutées en 0.3.0 (réseau, son, USB, confidentialité), catégories et personnalisation (français). -->
+<resources>
+    <!-- Île : réseau -->
+    <string name="alerts_cell_lost">Plus de réseau</string>
+    <string name="alerts_cell_lost_short">Hors réseau</string>
+    <string name="alerts_cell_lost_desc">Appels et données mobiles indisponibles</string>
+    <string name="alerts_cell_back">Réseau retrouvé</string>
+    <string name="alerts_cell_back_short">Réseau</string>
+    <string name="alerts_five_g">Passage en 5G</string>
+    <string name="alerts_five_g_short" translatable="false">5G</string>
+    <string name="alerts_vpn_on">VPN connecté</string>
+    <string name="alerts_vpn_off">VPN déconnecté</string>
+    <string name="alerts_vpn_short" translatable="false">VPN</string>
+    <string name="alerts_hotspot_on">Point d’accès activé</string>
+    <string name="alerts_hotspot_off">Point d’accès désactivé</string>
+    <string name="alerts_hotspot_short">Partage</string>
+
+    <!-- Île : son -->
+    <string name="alerts_ringer">Mode sonnerie</string>
+    <string name="alerts_ringer_silent">Silencieux</string>
+    <string name="alerts_ringer_vibrate">Vibreur</string>
+    <string name="alerts_ringer_normal">Sonnerie</string>
+    <string name="alerts_volume">Volume multimédia</string>
+
+    <!-- Île : USB -->
+    <string name="alerts_usb_cable_on">Câble USB branché</string>
+    <string name="alerts_usb_cable_off">Câble USB débranché</string>
+    <string name="alerts_usb_device_on">Accessoire USB branché</string>
+    <string name="alerts_usb_device_off">Accessoire USB retiré</string>
+    <string name="alerts_usb_on_short" translatable="false">USB</string>
+    <string name="alerts_usb_off_short">Débranché</string>
+    <string name="alerts_usb_files">Transfert de fichiers</string>
+    <string name="alerts_usb_photos">Transfert de photos</string>
+    <string name="alerts_usb_tethering">Partage de connexion USB</string>
+    <string name="alerts_usb_midi" translatable="false">MIDI</string>
+    <string name="alerts_usb_charge_only">Données inactives, recharge seulement</string>
+
+    <!-- Île : confidentialité -->
+    <string name="alerts_camera_short">Caméra</string>
+    <string name="alerts_mic_short">Micro</string>
+    <string name="alerts_camera_in_use">Caméra utilisée</string>
+    <string name="alerts_mic_in_use">Micro utilisé</string>
+    <string name="alerts_privacy_generic">Par une appli de ce téléphone</string>
+    <string name="alerts_privacy_settings">Confidentialité</string>
+
+    <!-- Réglages : catégories -->
+    <string name="alerts_cat_energy">Batterie et charge</string>
+    <string name="alerts_cat_network">Réseau et signal</string>
+    <string name="alerts_cat_devices">Bluetooth et USB</string>
+    <string name="alerts_cat_sound">Son et écran</string>
+    <string name="alerts_cat_privacy">Confidentialité et captures</string>
+    <string name="alerts_cat_apps">Applications</string>
+    <string name="alerts_cat_echo">Écho</string>
+    <plurals name="alerts_cat_count">
+        <item quantity="one">%1$d sur %2$d activée</item>
+        <item quantity="many">%1$d sur %2$d activées</item>
+        <item quantity="other">%1$d sur %2$d activées</item>
+    </plurals>
+    <plurals name="alerts_cat_missing">
+        <item quantity="one">%1$d sans autorisation</item>
+        <item quantity="many">%1$d sans autorisation</item>
+        <item quantity="other">%1$d sans autorisation</item>
+    </plurals>
+    <string name="alerts_cat_expand">Déplier ou replier</string>
+
+    <!-- Réglages : nouvelles alertes -->
+    <string name="alerts_set_cellular">Réseau mobile</string>
+    <string name="alerts_set_cellular_desc">« Plus de réseau » quand le signal disparaît, « Réseau retrouvé » à son retour.</string>
+    <string name="alerts_set_five_g" translatable="false">5G</string>
+    <string name="alerts_set_five_g_desc">Quand le téléphone passe en 5G. Demande l’accès à l’état du téléphone.</string>
+    <string name="alerts_set_vpn" translatable="false">VPN</string>
+    <string name="alerts_set_vpn_desc">Connexion et déconnexion d’un VPN.</string>
+    <string name="alerts_set_hotspot">Point d’accès</string>
+    <string name="alerts_set_hotspot_desc">Partage de connexion activé ou désactivé.</string>
+    <string name="alerts_set_ringer">Mode sonnerie</string>
+    <string name="alerts_set_ringer_desc">Silencieux, vibreur ou sonnerie.</string>
+    <string name="alerts_set_volume">Volume multimédia</string>
+    <string name="alerts_set_volume_desc">Une barre qui suit le volume, une seule alerte par réglage.</string>
+    <string name="alerts_set_usb" translatable="false">USB</string>
+    <string name="alerts_set_usb_desc">Câble de données vers un ordinateur ou accessoire USB. La simple charge reste dans « Branchement ».</string>
+    <string name="alerts_set_camera">Caméra utilisée</string>
+    <string name="alerts_set_camera_desc">Pastille verte tant qu’une appli utilise la caméra.</string>
+    <string name="alerts_set_mic">Micro utilisé</string>
+    <string name="alerts_set_mic_desc">Pastille orange tant qu’une appli utilise le micro.</string>
+    <string name="alerts_perm_five_g_denied">Sans l’accès à l’état du téléphone, Android ne dit pas si tu es en 5G. Alerte désactivée.</string>
+    <string name="alerts_privacy_note">L’enregistrement d’écran n’est pas signalé : Android ne le révèle qu’à l’appli qui enregistre. Le nom de l’appli qui utilise la caméra ou le micro reste réservé au système.</string>
+
+    <!-- Réglages : personnalisation par alerte -->
+    <string name="alerts_customize">Personnaliser</string>
+    <string name="alerts_style_customized">Personnalisée</string>
+    <string name="alerts_style_icon">Icône</string>
+    <string name="alerts_style_color">Couleur</string>
+    <string name="alerts_style_color_n">Couleur %1$d</string>
+    <string name="alerts_style_entrance">Animation d’entrée</string>
+    <string name="alerts_style_duration">Durée d’affichage</string>
+    <string name="alerts_style_default">Par défaut</string>
+    <string name="alerts_style_seconds">%1$d s</string>
+    <string name="alerts_style_reset">Réinitialiser</string>
+    <string name="alerts_style_try">Essayer dans l’île</string>
+    <string name="alerts_style_replay">Rejouer</string>
+    <string name="alerts_style_persistent">Reste affichée tant que l’état dure : pas de durée à régler.</string>
+    <string name="alerts_entrance_none">Aucune</string>
+    <string name="alerts_entrance_bounce">Rebond</string>
+    <string name="alerts_entrance_pulse">Pulsation</string>
+    <string name="alerts_entrance_slide">Glissement</string>
+</resources>

@@ -51,6 +51,12 @@ abstract class IslandContent {
     /** Reste visible même quand l'île est masquée (plein écran, appli exclue…). Ex. : appel entrant. */
     open val showWhenHidden: Boolean = false
 
+    /**
+     * Petite seconde ligne optionnelle sous [Trailing] en mode compact (réglage « deux lignes »),
+     * affichée seulement si la hauteur de l'île le permet. null = une seule ligne.
+     */
+    open val compactSubtitle: String? = null
+
     val expiresAt: Long? get() = timeoutMs?.let { postedAt + it }
 
     @Composable

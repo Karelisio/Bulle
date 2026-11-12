@@ -17,6 +17,10 @@ enum class IslandColorMode { BLACK, DYNAMIC, CUSTOM }
 @Serializable
 enum class CardStyle { FLOATING, WIDE }
 
+/** Police du texte de l'île (polices système uniquement, rien n'est téléchargé). */
+@Serializable
+enum class IslandFont { DEFAULT, ROUNDED, CONDENSED, SERIF, MONO }
+
 /** Apparence de l'île. */
 @Serializable
 data class StyleSettings(
@@ -32,4 +36,14 @@ data class StyleSettings(
     val cardStyle: CardStyle = CardStyle.FLOATING,
     /** Reflet irisé discret qui glisse sur la bulle au changement de contenu. */
     val shimmer: Boolean = true,
+    /** Lissage des angles : 0 = arcs de cercle, 1 = « squircle » (superellipse). */
+    val cornerSmoothing: Float = 0f,
+    /** Police du texte de l'île. */
+    val font: IslandFont = IslandFont.DEFAULT,
+    /** Échelle du texte de l'île (0.85 – 1.25). */
+    val textScale: Float = 1f,
+    /** Les textes trop longs des emplacements compacts défilent. */
+    val marquee: Boolean = false,
+    /** Mode compact sur deux lignes (si le contenu fournit un sous-titre et que la hauteur le permet). */
+    val twoLineCompact: Boolean = false,
 )

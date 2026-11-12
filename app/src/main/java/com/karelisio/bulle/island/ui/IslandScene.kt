@@ -11,6 +11,11 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextOverflow
+import com.karelisio.bulle.core.settings.OpenDirection
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.ui.draw.drawWithContent
 import com.karelisio.bulle.core.island.Priority
@@ -106,7 +111,14 @@ private val ShadowMargin = 10.dp
 @Composable
 fun IslandScene(controller: IslandController) {
     val state by controller.state.collectAsStateWithLifecycle()
-    MaterialTheme(colorScheme = bulleColorScheme(dark = true)) {
+    // Typographie locale : police et taille choisies (les contenus lisent MaterialTheme.typography).
+    val baseTypography = MaterialTheme.typography
+    val font = state.style.font
+    val textScale = state.style.textScale
+    val typography = remember(baseTypography, font, textScale) {
+        islandTypography(baseTypography, IslandFonts.family(font), textScale)
+    }
+    MaterialTheme(colorScheme = bulleColorScheme(dark = true), typography = typography) {
         CompositionLocalProvider(LocalContentColor provides Color.White) {
             IslandSurface(state, controller)
         }
@@ -137,6 +149,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     val outlinePx = if (style.outline) with(density) { style.outlineWidthDp.dp.toPx() } else 0f
     val topFrac by animateFloatAsState(style.shape.topRadius, spring(dampingRatio = 0.7f), label = "shape")
     val bottomFrac by animateFloatAsState(style.shape.bottomRadius, spring(dampingRatio = 0.7f), label = "shape")
+    val smoothing by animateFloatAsState(style.cornerSmoothing.coerceIn(0f, 1f), spring(dampingRatio = 0.8f), label = "smoothing")
 
     // Hauteur mesurée du contenu étendu (padding compris).
     var expandedContentHeight by remember { mutableIntStateOf(0) }
@@ -152,19 +165,27 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     }
     val expandedWidth = min(g.screenWidth - 2 * px.margin, px.maxW)
     val compactWidth = g.width + 2 * px.slot
+    // Sens d'ouverture : le bord côté caméra reste fixe et l'île s'étend du côté choisi.
+    val direction = g.openDirection
 
     val target = when (mode) {
         Mode.HIDDEN -> SurfaceTarget(mode, g.width.toFloat(), g.height.toFloat(), g.height / 2f, 0f, 0f)
         Mode.IDLE -> SurfaceTarget(mode, g.width.toFloat(), g.height.toFloat(), g.height / 2f, 0f, 1f)
-        Mode.COMPACT -> SurfaceTarget(mode, compactWidth, g.height.toFloat(), g.height / 2f, 0f, 1f)
+        Mode.COMPACT -> {
+            val dx = IslandLayout.openingOffsetX(
+                direction, g.width.toFloat(), compactWidth, g.centerX.toFloat(), g.screenWidth.toFloat(),
+                margin = 0f, clampToScreen = direction != OpenDirection.CENTER,
+            )
+            SurfaceTarget(mode, compactWidth, g.height.toFloat(), g.height / 2f, dx, 1f)
+        }
         Mode.EXPANDED -> {
             val h = if (expandedContentHeight > 0) expandedContentHeight.toFloat() else g.height * 4f
-            // Carte centrée sur la caméra, mais jamais hors de l'écran.
-            val center = g.centerX.toFloat().coerceIn(
-                expandedWidth / 2 + px.margin,
-                g.screenWidth - expandedWidth / 2 - px.margin,
+            // Carte calée sur la caméra (selon le sens d'ouverture), mais jamais hors de l'écran.
+            val dx = IslandLayout.openingOffsetX(
+                direction, g.width.toFloat(), expandedWidth, g.centerX.toFloat(), g.screenWidth.toFloat(),
+                margin = px.margin, clampToScreen = true,
             )
-            SurfaceTarget(mode, expandedWidth, max(h, g.height * 2f), px.corner, center - g.centerX, 1f)
+            SurfaceTarget(mode, expandedWidth, max(h, g.height * 2f), px.corner, dx, 1f)
         }
     }
 
@@ -188,8 +209,10 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     val secR = g.height / 2f
     val secGap = with(density) { 6.dp.toPx() }
     // Visible : à droite, avec un petit espace. Cachée : rentrée dans l'extrémité droite de la principale.
-    val secTarget = if (secondary != null) Offset(target.width / 2 + secGap + secR, secR)
-    else Offset(max(0f, target.width / 2 - secR), 0f)
+    // En compact, elle suit le décalage du sens d'ouverture (nul en mode centré).
+    val secBase = if (mode == Mode.COMPACT) target.offsetX else 0f
+    val secTarget = if (secondary != null) Offset(secBase + target.width / 2 + secGap + secR, secR)
+    else Offset(secBase + max(0f, target.width / 2 - secR), 0f)
     val secOffset = remember { Animatable(secTarget.x) }
     val secRadius = remember { Animatable(secTarget.y) }
 
@@ -216,11 +239,12 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         applyWin(envelope(anim, target, 0f, px.shadow, settled = true, secExtent(true)))
     }
 
-    // Retour haptique discret quand l'île s'ouvre ou se ferme.
+    // Retour haptique discret quand l'île s'ouvre ou se ferme (désactivable dans Style).
+    val haptics = state.motion.haptics
     var lastMode by remember { mutableIntStateOf(mode.ordinal) }
     LaunchedEffect(mode) {
         val was = Mode.entries[lastMode]
-        if ((was == Mode.EXPANDED) != (mode == Mode.EXPANDED) && was != Mode.HIDDEN && mode != Mode.HIDDEN) {
+        if (haptics && (was == Mode.EXPANDED) != (mode == Mode.EXPANDED) && was != Mode.HIDDEN && mode != Mode.HIDDEN) {
             view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
         }
         lastMode = mode.ordinal
@@ -281,6 +305,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                 secCenterY = secR,
                 secRadius = secRadius.value,
                 alpha = anim.alpha.value,
+                smoothing = smoothing,
             )
         }
         Box(
@@ -296,7 +321,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                     translationX = anim.offsetX.value
                     alpha = anim.alpha.value
                     val c = anim.corner.value.coerceAtLeast(0f)
-                    shape = RoundedCornerShape(topStart = c * topFrac, topEnd = c * topFrac, bottomEnd = c * bottomFrac, bottomStart = c * bottomFrac)
+                    shape = islandShape(c * topFrac, c * bottomFrac, smoothing)
                     clip = true
                     shadowElevation = if (mode == Mode.EXPANDED || (style.shadow && mode != Mode.HIDDEN)) 8.dp.toPx() else 0f
                 }
@@ -305,7 +330,14 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                     drawContent()
                     drawShimmer(shimmer.value, accent)
                 }
-                .then(if (!LiquidSupported && style.outline) Modifier.border(with(density) { outlinePx.toDp() }, outlineColor, RoundedCornerShape(50)) else Modifier)
+                .then(
+                    if (!LiquidSupported && style.outline) {
+                        val borderShape = if (style.cornerSmoothing > CornerSmoothing.Epsilon) {
+                            SmoothCornerShape(g.height / 2f * style.shape.topRadius, g.height / 2f * style.shape.bottomRadius, style.cornerSmoothing)
+                        } else RoundedCornerShape(50)
+                        Modifier.border(with(density) { outlinePx.toDp() }, outlineColor, borderShape)
+                    } else Modifier,
+                )
                 .islandGestures(enabled = mode != Mode.HIDDEN, doubleTap = state.doubleTapEnabled, onGesture = controller::onGesture),
         ) {
             // Vue compacte : emplacements de part et d'autre de la caméra.
@@ -327,11 +359,20 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                         contentAlignment = Alignment.TopCenter,
                         label = "compact",
                     ) { content ->
-                        if (content != null) CompactRow(content, g.width, g.height, density, state.style.size.coerceIn(0.5f, 1.6f))
+                        if (content != null) {
+                            CompactRow(
+                                content, g.width, g.height, density, state.style.size.coerceIn(0.5f, 1.6f),
+                                direction = direction,
+                                marquee = style.marquee && !reduceMotion,
+                                subtitle = content.compactSubtitle
+                                    ?.takeIf { style.twoLineCompact && IslandLayout.twoLineFits(g.height, density.density, style.textScale) },
+                            )
+                        }
                     }
                 }
             }
-            // Vue étendue : contenu sous la caméra, en fondu décalé avec flou.
+            // Vue étendue : contenu sous la caméra, en fondu décalé avec flou (désactivable dans Style).
+            val blurOn = state.motion.blurTransitions
             if (mode == Mode.EXPANDED || expandedShown) {
                 Box(
                     Modifier
@@ -345,7 +386,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                             val s = 0.94f + 0.06f * a
                             scaleX = s; scaleY = s
                             transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0f)
-                            val blur = (1f - a) * 12.dp.toPx()
+                            val blur = if (blurOn) (1f - a) * 12.dp.toPx() else 0f
                             renderEffect = if (blur > 0.5f) BlurEffect(blur, blur, TileMode.Decal) else null
                         }
                         .padding(top = with(density) { g.height.toDp() } + 4.dp, bottom = 18.dp, start = 18.dp, end = 18.dp),
@@ -422,11 +463,26 @@ fun islandFill(style: StyleSettings, darkScheme: androidx.compose.material3.Colo
     IslandColorMode.CUSTOM -> Color(style.customColor.toInt()).copy(alpha = 1f)
 }
 
-/** Ligne compacte : [Leading] | caméra | [Trailing]. */
+/**
+ * Ligne compacte. Centrée : [Leading] | caméra | [Trailing]. Vers la gauche : [Leading][Trailing] | caméra.
+ * Vers la droite : caméra | [Leading][Trailing]. [subtitle] : petite seconde ligne sous [Trailing].
+ */
 @Composable
-private fun CompactRow(content: IslandContent, baseWidthPx: Int, heightPx: Int, density: androidx.compose.ui.unit.Density, scale: Float) {
+private fun CompactRow(
+    content: IslandContent,
+    baseWidthPx: Int,
+    heightPx: Int,
+    density: androidx.compose.ui.unit.Density,
+    scale: Float,
+    direction: OpenDirection = OpenDirection.CENTER,
+    marquee: Boolean = false,
+    subtitle: String? = null,
+) {
     with(density) {
-        Row(Modifier.height(heightPx.toDp()), verticalAlignment = Alignment.CenterVertically) {
+        // Défilement des textes trop longs : l'enfant est mesuré sans limite puis défile dans l'emplacement.
+        val scroll = if (marquee) Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 1_200) else Modifier
+        val camera = @Composable { Spacer(Modifier.width(baseWidthPx.toDp())) }
+        val leading = @Composable {
             // Les emplacements suivent la taille choisie : le contenu est dessiné à l'échelle.
             Box(Modifier.width(content.compactSlotWidth * scale), contentAlignment = Alignment.Center) {
                 Box(
@@ -435,9 +491,10 @@ private fun CompactRow(content: IslandContent, baseWidthPx: Int, heightPx: Int, 
                         .graphicsLayer { scaleX = scale; scaleY = scale }
                         .padding(start = 8.dp),
                     contentAlignment = Alignment.CenterStart,
-                ) { content.Leading() }
+                ) { MarqueeSlot(scroll, marquee) { content.Leading() } }
             }
-            Spacer(Modifier.width(baseWidthPx.toDp()))
+        }
+        val trailing = @Composable {
             Box(Modifier.width(content.compactSlotWidth * scale), contentAlignment = Alignment.Center) {
                 Box(
                     Modifier
@@ -445,10 +502,40 @@ private fun CompactRow(content: IslandContent, baseWidthPx: Int, heightPx: Int, 
                         .graphicsLayer { scaleX = scale; scaleY = scale }
                         .padding(end = 8.dp),
                     contentAlignment = Alignment.CenterEnd,
-                ) { content.Trailing() }
+                ) {
+                    if (subtitle == null) {
+                        MarqueeSlot(scroll, marquee) { content.Trailing() }
+                    } else {
+                        Column(horizontalAlignment = Alignment.End) {
+                            MarqueeSlot(scroll, marquee) { content.Trailing() }
+                            Text(
+                                subtitle,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = LocalContentColor.current.copy(alpha = 0.7f),
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = if (marquee) TextOverflow.Clip else TextOverflow.Ellipsis,
+                                modifier = scroll,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Row(Modifier.height(heightPx.toDp()), verticalAlignment = Alignment.CenterVertically) {
+            when (direction) {
+                OpenDirection.CENTER -> { leading(); camera(); trailing() }
+                OpenDirection.LEFT -> { leading(); trailing(); camera() }
+                OpenDirection.RIGHT -> { camera(); leading(); trailing() }
             }
         }
     }
+}
+
+/** Enveloppe de défilement : sans défilement, le contenu est émis tel quel (mise en page inchangée). */
+@Composable
+private fun MarqueeSlot(scroll: Modifier, enabled: Boolean, content: @Composable () -> Unit) {
+    if (enabled) Box(scroll) { content() } else content()
 }
 
 /** Taille de fenêtre qui contient l'île courante et sa cible, symétrique autour de la caméra. */
@@ -457,7 +544,9 @@ private fun envelope(anim: SurfaceAnim, t: SurfaceTarget, overshoot: Float, shad
     val halfW = if (settled) abs(t.offsetX) + t.width / 2 else max(
         abs(anim.offsetX.value) + anim.width.value / 2,
         abs(t.offsetX) + t.width / 2,
-    ) + abs(t.width - anim.width.value) * overshoot / 2
+    ) + abs(t.width - anim.width.value) * overshoot / 2 +
+        // Dépassement du décalage (sens d'ouverture gauche/droite) : nul quand le décalage ne change pas.
+        abs(t.offsetX - anim.offsetX.value) * overshoot
     var w = 2 * max(halfW, secExtent)
     var h = if (settled) t.height else span(anim.height.value, t.height)
     val expanded = t.mode == Mode.EXPANDED || anim.height.value > t.height + 1f

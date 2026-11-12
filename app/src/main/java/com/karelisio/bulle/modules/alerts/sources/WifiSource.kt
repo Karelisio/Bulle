@@ -80,6 +80,7 @@ data class WifiContent(
     override val postedAt: Long,
 ) : AlertContent() {
     override val key = "alerts:wifi:$postedAt"
+    override val alertId = "wifi"
     override val accent = WifiCyan
     override val compactSlotWidth = 92.dp
 

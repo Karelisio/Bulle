@@ -41,9 +41,6 @@
     <string name="alerts_back">Retour</string>
     <string name="alerts_master">Alertes système</string>
     <string name="alerts_master_desc">De brèves animations dans l’île quand l’état du téléphone change.</string>
-    <string name="alerts_group_energy">Énergie</string>
-    <string name="alerts_group_connections">Connexions</string>
-    <string name="alerts_group_system">Système</string>
     <string name="alerts_preview">Aperçu</string>
     <string name="alerts_grant">Autoriser</string>
     <string name="alerts_open_settings">Réglages</string>
@@ -86,7 +83,6 @@
     <string name="echo_name" translatable="false">Écho</string>
     <string name="echo_default_title">Nouveau message</string>
     <string name="echo_preview_title">Une pensée pour toi</string>
-    <string name="echo_group">Écho</string>
     <string name="echo_set">Cœur Écho</string>
     <string name="echo_set_desc">Un cœur qui bat dans l’île à chaque notification d’Écho.</string>
 </resources>
