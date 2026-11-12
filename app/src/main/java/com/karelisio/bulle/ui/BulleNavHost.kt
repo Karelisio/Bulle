@@ -33,7 +33,7 @@ import com.karelisio.bulle.modules.call.ui.CallSettingsScreen
 import com.karelisio.bulle.modules.music.ui.MusicSettingsScreen
 import com.karelisio.bulle.modules.live.ui.LiveSettingsScreen
 import com.karelisio.bulle.modules.rules.ui.RulesScreen
-import com.karelisio.bulle.ui.home.HomeScreen
+import com.karelisio.bulle.ui.shell.BulleShell
 import com.karelisio.bulle.ui.settings.GesturesSettingsScreen
 
 /** Routes de l'appli de réglages. */
@@ -76,7 +76,9 @@ fun BulleNavHost() {
         popEnterTransition = { scaleIn(tween(380), initialScale = 0.94f) + fadeIn(tween(260)) },
         popExitTransition = { slideOutHorizontally(tween(320)) { it / 4 } + fadeOut(tween(200)) },
     ) {
-        screen(Routes.HOME) { HomeScreen(onOpen = { nav.navigate(it) { launchSingleTop = true } }) }
+        // Racine : la coque à onglets (Accueil, Style, Contenus, Réglages) et sa barre flottante.
+        // Chaque entrée ouvre un écran existant en plein écran, par-dessus la coque.
+        screen(Routes.HOME) { BulleShell(onOpen = { nav.navigate(it) { launchSingleTop = true } }) }
         screen(Routes.STYLE) { StyleScreen(onBack = back) }
         screen(Routes.POSITION) { PositionScreen(onBack = back) }
         screen(Routes.VISIBILITY) { VisibilityScreen(onBack = back) }
