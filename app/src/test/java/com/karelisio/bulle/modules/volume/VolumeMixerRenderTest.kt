@@ -43,6 +43,13 @@ class VolumeMixerRenderTest {
     @After
     fun tearDown() = VolumeKeys.hide()
 
+    /** Active Ne pas déranger (accès accordé le temps de le faire), puis retire l'accès. */
+    private fun enableDndWithoutAccess(nm: NotificationManager) {
+        shadowOf(nm).setNotificationPolicyAccessGranted(true)
+        nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+        shadowOf(nm).setNotificationPolicyAccessGranted(false)
+    }
+
     @Test
     fun contextFollowsSystem() {
         val base = VolumeMixer.context(context, mediaPlaying = false)
@@ -72,8 +79,7 @@ class VolumeMixerRenderTest {
 
         // Ne pas déranger sans accès : sonnerie et notifications désactivées, pas le média.
         val nm = context.getSystemService(NotificationManager::class.java)
-        shadowOf(nm).setNotificationPolicyAccessGranted(false)
-        shadowOf(nm).setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+        enableDndWithoutAccess(nm)
         val dnd = VolumeMixer.read(context, streams).associateBy { it.stream }
         assertTrue(dnd.getValue(VolumeStream.RING).blocked)
         assertTrue(dnd.getValue(VolumeStream.NOTIFICATION).blocked)
@@ -105,8 +111,7 @@ class VolumeMixerRenderTest {
         }
         val content = VolumeContent(VolumeOverlay(VolumeStream.RING, 4, 0, 7, muted = false, shownAt = SystemClock.elapsedRealtime()), 2_500)
         val nm = context.getSystemService(NotificationManager::class.java)
-        shadowOf(nm).setNotificationPolicyAccessGranted(false)
-        shadowOf(nm).setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+        enableDndWithoutAccess(nm)
         am.mode = AudioManager.MODE_IN_COMMUNICATION
         activity.get().setContent { BulleTheme { content.Expanded(host) } }
         idle()
