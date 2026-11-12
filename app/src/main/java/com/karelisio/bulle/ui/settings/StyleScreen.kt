@@ -166,6 +166,26 @@ fun StyleScreen(onBack: () -> Unit) {
                         steps = 21,
                     )
                     Text(stringResource(R.string.style_size_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    // Largeurs maximales quand l'île s'allonge (compact) et quand elle s'ouvre (carte).
+                    val maxCompact = rememberLiveValue(style.maxCompactWidth) { v ->
+                        SettingsRepository.update(context) { it.copy(style = it.style.copy(maxCompactWidth = v)) }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        stringResource(R.string.style_max_compact, (maxCompact.value * 100).toInt()),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Slider(value = maxCompact.value, onValueChange = maxCompact::drag, onValueChangeFinished = maxCompact::finish, valueRange = 0.3f..1f, steps = 13)
+                    val maxExpanded = rememberLiveValue(style.maxExpandedWidth) { v ->
+                        SettingsRepository.update(context) { it.copy(style = it.style.copy(maxExpandedWidth = v)) }
+                    }
+                    Text(
+                        stringResource(R.string.style_max_expanded, (maxExpanded.value * 100).toInt()),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Slider(value = maxExpanded.value, onValueChange = maxExpanded::drag, onValueChangeFinished = maxExpanded::finish, valueRange = 0.5f..1f, steps = 9)
+                    SwitchRow(stringResource(R.string.style_stable_window), style.stableWindow) { on -> editStyle { it.copy(stableWindow = on) } }
+                    Text(stringResource(R.string.style_stable_window_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Section(stringResource(R.string.style_color), 2) {
                     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {

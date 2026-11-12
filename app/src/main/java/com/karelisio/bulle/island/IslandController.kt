@@ -172,7 +172,12 @@ class IslandController(
     fun applyWindow(request: WindowRequest) {
         lastWindow = request
         val g = screen.value.geometry
-        window.update(g.centerX, g.top, request.width, request.height, request.touchable, request.watchOutside)
+        window.stable = settings.value.style.stableWindow
+        window.update(
+            g.centerX, g.top, request.width, request.height, request.touchable, request.watchOutside,
+            screenWidth = g.screenWidth.takeIf { it > 0 } ?: context.resources.displayMetrics.widthPixels,
+            screenHeight = context.resources.displayMetrics.heightPixels,
+        )
     }
 
     // --- Gestes ---

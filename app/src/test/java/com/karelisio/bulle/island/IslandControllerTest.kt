@@ -50,14 +50,14 @@ class IslandControllerTest {
         val controller = IslandController(activity, scope, window)
         controller.updateScreen { it.copy(geometry = geometry) }
         controller.applyWindow(WindowRequest(width = 200, height = 100, touchable = true, watchOutside = false))
-        assertEquals(440, window.params.x)
-        assertEquals(10, window.params.y)
+        assertEquals(440, window.islandParams.x)
+        assertEquals(10, window.islandParams.y)
 
         // Réglage fin X/Y : même taille, position différente → la fenêtre doit suivre.
         controller.updateScreen { it.copy(geometry = geometry.copy(centerX = 600, top = 30)) }
-        assertEquals(500, window.params.x)
-        assertEquals(30, window.params.y)
-        assertEquals(200, window.params.width)
+        assertEquals(500, window.islandParams.x)
+        assertEquals(30, window.islandParams.y)
+        assertEquals(200, window.islandParams.width)
         scope.cancel()
     }
 

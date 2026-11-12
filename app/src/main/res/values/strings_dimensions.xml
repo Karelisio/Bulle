@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="style_max_compact">Largeur max en compact : %1$d %% de l’écran</string>
+    <string name="style_max_expanded">Largeur max de la carte : %1$d %% de l’écran</string>
+    <string name="style_stable_window">Rendu stable</string>
+    <string name="style_stable_window_hint">L’île est dessinée dans une fenêtre fixe qui ne bouge jamais : évite le scintillement. À désactiver seulement en cas de souci.</string>
+</resources>
