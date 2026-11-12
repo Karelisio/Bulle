@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.1
+Version de correctifs issue d'une relecture complète de l'appli.
+
+- Île : cycle de vie du service fiabilisé (plus de fenêtre orpheline ni de doublon à la reconnexion), la fenêtre suit un déplacement de l'île, échange des bulles dès le premier toucher, moins de recompositions pendant les animations, lampe torche correcte au premier geste, tuile Réglages rapides qui ne désactive plus l'île en la réactivant, l'île ne réapparaît plus à l'ouverture du clavier dans une appli masquée.
+- Réglages : une valeur inconnue (version plus récente, sauvegarde) ne réinitialise plus tous les réglages ; curseurs Style et Position fluides (écritures regroupées).
+- Volet : réponse directe visible au-dessus du clavier, plus de résumé de groupe en double, « Tout effacer » complet, mise en avant depuis l'île appliquée une seule fois, zones de réglage plus teintées après Accueil, volet refermé au verrouillage, alerte de fiabilité sur Android 12 et sans fausse alerte au démarrage, historique sans doublons, commandes Shizuku avec délai maximal.
+- Contenus : un minuteur n'apparaît plus aussi comme alarme qui sonne, paroles trouvées pour les morceaux sans album, ouverture des notifications sur Android 16, fuite de l'écoute des sessions média corrigée.
+- Appli : catalogue d'applis mis à jour à l'installation/désinstallation, widgets du Deck plus robustes (rotation, configuration, suppression), règle de nuit qui ne se déclenche plus au démarrage, mise à jour in-app qui ne reste plus bloquée après annulation, plusieurs plantages évités sur les surcouches sans certains écrans système.
+- Fiabilité : réactivation forcée de l'accessibilité plus sûre, pas de reliaison forcée pendant le démarrage.
+
 ## 0.2.0
 Nouveau module **Volet** : un volet de notifications et de réglages rapides Material You qui remplace visuellement celui de MagicOS, sans root (désactivé par défaut, à activer dans Réglages › Volet).
 
