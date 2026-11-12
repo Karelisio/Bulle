@@ -88,6 +88,10 @@ object NotificationHistory {
      */
     fun start(context: Context, scope: CoroutineScope, settingsFlow: Flow<VoletSettings>): Job {
         val app = context.applicationContext
+        // Une seule collecte à la fois : un service reconnecté sans être détruit (onUnbind puis
+        // onServiceConnected) relancerait sinon une seconde collecte, et chaque notification
+        // serait enregistrée en double.
+        job?.cancel()
         return scope.launch(Dispatchers.IO) {
             val enabled = AtomicBoolean(false)
             launch { settingsFlow.collect { enabled.set(it.enabled && it.historyEnabled) } }
@@ -97,8 +101,11 @@ object NotificationHistory {
                 runCatching { record(app, candidateOf(event.sbn)) }
                     .onFailure { Log.w(TAG, "Enregistrement impossible", it) }
             }
-        }
+        }.also { job = it }
     }
+
+    @Volatile
+    private var job: Job? = null
 
     /** Enregistre [c] si [HistoryLogic.shouldRecord] l'accepte. Renvoie vrai si une ligne a été ajoutée. */
     suspend fun record(context: Context, c: HistoryCandidate, now: Long = System.currentTimeMillis()): Boolean {

@@ -80,9 +80,19 @@ class VoletController(
     private var blurJob: Job? = null
     private val refreshStrips = MutableStateFlow(0)
 
+    /** Collectes lancées par [start], arrêtées par [destroy] (sinon les zones seraient recréées après coup). */
+    private val jobs = mutableListOf<Job>()
+
     fun start() {
-        scope.launch { settingsFlow.collect { settings = it; if (!it.enabled) closeNow() } }
-        scope.launch {
+        jobs += scope.launch { settingsFlow.collect { settings = it; if (!it.enabled) closeNow() } }
+        // Appareil verrouillé pendant que le volet est ouvert (écran éteint…) : on le referme,
+        // comme le volet du système, plutôt que de le laisser ouvert par-dessus l'écran de verrouillage.
+        jobs += scope.launch {
+            island.screenEnv.map { it.locked }.distinctUntilChanged().collect { nowLocked ->
+                if (nowLocked && panel != null) closeNow()
+            }
+        }
+        jobs += scope.launch {
             combine(
                 settingsFlow,
                 island.screenEnv,
@@ -105,6 +115,8 @@ class VoletController(
     }
 
     fun destroy() {
+        jobs.forEach { it.cancel() }
+        jobs.clear()
         closeNow()
         strips.destroy()
     }
@@ -143,7 +155,13 @@ class VoletController(
         panel?.view?.performHapticFeedback(HapticFeedbackConstants.GESTURE_START)
     }
 
-    override fun onStripDrag(dyPx: Float) = moveBy(dyPx)
+    override fun onStripDrag(dyPx: Float) {
+        // Pas de panneau (repli sur le volet système, volet désactivé pendant le geste) :
+        // le doigt ne doit pas faire bouger l'ouverture, sinon elle resterait non nulle
+        // et la prochaine ouverture repartirait de cette valeur.
+        if (panel == null) return
+        moveBy(dyPx)
+    }
 
     override fun onStripDragEnd(velocityPxPerSec: Float) {
         settle(velocityPxPerSec)

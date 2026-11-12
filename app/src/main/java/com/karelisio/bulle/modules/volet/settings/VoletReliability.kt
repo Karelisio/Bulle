@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.provider.Settings
 import com.karelisio.bulle.R
 import com.karelisio.bulle.island.IslandAccessibilityService
@@ -59,6 +60,24 @@ object VoletReliability {
             }
         }
     }
+
+    /**
+     * Délai laissé au système, au démarrage du processus, pour relier l'accessibilité et l'écoute
+     * des notifications : avant, « tué » / « non relié » sont de faux positifs.
+     */
+    const val STARTUP_GRACE_MS = 5_000L
+
+    /** Problème qui peut n'être qu'un état de démarrage (service coché / accès accordé, pas encore relié). */
+    fun isTransient(issue: VoletIssue) =
+        issue == VoletIssue.ACCESSIBILITY_KILLED || issue == VoletIssue.LISTENER_DISCONNECTED
+
+    /** Temps restant avant de croire aux problèmes transitoires (logique pure). */
+    fun graceRemaining(processAgeMs: Long, graceMs: Long = STARTUP_GRACE_MS): Long =
+        (graceMs - processAgeMs).coerceAtLeast(0L)
+
+    /** Problèmes à signaler : les transitoires seulement une fois le délai de démarrage écoulé. */
+    fun reportable(issues: List<VoletIssue>, graceElapsed: Boolean): List<VoletIssue> =
+        if (graceElapsed) issues else issues.filterNot(::isTransient)
 
     /** L'accessibilité est-elle en cause (sinon : l'écoute des notifications) ? */
     fun isAccessibility(issue: VoletIssue) =
@@ -126,7 +145,13 @@ object VoletReliability {
             nm.cancel(NOTIFICATION_ID)
             return
         }
-        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+        // POST_NOTIFICATIONS n'existe qu'à partir d'Android 13 : avant, checkSelfPermission la dit refusée
+        // et l'alerte n'était jamais postée (Android 12 / 12L).
+        if (Build.VERSION.SDK_INT >= 33 &&
+            context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
         ensureChannel(context, nm)
         val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         val fix = PendingIntent.getActivity(context, 1, fixIntent(context, issue).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), flags)
