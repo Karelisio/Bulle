@@ -48,7 +48,16 @@ data class PositionTweak(
     val offsetYDp: Float = 0f,
     val extraWidthDp: Float = 0f,
     val extraHeightDp: Float = 0f,
+    /** Sens dans lequel l'île s'agrandit depuis la caméra (centré par défaut). */
+    val openDirection: OpenDirection = OpenDirection.CENTER,
 )
+
+/**
+ * Sens d'ouverture de l'île : centré sur la caméra, ou bord côté caméra fixe et
+ * agrandissement vers la gauche / la droite (pratique pour un trou de caméra décentré).
+ */
+@Serializable
+enum class OpenDirection { CENTER, LEFT, RIGHT }
 
 /** Quand masquer l'île automatiquement. */
 @Serializable
@@ -60,7 +69,11 @@ data class VisibilitySettings(
 )
 
 @Serializable
-enum class MotionStyle { SOFT, SNAPPY, SOBER }
+enum class MotionStyle {
+    SOFT, SNAPPY, SOBER,
+    /** Accentué : dépassement marqué, plus joueur. Ajouté en dernier (valeur sérialisée). */
+    PLAYFUL,
+}
 
 /** Style et vitesse des animations de l'île. */
 @Serializable
@@ -68,4 +81,8 @@ data class MotionSettings(
     val style: MotionStyle = MotionStyle.SOFT,
     /** Multiplicateur de vitesse (0.5 = lent, 2 = rapide). */
     val speed: Float = 1f,
+    /** Flou du contenu étendu pendant son apparition. */
+    val blurTransitions: Boolean = true,
+    /** Retours haptiques de l'île (ouverture, fermeture). */
+    val haptics: Boolean = true,
 )

@@ -6,6 +6,7 @@ import android.hardware.display.DisplayManager
 import android.view.Display
 import android.view.WindowInsets
 import android.view.WindowManager
+import com.karelisio.bulle.core.settings.OpenDirection
 import com.karelisio.bulle.core.settings.PositionTweak
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -28,6 +29,8 @@ data class IslandGeometry(
     val height: Int,
     val screenWidth: Int,
     val density: Float,
+    /** Sens d'ouverture choisi (voir [OpenDirection]). */
+    val openDirection: OpenDirection = OpenDirection.CENTER,
 ) {
     companion object {
         val Empty = IslandGeometry(0, 0, 0, 0, 0, 1f)
@@ -93,6 +96,6 @@ object CutoutLocator {
         height = height.coerceIn(dp(12f), dp(120f))
         top = top.coerceAtLeast(0)
         centerX = centerX.coerceIn(width / 2, info.width - width / 2)
-        return IslandGeometry(centerX, top, width, height, info.width, d)
+        return IslandGeometry(centerX, top, width, height, info.width, d, tweak.openDirection)
     }
 }

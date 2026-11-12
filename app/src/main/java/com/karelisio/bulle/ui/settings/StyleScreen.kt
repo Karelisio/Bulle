@@ -9,6 +9,19 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.text.style.TextOverflow
+import com.karelisio.bulle.core.settings.IslandFont
+import com.karelisio.bulle.island.ui.IslandFonts
+import com.karelisio.bulle.island.ui.IslandTextScaleRange
+import com.karelisio.bulle.island.ui.islandShape
+import com.karelisio.bulle.island.ui.islandTypography
+import com.karelisio.bulle.ui.components.rememberReduceMotion
+import androidx.compose.ui.platform.LocalDensity
+import kotlin.math.roundToInt
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -82,7 +95,7 @@ private val Swatches = listOf(
     0xFF2D6A4F, 0xFF3A0CA3, 0xFF6A040F, 0xFF7B2CBF, 0xFFB5179E, 0xFF5E503F,
 )
 
-/** Écran Style : forme, taille, couleur, contour, ombre, animations, carte étendue. */
+/** Écran Style : forme et angles, taille, couleur, contour, ombre, texte, animations, carte étendue. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun StyleScreen(onBack: () -> Unit) {
@@ -109,7 +122,7 @@ fun StyleScreen(onBack: () -> Unit) {
     ) { padding ->
         Column(Modifier.padding(padding)) {
             // Aperçu toujours visible en haut.
-            IslandPreview(style, motion, Modifier.padding(horizontal = 16.dp).sharedElement("island_preview"), height = 190.dp)
+            IslandPreview(style, motion, Modifier.padding(horizontal = 16.dp).sharedElement("island_preview"), height = 190.dp, openDirection = settings.position.openDirection)
             Column(
                 Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -117,10 +130,28 @@ fun StyleScreen(onBack: () -> Unit) {
                 Section(stringResource(R.string.style_shape), 0) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         IslandShape.entries.forEach { shape ->
-                            ShapeOption(shape, selected = style.shape == shape, modifier = Modifier.weight(1f)) {
+                            ShapeOption(shape, selected = style.shape == shape, smoothing = style.cornerSmoothing, modifier = Modifier.weight(1f)) {
                                 editStyle { it.copy(shape = shape) }
                             }
                         }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.style_corner_smoothing), style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+                        Text(
+                            "${(style.cornerSmoothing * 100).roundToInt()} %",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    val smoothing = rememberLiveValue(style.cornerSmoothing) { v ->
+                        SettingsRepository.update(context) { it.copy(style = it.style.copy(cornerSmoothing = v)) }
+                    }
+                    Slider(value = smoothing.value, onValueChange = smoothing::drag, onValueChangeFinished = smoothing::finish, valueRange = 0f..1f)
+                    Row {
+                        Text(stringResource(R.string.style_corner_round), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(Modifier.weight(1f))
+                        Text(stringResource(R.string.style_corner_squircle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 Section(stringResource(R.string.style_size), 1) {
@@ -181,14 +212,47 @@ fun StyleScreen(onBack: () -> Unit) {
                     SwitchRow(stringResource(R.string.style_shadow), style.shadow) { on -> editStyle { it.copy(shadow = on) } }
                     SwitchRow(stringResource(R.string.style_shimmer), style.shimmer) { on -> editStyle { it.copy(shimmer = on) } }
                 }
-                Section(stringResource(R.string.style_motion), 4) {
+                Section(stringResource(R.string.style_text), 4) {
+                    TextSample(style)
+                    Spacer(Modifier.height(12.dp))
+                    Text(stringResource(R.string.style_font), style = MaterialTheme.typography.labelLarge)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val fonts = remember { IslandFonts.available() }
+                        fonts.forEach { f ->
+                            FilterChip(
+                                selected = style.font == f,
+                                onClick = { editStyle { it.copy(font = f) } },
+                                label = { Text(stringResource(f.labelRes()), fontFamily = IslandFonts.family(f)) },
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.style_text_size), style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+                        Text("${(style.textScale * 100).roundToInt()} %", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    }
+                    val textScale = rememberLiveValue(style.textScale) { v ->
+                        SettingsRepository.update(context) { it.copy(style = it.style.copy(textScale = v)) }
+                    }
+                    Slider(
+                        value = textScale.value,
+                        onValueChange = { textScale.drag((it * 20).roundToInt() / 20f) },
+                        onValueChangeFinished = textScale::finish,
+                        valueRange = IslandTextScaleRange,
+                        steps = 7,
+                    )
+                    SwitchRow(stringResource(R.string.style_marquee), style.marquee) { on -> editStyle { it.copy(marquee = on) } }
+                    SwitchRow(stringResource(R.string.style_two_line), style.twoLineCompact) { on -> editStyle { it.copy(twoLineCompact = on) } }
+                    Text(stringResource(R.string.style_two_line_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Section(stringResource(R.string.style_motion), 5) {
                     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                         MotionStyle.entries.forEachIndexed { i, st ->
                             SegmentedButton(
                                 selected = motion.style == st,
                                 onClick = { edit { it.copy(motion = it.motion.copy(style = st)) } },
                                 shape = SegmentedButtonDefaults.itemShape(i, MotionStyle.entries.size),
-                            ) { Text(stringResource(st.labelRes()).replaceFirstChar { it.uppercase() }) }
+                            ) { Text(stringResource(st.labelRes()).replaceFirstChar { it.uppercase() }, maxLines = 1, softWrap = false) }
                         }
                     }
                     Spacer(Modifier.height(8.dp))
@@ -197,8 +261,14 @@ fun StyleScreen(onBack: () -> Unit) {
                         SettingsRepository.update(context) { it.copy(motion = it.motion.copy(speed = v)) }
                     }
                     Slider(value = speed.value, onValueChange = speed::drag, onValueChangeFinished = speed::finish, valueRange = 0.5f..2f)
+                    SwitchRow(stringResource(R.string.style_blur), motion.blurTransitions) { on ->
+                        edit { it.copy(motion = it.motion.copy(blurTransitions = on)) }
+                    }
+                    SwitchRow(stringResource(R.string.style_haptics), motion.haptics) { on ->
+                        edit { it.copy(motion = it.motion.copy(haptics = on)) }
+                    }
                 }
-                Section(stringResource(R.string.style_card), 5) {
+                Section(stringResource(R.string.style_card), 6) {
                     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                         CardStyle.entries.forEachIndexed { i, cs ->
                             SegmentedButton(
@@ -210,6 +280,70 @@ fun StyleScreen(onBack: () -> Unit) {
                     }
                 }
                 Spacer(Modifier.height(24.dp))
+            }
+        }
+    }
+}
+
+private fun IslandFont.labelRes() = when (this) {
+    IslandFont.DEFAULT -> R.string.style_font_default
+    IslandFont.ROUNDED -> R.string.style_font_rounded
+    IslandFont.CONDENSED -> R.string.style_font_condensed
+    IslandFont.SERIF -> R.string.style_font_serif
+    IslandFont.MONO -> R.string.style_font_mono
+}
+
+/**
+ * Aperçu du texte de l'île : une pilule compacte rendue avec la typographie de l'île
+ * (police, taille, défilement, seconde ligne).
+ */
+@Composable
+private fun TextSample(style: StyleSettings) {
+    val base = MaterialTheme.typography
+    val typography = remember(base, style.font, style.textScale) {
+        islandTypography(base, IslandFonts.family(style.font), style.textScale)
+    }
+    val reduceMotion = rememberReduceMotion()
+    val twoLines = style.twoLineCompact
+    val pillHeight by animateDpAsState(if (twoLines) 46.dp else 36.dp, spring(dampingRatio = 0.7f), label = "pill")
+    val corner = with(LocalDensity.current) { (pillHeight / 2).toPx() }
+    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Row(
+            Modifier
+                .width(260.dp)
+                .height(pillHeight)
+                .clip(islandShape(corner, corner, style.cornerSmoothing))
+                .background(Color.Black)
+                .padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MaterialTheme(typography = typography) {
+                CompositionLocalProvider(LocalContentColor provides Color.White) {
+                    Text(stringResource(R.string.style_text_sample_lead), style = MaterialTheme.typography.labelLarge, maxLines = 1)
+                    Spacer(Modifier.width(10.dp))
+                    // Caméra factice.
+                    Box(Modifier.size(12.dp).clip(CircleShape).background(Color(0xFF1C2333)))
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
+                        val scroll = if (style.marquee && !reduceMotion) Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 900) else Modifier
+                        Text(
+                            stringResource(R.string.style_text_sample_long),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = if (style.marquee) TextOverflow.Clip else TextOverflow.Ellipsis,
+                            modifier = scroll,
+                        )
+                        if (twoLines) {
+                            Text(
+                                stringResource(R.string.style_text_sample_sub),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White.copy(alpha = 0.7f),
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -248,7 +382,7 @@ private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
 
 /** Carte de choix de forme, avec un mini-dessin de la forme. */
 @Composable
-private fun ShapeOption(shape: IslandShape, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
+private fun ShapeOption(shape: IslandShape, selected: Boolean, smoothing: Float, modifier: Modifier, onClick: () -> Unit) {
     val corner by animateDpAsState(if (selected) 24.dp else 16.dp, spring(dampingRatio = 0.6f), label = "corner")
     Card(
         onClick = onClick,
@@ -260,16 +394,12 @@ private fun ShapeOption(shape: IslandShape, selected: Boolean, modifier: Modifie
     ) {
         Column(Modifier.fillMaxWidth().padding(vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             val h = 22.dp
+            val half = with(LocalDensity.current) { (h / 2).toPx() }
             Box(
                 Modifier
                     .width(60.dp)
                     .height(h)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = h / 2 * shape.topRadius, topEnd = h / 2 * shape.topRadius,
-                            bottomEnd = h / 2 * shape.bottomRadius, bottomStart = h / 2 * shape.bottomRadius,
-                        ),
-                    )
+                    .clip(islandShape(half * shape.topRadius, half * shape.bottomRadius, smoothing))
                     .background(Color.Black),
             )
             Spacer(Modifier.height(8.dp))
