@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import androidx.core.content.edit
 import com.karelisio.bulle.R
 import com.karelisio.bulle.island.IslandAccessibilityService
 import com.karelisio.bulle.notifications.NotificationRepository
@@ -134,24 +135,115 @@ object VoletReliability {
         )
     }
 
+    /** Après un balayage, on ne repose pas l'alerte du même problème avant ce délai. */
+    const val SNOOZE_MS = 12 * 60 * 60 * 1000L
+
+    private const val PREFS = "volet_reliability_alert"
+    private const val KEY_POSTED = "posted"
+    private const val KEY_DISMISSED_AT = "dismissedAt"
+    private const val KEY_DISMISSED = "dismissed"
+
+    /** Nature d'un problème : l'accessibilité ou l'écoute des notifications. */
+    fun natureOf(issue: VoletIssue): String = if (isAccessibility(issue)) "accessibility" else "listener"
+
     /**
-     * Appelé par le WatchdogWorker : poste (ou retire) l'alerte selon [issues].
-     * Une seule notification, mise à jour sans re-sonner.
+     * Mémoire de l'alerte entre deux passages de la surveillance.
+     * @property posted problème affiché lors de notre dernier passage (null : rien d'affiché).
+     * @property dismissedAt quand l'alerte a été balayée (0 : jamais).
+     * @property dismissedNature nature du problème balayé.
      */
-    fun notifyIfNeeded(context: Context, issues: List<VoletIssue>) {
+    data class AlertMemory(
+        val posted: VoletIssue? = null,
+        val dismissedAt: Long = 0L,
+        val dismissedNature: String? = null,
+    )
+
+    enum class AlertAction {
+        /** Poser l'alerte (elle sonne). */
+        POST,
+        /** Mettre à jour l'alerte affichée sans sonner (setOnlyAlertOnce). */
+        UPDATE_SILENTLY,
+        /** Ne rien faire (déjà affichée telle quelle, ou balayée récemment). */
+        NONE,
+        /** Retirer l'alerte : tout va bien. */
+        CANCEL,
+    }
+
+    data class AlertDecision(val action: AlertAction, val memory: AlertMemory)
+
+    /**
+     * Logique pure de l'alerte de fiabilité.
+     * - Tout va bien : on la retire et on oublie le balayage.
+     * - Déjà affichée : rien, ou mise à jour silencieuse si le problème a changé.
+     * - Affichée au passage précédent mais disparue : l'utilisateur l'a balayée (ou touchée) ;
+     *   on ne la repose pas avant [SNOOZE_MS], sauf si le problème a changé de nature.
+     */
+    fun decide(issue: VoletIssue?, showing: Boolean, memory: AlertMemory, now: Long): AlertDecision {
+        if (issue == null) return AlertDecision(AlertAction.CANCEL, AlertMemory())
+        if (showing) {
+            val action = if (memory.posted == issue) AlertAction.NONE else AlertAction.UPDATE_SILENTLY
+            return AlertDecision(action, memory.copy(posted = issue))
+        }
+        val m = if (memory.posted != null) {
+            AlertMemory(posted = null, dismissedAt = now, dismissedNature = natureOf(memory.posted))
+        } else {
+            memory
+        }
+        val snoozed = m.dismissedNature == natureOf(issue) && now - m.dismissedAt in 0 until SNOOZE_MS
+        return if (snoozed) {
+            AlertDecision(AlertAction.NONE, m)
+        } else {
+            AlertDecision(AlertAction.POST, m.copy(posted = issue))
+        }
+    }
+
+    /** POST_NOTIFICATIONS n'est une autorisation d'exécution qu'à partir d'Android 13 (API 33). */
+    fun needsRuntimePermission(sdk: Int): Boolean = sdk >= 33
+
+    private fun readMemory(context: Context): AlertMemory {
+        val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return AlertMemory(
+            posted = p.getString(KEY_POSTED, null)?.let { name -> VoletIssue.entries.firstOrNull { it.name == name } },
+            dismissedAt = p.getLong(KEY_DISMISSED_AT, 0L),
+            dismissedNature = p.getString(KEY_DISMISSED, null),
+        )
+    }
+
+    private fun writeMemory(context: Context, m: AlertMemory) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
+            putString(KEY_POSTED, m.posted?.name)
+            putLong(KEY_DISMISSED_AT, m.dismissedAt)
+            putString(KEY_DISMISSED, m.dismissedNature)
+        }
+    }
+
+    /**
+     * Appelé par le WatchdogWorker : pose, met à jour ou retire l'alerte selon [issues].
+     * Une seule notification, qui ne sonne qu'à sa première pose (voir [decide]).
+     */
+    fun notifyIfNeeded(context: Context, issues: List<VoletIssue>, now: Long = System.currentTimeMillis()) {
         val nm = context.getSystemService(NotificationManager::class.java) ?: return
         val issue = issues.firstOrNull()
-        if (issue == null) {
-            nm.cancel(NOTIFICATION_ID)
-            return
+        val showing = runCatching { nm.activeNotifications.any { it.id == NOTIFICATION_ID } }.getOrDefault(false)
+        val decision = decide(issue, showing, readMemory(context), now)
+        when (decision.action) {
+            AlertAction.CANCEL -> nm.cancel(NOTIFICATION_ID)
+            AlertAction.NONE -> Unit
+            AlertAction.POST, AlertAction.UPDATE_SILENTLY -> {
+                // POST_NOTIFICATIONS n'existe qu'à partir d'Android 13 : avant, checkSelfPermission la dit refusée
+                // et l'alerte n'était jamais postée (Android 12 / 12L).
+                if (needsRuntimePermission(Build.VERSION.SDK_INT) &&
+                    context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+                nm.notify(NOTIFICATION_ID, build(context, nm, requireNotNull(issue)))
+            }
         }
-        // POST_NOTIFICATIONS n'existe qu'à partir d'Android 13 : avant, checkSelfPermission la dit refusée
-        // et l'alerte n'était jamais postée (Android 12 / 12L).
-        if (Build.VERSION.SDK_INT >= 33 &&
-            context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
+        writeMemory(context, decision.memory)
+    }
+
+    private fun build(context: Context, nm: NotificationManager, issue: VoletIssue): Notification {
         ensureChannel(context, nm)
         val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         val fix = PendingIntent.getActivity(context, 1, fixIntent(context, issue).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), flags)
@@ -159,7 +251,7 @@ object VoletReliability {
         val text = context.getString(
             if (isAccessibility(issue)) R.string.vset_rel_text_accessibility else R.string.vset_rel_text_listener,
         )
-        val notification = Notification.Builder(context, CHANNEL)
+        return Notification.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_bulle)
             .setContentTitle(context.getString(R.string.vset_rel_title))
             .setContentText(text)
@@ -170,6 +262,5 @@ object VoletReliability {
             .setAutoCancel(true)
             .setCategory(Notification.CATEGORY_ERROR)
             .build()
-        nm.notify(NOTIFICATION_ID, notification)
     }
 }

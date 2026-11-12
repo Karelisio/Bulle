@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="backup_missing_widgets">
+        <item quantity="one">%d Deck widget to add again.</item>
+        <item quantity="other">%d Deck widgets to add again.</item>
+    </plurals>
+    <plurals name="backup_missing_apps">
+        <item quantity="one">%d favorite skipped (app not installed).</item>
+        <item quantity="other">%d favorites skipped (apps not installed).</item>
+    </plurals>
+</resources>

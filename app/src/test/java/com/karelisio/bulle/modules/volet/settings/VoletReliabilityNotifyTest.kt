@@ -11,21 +11,16 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-/** Alerte de fiabilité : postée aussi sous Android 12 (pas de POST_NOTIFICATIONS avant Android 13). */
+/**
+ * Alerte de fiabilité : autorisation demandée à partir d'Android 13.
+ * (Le cas Android 12 est vérifié sans Robolectric dans VoletReliabilityAlertTest : un bac à sable
+ * SDK 32 dans la même JVM que les SDK 35 casse le chargement natif de Robolectric pour les suivants.)
+ */
 @RunWith(RobolectricTestRunner::class)
 class VoletReliabilityNotifyTest {
 
     private val context: Context get() = ApplicationProvider.getApplicationContext()
     private val nm get() = context.getSystemService(NotificationManager::class.java)
-
-    @Test
-    @Config(sdk = [32])
-    fun postedOnAndroid12WithoutRuntimePermission() {
-        VoletReliability.notifyIfNeeded(context, listOf(VoletIssue.ACCESSIBILITY_KILLED))
-        assertEquals(1, shadowOf(nm).allNotifications.size)
-        VoletReliability.notifyIfNeeded(context, emptyList())
-        assertEquals(0, shadowOf(nm).allNotifications.size)
-    }
 
     @Test
     @Config(sdk = [35])

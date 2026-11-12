@@ -73,10 +73,12 @@ object BackupCodec {
     }
 
     /**
-     * Réglages à appliquer : ceux de la sauvegarde, en conservant l'état technique
-     * courant (dernière vérification de mise à jour, dernière sauvegarde auto).
+     * Réglages à appliquer : ceux de la sauvegarde, bornés à leurs plages valides, en
+     * conservant l'état propre à cet appareil (prise en main faite, dernière vérification de
+     * mise à jour, dernière sauvegarde auto).
      */
-    fun merge(current: BulleSettings, imported: BulleSettings): BulleSettings = imported.copy(
+    fun merge(current: BulleSettings, imported: BulleSettings): BulleSettings = imported.sanitized().copy(
+        onboardingDone = current.onboardingDone,
         update = current.update,
         backup = imported.backup.copy(lastAutoBackup = current.backup.lastAutoBackup),
     )
