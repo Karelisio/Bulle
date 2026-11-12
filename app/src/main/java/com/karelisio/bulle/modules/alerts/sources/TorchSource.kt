@@ -113,10 +113,11 @@ data class TorchContent(
     val maxLevel: Int,
 ) : AlertContent() {
     override val key = "alerts:torch"
+    override val alertId = "torch"
     // État durable : passe sous les alertes ponctuelles, comme une activité en cours.
     override val priority = Priority.LIVE
     override val accent = TorchYellow
-    override val timeoutMs: Long? = null
+    override val baseTimeoutMs: Long? = null
     override val canBeSecondary = true
     override val compactSlotWidth = 48.dp
 

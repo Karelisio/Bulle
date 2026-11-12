@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="motion_playful">bouncy</string>
+    <string name="style_corners">Corners</string>
+    <string name="style_corner_smoothing">Corner smoothing</string>
+    <string name="style_corner_round">Arcs</string>
+    <string name="style_corner_squircle">Squircle</string>
+    <string name="style_text">Text</string>
+    <string name="style_font">Font</string>
+    <string name="style_font_default">System</string>
+    <string name="style_font_rounded">Rounded</string>
+    <string name="style_font_condensed">Narrow</string>
+    <string name="style_font_serif">Serif</string>
+    <string name="style_font_mono">Monospace</string>
+    <string name="style_text_size">Text size</string>
+    <string name="style_marquee">Scroll text that is too long</string>
+    <string name="style_two_line">Two-line compact view</string>
+    <string name="style_two_line_hint">A small second line shows under the right-hand item when the content provides one and the island is tall enough.</string>
+    <string name="style_text_sample_lead">12:45</string>
+    <string name="style_text_sample_long">Now playing: a title far too long to fit in the island</string>
+    <string name="style_text_sample_sub">4 min left</string>
+    <string name="style_blur">Blur during transitions</string>
+    <string name="style_haptics">Haptic feedback</string>
+    <string name="position_direction">Opening direction</string>
+    <string name="position_direction_hint">The edge next to the camera stays put and the island grows towards the chosen side: handy when the camera is off-centre.</string>
+    <string name="position_direction_center">Centred</string>
+    <string name="position_direction_left">To the left</string>
+    <string name="position_direction_right">To the right</string>
+    <string name="position_nudge">Pixel nudge</string>
+    <string name="position_nudge_hint">Each tap moves the island by one real pixel. Hold to speed up.</string>
+    <string name="position_nudge_value">X %1$s px · Y %2$s px</string>
+    <string name="position_nudge_up">Move up one pixel</string>
+    <string name="position_nudge_down">Move down one pixel</string>
+    <string name="position_nudge_left">Move left one pixel</string>
+    <string name="position_nudge_right">Move right one pixel</string>
+</resources>

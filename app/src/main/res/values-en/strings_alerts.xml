@@ -39,9 +39,6 @@
     <string name="alerts_back">Back</string>
     <string name="alerts_master">System alerts</string>
     <string name="alerts_master_desc">Short animations in the island when your phone\'s state changes.</string>
-    <string name="alerts_group_energy">Power</string>
-    <string name="alerts_group_connections">Connections</string>
-    <string name="alerts_group_system">System</string>
     <string name="alerts_preview">Preview</string>
     <string name="alerts_grant">Allow</string>
     <string name="alerts_open_settings">Settings</string>
@@ -82,7 +79,6 @@
     <string name="echo_module_title">Echo</string>
     <string name="echo_default_title">New message</string>
     <string name="echo_preview_title">Thinking of you</string>
-    <string name="echo_group">Echo</string>
     <string name="echo_set">Echo heart</string>
     <string name="echo_set_desc">A beating heart in the island for every Echo notification.</string>
 </resources>

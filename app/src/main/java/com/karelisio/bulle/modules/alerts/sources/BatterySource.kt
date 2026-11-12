@@ -91,6 +91,7 @@ data class ChargingContent(
     override val postedAt: Long,
 ) : AlertContent() {
     override val key = "alerts:charging:$postedAt"
+    override val alertId = "charging"
     override val accent = ChargeGreen
     override val compactSlotWidth = 58.dp
 
@@ -127,9 +128,10 @@ data class LowBatteryContent(
     override val postedAt: Long,
 ) : AlertContent() {
     override val key = "alerts:lowbattery:$postedAt"
+    override val alertId = "lowBattery"
     override val accent = LowRed
     override val compactSlotWidth = 52.dp
-    override val timeoutMs = 5_000L
+    override val baseTimeoutMs: Long? = 5_000L
 
     @Composable
     override fun Leading() = BatteryGlyph(percent, LowRed, blink = true)

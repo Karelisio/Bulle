@@ -129,9 +129,10 @@ data class PackageContent(
     override val postedAt: Long,
 ) : AlertContent() {
     override val key = "alerts:package:$postedAt"
+    override val alertId = "packages"
     override val accent = if (installed) InstallGreen else RemoveGrey
     override val compactSlotWidth = 84.dp
-    override val timeoutMs = 5_000L
+    override val baseTimeoutMs: Long? = 5_000L
 
     @Composable
     override fun Leading() = AppIcon(packageName, installed, 22.dp)

@@ -47,10 +47,14 @@ import kotlin.math.sin
  * Les valeurs animées sont lues dans les lambdas de dessin (phase draw seulement),
  * et toute animation infinie est coupée si l'utilisateur a supprimé les animations. */
 
+/** Animations coupées : réglage système, ou « aucune animation » choisie pour cette alerte. */
+@Composable
+internal fun rememberGlyphStill(): Boolean = rememberReduceMotion() || LocalAlertStill.current
+
 /** Valeur infinie aller-retour 0..1, figée à [still] si les animations sont coupées. */
 @Composable
 internal fun rememberPulse(periodMs: Int, enabled: Boolean = true, still: Float = 1f): State<Float> {
-    val reduce = rememberReduceMotion()
+    val reduce = rememberGlyphStill()
     if (reduce || !enabled) return remember(still) { mutableFloatStateOf(still) }
     val t = rememberInfiniteTransition(label = "pulse")
     return t.animateFloat(0f, 1f, infiniteRepeatable(tween(periodMs, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "p")
@@ -59,7 +63,7 @@ internal fun rememberPulse(periodMs: Int, enabled: Boolean = true, still: Float 
 /** Valeur 0→1 jouée une seule fois à l'apparition (ressort ou durée), immédiate si animations coupées. */
 @Composable
 internal fun rememberEntrance(durationMs: Int = 0, delayMs: Int = 0, from: Float = 0f): State<Float> {
-    val reduce = rememberReduceMotion()
+    val reduce = rememberGlyphStill()
     val a = remember { Animatable(if (reduce) 1f else from) }
     LaunchedEffect(Unit) {
         if (reduce) return@LaunchedEffect
@@ -86,7 +90,10 @@ fun BatteryGlyph(
     blink: Boolean = false,
     animateFill: Boolean = false,
     width: Dp = 26.dp,
+    /** Suit l'accent personnalisé de l'alerte (faux pour une batterie d'accessoire). */
+    followTint: Boolean = true,
 ) {
+    val color = if (followTint) tinted(color) else color
     val fill = if (animateFill) rememberEntrance(durationMs = 1100) else remember { mutableFloatStateOf(1f) }
     val pulse = rememberPulse(900, enabled = blink, still = 1f)
     val outline = Color.White.copy(alpha = 0.55f)
@@ -135,6 +142,7 @@ internal fun DrawScope.drawBolt(center: Offset, h: Float, color: Color) {
 /** Éclair seul, qui « tombe » avec un ressort à l'apparition. */
 @Composable
 fun BoltGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 16.dp) {
+    val color = tinted(color)
     val e = rememberEntrance(from = 0.3f)
     Canvas(
         modifier
@@ -146,6 +154,7 @@ fun BoltGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 16.dp) {
 /** Icône Wi-Fi dont les ondes s'allument l'une après l'autre. */
 @Composable
 fun WifiGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 20.dp) {
+    val color = tinted(color)
     val e = rememberEntrance(durationMs = 900)
     Canvas(modifier.size(size)) {
         val c = Offset(this.size.width / 2, this.size.height * 0.86f)
@@ -170,6 +179,7 @@ fun WifiGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 20.dp) {
 /** Coche qui se trace dans un cercle (animation de tracé via PathMeasure). */
 @Composable
 fun CheckGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 20.dp) {
+    val color = tinted(color)
     val ring = rememberEntrance(durationMs = 450)
     val tick = rememberEntrance(durationMs = 380, delayMs = 300)
     val measure = remember { PathMeasure() }
@@ -197,6 +207,7 @@ fun CheckGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 20.dp) {
 /** Lampe torche stylisée dont les rayons respirent. */
 @Composable
 fun TorchGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 20.dp, intensity: Float = 1f) {
+    val color = tinted(color)
     val pulse = rememberPulse(1300, still = 0.6f)
     Canvas(modifier.size(size)) {
         val s = this.size.minDimension
@@ -230,7 +241,8 @@ fun TorchGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 20.dp, in
 /** Icône qui tremble (sonnerie d'alarme). */
 @Composable
 fun ShakingIcon(icon: ImageVector, tint: Color, modifier: Modifier = Modifier, size: Dp = 20.dp) {
-    val reduce = rememberReduceMotion()
+    val tint = tinted(tint)
+    val reduce = rememberGlyphStill()
     val angle = if (reduce) {
         remember { mutableFloatStateOf(0f) }
     } else {
@@ -251,6 +263,7 @@ fun ShakingIcon(icon: ImageVector, tint: Color, modifier: Modifier = Modifier, s
 /** Icône qui apparaît avec un rebond et une petite rotation. */
 @Composable
 fun PopIcon(icon: ImageVector, tint: Color, modifier: Modifier = Modifier, size: Dp = 20.dp) {
+    val tint = tinted(tint)
     val e = rememberEntrance(from = 0.2f)
     Icon(
         icon, null, tint = tint,
@@ -265,7 +278,8 @@ fun PopIcon(icon: ImageVector, tint: Color, modifier: Modifier = Modifier, size:
 /** Anneau d'accent qui tourne lentement (attente d'une miniature, etc.). */
 @Composable
 fun SpinnerGlyph(color: Color, modifier: Modifier = Modifier, size: Dp = 18.dp) {
-    val reduce = rememberReduceMotion()
+    val color = tinted(color)
+    val reduce = rememberGlyphStill()
     val turn = if (reduce) {
         remember { mutableFloatStateOf(0f) }
     } else {
@@ -286,11 +300,75 @@ fun AlertLabel(text: String, modifier: Modifier = Modifier, color: Color = Color
     Text(
         text,
         modifier = modifier,
-        color = color,
+        // Une couleur explicite suit l'accent personnalisé ; le blanc par défaut reste blanc.
+        color = if (color == Color.Unspecified) color else tinted(color),
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.SemiBold,
         maxLines = 1,
         softWrap = false,
         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
     )
+}
+
+/**
+ * Barres de réseau mobile. [lost] : barres éteintes et trait qui se trace en travers ;
+ * sinon les barres montent l'une après l'autre.
+ */
+@Composable
+fun SignalGlyph(color: Color, lost: Boolean, modifier: Modifier = Modifier, size: Dp = 20.dp) {
+    val color = tinted(color)
+    val e = rememberEntrance(durationMs = 800)
+    Canvas(modifier.size(size)) {
+        val s = this.size.minDimension
+        val gap = s * 0.08f
+        val w = (s - gap * 3) / 4
+        for (i in 0 until 4) {
+            val local = if (lost) 1f else (e.value * 4 - i).coerceIn(0f, 1f)
+            val h = s * (0.3f + 0.7f * (i + 1) / 4f) * local
+            drawRoundRect(
+                if (lost) Color.White.copy(alpha = 0.28f) else color,
+                Offset(i * (w + gap), s - h),
+                Size(w, h),
+                CornerRadius(w * 0.3f),
+            )
+        }
+        if (lost) {
+            val k = e.value.coerceIn(0f, 1f)
+            val a = Offset(s * 0.06f, s * 0.12f)
+            val b = Offset(s * 0.94f, s * 0.94f)
+            drawLine(Color.Black.copy(alpha = 0.6f), a, a + (b - a) * k, s * 0.2f, StrokeCap.Round)
+            drawLine(color, a, a + (b - a) * k, s * 0.11f, StrokeCap.Round)
+        }
+    }
+}
+
+/** Barre de niveau (volume) : la jauge glisse au ressort vers [fraction], lue au dessin. */
+@Composable
+fun LevelBar(fraction: Float, color: Color, modifier: Modifier = Modifier, width: Dp = 40.dp, height: Dp = 6.dp) {
+    val color = tinted(color)
+    val reduce = rememberGlyphStill()
+    val target = fraction.coerceIn(0f, 1f)
+    val level = remember { Animatable(if (reduce) target else 0f) }
+    LaunchedEffect(target, reduce) {
+        if (reduce) level.snapTo(target) else level.animateTo(target, spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow))
+    }
+    Canvas(modifier.size(width, height)) {
+        val r = CornerRadius(this.size.height / 2)
+        drawRoundRect(Color.White.copy(alpha = 0.2f), cornerRadius = r)
+        val w = (this.size.width * level.value).coerceAtLeast(this.size.height)
+        drawRoundRect(color, size = Size(w, this.size.height), cornerRadius = r)
+    }
+}
+
+/** Pastille de confidentialité (caméra / micro) avec un halo qui respire doucement. */
+@Composable
+fun PrivacyDot(color: Color, modifier: Modifier = Modifier, size: Dp = 14.dp) {
+    val color = tinted(color)
+    val pulse = rememberPulse(1400, still = 0f)
+    val pop = rememberEntrance(from = 0.2f)
+    Canvas(modifier.size(size).graphicsLayer { scaleX = pop.value; scaleY = pop.value }) {
+        val r = this.size.minDimension / 2
+        drawCircle(color.copy(alpha = 0.18f + 0.22f * pulse.value), r)
+        drawCircle(color, r * 0.58f)
+    }
 }

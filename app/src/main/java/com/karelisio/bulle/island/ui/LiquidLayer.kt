@@ -26,6 +26,8 @@ class LiquidGeometry(
     val secCenterY: Float,
     val secRadius: Float,
     val alpha: Float,
+    /** Lissage des angles (0 = arcs de cercle, 1 = superellipse). */
+    val smoothing: Float = 0f,
 )
 
 /**
@@ -50,12 +52,16 @@ uniform float topCorner;
 uniform float4 fillColor;
 uniform float4 outlineColor;
 uniform float outlineWidth;
+uniform float cornerExp;
 
 // Rectangle arrondi avec des rayons différents en haut et en bas (y vers le bas).
-float sdRoundRect(float2 p, float2 b, float rTop, float rBottom) {
+// Coins : norme p d'exposant n (2 = arc de cercle exact, plus = superellipse « squircle »).
+float sdRoundRect(float2 p, float2 b, float rTop, float rBottom, float n) {
     float r = p.y < 0.0 ? rTop : rBottom;
     float2 q = abs(p) - b + r;
-    return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+    float2 m = max(q, 0.0);
+    float l = n < 2.001 ? length(m) : pow(pow(m.x, n) + pow(m.y, n), 1.0 / n);
+    return l + min(max(q.x, q.y), 0.0) - r;
 }
 
 float smin(float a, float b, float k) {
@@ -64,7 +70,7 @@ float smin(float a, float b, float k) {
 }
 
 half4 main(float2 p) {
-    float d = sdRoundRect(p - mainCenter, mainHalf, topCorner, mainCorner);
+    float d = sdRoundRect(p - mainCenter, mainHalf, topCorner, mainCorner, cornerExp);
     if (secRadius > 0.5) {
         float d2 = length(p - secCenter) - secRadius;
         d = smin(d, d2, smoothK);
@@ -86,12 +92,15 @@ private class LiquidShader {
         shader.setFloatUniform("mainCenter", g.mainCenterX, g.mainCenterY)
         val half = minOf(g.mainHalfW, g.mainHalfH)
         shader.setFloatUniform("mainHalf", g.mainHalfW, g.mainHalfH)
-        shader.setFloatUniform("mainCorner", g.mainCorner.coerceIn(0f, half))
+        // Coins lissés : étendue allongée et exposant de superellipse (identiques au repli Bézier).
+        val s = g.smoothing
+        shader.setFloatUniform("mainCorner", CornerSmoothing.extent(g.mainCorner, s, half))
         shader.setFloatUniform("secCenter", g.secCenterX, g.secCenterY)
         shader.setFloatUniform("secRadius", g.secRadius)
         shader.setFloatUniform("smoothK", smoothK)
         shader.setFloatUniform("alpha", g.alpha)
-        shader.setFloatUniform("topCorner", g.topCorner.coerceIn(0f, half))
+        shader.setFloatUniform("topCorner", CornerSmoothing.extent(g.topCorner, s, half))
+        shader.setFloatUniform("cornerExp", if (s <= CornerSmoothing.Epsilon) 2f else CornerSmoothing.exponent(s))
         shader.setFloatUniform("fillColor", g.fill.red, g.fill.green, g.fill.blue, g.fill.alpha)
         shader.setFloatUniform("outlineColor", g.outline.red, g.outline.green, g.outline.blue, g.outline.alpha)
         shader.setFloatUniform("outlineWidth", g.outlineWidth)

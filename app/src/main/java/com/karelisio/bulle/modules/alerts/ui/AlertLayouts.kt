@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,12 +37,20 @@ fun AlertExpanded(
     actions: (@Composable RowScope.() -> Unit)? = null,
     extra: (@Composable () -> Unit)? = null,
 ) {
+    val accent = tinted(accent)
+    val icon = LocalAlertIcon.current
     Column(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(46.dp).clip(CircleShape).background(accent.copy(alpha = 0.18f)),
+                Modifier.size(46.dp)
+                    .alertEntrance(LocalAlertEntrance.current, title)
+                    .clip(CircleShape)
+                    .background(accent.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center,
-            ) { glyph() }
+            ) {
+                // Icône choisie par l'utilisateur à la place du glyphe animé.
+                if (icon != null) Icon(icon, null, tint = accent, modifier = Modifier.size(26.dp)) else glyph()
+            }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(

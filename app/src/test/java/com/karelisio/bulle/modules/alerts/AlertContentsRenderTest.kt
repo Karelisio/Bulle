@@ -8,6 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.IslandPanel
@@ -17,14 +20,29 @@ import com.karelisio.bulle.modules.alerts.sources.ChargingContent
 import com.karelisio.bulle.modules.alerts.sources.ClipboardContent
 import com.karelisio.bulle.modules.alerts.sources.LowBatteryContent
 import com.karelisio.bulle.modules.alerts.sources.PackageContent
+import com.karelisio.bulle.modules.alerts.sources.PrivacyContent
+import com.karelisio.bulle.modules.alerts.sources.PrivacyKind
+import com.karelisio.bulle.modules.alerts.sources.RingerContent
 import com.karelisio.bulle.modules.alerts.sources.ScreenshotContent
+import com.karelisio.bulle.modules.alerts.sources.SignalContent
+import com.karelisio.bulle.modules.alerts.sources.SignalKind
 import com.karelisio.bulle.modules.alerts.sources.ToggleContent
 import com.karelisio.bulle.modules.alerts.sources.ToggleKind
 import com.karelisio.bulle.modules.alerts.sources.TorchContent
+import com.karelisio.bulle.modules.alerts.sources.UsbContent
+import com.karelisio.bulle.modules.alerts.sources.VolumeContent
 import com.karelisio.bulle.modules.alerts.sources.WifiContent
+import com.karelisio.bulle.modules.alerts.ui.AlertIcons
+import com.karelisio.bulle.modules.alerts.ui.AlertStyleEditor
+import com.karelisio.bulle.modules.alerts.ui.AlertStyleSheet
+import com.karelisio.bulle.modules.alerts.ui.AlertUis
 import com.karelisio.bulle.modules.alerts.ui.AlertsSettingsScreen
+import com.karelisio.bulle.modules.alerts.ui.StyledAlert
+import com.karelisio.bulle.modules.alerts.ui.alertIdOf
+import com.karelisio.bulle.modules.alerts.ui.styled
 import com.karelisio.bulle.modules.echo.EchoContent
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +77,7 @@ class AlertContentsRenderTest {
 
     @Test
     fun allContentsCompose() {
-        val contents: List<IslandContent> = listOf(
+        val base: List<IslandContent> = listOf(
             ChargingContent(64, ChargeKind.FAST, 1),
             LowBatteryContent(9, 1),
             BluetoothContent("00:11", "Buds", BtKind.HEADPHONES, 80, 1),
@@ -75,7 +93,33 @@ class AlertContentsRenderTest {
             PackageContent("com.example", null, false, 1),
             ClipboardContent(1),
             EchoContent("Coucou", "Texte", null, 1),
+            SignalContent(SignalKind.CELL_LOST, 1),
+            SignalContent(SignalKind.CELL_BACK, 1),
+            SignalContent(SignalKind.FIVE_G, 1),
+            SignalContent(SignalKind.VPN_ON, 1),
+            SignalContent(SignalKind.VPN_OFF, 1),
+            SignalContent(SignalKind.HOTSPOT_ON, 1),
+            SignalContent(SignalKind.HOTSPOT_OFF, 1),
+            RingerContent(RingerKind.SILENT, 1),
+            RingerContent(RingerKind.VIBRATE, 1),
+            RingerContent(RingerKind.NORMAL, 1),
+            VolumeContent(0, 15, 1, 1),
+            VolumeContent(12, 15, 1, 2),
+            UsbContent(UsbContent.Event.CABLE_ON, UsbMode.FILES, null, 1),
+            UsbContent(UsbContent.Event.DEVICE_ON, null, "Clavier", 1),
+            UsbContent(UsbContent.Event.CABLE_OFF, null, null, 1),
+            PrivacyContent(PrivacyKind.CAMERA),
+            PrivacyContent(PrivacyKind.MIC),
         )
+        // Chaque contenu aussi habillé d'un style complet, puis de chaque animation d'entrée.
+        val fullStyle = base.mapNotNull { c ->
+            val id = alertIdOf(c) ?: return@mapNotNull null
+            styled(c, mapOf(id to AlertStyle(AlertIcons.choicesFor(id).firstOrNull(), 0xFFFF6FA5, AlertEntrance.BOUNCE, 5)))
+        }
+        val entrances = AlertEntrance.entries.map { e ->
+            styled(ClipboardContent(1), mapOf("clipboard" to AlertStyle(entrance = e)))
+        }
+        val contents = base + fullStyle + entrances
         val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
         val h = host(activity)
         activity.setContent {
@@ -87,13 +131,51 @@ class AlertContentsRenderTest {
             }
         }
         idle()
-        assertEquals(contents.size, contents.map { it.key }.size)
+        // Toutes les alertes (Écho compris) sont personnalisables.
+        assertEquals(base.size, fullStyle.size)
+        assertTrue(fullStyle.all { it is StyledAlert })
     }
 
     @Test
     fun settingsScreenComposes() {
         val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
         activity.setContent { AlertsSettingsScreen(onBack = {}) }
+        idle()
+    }
+
+    @Test
+    fun settingsScreenWithAllCategoriesExpandedComposes() {
+        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        activity.setContent { AlertsSettingsScreen(onBack = {}, initiallyExpanded = AlertCategory.entries.toSet()) }
+        idle()
+    }
+
+    @Test
+    fun styleEditorComposesForEveryAlert() {
+        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val styles = listOf(
+            AlertStyle(),
+            AlertStyle(icon = "bolt", accent = 0xFF5ED6E8, entrance = AlertEntrance.PULSE, durationSec = 9),
+        )
+        activity.setContent {
+            Column {
+                AlertCatalog.defs.forEachIndexed { i, def ->
+                    AlertStyleEditor(AlertUis.of(def.id), def, styles[i % styles.size], onChange = {})
+                }
+            }
+        }
+        idle()
+    }
+
+    @Test
+    fun styleSheetComposesAndFollowsChanges() {
+        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        var style by mutableStateOf(AlertStyle(entrance = AlertEntrance.BOUNCE))
+        activity.setContent {
+            AlertStyleSheet(AlertUis.of("wifi"), AlertCatalog.def("wifi"), style, onChange = { style = it }, onDismiss = {})
+        }
+        idle()
+        style = AlertStyle(icon = "router", durationSec = 3)
         idle()
     }
 }

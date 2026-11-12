@@ -50,9 +50,10 @@ object ClipboardSource : AlertSource {
 /** « Copié » : icône qui rebondit, sans jamais afficher le contenu. */
 data class ClipboardContent(override val postedAt: Long) : AlertContent() {
     override val key = "alerts:clipboard:$postedAt"
+    override val alertId = "clipboard"
     override val accent = ClipViolet
     override val compactSlotWidth = 64.dp
-    override val timeoutMs = 2_500L
+    override val baseTimeoutMs: Long? = 2_500L
     override val expandable = false
 
     @Composable
