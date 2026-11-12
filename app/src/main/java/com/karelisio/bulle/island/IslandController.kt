@@ -155,9 +155,19 @@ class IslandController(
 
     // --- Entrées de l'environnement ---
 
-    fun updateScreen(transform: (ScreenEnv) -> ScreenEnv) = screen.update(transform)
+    /** Dernière taille de fenêtre demandée par la vue, pour la replacer si la géométrie bouge. */
+    private var lastWindow: WindowRequest? = null
+
+    fun updateScreen(transform: (ScreenEnv) -> ScreenEnv) {
+        val before = screen.value.geometry
+        screen.update(transform)
+        // La vue ne redemande une fenêtre que si la taille cible change : un simple déplacement
+        // (réglage fin X/Y, rotation à 180°) laisserait la fenêtre à l'ancienne position.
+        if (screen.value.geometry != before) lastWindow?.let(::applyWindow)
+    }
 
     fun applyWindow(request: WindowRequest) {
+        lastWindow = request
         val g = screen.value.geometry
         window.update(g.centerX, g.top, request.width, request.height, request.touchable, request.watchOutside)
     }
@@ -262,8 +272,10 @@ class IslandController(
         val p = arr.primary ?: return
         val s = arr.secondary ?: return
         interaction.update {
-            val natural = if (it.swappedPair != null) s.key to p.key else p.key to s.key
-            it.copy(swappedPair = if (it.swappedPair == null) natural else null, expandedKey = null)
+            // L'échange n'est effectif que si la paire mémorisée est celle affichée (inversée) ;
+            // une paire périmée (autre contenu arrivé entre-temps) ne doit pas « consommer » le toucher.
+            val swappedNow = it.swappedPair == (s.key to p.key)
+            it.copy(swappedPair = if (swappedNow) null else p.key to s.key, expandedKey = null)
         }
     }
 }
