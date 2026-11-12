@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+- Appli : nouvelle navigation à onglets (Accueil, Style, Contenus, Réglages) avec une barre flottante Material 3 Expressive qui suit au ressort.
+- Alertes : chaque alerte se personnalise (icône, couleur, animation d'entrée, durée) avec un aperçu animé ; écran rangé par catégories avec compteurs « n sur m activées ».
+- Nouvelles alertes (désactivées par défaut) : perte et retour du réseau mobile, 5G, VPN, point d'accès, mode silencieux/vibreur/sonnerie, volume média, câble USB et accessoires, caméra et micro utilisés (pastilles verte et orange).
+- Île : sens d'ouverture (centré, vers la gauche, vers la droite), angles lissés façon « squircle », typographie (police, taille, défilement des textes longs, seconde ligne compacte), style d'animation « Accentué », interrupteurs flou et retour haptique, réglage fin au pixel avec appui maintenu.
+
 ## 0.2.2
 - Île : correction du scintillement. La détection du plein écran ignorait mal les changements des propres fenêtres de Bulle et pouvait masquer puis réafficher l'île en boucle. Elle ignore maintenant ces changements, ne masque l'île qu'après deux contrôles espacés, et se coupe d'elle-même si elle oscille encore (l'île reste alors affichée).
 - Nouveau « Journal de l'île » dans Réglages › Fiabilité : apparitions, masquages et leur raison, mises à jour de la fenêtre (en mémoire uniquement), à copier pour diagnostiquer un problème d'affichage.
