@@ -41,13 +41,23 @@ class IslandTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
+        // Lu avant la réactivation : la tuile affichait « inactive » si le service ne tournait pas.
+        val running = IslandAccessibilityService.running.value
         if (!Reliability.isAccessibilityEnabled(this) && !Reliability.reenableAccessibility(this)) {
             openApp()
             return
         }
         MainScope().launch {
-            SettingsRepository.update(this@IslandTileService) { it.copy(islandEnabled = !it.islandEnabled) }
+            SettingsRepository.update(this@IslandTileService) { it.copy(islandEnabled = nextEnabled(running, it.islandEnabled)) }
         }
+    }
+
+    companion object {
+        /**
+         * Un toucher inverse l'état AFFICHÉ par la tuile (active = service en marche et île activée) :
+         * tuile inactive parce que le service était coupé → on (ré)active, au lieu de désactiver l'île.
+         */
+        internal fun nextEnabled(running: Boolean, enabled: Boolean): Boolean = !(running && enabled)
     }
 
     private fun render(enabled: Boolean, running: Boolean) {

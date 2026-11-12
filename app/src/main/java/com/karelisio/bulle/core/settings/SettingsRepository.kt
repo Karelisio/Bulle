@@ -16,6 +16,9 @@ import java.io.OutputStream
 
 val BulleJson = Json {
     ignoreUnknownKeys = true
+    // Valeur d'énumération inconnue (réglages d'une version plus récente, sauvegarde) : valeur par
+    // défaut du champ, au lieu d'une exception qui ferait réinitialiser TOUS les réglages.
+    coerceInputValues = true
     encodeDefaults = true
     prettyPrint = false
 }
