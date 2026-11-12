@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Timer / Pomodoro module -->
+    <string name="module_focus">Timer</string>
+    <string name="focus_panel_title">Timer</string>
+    <string name="focus_preset_minutes">%1$d min</string>
+    <string name="focus_preset_pomodoro">Pomodoro %1$d/%2$d ×%3$d</string>
+    <string name="focus_phase_timer">Timer</string>
+    <string name="focus_phase_work">Focus · %1$d/%2$d</string>
+    <string name="focus_phase_break">Break · %1$d/%2$d</string>
+    <string name="focus_phase_long_break">Long break</string>
+    <string name="focus_paused">paused</string>
+    <string name="focus_pause">Pause</string>
+    <string name="focus_resume">Resume</string>
+    <string name="focus_skip">Next phase</string>
+    <string name="focus_stop">Stop</string>
+    <string name="focus_alert_timer_done">Done</string>
+    <string name="focus_alert_cycle_done">Cycle done</string>
+    <string name="focus_alert_break">Break time</string>
+    <string name="focus_alert_work">Back to work</string>
+    <!-- Settings -->
+    <string name="focus_settings_title">Timer</string>
+    <string name="focus_settings_back">Back</string>
+    <string name="focus_settings_less">Less</string>
+    <string name="focus_settings_more">More</string>
+    <string name="focus_settings_minutes_value">%1$d min</string>
+    <string name="focus_settings_enable">Timer on the island</string>
+    <string name="focus_settings_enable_summary">Countdown and progress ring while a timer started from the island runs</string>
+    <string name="focus_settings_pomodoro_header">Pomodoro</string>
+    <string name="focus_settings_work">Focus session</string>
+    <string name="focus_settings_short_break">Short break</string>
+    <string name="focus_settings_long_break">Long break</string>
+    <string name="focus_settings_cycles">Sessions per cycle</string>
+    <string name="focus_settings_auto">Chain phases automatically</string>
+    <string name="focus_settings_auto_summary">Otherwise each phase waits for you to start it</string>
+    <string name="focus_settings_alert_header">End of phase</string>
+    <string name="focus_settings_vibrate">Light vibration</string>
+    <string name="focus_settings_vibrate_summary">A short double buzz at the end of each phase</string>
+    <string name="focus_settings_vibrate_off">Haptic feedback is turned off in motion settings</string>
+    <string name="focus_settings_sound">Sound</string>
+    <string name="focus_settings_sound_summary">Phone\'s notification sound</string>
+    <string name="focus_settings_hint">The timer is based on the clock: it keeps going even if Bulle restarts.</string>
+</resources>

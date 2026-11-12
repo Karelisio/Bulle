@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module Minuteur / Pomodoro -->
+    <string name="module_focus">Minuteur</string>
+    <string name="focus_panel_title">Minuteur</string>
+    <string name="focus_preset_minutes">%1$d min</string>
+    <string name="focus_preset_pomodoro">Pomodoro %1$d/%2$d ×%3$d</string>
+    <string name="focus_phase_timer">Minuteur</string>
+    <string name="focus_phase_work">Travail · %1$d/%2$d</string>
+    <string name="focus_phase_break">Pause · %1$d/%2$d</string>
+    <string name="focus_phase_long_break">Pause longue</string>
+    <string name="focus_paused">en pause</string>
+    <string name="focus_pause">Pause</string>
+    <string name="focus_resume">Reprendre</string>
+    <string name="focus_skip">Phase suivante</string>
+    <string name="focus_stop">Arrêter</string>
+    <string name="focus_alert_timer_done">Terminé</string>
+    <string name="focus_alert_cycle_done">Cycle fini</string>
+    <string name="focus_alert_break">Pause !</string>
+    <string name="focus_alert_work">Au travail</string>
+    <!-- Réglages -->
+    <string name="focus_settings_title">Minuteur</string>
+    <string name="focus_settings_back">Retour</string>
+    <string name="focus_settings_less">Moins</string>
+    <string name="focus_settings_more">Plus</string>
+    <string name="focus_settings_minutes_value">%1$d min</string>
+    <string name="focus_settings_enable">Minuteur sur l\'île</string>
+    <string name="focus_settings_enable_summary">Compte à rebours et anneau de progression pendant un minuteur lancé depuis l\'île</string>
+    <string name="focus_settings_pomodoro_header">Pomodoro</string>
+    <string name="focus_settings_work">Séance de travail</string>
+    <string name="focus_settings_short_break">Pause courte</string>
+    <string name="focus_settings_long_break">Pause longue</string>
+    <string name="focus_settings_cycles">Séances par cycle</string>
+    <string name="focus_settings_auto">Enchaîner automatiquement</string>
+    <string name="focus_settings_auto_summary">Sinon, chaque phase attend que vous la lanciez</string>
+    <string name="focus_settings_alert_header">Fin de phase</string>
+    <string name="focus_settings_vibrate">Vibration légère</string>
+    <string name="focus_settings_vibrate_summary">Une courte double vibration à chaque fin de phase</string>
+    <string name="focus_settings_vibrate_off">Retour haptique désactivé dans les animations</string>
+    <string name="focus_settings_sound">Son</string>
+    <string name="focus_settings_sound_summary">Son de notification du téléphone</string>
+    <string name="focus_settings_hint">Le minuteur se base sur l\'heure : il continue même si Bulle redémarre.</string>
+</resources>
