@@ -178,6 +178,10 @@ class IslandAccessibilityService : AccessibilityService() {
 
     override fun onInterrupt() = Unit
 
+    /** Touches volume : déléguées au module « Volume sur l'île » (false = touche laissée au système). */
+    override fun onKeyEvent(event: android.view.KeyEvent): Boolean =
+        com.karelisio.bulle.modules.volume.VolumeKeys.onKeyEvent(this, event)
+
     override fun onUnbind(intent: Intent?): Boolean {
         teardown()
         return super.onUnbind(intent)

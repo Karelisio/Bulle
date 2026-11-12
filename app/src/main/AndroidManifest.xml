@@ -51,6 +51,9 @@
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- Module Minuteur (modules/focus) : vibration légère en fin de phase (permission normale). -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <!-- Applis lançables et raccourcis d'applis (gestes, recherche, Deck) -->
     <queries>
         <intent>
