@@ -72,6 +72,7 @@ import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.core.settings.StyleSettings
 import com.karelisio.bulle.modules.rules.ui.labelRes
 import com.karelisio.bulle.ui.components.cascade
+import com.karelisio.bulle.ui.components.rememberLiveValue
 import com.karelisio.bulle.ui.components.sharedElement
 import kotlinx.coroutines.launch
 
@@ -123,9 +124,13 @@ fun StyleScreen(onBack: () -> Unit) {
                     }
                 }
                 Section(stringResource(R.string.style_size), 1) {
+                    val size = rememberLiveValue(style.size) { v ->
+                        SettingsRepository.update(context) { it.copy(style = it.style.copy(size = v)) }
+                    }
                     Slider(
-                        value = style.size,
-                        onValueChange = { v -> scope.launch { SettingsRepository.update(context) { it.copy(style = it.style.copy(size = v)) } } },
+                        value = size.value,
+                        onValueChange = size::drag,
+                        onValueChangeFinished = size::finish,
                         valueRange = 0.5f..1.6f,
                         steps = 21,
                     )
@@ -168,9 +173,10 @@ fun StyleScreen(onBack: () -> Unit) {
                 Section(stringResource(R.string.style_outline_shadow), 3) {
                     SwitchRow(stringResource(R.string.style_outline), style.outline) { on -> editStyle { it.copy(outline = on) } }
                     AnimatedVisibility(style.outline) {
-                        Slider(value = style.outlineWidthDp, onValueChange = { v ->
-                            scope.launch { SettingsRepository.update(context) { it.copy(style = it.style.copy(outlineWidthDp = v)) } }
-                        }, valueRange = 0.5f..3f)
+                        val width = rememberLiveValue(style.outlineWidthDp) { v ->
+                            SettingsRepository.update(context) { it.copy(style = it.style.copy(outlineWidthDp = v)) }
+                        }
+                        Slider(value = width.value, onValueChange = width::drag, onValueChangeFinished = width::finish, valueRange = 0.5f..3f)
                     }
                     SwitchRow(stringResource(R.string.style_shadow), style.shadow) { on -> editStyle { it.copy(shadow = on) } }
                     SwitchRow(stringResource(R.string.style_shimmer), style.shimmer) { on -> editStyle { it.copy(shimmer = on) } }
@@ -187,9 +193,10 @@ fun StyleScreen(onBack: () -> Unit) {
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(stringResource(R.string.style_speed), style = MaterialTheme.typography.labelLarge)
-                    Slider(value = motion.speed, onValueChange = { v ->
-                        scope.launch { SettingsRepository.update(context) { it.copy(motion = it.motion.copy(speed = v)) } }
-                    }, valueRange = 0.5f..2f)
+                    val speed = rememberLiveValue(motion.speed) { v ->
+                        SettingsRepository.update(context) { it.copy(motion = it.motion.copy(speed = v)) }
+                    }
+                    Slider(value = speed.value, onValueChange = speed::drag, onValueChangeFinished = speed::finish, valueRange = 0.5f..2f)
                 }
                 Section(stringResource(R.string.style_card), 5) {
                     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {

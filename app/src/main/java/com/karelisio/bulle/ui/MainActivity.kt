@@ -42,15 +42,22 @@ class MainActivity : AppCompatActivity() {
 
         // La bulle du splash « éclate » : elle gonfle et se dissout en révélant l'appli.
         splash.setOnExitAnimationListener { provider ->
-            val icon: View = provider.iconView
+            // iconView lève une NPE quand le splash système n'a pas d'icône (certains lanceurs / ROM
+            // OEM, relance depuis les récents) : on se contente alors du fondu de la racine.
+            val icon: View? = runCatching { provider.iconView }.getOrNull()
             val root: View = provider.view
             AnimatorSet().apply {
-                playTogether(
-                    ObjectAnimator.ofFloat(icon, View.SCALE_X, 1f, 1.8f),
-                    ObjectAnimator.ofFloat(icon, View.SCALE_Y, 1f, 1.8f),
-                    ObjectAnimator.ofFloat(icon, View.ALPHA, 1f, 0f),
-                    ObjectAnimator.ofFloat(root, View.ALPHA, 1f, 0f),
-                )
+                val fade = ObjectAnimator.ofFloat(root, View.ALPHA, 1f, 0f)
+                if (icon != null) {
+                    playTogether(
+                        ObjectAnimator.ofFloat(icon, View.SCALE_X, 1f, 1.8f),
+                        ObjectAnimator.ofFloat(icon, View.SCALE_Y, 1f, 1.8f),
+                        ObjectAnimator.ofFloat(icon, View.ALPHA, 1f, 0f),
+                        fade,
+                    )
+                } else {
+                    play(fade)
+                }
                 interpolator = AnticipateInterpolator(1.4f)
                 duration = 380L
                 doOnEnd { provider.remove() }

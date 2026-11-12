@@ -1,5 +1,6 @@
 package com.karelisio.bulle.modules.deck
 
+import android.appwidget.AppWidgetHostView
 import android.content.ComponentName
 import android.os.Bundle
 import android.util.SizeF
@@ -188,11 +189,22 @@ object DeckPanel : IslandPanel {
         val heightDp = with(density) { (info.minHeight.coerceAtLeast(1)).toDp() }.coerceIn(72.dp, 240.dp)
         AndroidView(
             factory = { ctx ->
-                DeckWidgets.createView(ctx, id)!!.apply { setPadding(0, 0, 0, 0) }
-            },
-            update = { view ->
-                val w = view.width / density.density
-                if (w > 0) view.updateAppWidgetSize(Bundle(), listOf(SizeF(w, heightDp.value)))
+                // Le widget peut avoir été supprimé (appli désinstallée) entre-temps : vue vide plutôt que NPE.
+                val view = runCatching { DeckWidgets.createView(ctx, id) }.getOrNull()
+                    ?: return@AndroidView android.view.View(ctx)
+                view.apply {
+                    setPadding(0, 0, 0, 0)
+                    // La largeur n'est connue qu'après la mise en page (0 dans `update` au premier passage) :
+                    // on transmet la taille au fournisseur à chaque changement de largeur.
+                    addOnLayoutChangeListener { v, l, _, r, _, ol, _, or, _ ->
+                        val w = (r - l) / v.resources.displayMetrics.density
+                        if (r - l > 0 && r - l != or - ol) {
+                            runCatching {
+                                (v as AppWidgetHostView).updateAppWidgetSize(Bundle(), listOf(SizeF(w, heightDp.value)))
+                            }
+                        }
+                    }
+                }
             },
             modifier = modifier
                 .fillMaxWidth()

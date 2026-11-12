@@ -67,7 +67,12 @@ class RuleEngine(
     }
 
     private fun registerSources() {
-        // Heure : mise à jour à chaque minute pile.
+        // Heure : mise à jour à chaque minute pile. Valeur initiale posée tout de suite : sinon la
+        // première émission voyait minuteOfDay = 0 (minuit) et un créneau de nuit (ex. 22 h–7 h)
+        // passait faussement actif au démarrage, déclenchant son action « Lancer ».
+        Calendar.getInstance().let { c ->
+            world.update { it.copy(minuteOfDay = c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE)) }
+        }
         scope.launch {
             while (isActive) {
                 val c = Calendar.getInstance()
