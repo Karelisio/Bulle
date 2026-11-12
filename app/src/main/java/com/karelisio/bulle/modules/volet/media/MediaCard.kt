@@ -81,6 +81,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.modules.volet.ui.LocalVoletHaptics
 import com.karelisio.bulle.modules.music.media.PlaybackSnapshot
 import com.karelisio.bulle.modules.music.ui.PlayPauseButton
 import com.karelisio.bulle.modules.music.ui.WavyScrubber
@@ -138,6 +139,7 @@ fun MediaCard(
 ) {
     val reduceMotion = rememberReduceMotion()
     val view = LocalView.current
+    val haptics = LocalVoletHaptics.current
     val duration = data.durationMs
 
     // Couleurs : ressort lent, pour un fondu doux d'un morceau à l'autre.
@@ -214,7 +216,7 @@ fun MediaCard(
             .clip(shape)
             .background(container)
             .clickable(onClickLabel = openLabel, role = Role.Button) {
-                view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                if (haptics) view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                 actions.open()
             },
     ) {
@@ -279,7 +281,7 @@ fun MediaCard(
                     accent = accent,
                     contentDescription = stringResource(if (playing) R.string.volet_media_pause else R.string.volet_media_play),
                     onClick = {
-                        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                        if (haptics) view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
                         if (playing) actions.pause() else actions.play()
                         setPlaying(!playing)
                     },
@@ -324,6 +326,7 @@ private fun TopRow(data: MediaCardData, onVariant: Color, onContainer: Color, ac
 @Composable
 private fun OutputChip(output: AudioOutput, color: Color, actions: MediaCardActions) {
     val view = LocalView.current
+    val haptics = LocalVoletHaptics.current
     val label = outputLabel(output)
     val description = stringResource(R.string.volet_media_output_switch, label)
     Row(
@@ -332,7 +335,7 @@ private fun OutputChip(output: AudioOutput, color: Color, actions: MediaCardActi
             .clip(CircleShape)
             .background(color.copy(alpha = 0.12f))
             .clickable(onClickLabel = description, role = Role.Button) {
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                if (haptics) view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 actions.output()
             }
             .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -451,10 +454,11 @@ private fun ControlButton(icon: ImageVector, label: String, color: Color, enable
     val nudge = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val view = LocalView.current
+    val haptics = LocalVoletHaptics.current
     val direction = if (icon == Icons.Rounded.SkipPrevious) -1f else 1f
     IconButton(
         onClick = {
-            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            if (haptics) view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             onClick()
             scope.launch {
                 nudge.snapTo(direction)
@@ -483,9 +487,10 @@ private fun CustomSlot(action: MediaCustomAction?, color: Color, actions: MediaC
         return
     }
     val view = LocalView.current
+    val haptics = LocalVoletHaptics.current
     IconButton(
         onClick = {
-            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            if (haptics) view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             actions.custom(action.id)
         },
         modifier = Modifier.size(48.dp),

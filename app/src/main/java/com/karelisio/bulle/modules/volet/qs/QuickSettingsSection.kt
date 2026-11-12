@@ -19,6 +19,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -97,10 +106,23 @@ fun QuickSettingsSection(host: VoletHost, modifier: Modifier) {
     }
 }
 
+/** Découpage de la grille complète en pages (logique pure, testable). */
+internal object QsPaging {
+    /** Tuiles par page : 2 colonnes × 4 rangées. */
+    const val PER_PAGE = 8
+    const val ROWS_PER_PAGE = PER_PAGE / 2
+
+    fun pageCount(tiles: Int): Int = if (tiles <= PER_PAGE) 1 else (tiles + PER_PAGE - 1) / PER_PAGE
+
+    /** Indices des tuiles de chaque page (une seule page jusqu'à 8 tuiles). */
+    fun pages(tiles: Int): List<IntRange> =
+        (0 until pageCount(tiles)).map { p -> (p * PER_PAGE) until min(tiles, (p + 1) * PER_PAGE) }
+}
+
 /**
  * Grille à deux niveaux pilotée par qsExpansion : à 0, une rangée de tuiles rondes ;
- * à 1, deux colonnes de grandes tuiles. Positions et tailles sont interpolées à la mise en page
- * (lecture de l'état dans le bloc de mesure : seule la mise en page suit le doigt).
+ * à 1, deux colonnes de grandes tuiles. Au-delà de 8 tuiles, la grille se répartit en pages
+ * horizontales ; la rangée repliée vit sur la première page, qui revient d'elle-même au repli.
  */
 @Composable
 private fun TileGrid(host: VoletHost) {
@@ -110,7 +132,70 @@ private fun TileGrid(host: VoletHost) {
     val metrics = QsMetrics.of(host.settings.density)
     val collapsed = host.settings.collapsedTileCount.coerceIn(4, 6).coerceAtMost(tiles.size)
     val q = { host.qsExpansion }
+    val pages = remember(tiles.size) { QsPaging.pages(tiles.size) }
 
+    if (pages.size <= 1) {
+        TilePage(host, tiles, 0, collapsed, collapsed, minRows = 0, metrics, toggler, q)
+        return
+    }
+
+    val reduce = rememberReduceMotion()
+    val pager = rememberPagerState { pages.size }
+    // Défilement horizontal seulement grille dépliée (lu hors composition à chaque image).
+    val expanded by remember { derivedStateOf { host.qsExpansion > 0.98f } }
+    val folding by remember { derivedStateOf { host.qsExpansion < 0.98f } }
+    // Au repli, retour à la première page : c'est elle qui porte la rangée.
+    LaunchedEffect(folding) {
+        if (folding && pager.currentPage != 0) {
+            if (reduce) pager.scrollToPage(0) else pager.animateScrollToPage(0)
+        }
+    }
+    Column(Modifier.fillMaxWidth()) {
+        HorizontalPager(
+            state = pager,
+            modifier = Modifier.fillMaxWidth(),
+            userScrollEnabled = expanded,
+            pageSpacing = metrics.gap,
+            verticalAlignment = Alignment.Top,
+            key = { it },
+        ) { page ->
+            val range = pages[page]
+            TilePage(
+                host = host,
+                tiles = tiles.subList(range.first, range.last + 1),
+                firstIndex = range.first,
+                inRow = if (page == 0) collapsed else 0,
+                rowSlots = collapsed,
+                minRows = QsPaging.ROWS_PER_PAGE,
+                metrics = metrics,
+                toggler = toggler,
+                expansion = q,
+            )
+        }
+        PageIndicator(pager, pages.size, q)
+    }
+}
+
+/**
+ * Une page de tuiles. Positions et tailles sont interpolées à la mise en page (lecture de
+ * l'état dans le bloc de mesure : seule la mise en page suit le doigt).
+ * [inRow] : nombre de tuiles de cette page présentes dans la rangée repliée ;
+ * [rowSlots] : emplacements de la rangée (pour une hauteur repliée identique sur toutes les pages) ;
+ * [minRows] : hauteur minimale en rangées (pages de même hauteur).
+ */
+@Composable
+private fun TilePage(
+    host: VoletHost,
+    tiles: List<QsTile>,
+    firstIndex: Int,
+    inRow: Int,
+    rowSlots: Int,
+    minRows: Int,
+    metrics: QsMetrics,
+    toggler: QsToggler,
+    expansion: () -> Float,
+) {
+    val context = host.context
     Layout(
         modifier = Modifier.fillMaxWidth(),
         content = {
@@ -119,42 +204,42 @@ private fun TileGrid(host: VoletHost) {
                     QsTileView(
                         tile = tile,
                         context = context,
-                        inRow = index < collapsed,
-                        expansion = q,
+                        inRow = index < inRow,
+                        expansion = expansion,
                         metrics = metrics,
                         cornerRadius = host.settings.cornerRadiusDp.dp,
                         toggler = toggler,
-                        modifier = Modifier.cascade(index),
+                        modifier = Modifier.cascade(firstIndex + index),
                     )
                 }
             }
         },
     ) { measurables, constraints ->
-        val e = q().coerceIn(0f, 1f)
+        val e = expansion().coerceIn(0f, 1f)
         val w = constraints.maxWidth
         val gap = metrics.gap.roundToPx()
-        val n = max(collapsed, 1)
+        val n = max(rowSlots, 1)
         // Rangée : n emplacements égaux, tuiles rondes centrées dans chacun.
         val slot = (w - gap * (n - 1)).toFloat() / n
         val d = min(slot, metrics.rowMax.toPx())
         // Grille : deux colonnes.
         val colW = (w - gap) / 2f
         val tileH = metrics.tileHeight.toPx()
-        val rows = (measurables.size + 1) / 2
+        val rows = max((measurables.size + 1) / 2, minRows)
         val gridH = rows * tileH + (rows - 1).coerceAtLeast(0) * gap
         val height = lerp(d, gridH, e)
 
         val placeables = measurables.mapIndexed { i, m ->
-            val inRow = i < collapsed
-            val tw = if (inRow) lerp(d, colW, e) else colW
-            val th = if (inRow) lerp(d, tileH, e) else tileH
+            val row = i < inRow
+            val tw = if (row) lerp(d, colW, e) else colW
+            val th = if (row) lerp(d, tileH, e) else tileH
             m.measure(Constraints.fixed(tw.roundToInt().coerceAtLeast(1), th.roundToInt().coerceAtLeast(1)))
         }
         layout(w, height.roundToInt()) {
             placeables.forEachIndexed { i, p ->
                 val gx = (i % 2) * (colW + gap)
                 val gy = (i / 2) * (tileH + gap)
-                if (i < collapsed) {
+                if (i < inRow) {
                     val rx = i * (slot + gap) + (slot - d) / 2f
                     p.place(lerp(rx, gx, e).roundToInt(), lerp(0f, gy, e).roundToInt())
                 } else if (e > 0.02f) {
@@ -164,6 +249,48 @@ private fun TileGrid(host: VoletHost) {
             }
         }
     }
+}
+
+/**
+ * Indicateur de pages expressif : la page courante s'étire en pilule qui glisse avec le doigt.
+ * Sa hauteur et son opacité suivent qsExpansion (invisible et sans place dans la rangée).
+ */
+@Composable
+private fun PageIndicator(pager: PagerState, count: Int, expansion: () -> Float) {
+    val scheme = MaterialTheme.colorScheme
+    val label = stringResource(R.string.volet_qs_page, pager.currentPage + 1, count)
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = label }
+            .layout { measurable, constraints ->
+                val e = expansion().coerceIn(0f, 1f)
+                val full = 18.dp.roundToPx()
+                val p = measurable.measure(constraints.copy(minHeight = full, maxHeight = full))
+                layout(p.width, (full * e).roundToInt()) { p.place(0, 0) }
+            }
+            .graphicsLayer { alpha = ((expansion() - 0.5f) / 0.5f).coerceIn(0f, 1f) }
+            .drawBehind {
+                val dot = 6.dp.toPx()
+                val wide = 18.dp.toPx()
+                val gap = 6.dp.toPx()
+                val pos = (pager.currentPage + pager.currentPageOffsetFraction).coerceIn(0f, (count - 1).toFloat())
+                // Largeur de chaque point : interpolée selon la distance à la position courante.
+                val widths = FloatArray(count) { i ->
+                    val t = (1f - kotlin.math.abs(i - pos)).coerceIn(0f, 1f)
+                    lerp(dot, wide, t)
+                }
+                val total = widths.sum() + gap * (count - 1)
+                var x = (size.width - total) / 2f
+                val y = (size.height - dot) / 2f
+                for (i in 0 until count) {
+                    val t = (1f - kotlin.math.abs(i - pos)).coerceIn(0f, 1f)
+                    val c = lerp(scheme.outlineVariant, scheme.primary, t)
+                    drawRoundRect(c, topLeft = Offset(x, y), size = Size(widths[i], dot), cornerRadius = CornerRadius(dot / 2f))
+                    x += widths[i] + gap
+                }
+            },
+    )
 }
 
 /** Une tuile : ronde dans la rangée, grande (icône + libellé + état) dans la grille. */
