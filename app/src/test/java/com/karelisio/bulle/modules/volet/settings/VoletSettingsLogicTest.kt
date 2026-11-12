@@ -44,6 +44,19 @@ class VoletSettingsLogicTest {
         assertFalse(VoletReliability.isAccessibility(both.last()))
     }
 
+    @Test
+    fun transientIssuesWaitForStartupGrace() {
+        val issues = VoletReliability.issues(ok.copy(accessibilityRunning = false, listenerConnected = false))
+        // Au démarrage du processus, « tué » / « non relié » ne sont pas encore signalés.
+        assertTrue(VoletReliability.reportable(issues, graceElapsed = false).isEmpty())
+        assertEquals(issues, VoletReliability.reportable(issues, graceElapsed = true))
+        // Un service décoché ou un accès retiré se signale tout de suite.
+        val disabled = VoletReliability.issues(ok.copy(accessibilityEnabled = false, listenerGranted = false))
+        assertEquals(disabled, VoletReliability.reportable(disabled, graceElapsed = false))
+        assertEquals(VoletReliability.STARTUP_GRACE_MS - 1_000L, VoletReliability.graceRemaining(1_000L))
+        assertEquals(0L, VoletReliability.graceRemaining(60_000L))
+    }
+
     private val candidate = HistoryCandidate("k", "p", "Titre", "Texte", 1L, null, ongoing = false, groupSummary = false)
 
     @Test

@@ -92,7 +92,8 @@ internal fun TileEditor(host: VoletHost, modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
             )
-            TextButton(onClick = { save(QsTileRegistry.resolveOrder(emptyList())) }) {
+            // Ordre par défaut limité aux tuiles prises en charge (pas de NFC sans puce NFC…).
+            TextButton(onClick = { save(QsTileRegistry.current(context, emptyList()).map { it.id }) }) {
                 Text(stringResource(R.string.volet_qs_edit_reset))
             }
             TextButton(onClick = { host.editingTiles = false }) {

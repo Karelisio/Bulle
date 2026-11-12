@@ -47,7 +47,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +64,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karelisio.bulle.R
 import com.karelisio.bulle.core.apps.AppCatalog
@@ -138,10 +138,11 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
     LaunchedEffect(Unit) { apps = AppCatalog.apps(context) }
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    // Zones de déclenchement teintées à l'écran tant que ces réglages sont affichés.
-    DisposableEffect(Unit) {
+    // Zones de déclenchement teintées à l'écran tant que ces réglages sont affichés
+    // (au premier plan seulement : après « Accueil », elles ne doivent pas rester teintées sur les autres applis).
+    LifecycleStartEffect(Unit) {
         VoletController.previewFlow.value = true
-        onDispose { VoletController.previewFlow.value = false }
+        onStopOrDispose { VoletController.previewFlow.value = false }
     }
 
     /** Applique [t] au brouillon et l'enregistre. */

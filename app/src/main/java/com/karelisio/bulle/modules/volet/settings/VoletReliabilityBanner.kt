@@ -1,5 +1,7 @@
 package com.karelisio.bulle.modules.volet.settings
 
+import android.os.Process
+import android.os.SystemClock
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -23,8 +25,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,6 +45,7 @@ import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.island.IslandAccessibilityService
 import com.karelisio.bulle.notifications.NotificationRepository
 import com.karelisio.bulle.system.Reliability
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 
 /**
@@ -70,7 +75,16 @@ fun VoletReliabilityBanner(modifier: Modifier = Modifier) {
             listenerConnected = connected,
         )
     }
-    val issue = VoletReliability.issues(state).firstOrNull()
+    // Juste après le démarrage du processus, les services ne sont pas encore reliés : pas de fausse alerte.
+    var graceElapsed by remember {
+        mutableStateOf(VoletReliability.graceRemaining(SystemClock.elapsedRealtime() - Process.getStartElapsedRealtime()) == 0L)
+    }
+    LaunchedEffect(Unit) {
+        if (graceElapsed) return@LaunchedEffect
+        delay(VoletReliability.graceRemaining(SystemClock.elapsedRealtime() - Process.getStartElapsedRealtime()))
+        graceElapsed = true
+    }
+    val issue = VoletReliability.reportable(VoletReliability.issues(state), graceElapsed).firstOrNull()
 
     AnimatedVisibility(
         visible = issue != null,

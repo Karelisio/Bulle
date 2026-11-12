@@ -120,13 +120,19 @@ internal fun NotificationList(host: VoletHost, model: NotifListModel, modifier: 
     var clearing by remember { mutableStateOf(false) }
     val focusKey = host.focusKey
 
-    // Notification ouverte depuis l'île : groupe déplié et défilement jusqu'à elle.
+    // Notification ouverte depuis l'île : groupe déplié et défilement jusqu'à elle, une seule fois
+    // (relancé à chaque mise à jour de la liste, une notification de progression ramènerait sans cesse
+    // la liste sur elle et redéplierait le groupe replié par l'utilisateur).
+    var handledFocus by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(focusKey, rows) {
         val key = focusKey ?: return@LaunchedEffect
+        if (key == handledFocus) return@LaunchedEffect
         val group = model.groupOf(key) ?: return@LaunchedEffect
-        if (group.items.size > 1) expandedGroups = expandedGroups + group.id
         val index = rows.indexOfFirst { it is ListRow.Group && it.group.id == group.id }
-        if (index >= 0) runCatching { if (reduce) listState.scrollToItem(index) else listState.animateScrollToItem(index) }
+        if (index < 0) return@LaunchedEffect
+        handledFocus = key
+        if (group.items.size > 1) expandedGroups = expandedGroups + group.id
+        runCatching { if (reduce) listState.scrollToItem(index) else listState.animateScrollToItem(index) }
     }
     LaunchedEffect(clearing) {
         if (!clearing) return@LaunchedEffect
