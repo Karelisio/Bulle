@@ -16,6 +16,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -29,7 +30,8 @@ import kotlinx.coroutines.launch
  */
 class IslandAccessibilityService : AccessibilityService() {
 
-    private val scope = MainScope()
+    // Une portée par connexion : annulée à chaque déconnexion (onUnbind), recréée à la reconnexion.
+    private var scope = MainScope()
     private var window: IslandWindow? = null
     private var controller: IslandController? = null
     private var volet: com.karelisio.bulle.modules.volet.VoletController? = null
@@ -49,6 +51,10 @@ class IslandAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        // Reconnexion sans déconnexion préalable : on libère d'abord l'ancienne île
+        // (sinon fenêtre orpheline, receiver et coroutines en double).
+        teardown()
+        if (!scope.isActive) scope = MainScope()
         _running.value = true
         Reliability.ensureRunning(this)
         getSystemService(DisplayManager::class.java).registerDisplayListener(displayListener, null)
@@ -148,18 +154,25 @@ class IslandAccessibilityService : AccessibilityService() {
     }
 
     private fun teardown() {
-        if (!_running.value && window == null) return
-        _running.value = false
-        _controller.value = null
+        if (window == null && controller == null) return
+        // Ne touche à l'état global que s'il décrit encore cette instance du service.
+        if (_controller.value === controller) {
+            _running.value = false
+            _controller.value = null
+        }
+        fullscreenJob = null
         runCatching { getSystemService(DisplayManager::class.java).unregisterDisplayListener(displayListener) }
         runCatching { unregisterReceiver(screenReceiver) }
-        VoletController.register(null)
+        if (VoletController.current.value === volet) VoletController.register(null)
         volet?.destroy()
         volet = null
         controller?.release()
         window?.destroy()
         window = null
         controller = null
+        // Arrête modules, règles et historique liés à cette connexion (sinon ils tournent
+        // jusqu'à onDestroy, ou en double après une reconnexion).
+        scope.cancel()
     }
 
     companion object {
