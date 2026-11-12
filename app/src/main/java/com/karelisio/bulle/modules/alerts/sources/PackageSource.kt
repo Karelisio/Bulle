@@ -85,7 +85,7 @@ object PackageSource : AlertSource {
         val flags = Intent.FLAG_ACTIVITY_NEW_TASK
         try {
             context.startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$pkg".toUri()).addFlags(flags))
-        } catch (_: ActivityNotFoundException) {
+        } catch (_: Exception) { // Pas de Play Store, ou lancement refusé : repli sur le site.
             runCatching {
                 context.startActivity(
                     Intent(Intent.ACTION_VIEW, "https://play.google.com/store/apps/details?id=$pkg".toUri()).addFlags(flags),
