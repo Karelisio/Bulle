@@ -38,11 +38,12 @@ fun ActionType.labelRes(): Int = when (this) {
     APP_SEARCH -> R.string.action_app_search
     OPEN_DECK -> R.string.action_open_deck
     SWAP_BUBBLES -> R.string.action_swap_bubbles
+    TIMER -> R.string.action_timer
 }
 
 /** Groupes d'actions pour le sélecteur. */
 val ActionGroups: List<Pair<Int, List<ActionType>>> = listOf(
-    R.string.action_group_island to listOf(NONE, TOGGLE_EXPAND, OPEN_DECK, APP_SEARCH, SWAP_BUBBLES),
+    R.string.action_group_island to listOf(NONE, TOGGLE_EXPAND, OPEN_DECK, APP_SEARCH, TIMER, SWAP_BUBBLES),
     R.string.action_group_system to listOf(BACK, HOME, RECENTS, NOTIFICATIONS, QUICK_SETTINGS, LOCK_SCREEN, SCREENSHOT),
     R.string.action_group_media to listOf(PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, VOLUME_UP, VOLUME_DOWN, MUTE),
     R.string.action_group_toggles to listOf(BRIGHTNESS_UP, BRIGHTNESS_DOWN, TORCH, ROTATION, WIFI, BLUETOOTH, BATTERY_SAVER),

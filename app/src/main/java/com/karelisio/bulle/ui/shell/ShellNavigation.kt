@@ -16,6 +16,8 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.SettingsBackupRestore
 import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.HourglassTop
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material.icons.rounded.Event
 import androidx.compose.material.icons.rounded.TouchApp
@@ -97,6 +99,8 @@ object ShellCatalog {
                     ShellEntry(Routes.ALERTS, R.string.home_entry_alerts, R.string.nav_sum_alerts, Icons.Rounded.NotificationsActive),
                     ShellEntry(Routes.CALENDAR, R.string.calendar_module_title, R.string.nav_sum_calendar, Icons.Rounded.Event),
                     ShellEntry(Routes.WEATHER, R.string.weather_module_title, R.string.nav_sum_weather, Icons.Rounded.WbSunny),
+                    ShellEntry(Routes.FOCUS, R.string.focus_module_title_nav, R.string.nav_sum_focus, Icons.Rounded.HourglassTop),
+                    ShellEntry(Routes.VOLUME, R.string.volume_module_title_nav, R.string.nav_sum_volume, Icons.AutoMirrored.Rounded.VolumeUp),
                 ),
             ),
             ShellGroup(

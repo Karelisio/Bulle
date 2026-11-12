@@ -2,4 +2,9 @@
 <resources>
     <string name="nav_sum_calendar">Prochain rendez-vous et rappel</string>
     <string name="nav_sum_weather">Pluie à venir et température</string>
+    <string name="action_timer">Minuteur</string>
+    <string name="focus_module_title_nav">Minuteur</string>
+    <string name="volume_module_title_nav">Volume sur l’île</string>
+    <string name="nav_sum_focus">Pomodoro et compte à rebours</string>
+    <string name="nav_sum_volume">Curseur de volume à la place du système</string>
 </resources>

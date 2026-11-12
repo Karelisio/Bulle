@@ -2,4 +2,9 @@
 <resources>
     <string name="nav_sum_calendar">Next event and reminder</string>
     <string name="nav_sum_weather">Upcoming rain and temperature</string>
+    <string name="action_timer">Timer</string>
+    <string name="focus_module_title_nav">Timer</string>
+    <string name="volume_module_title_nav">Volume on the island</string>
+    <string name="nav_sum_focus">Pomodoro and countdown</string>
+    <string name="nav_sum_volume">Volume slider instead of the system one</string>
 </resources>
