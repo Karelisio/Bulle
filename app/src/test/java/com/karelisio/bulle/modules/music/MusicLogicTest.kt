@@ -117,4 +117,15 @@ class MusicLogicTest {
         assertNull(LrclibClient.pickSearchResult(results.take(1), 200))
         assertEquals("[00:01.00]loin", LrclibClient.pickSearchResult(results, 0)?.syncedLyrics)
     }
+
+    @Test
+    fun signatureLookupNeedsAlbumAndDuration() {
+        // Sans album ni durée, /api/get répond 400 : on passe directement à /api/search.
+        assertNull(LrclibClient.signatureUrl("Song", "Artist", "", 200))
+        assertNull(LrclibClient.signatureUrl("Song", "Artist", "Album", 0))
+        val url = LrclibClient.signatureUrl("Ça va & co", "Artist", "Album", 200)!!
+        assertTrue(url.startsWith("https://lrclib.net/api/get?"))
+        assertTrue("track_name=%C3%87a+va+%26+co" in url)
+        assertTrue("album_name=Album" in url && "duration=200" in url)
+    }
 }

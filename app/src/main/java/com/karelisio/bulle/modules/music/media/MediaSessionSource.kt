@@ -83,6 +83,11 @@ object MediaSessionSource {
         } catch (e: SecurityException) {
             // Accès aux notifications non accordé : on attendra la prochaine connexion du listener.
             Log.i(TAG, "Sessions média inaccessibles : ${e.message}")
+            // L'écouteur a pu être inscrit avant que getActiveSessions ne lève : on le retire,
+            // sinon il fuirait (awaitClose n'est pas atteint sur ce chemin).
+            runCatching { msm.removeOnActiveSessionsChangedListener(listener) }
+            tracked.values.forEach { it.release() }
+            tracked.clear()
             trySend(null)
             close()
             return@callbackFlow

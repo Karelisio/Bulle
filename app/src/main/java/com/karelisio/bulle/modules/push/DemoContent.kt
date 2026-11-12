@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +35,7 @@ import com.karelisio.bulle.R
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
+import com.karelisio.bulle.ui.components.rememberReduceMotion
 
 /** Alerte de démonstration : vérifie le gonflement et la file de priorité. */
 data class DemoContent(
@@ -88,15 +88,21 @@ data class DemoContent(
 
     @Composable
     private fun Sparkle(sizeDp: Int) {
-        val t = rememberInfiniteTransition(label = "sparkle")
-        val r by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1400), RepeatMode.Reverse), label = "r")
+        // Animation infinie coupée si les animations sont supprimées ; valeur lue au dessin
+        // uniquement (pas de recomposition à chaque image).
+        val anim = if (!rememberReduceMotion()) {
+            rememberInfiniteTransition(label = "sparkle")
+                .animateFloat(0f, 1f, infiniteRepeatable(tween(1400), RepeatMode.Reverse), label = "r")
+        } else {
+            null
+        }
         Icon(
             Icons.Rounded.AutoAwesome,
             contentDescription = null,
             tint = accent,
             modifier = Modifier
                 .size(sizeDp.dp)
-                .graphicsLayer { rotationZ = -12f + 24f * r; scaleX = 0.9f + 0.1f * r; scaleY = scaleX },
+                .graphicsLayer { val r = anim?.value ?: 0.5f; rotationZ = -12f + 24f * r; scaleX = 0.9f + 0.1f * r; scaleY = scaleX },
         )
     }
 }
