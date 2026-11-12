@@ -1,7 +1,6 @@
 package com.karelisio.bulle.modules.call
 
 import com.karelisio.bulle.notifications.NotificationIntents
-import android.view.HapticFeedbackConstants
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -47,14 +46,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.karelisio.bulle.R
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
@@ -79,6 +78,8 @@ data class CallContent(
     /** Début de l'appel (heure murale) : `when` de la notification ou première apparition. */
     val startWallMillis: Long,
     override val postedAt: Long,
+    /** Seconde ligne compacte (« Appel entrant », nom de l'appli), résolue par le module. */
+    override val compactSubtitle: String? = null,
 ) : IslandContent() {
     override val key = "call:" + call.state.name.lowercase() + ":" + call.key
     override val notificationKey: String get() = call.key
@@ -199,9 +200,18 @@ data class CallContent(
         return true
     }
 
-    private fun statusRes() = when (call.state) {
-        CallState.SCREENING -> R.string.call_screening
-        else -> if (call.isVideo) R.string.call_incoming_video else R.string.call_incoming
+    private fun statusRes() = statusRes(call)
+
+    companion object {
+        /** Libellé d'état d'un appel qui sonne. */
+        fun statusRes(call: CallInfo): Int = when (call.state) {
+            CallState.SCREENING -> R.string.call_screening
+            else -> if (call.isVideo) R.string.call_incoming_video else R.string.call_incoming
+        }
+
+        /** Seconde ligne compacte : état tant que ça sonne, nom de l'appli pendant l'appel. */
+        fun compactSubtitle(call: CallInfo, appLabel: String?, status: (Int) -> String): String? =
+            if (call.state != CallState.ONGOING) status(statusRes(call)) else appLabel?.takeIf { it.isNotBlank() }
     }
 
     // ---------- Éléments ----------
@@ -226,7 +236,8 @@ data class CallContent(
                     initials,
                     color = Color.White,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = (size.value * 0.4f).sp,
+                    // Styles de la typographie de l'île : suivent le réglage « taille du texte ».
+                    style = if (size >= 40.dp) MaterialTheme.typography.titleLarge else MaterialTheme.typography.labelSmall,
                     maxLines = 1,
                 )
                 else -> Icon(Icons.Rounded.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(size * 0.62f))
@@ -292,7 +303,8 @@ data class CallContent(
         pulse: Boolean = false,
         onClick: () -> Unit,
     ) {
-        val view = LocalView.current
+        // Haptique de l'île : neutre quand « Retour haptique » est coupé.
+        val haptics = LocalHapticFeedback.current
         val reduceMotion = rememberReduceMotion()
         val source = remember { MutableInteractionSource() }
         val pressed by source.collectIsPressedAsState()
@@ -328,7 +340,7 @@ data class CallContent(
                             role = Role.Button,
                             onClickLabel = description,
                         ) {
-                            view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                             onClick()
                         },
                     contentAlignment = Alignment.Center,

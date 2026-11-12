@@ -22,4 +22,18 @@ object LiveFormat {
 
     /** Pourcentage entier 0..100. */
     fun percent(fraction: Float): Int = (fraction.coerceIn(0f, 1f) * 100f).toInt()
+
+    /**
+     * Seconde ligne compacte d'une activité en cours : prochaine étape pour le guidage
+     * (texte, sinon titre), statut pour les autres (titre, sinon texte). Jamais un doublon
+     * de la puce courte déjà affichée à droite.
+     */
+    fun compactSubtitle(activity: LiveActivity): String? {
+        val order = if (activity.kind == LiveKind.NAVIGATION) {
+            listOf(activity.text, activity.title, activity.subText)
+        } else {
+            listOf(activity.title, activity.text, activity.subText)
+        }
+        return order.firstNotNullOfOrNull { t -> t?.trim()?.takeIf { it.isNotEmpty() && it != activity.shortText?.trim() } }
+    }
 }

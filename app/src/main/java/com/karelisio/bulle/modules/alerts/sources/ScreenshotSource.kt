@@ -82,6 +82,8 @@ object ScreenshotSource : AlertSource {
 
     override fun isEnabled(settings: AlertSettings) = settings.screenshot
 
+    override val requiredPermissions: List<String> get() = listOf(permission)
+
     override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = flow<IslandContent?> {
         val ctx = env.context.applicationContext
         if (!ctx.hasPermission(permission)) return@flow

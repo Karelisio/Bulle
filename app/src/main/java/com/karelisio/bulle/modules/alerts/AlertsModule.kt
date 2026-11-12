@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.delay
 
 /**
  * Alertes système ponctuelles : batterie, charge, Bluetooth, Wi-Fi, alarme, lampe torche,
@@ -84,9 +86,13 @@ object AlertsModule : IslandModule {
     override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = combine(
         styles(env),
         combine(sources.map { source ->
-            env.settings
-                .map { source.isEnabled(it.alerts) }
-                .distinctUntilChanged()
+            val ctx = env.context.applicationContext
+            gate(
+                enabled = env.settings.map { source.isEnabled(it.alerts) },
+                permissions = source.requiredPermissions,
+                granted = { ctx.hasPermission(it) },
+                ticks = permissionTicks(),
+            )
                 .flatMapLatest { on ->
                     if (!on) {
                         flowOf(emptyList())
@@ -99,4 +105,31 @@ object AlertsModule : IslandModule {
                 }
         }) { lists -> lists.flatMap { it } },
     ) { styles, all -> all.map { styled(it, styles) } }
+
+    /** Période de réévaluation des permissions (accordées plus tard depuis les réglages système). */
+    const val PERMISSION_RECHECK_MS = 20_000L
+
+    /** Battement régulier : une émission immédiate puis une toutes les [PERMISSION_RECHECK_MS]. */
+    private fun permissionTicks(): Flow<Unit> = flow {
+        while (true) {
+            emit(Unit)
+            delay(PERMISSION_RECHECK_MS)
+        }
+    }
+
+    /**
+     * État « cochée ET autorisée » d'une source, sans doublon : la source n'est (re)lancée
+     * que lorsque cet état change. Sans permission requise, aucun battement n'est écouté.
+     */
+    internal fun gate(
+        enabled: Flow<Boolean>,
+        permissions: List<String>,
+        granted: (String) -> Boolean,
+        ticks: Flow<Unit>,
+    ): Flow<Boolean> {
+        val on = enabled.distinctUntilChanged()
+        if (permissions.isEmpty()) return on
+        return combine(on, ticks) { checked, _ -> checked && permissions.all(granted) }
+            .distinctUntilChanged()
+    }
 }
