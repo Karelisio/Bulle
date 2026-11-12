@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Calendar module (modules/calendar) -->
+    <string name="calendar_module_title">Calendar</string>
+    <string name="calendar_starts_in">In %d min</string>
+    <string name="calendar_ends_at">Ends at %s</string>
+    <string name="calendar_minutes_short">%d min</string>
+    <string name="calendar_untitled">Untitled</string>
+    <string name="calendar_directions">Directions</string>
+    <string name="calendar_open">Open</string>
+    <string name="calendar_settings_title">Calendar</string>
+    <string name="calendar_settings_back">Back</string>
+    <string name="calendar_settings_enable">Calendar reminders</string>
+    <string name="calendar_settings_enable_summary">Your next event shows up in the island a few minutes before it starts.</string>
+    <string name="calendar_settings_permission_missing">Calendar access denied</string>
+    <string name="calendar_settings_permission_grant">Allow</string>
+    <string name="calendar_settings_reminder_header">Reminder</string>
+    <string name="calendar_settings_reminder_summary">Show the reminder before the event starts:</string>
+    <string name="calendar_settings_ongoing">During the event</string>
+    <string name="calendar_settings_ongoing_summary">Discreetly show the time left.</string>
+    <string name="calendar_settings_next_header">Next event</string>
+    <string name="calendar_settings_next_none">No events in the next 24 hours.</string>
+    <string name="calendar_settings_next_no_permission">Turn the module on to read your calendar.</string>
+    <string name="calendar_settings_privacy">Only visible calendars are read, excluding all-day events, on your phone only: nothing is stored or sent.</string>
+</resources>

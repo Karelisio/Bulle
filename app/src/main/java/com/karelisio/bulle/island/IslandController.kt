@@ -195,6 +195,7 @@ class IslandController(
                 val deck = Panels.deck
                 if (deck != null) openPanel(deck) else toggleExpand()
             }
+            override fun openTimer() = openPanel(com.karelisio.bulle.modules.focus.FocusPanel)
         },
     )
 

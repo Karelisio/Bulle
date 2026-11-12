@@ -1,6 +1,5 @@
 package com.karelisio.bulle.modules.music.ui
 
-import android.view.HapticFeedbackConstants
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -30,7 +29,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.ui.components.rememberReduceMotion
 import kotlinx.coroutines.isActive
@@ -59,7 +59,8 @@ internal fun WavyScrubber(
     thumbColor: Color = Color.White,
 ) {
     val reduceMotion = rememberReduceMotion()
-    val view = LocalView.current
+    // Haptique de l'île (neutre si « Retour haptique » est coupé), lue à jour dans les gestes.
+    val haptics by rememberUpdatedState(LocalHapticFeedback.current)
     val color by animateColorAsState(accent, tween(600), label = "scrubColor")
     var drag by remember { mutableStateOf<Float?>(null) }
     val phase = remember { mutableFloatStateOf(0f) }
@@ -95,7 +96,7 @@ internal fun WavyScrubber(
         .pointerInput(Unit) {
             detectTapGestures { pos ->
                 val f = (pos.x / size.width).coerceIn(0f, 1f)
-                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                 currentOnSeek(f)
             }
         }
@@ -104,7 +105,7 @@ internal fun WavyScrubber(
                 onDragStart = { pos ->
                     drag = (pos.x / size.width).coerceIn(0f, 1f)
                     currentOnScrub(drag)
-                    view.performHapticFeedback(HapticFeedbackConstants.GESTURE_START)
+                    haptics.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                 },
                 onHorizontalDrag = { change, dx ->
                     change.consume()
@@ -115,7 +116,7 @@ internal fun WavyScrubber(
                     drag?.let { currentOnSeek(it) }
                     drag = null
                     currentOnScrub(null)
-                    view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                    haptics.performHapticFeedback(HapticFeedbackType.GestureEnd)
                 },
                 onDragCancel = {
                     drag = null

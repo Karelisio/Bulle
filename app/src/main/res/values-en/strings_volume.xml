@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Volume on the island module -->
+    <string name="module_volume">Volume</string>
+    <string name="volume_mute">Mute</string>
+    <string name="volume_unmute">Unmute</string>
+    <string name="volume_output">Audio output</string>
+    <string name="volume_stream_auto">Automatic</string>
+    <string name="volume_stream_media">Media</string>
+    <string name="volume_stream_ring">Ringtone</string>
+    <string name="volume_stream_notification">Notifications</string>
+    <string name="volume_stream_alarm">Alarm</string>
+    <!-- Settings -->
+    <string name="volume_settings_title">Volume</string>
+    <string name="volume_settings_enable">Volume on the island</string>
+    <string name="volume_settings_enable_summary">Volume keys show a slider in the island instead of the system panel</string>
+    <string name="volume_settings_stream_header">Stream controlled by the keys</string>
+    <string name="volume_settings_stream_auto_summary">Automatic: media while something plays, ringtone otherwise.</string>
+    <string name="volume_settings_behavior_header">Behavior</string>
+    <string name="volume_settings_locked">Also on the lock screen</string>
+    <string name="volume_settings_locked_summary">Otherwise the system panel shows while the phone is locked</string>
+    <string name="volume_settings_timeout">Display duration</string>
+    <string name="volume_settings_hint">During a call, with the screen off or the island hidden, the keys keep their usual behavior.</string>
+</resources>

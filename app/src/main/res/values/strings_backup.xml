@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bilan de restauration : widgets du Deck qui ne sont pas liés sur cet appareil. -->
+    <plurals name="backup_missing_widgets">
+        <item quantity="one">%d widget du Deck à rajouter.</item>
+        <item quantity="many">%d widgets du Deck à rajouter.</item>
+        <item quantity="other">%d widgets du Deck à rajouter.</item>
+    </plurals>
+    <!-- Favoris du Deck dont l'appli n'est pas installée ici. -->
+    <plurals name="backup_missing_apps">
+        <item quantity="one">%d favori ignoré (appli absente).</item>
+        <item quantity="many">%d favoris ignorés (applis absentes).</item>
+        <item quantity="other">%d favoris ignorés (applis absentes).</item>
+    </plurals>
+</resources>

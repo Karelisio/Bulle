@@ -120,7 +120,16 @@ fun IslandScene(controller: IslandController) {
         islandTypography(baseTypography, IslandFonts.family(font), textScale)
     }
     MaterialTheme(colorScheme = bulleColorScheme(dark = true), typography = typography) {
-        CompositionLocalProvider(LocalContentColor provides Color.White) {
+        // Interrupteur « Retour haptique » : les contenus (modules) qui passent par
+        // LocalHapticFeedback deviennent silencieux quand il est coupé.
+        val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+        val islandHaptics = remember(haptics, state.motion.haptics) {
+            if (state.motion.haptics) haptics else NoHaptics
+        }
+        CompositionLocalProvider(
+            LocalContentColor provides Color.White,
+            androidx.compose.ui.platform.LocalHapticFeedback provides islandHaptics,
+        ) {
             IslandSurface(state, controller)
         }
     }
@@ -606,4 +615,9 @@ private fun Modifier.islandGestures(enabled: Boolean, doubleTap: Boolean, onGest
                 },
             )
         }
+}
+
+/** Retour haptique neutre (interrupteur « Retour haptique » coupé). */
+private object NoHaptics : androidx.compose.ui.hapticfeedback.HapticFeedback {
+    override fun performHapticFeedback(hapticFeedbackType: androidx.compose.ui.hapticfeedback.HapticFeedbackType) = Unit
 }

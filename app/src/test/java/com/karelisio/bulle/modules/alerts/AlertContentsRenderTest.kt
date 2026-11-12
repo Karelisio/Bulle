@@ -108,6 +108,8 @@ class AlertContentsRenderTest {
             UsbContent(UsbContent.Event.CABLE_ON, UsbMode.FILES, null, 1),
             UsbContent(UsbContent.Event.DEVICE_ON, null, "Clavier", 1),
             UsbContent(UsbContent.Event.CABLE_OFF, null, null, 1),
+            // Alerte combinée USB + charge (ordinateur qui charge le téléphone).
+            UsbContent(UsbContent.Event.CABLE_ON, UsbMode.FILES, null, 1, chargePercent = 64),
             PrivacyContent(PrivacyKind.CAMERA),
             PrivacyContent(PrivacyKind.MIC),
         )

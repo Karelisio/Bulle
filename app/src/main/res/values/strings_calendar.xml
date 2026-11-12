@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module « Agenda » (modules/calendar) -->
+    <string name="calendar_module_title">Agenda</string>
+    <string name="calendar_starts_in">Dans %d min</string>
+    <string name="calendar_ends_at">Se termine à %s</string>
+    <string name="calendar_minutes_short">%d min</string>
+    <string name="calendar_untitled">Sans titre</string>
+    <string name="calendar_directions">Itinéraire</string>
+    <string name="calendar_open">Ouvrir</string>
+    <string name="calendar_settings_title">Agenda</string>
+    <string name="calendar_settings_back">Retour</string>
+    <string name="calendar_settings_enable">Rappels d’agenda</string>
+    <string name="calendar_settings_enable_summary">Le prochain événement apparaît dans l’île quelques minutes avant son début.</string>
+    <string name="calendar_settings_permission_missing">Accès à l’agenda refusé</string>
+    <string name="calendar_settings_permission_grant">Autoriser</string>
+    <string name="calendar_settings_reminder_header">Rappel</string>
+    <string name="calendar_settings_reminder_summary">Afficher le rappel avant le début de l’événement :</string>
+    <string name="calendar_settings_ongoing">Pendant l’événement</string>
+    <string name="calendar_settings_ongoing_summary">Afficher discrètement le temps restant.</string>
+    <string name="calendar_settings_next_header">Prochain événement</string>
+    <string name="calendar_settings_next_none">Aucun événement dans les 24 heures.</string>
+    <string name="calendar_settings_next_no_permission">Active le module pour lire ton agenda.</string>
+    <string name="calendar_settings_privacy">Seuls les agendas visibles sont lus, hors événements « journée entière », uniquement sur ton téléphone : rien n’est stocké ni envoyé.</string>
+</resources>

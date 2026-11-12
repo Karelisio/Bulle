@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Écoute : changements de fenêtre (appli au premier plan) et liste des fenêtres
      (présence de la barre d'état, pour détecter le plein écran).
-     Le contenu des fenêtres n'est jamais lu (getRoot n'est jamais appelé). -->
+     Le contenu des fenêtres n'est jamais lu (getRoot n'est jamais appelé).
+     Filtre des touches : seules les touches volume sont examinées, et consommées uniquement
+     si le module « Volume sur l'île » est activé (désactivé par défaut). -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagRetrieveInteractiveWindows"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows|flagRequestFilterKeyEvents"
+    android:canRequestFilterKeyEvents="true"
     android:canRetrieveWindowContent="true"
     android:description="@string/a11y_description"
     android:isAccessibilityTool="false"

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module « Météo » (modules/weather) -->
+    <string name="weather_module_title">Météo</string>
+    <string name="weather_minutes_short">%d min</string>
+    <string name="weather_rain_in">Pluie dans %d min</string>
+    <string name="weather_rain_imminent">Pluie imminente</string>
+    <string name="weather_rain_peak">Jusqu’à %s mm par quart d’heure</string>
+    <string name="weather_updated_at">Mise à jour à %s</string>
+    <string name="weather_kind_clear">Ciel dégagé</string>
+    <string name="weather_kind_partly">Éclaircies</string>
+    <string name="weather_kind_cloudy">Nuageux</string>
+    <string name="weather_kind_fog">Brouillard</string>
+    <string name="weather_kind_drizzle">Bruine</string>
+    <string name="weather_kind_rain">Pluie</string>
+    <string name="weather_kind_snow">Neige</string>
+    <string name="weather_kind_storm">Orage</string>
+    <string name="weather_threshold_light">Bruine</string>
+    <string name="weather_threshold_moderate">Pluie</string>
+    <string name="weather_threshold_heavy">Averse</string>
+    <string name="weather_settings_title">Météo</string>
+    <string name="weather_settings_back">Retour</string>
+    <string name="weather_settings_enable">Météo dans l’île</string>
+    <string name="weather_settings_enable_summary">Prévisions d’Open-Meteo, actualisées au plus toutes les 30 minutes.</string>
+    <string name="weather_settings_no_data">Aucune prévision pour l’instant</string>
+    <string name="weather_settings_refresh">Actualiser</string>
+    <string name="weather_settings_location_header">Position</string>
+    <string name="weather_settings_source_device">Approximative</string>
+    <string name="weather_settings_source_city">Ville</string>
+    <string name="weather_settings_permission_missing">Accès à la position approximative refusé</string>
+    <string name="weather_settings_permission_grant">Autoriser</string>
+    <string name="weather_settings_city_search">Rechercher une ville</string>
+    <string name="weather_settings_city_none">Aucune ville trouvée (ou pas de connexion).</string>
+    <string name="weather_settings_show_header">Dans l’île</string>
+    <string name="weather_settings_rain">Pluie dans N min</string>
+    <string name="weather_settings_rain_summary">Prévenir une fois quand la pluie arrive alors qu’il ne pleut pas. Seuil :</string>
+    <string name="weather_settings_idle">Température au repos</string>
+    <string name="weather_settings_idle_summary">Afficher l’icône et la température quand l’île n’a rien d’autre à montrer.</string>
+    <string name="weather_settings_privacy">Données météo : Open-Meteo (open-meteo.com), sans compte ni clé. Seules les coordonnées arrondies à 2 décimales (environ 1 km) sont envoyées ; la recherche de ville n’envoie que le nom saisi. La dernière prévision est gardée sur le téléphone pour fonctionner hors ligne.</string>
+</resources>

@@ -15,6 +15,7 @@
     <string name="volet_qs_screenshot">Screenshot</string>
     <string name="volet_qs_lock">Lock</string>
     <string name="volet_qs_state_on">On</string>
+    <string name="volet_qs_page">Page %1$d of %2$d</string>
     <string name="volet_qs_state_off">Off</string>
     <string name="volet_qs_state_unknown">Unknown</string>
     <string name="volet_qs_brightness">Brightness</string>

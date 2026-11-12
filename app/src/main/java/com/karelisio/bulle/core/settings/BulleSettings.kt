@@ -30,6 +30,8 @@ data class BulleSettings(
     val deck: DeckSettings = DeckSettings(),
     val rules: RulesSettings = RulesSettings(),
     val volet: VoletSettings = VoletSettings(),
+    val calendar: com.karelisio.bulle.modules.calendar.CalendarSettings = com.karelisio.bulle.modules.calendar.CalendarSettings(),
+    val weather: com.karelisio.bulle.modules.weather.WeatherSettings = com.karelisio.bulle.modules.weather.WeatherSettings(),
     val update: UpdateSettings = UpdateSettings(),
     val backup: BackupSettings = BackupSettings(),
     /** Activation par module (id → activé). Absent = valeur par défaut du module. */

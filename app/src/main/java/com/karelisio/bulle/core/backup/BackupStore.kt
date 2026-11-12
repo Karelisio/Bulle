@@ -1,5 +1,6 @@
 package com.karelisio.bulle.core.backup
 
+import android.content.ComponentName
 import android.content.Context
 import android.net.Uri
 import androidx.work.CoroutineWorker
@@ -9,11 +10,28 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.karelisio.bulle.BuildConfig
 import com.karelisio.bulle.core.settings.SettingsRepository
+import com.karelisio.bulle.modules.deck.DeckWidgets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+
+/** Bilan d'une restauration : ce que l'utilisateur doit refaire à la main. */
+data class ImportReport(val missingWidgets: Int = 0, val missingApps: Int = 0)
+
+/**
+ * Widgets du Deck lors d'une restauration (logique pure).
+ * @property release identifiants actuels à libérer (deleteAppWidgetId) : ils ne figurent plus
+ *   dans les réglages restaurés.
+ * @property missing widgets de la sauvegarde qui ne sont pas liés sur cet appareil (à rajouter).
+ */
+data class WidgetImportPlan(val release: Set<Int>, val missing: Int) {
+    companion object {
+        fun of(current: Set<Int>, imported: Set<Int>, kept: Set<Int>) =
+            WidgetImportPlan(release = current - kept, missing = (imported - kept).size)
+    }
+}
 
 /** Une sauvegarde automatique présente dans filesDir/backups. */
 data class AutoBackup(val file: File, val createdAt: Long)
@@ -84,9 +102,33 @@ object BackupStore {
         BackupCodec.decode(file.readText())
     }
 
-    /** Applique une sauvegarde validée (écrase les réglages). */
-    suspend fun apply(context: Context, envelope: BackupEnvelope) {
-        SettingsRepository.update(context) { BackupCodec.merge(it, envelope.settings) }
+    /**
+     * Applique une sauvegarde validée (écrase les réglages), adaptée à cet appareil :
+     * valeurs bornées, favoris du Deck absents retirés, widgets non liés ici retirés, et
+     * widgets actuels qui disparaissent des réglages libérés auprès du système.
+     */
+    suspend fun apply(context: Context, envelope: BackupEnvelope): ImportReport = withContext(Dispatchers.IO) {
+        val imported = envelope.settings.sanitized()
+        val pm = context.packageManager
+        val allocated = DeckWidgets.allocatedIds(context)
+        val adapted = imported.forDevice(
+            activityExists = { flat ->
+                val cn = ComponentName.unflattenFromString(flat)
+                cn != null && runCatching { pm.getActivityInfo(cn, 0) }.isSuccess
+            },
+            widgetBound = { id -> DeckWidgets.isBound(context, id, allocated) },
+        )
+        var previous = emptySet<Int>()
+        SettingsRepository.update(context) { current ->
+            previous = current.deckWidgetIds()
+            BackupCodec.merge(current, adapted)
+        }
+        val plan = WidgetImportPlan.of(previous, imported.deckWidgetIds(), adapted.deckWidgetIds())
+        plan.release.forEach { DeckWidgets.delete(context, it) }
+        ImportReport(
+            missingWidgets = plan.missing,
+            missingApps = imported.deck.tabs.sumOf { it.favorites.size } - adapted.deck.tabs.sumOf { it.favorites.size },
+        )
     }
 
     private fun java.io.InputStream.readNBytesCompat(limit: Int): ByteArray {

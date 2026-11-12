@@ -56,6 +56,40 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /**
+ * Plage réelle de Settings.System.SCREEN_BRIGHTNESS. AOSP utilise 1 – 255, mais certaines
+ * surcouches (MagicOS…) déclarent une autre plage dans les ressources du framework.
+ */
+data class BrightnessRange(val min: Int, val max: Int) {
+    companion object {
+        /** Plage AOSP, utilisée en repli. */
+        val DEFAULT = BrightnessRange(BrightnessCurve.MIN, BrightnessCurve.MAX)
+
+        /**
+         * Valide les valeurs lues dans les ressources (null = absente) : repli sur 1 – 255
+         * si le maximum manque ou n'est pas supérieur au minimum.
+         */
+        fun sanitize(min: Int?, max: Int?): BrightnessRange {
+            val hi = max?.takeIf { it > 1 } ?: return DEFAULT
+            val lo = (min ?: DEFAULT.min).coerceAtLeast(0)
+            return if (lo < hi) BrightnessRange(lo, hi) else BrightnessRange(DEFAULT.min.coerceAtMost(hi - 1), hi)
+        }
+
+        @Volatile private var cached: BrightnessRange? = null
+
+        /** Lit config_screenBrightnessSettingMinimum / Maximum du framework (mis en cache). */
+        fun system(): BrightnessRange = cached ?: run {
+            val res = android.content.res.Resources.getSystem()
+            fun read(name: String): Int? = runCatching {
+                val id = res.getIdentifier(name, "integer", "android")
+                if (id != 0) res.getInteger(id) else null
+            }.getOrNull()
+            sanitize(read("config_screenBrightnessSettingMinimum"), read("config_screenBrightnessSettingMaximum"))
+                .also { cached = it }
+        }
+    }
+}
+
+/**
  * Courbe perceptuelle de la luminosité : l'œil perçoit la luminance de façon non linéaire,
  * la position du curseur suit donc valeur^(1/γ) (comme le curseur du système).
  */
@@ -67,19 +101,21 @@ object BrightnessCurve {
     /** Nombre de crans (retour haptique à chaque cran franchi). */
     const val STEPS = 20
 
-    fun toPosition(value: Int): Float {
-        val linear = (value.coerceIn(MIN, MAX) - MIN).toFloat() / (MAX - MIN)
+    fun toPosition(value: Int, range: BrightnessRange = BrightnessRange.DEFAULT): Float {
+        val span = (range.max - range.min).coerceAtLeast(1)
+        val linear = (value.coerceIn(range.min, range.max) - range.min).toFloat() / span
         return linear.pow(1f / GAMMA)
     }
 
-    fun toValue(position: Float): Int =
-        (MIN + (MAX - MIN) * position.coerceIn(0f, 1f).pow(GAMMA)).roundToInt().coerceIn(MIN, MAX)
+    fun toValue(position: Float, range: BrightnessRange = BrightnessRange.DEFAULT): Int =
+        (range.min + (range.max - range.min) * position.coerceIn(0f, 1f).pow(GAMMA)).roundToInt()
+            .coerceIn(range.min, range.max)
 
     fun step(position: Float): Int = (position.coerceIn(0f, 1f) * STEPS).roundToInt()
 }
 
-private fun readBrightness(context: Context): Int =
-    Settings.System.getInt(context.contentResolver, Settings.System.SCREEN_BRIGHTNESS, 128)
+private fun readBrightness(context: Context, range: BrightnessRange): Int =
+    Settings.System.getInt(context.contentResolver, Settings.System.SCREEN_BRIGHTNESS, (range.min + range.max) / 2)
 
 /** Curseur de luminosité épais (style Android 16) : piste large arrondie, soleil qui grandit. */
 @Composable
@@ -90,14 +126,15 @@ internal fun BrightnessSlider(host: VoletHost, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
     val height = if (host.settings.density == VoletDensity.COMPACT) 44.dp else 52.dp
 
+    val range = remember { BrightnessRange.system() }
     val system by remember(context) {
         settingsFlow(context, listOf(Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS))) {
-            readBrightness(context)
+            readBrightness(context, range)
         }
-    }.collectAsState(initial = remember(context) { readBrightness(context) })
+    }.collectAsState(initial = remember(context) { readBrightness(context, range) })
 
     var dragPosition by remember { mutableStateOf<Float?>(null) }
-    val target = dragPosition ?: BrightnessCurve.toPosition(system)
+    val target = dragPosition ?: BrightnessCurve.toPosition(system, range)
     val position by animateFloatAsState(
         targetValue = target,
         animationSpec = when {
@@ -124,7 +161,7 @@ internal fun BrightnessSlider(host: VoletHost, modifier: Modifier = Modifier) {
                 setProgress { p ->
                     if (writer.permitted()) {
                         writer.beginManual()
-                        writer.write(BrightnessCurve.toValue(p))
+                        writer.write(BrightnessCurve.toValue(p, range))
                     } else {
                         host.startActivity(writer.grantIntent())
                     }
@@ -146,7 +183,7 @@ internal fun BrightnessSlider(host: VoletHost, modifier: Modifier = Modifier) {
                     fun update(x: Float) {
                         val p = posAt(x)
                         dragPosition = p
-                        writer.write(BrightnessCurve.toValue(p))
+                        writer.write(BrightnessCurve.toValue(p, range))
                         val s = BrightnessCurve.step(p)
                         if (s != lastStep) {
                             lastStep = s

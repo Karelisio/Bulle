@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.BrightnessLow
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.FlashlightOn
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.HourglassTop
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.OpenInFull
@@ -61,4 +62,5 @@ fun ActionType.icon(): ImageVector = when (this) {
     APP_SEARCH -> Icons.Rounded.Search
     OPEN_DECK -> Icons.Rounded.Dashboard
     SWAP_BUBBLES -> Icons.Rounded.SwapHoriz
+    TIMER -> Icons.Rounded.HourglassTop
 }

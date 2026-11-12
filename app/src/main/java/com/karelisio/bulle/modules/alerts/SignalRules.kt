@@ -94,7 +94,34 @@ object SignalRules {
     fun usbTransition(previous: Boolean?, connected: Boolean): Boolean? =
         if (previous == null || previous == connected) null else connected
 
+    /** BatteryManager.BATTERY_PLUGGED_USB. */
+    const val PLUGGED_USB = 2
+
+    /**
+     * Branchement à un ordinateur : l'alerte USB (activée) absorbe l'alerte de charge et montre
+     * une seule alerte combinée. Sinon (chargeur secteur, alerte USB coupée, câble sans données),
+     * l'alerte de charge reste seule.
+     */
+    fun mergeUsbCharge(usbAlertOn: Boolean, plugged: Int, dataCable: Boolean): Boolean =
+        usbAlertOn && plugged == PLUGGED_USB && dataCable
+
+    /** Pourcentage de charge à afficher dans l'alerte USB, ou null si le téléphone ne charge pas par USB. */
+    fun usbChargePercent(plugged: Int, percent: Int?): Int? = percent.takeIf { plugged == PLUGGED_USB }
+
     private const val NETWORK_TYPE_NR = 20 // TelephonyManager.NETWORK_TYPE_NR
+}
+
+/**
+ * Lien entre les sources USB et batterie : état du câble de données connu de [UsbSource],
+ * lu par la batterie pour ne pas doubler l'alerte USB d'une alerte de charge.
+ */
+internal object UsbChargeLink {
+    /** Dernier extra « connected » reçu de USB_STATE (faux si la source USB ne tourne pas). */
+    @Volatile
+    var dataConnected: Boolean = false
+
+    /** Attente maximale de l'état USB après un branchement USB (ordre des diffusions non garanti). */
+    const val WAIT_MS = 1_500L
 }
 
 /** Une rafale de changements de volume, affichée comme UNE alerte qui se met à jour. */

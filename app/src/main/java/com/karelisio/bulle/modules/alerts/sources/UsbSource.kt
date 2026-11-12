@@ -6,7 +6,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.os.BatteryManager
 import android.os.Build
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Usb
 import androidx.compose.material.icons.rounded.UsbOff
@@ -23,6 +27,9 @@ import com.karelisio.bulle.modules.alerts.AlertContent
 import com.karelisio.bulle.modules.alerts.AlertSettings
 import com.karelisio.bulle.modules.alerts.AlertSource
 import com.karelisio.bulle.modules.alerts.SignalRules
+import com.karelisio.bulle.modules.alerts.AlertRules
+import com.karelisio.bulle.modules.alerts.UsbChargeLink
+import com.karelisio.bulle.modules.alerts.ui.BatteryGlyph
 import com.karelisio.bulle.modules.alerts.UsbMode
 import com.karelisio.bulle.modules.alerts.alertNow
 import com.karelisio.bulle.modules.alerts.latestAlive
@@ -51,18 +58,39 @@ object UsbSource : AlertSource {
         val ctx = env.context.applicationContext
         var connected: Boolean? = null
         var current: UsbContent? = null
+        // Dernier état batterie connu (diffusion collante) : % affiché si l'ordinateur charge le téléphone.
+        var plugged = 0
+        var percent: Int? = null
+        fun chargePercent(): Int? =
+            if (env.settings.value.alerts.charging) SignalRules.usbChargePercent(plugged, percent) else null
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(c: Context, intent: Intent) {
                 when (intent.action) {
+                    Intent.ACTION_BATTERY_CHANGED -> {
+                        plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
+                        percent = AlertRules.batteryPercent(
+                            intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1),
+                            intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1),
+                        )
+                        // L'alerte combinée est déjà affichée : on y ajoute / met à jour le pourcentage.
+                        val shown = current
+                        val pct = chargePercent()
+                        if (shown != null && shown.event == UsbContent.Event.CABLE_ON && shown.chargePercent != pct &&
+                            alertNow() < (shown.expiresAt ?: 0)
+                        ) {
+                            current = shown.copy(chargePercent = pct).also { trySend(it) }
+                        }
+                    }
                     ACTION_USB_STATE -> {
                         val now = intent.getBooleanExtra("connected", false)
+                        UsbChargeLink.dataConnected = now
                         val mode = SignalRules.usbMode { intent.getBooleanExtra(it, false) }
                         // L'état rejoué à l'inscription n'est qu'une référence.
                         val event = if (isInitialStickyBroadcast) null else SignalRules.usbTransition(connected ?: false, now)
                         connected = now
                         val shown = current
                         when {
-                            event == true -> current = UsbContent(UsbContent.Event.CABLE_ON, mode, null, alertNow()).also { trySend(it) }
+                            event == true -> current = UsbContent(UsbContent.Event.CABLE_ON, mode, null, alertNow(), chargePercent()).also { trySend(it) }
                             event == false -> current = UsbContent(UsbContent.Event.CABLE_OFF, null, null, alertNow()).also { trySend(it) }
                             // Le mode (fichiers, photos…) se règle souvent juste après le branchement : même alerte, mise à jour.
                             now && shown != null && shown.event == UsbContent.Event.CABLE_ON && shown.mode != mode &&
@@ -82,11 +110,15 @@ object UsbSource : AlertSource {
         }
         val filter = IntentFilter().apply {
             addAction(ACTION_USB_STATE)
+            addAction(Intent.ACTION_BATTERY_CHANGED)
             addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
             addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
         }
         ContextCompat.registerReceiver(ctx, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
-        awaitClose { runCatching { ctx.unregisterReceiver(receiver) } }
+        awaitClose {
+            UsbChargeLink.dataConnected = false
+            runCatching { ctx.unregisterReceiver(receiver) }
+        }
     }.latestAlive()
 
     private fun deviceOf(intent: Intent): UsbDevice? =
@@ -104,6 +136,8 @@ data class UsbContent(
     val mode: UsbMode?,
     val deviceName: String?,
     override val postedAt: Long,
+    /** Pourcentage de batterie quand l'ordinateur charge le téléphone (alerte combinée USB + charge). */
+    val chargePercent: Int? = null,
 ) : AlertContent() {
     enum class Event { CABLE_ON, CABLE_OFF, DEVICE_ON, DEVICE_OFF }
 
@@ -116,6 +150,11 @@ data class UsbContent(
 
     @Composable
     private fun Glyph(size: Int) = PopIcon(if (on) Icons.Rounded.Usb else Icons.Rounded.UsbOff, accent, size = size.dp)
+
+    /** Batterie qui se remplit (animation de charge) de l'alerte combinée. */
+    @Composable
+    private fun ChargeGlyph(percent: Int, width: Int) =
+        BatteryGlyph(percent, accent, charging = true, animateFill = true, width = width.dp)
 
     @Composable
     private fun modeLabel(): String? = when (mode) {
@@ -131,7 +170,17 @@ data class UsbContent(
     override fun Leading() = Glyph(20)
 
     @Composable
-    override fun Trailing() = AlertLabel(stringResource(if (on) R.string.alerts_usb_on_short else R.string.alerts_usb_off_short), color = accent)
+    override fun Trailing() {
+        val pct = chargePercent
+        if (pct != null) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                ChargeGlyph(pct, 18)
+                AlertLabel(stringResource(R.string.alerts_percent, pct), color = accent)
+            }
+        } else {
+            AlertLabel(stringResource(if (on) R.string.alerts_usb_on_short else R.string.alerts_usb_off_short), color = accent)
+        }
+    }
 
     @Composable
     override fun Expanded(host: IslandHost) {
@@ -141,6 +190,27 @@ data class UsbContent(
             Event.DEVICE_ON -> R.string.alerts_usb_device_on
             Event.DEVICE_OFF -> R.string.alerts_usb_device_off
         }
-        AlertExpanded(accent = accent, title = stringResource(title), subtitle = deviceName ?: modeLabel(), glyph = { Glyph(26) })
+        val pct = chargePercent
+        val detail = deviceName ?: modeLabel()
+        val subtitle = if (pct != null) {
+            listOfNotNull(stringResource(R.string.alerts_percent, pct), detail).joinToString(" · ")
+        } else {
+            detail
+        }
+        AlertExpanded(
+            accent = accent,
+            title = stringResource(title),
+            subtitle = subtitle,
+            glyph = {
+                if (pct != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Glyph(22)
+                        ChargeGlyph(pct, 26)
+                    }
+                } else {
+                    Glyph(26)
+                }
+            },
+        )
     }
 }

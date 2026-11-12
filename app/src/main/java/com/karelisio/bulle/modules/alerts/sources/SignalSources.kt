@@ -119,6 +119,8 @@ object FiveGSource : AlertSource {
 
     override fun isEnabled(settings: AlertSettings) = settings.fiveG
 
+    override val requiredPermissions: List<String> get() = listOf(permission)
+
     private class DisplayListener(val emit: (Boolean) -> Unit) : TelephonyCallback(), TelephonyCallback.DisplayInfoListener {
         override fun onDisplayInfoChanged(info: TelephonyDisplayInfo) =
             emit(SignalRules.is5g(info.networkType, info.overrideNetworkType))

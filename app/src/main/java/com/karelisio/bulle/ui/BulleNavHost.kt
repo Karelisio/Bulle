@@ -54,6 +54,10 @@ object Routes {
     const val BACKUP = "backup"
     const val ABOUT = "about"
     const val VOLET = "volet"
+    const val CALENDAR = "calendar"
+    const val WEATHER = "weather"
+    const val FOCUS = "focus"
+    const val VOLUME = "volume"
     const val VOLET_HISTORY = "volet/history"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
@@ -88,6 +92,10 @@ fun BulleNavHost() {
         composable(Routes.CALLS) { CallSettingsScreen(onBack = back) }
         composable(Routes.ALERTS) { AlertsSettingsScreen(onBack = back) }
         composable(Routes.MUSIC) { MusicSettingsScreen(onBack = back) }
+        composable(Routes.CALENDAR) { com.karelisio.bulle.modules.calendar.ui.CalendarSettingsScreen(onBack = back) }
+        composable(Routes.FOCUS) { com.karelisio.bulle.modules.focus.ui.FocusSettingsScreen(onBack = back) }
+        composable(Routes.VOLUME) { com.karelisio.bulle.modules.volume.ui.VolumeSettingsScreen(onBack = back) }
+        composable(Routes.WEATHER) { com.karelisio.bulle.modules.weather.ui.WeatherSettingsScreen(onBack = back) }
         composable(Routes.PERMISSIONS) { PermissionsScreen(onBack = back) }
         composable(Routes.RELIABILITY) { ReliabilityScreen(onBack = back) }
         composable(Routes.BACKUP) { BackupScreen(onBack = back) }

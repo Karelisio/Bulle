@@ -14,6 +14,7 @@ enum class ActionType(val needsWriteSettings: Boolean = false) {
     BRIGHTNESS_UP(needsWriteSettings = true), BRIGHTNESS_DOWN(needsWriteSettings = true),
     TORCH, ROTATION(needsWriteSettings = true), WIFI, BLUETOOTH, BATTERY_SAVER,
     OPEN_APP, LAUNCH_SHORTCUT, APP_SEARCH, OPEN_DECK, SWAP_BUBBLES,
+    TIMER,
 }
 
 /**

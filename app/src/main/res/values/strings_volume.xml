@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module Volume sur l'île -->
+    <string name="module_volume">Volume</string>
+    <string name="volume_mute">Couper le son</string>
+    <string name="volume_unmute">Rétablir le son</string>
+    <string name="volume_output">Sortie audio</string>
+    <string name="volume_stream_auto">Automatique</string>
+    <string name="volume_stream_media">Média</string>
+    <string name="volume_stream_ring">Sonnerie</string>
+    <string name="volume_stream_notification">Notifications</string>
+    <string name="volume_stream_alarm">Alarme</string>
+    <!-- Réglages -->
+    <string name="volume_settings_title">Volume</string>
+    <string name="volume_settings_enable">Volume sur l\'île</string>
+    <string name="volume_settings_enable_summary">Les touches volume affichent un curseur dans l\'île au lieu du panneau système</string>
+    <string name="volume_settings_stream_header">Flux réglé par les touches</string>
+    <string name="volume_settings_stream_auto_summary">Automatique : média pendant une lecture, sinon sonnerie.</string>
+    <string name="volume_settings_behavior_header">Comportement</string>
+    <string name="volume_settings_locked">Aussi sur l\'écran de verrouillage</string>
+    <string name="volume_settings_locked_summary">Sinon, le panneau système s\'affiche quand le téléphone est verrouillé</string>
+    <string name="volume_settings_timeout">Durée d\'affichage</string>
+    <string name="volume_settings_hint">Pendant un appel, écran éteint ou île masquée, les touches gardent leur comportement habituel.</string>
+</resources>

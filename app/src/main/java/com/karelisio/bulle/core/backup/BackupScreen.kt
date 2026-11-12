@@ -283,8 +283,8 @@ fun BackupScreen(onBack: () -> Unit) {
                 TextButton(onClick = {
                     pending = null
                     scope.launch {
-                        BackupStore.apply(context, envelope)
-                        message(res.getString(R.string.backup_restored))
+                        val report = BackupStore.apply(context, envelope)
+                        message(restoredMessage(res, report))
                     }
                 }) { Text(stringResource(R.string.backup_confirm_ok)) }
             },
@@ -329,6 +329,17 @@ private fun ActionCard(
         }
     }
 }
+
+/** « Réglages restaurés. », suivi de ce qui reste à refaire (widgets, applis absentes). */
+private fun restoredMessage(res: android.content.res.Resources, report: ImportReport): String = buildList {
+    add(res.getString(R.string.backup_restored))
+    if (report.missingWidgets > 0) {
+        add(res.getQuantityString(R.plurals.backup_missing_widgets, report.missingWidgets, report.missingWidgets))
+    }
+    if (report.missingApps > 0) {
+        add(res.getQuantityString(R.plurals.backup_missing_apps, report.missingApps, report.missingApps))
+    }
+}.joinToString(" ")
 
 private fun formatDate(context: Context, epochMs: Long): String {
     val locale = context.resources.configuration.locales[0]

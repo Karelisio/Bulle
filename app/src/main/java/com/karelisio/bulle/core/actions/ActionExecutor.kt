@@ -26,6 +26,7 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
         fun swapBubbles()
         fun openAppSearch()
         fun openDeck()
+        fun openTimer()
     }
 
     private val audio get() = context.getSystemService(AudioManager::class.java)
@@ -39,6 +40,7 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
                 ActionType.SWAP_BUBBLES -> island.swapBubbles()
                 ActionType.APP_SEARCH -> island.openAppSearch()
                 ActionType.OPEN_DECK -> island.openDeck()
+                ActionType.TIMER -> island.openTimer()
 
                 ActionType.BACK -> global(AccessibilityService.GLOBAL_ACTION_BACK)
                 ActionType.HOME -> global(AccessibilityService.GLOBAL_ACTION_HOME)

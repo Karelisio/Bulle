@@ -75,6 +75,9 @@ data class LiveContent(
     /** Couleur d'accent : celle de la notification, éclaircie si trop sombre sur fond noir. */
     override val accent: Color = accentOf(activity.color)
 
+    /** Seconde ligne compacte : prochaine étape, statut de livraison… (calculée une fois). */
+    override val compactSubtitle: String? = LiveFormat.compactSubtitle(activity)
+
     override val compactSlotWidth: Dp = when {
         activity.chrono != null -> if (hoursLikely()) 72.dp else 60.dp
         activity.shortText != null -> 64.dp

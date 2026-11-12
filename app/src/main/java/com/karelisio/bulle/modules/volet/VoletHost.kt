@@ -30,6 +30,9 @@ interface VoletHost {
     /** Notification à mettre en avant (ouverte depuis l'île), ou null. */
     val focusKey: String?
 
+    /** Retour haptique autorisé (réglage « Retour haptique » de Style → Mouvement). */
+    val haptics: Boolean get() = true
+
     /** Mode édition des tuiles. */
     var editingTiles: Boolean
 
