@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit
 object Reliability {
 
     private const val TAG = "Reliability"
+    private const val REBIND_DELAY_MS = 800L
     private const val WATCHDOG = "bulle-watchdog"
 
     fun accessibilityComponent(context: Context) =
@@ -47,9 +48,20 @@ object Reliability {
             val others = Settings.Secure.getString(cr, key).orEmpty()
                 .split(':')
                 .filter { it.isNotBlank() && ComponentName.unflattenFromString(it) != me }
-            if (forceRebind) Settings.Secure.putString(cr, key, others.joinToString(":"))
-            Settings.Secure.putString(cr, key, (others + me.flattenToString()).joinToString(":"))
-            Settings.Secure.putInt(cr, Settings.Secure.ACCESSIBILITY_ENABLED, 1)
+            val enable = {
+                runCatching {
+                    Settings.Secure.putString(cr, key, (others + me.flattenToString()).joinToString(":"))
+                    Settings.Secure.putInt(cr, Settings.Secure.ACCESSIBILITY_ENABLED, 1)
+                }.onFailure { Log.w(TAG, "Réactivation refusée", it) }
+            }
+            if (forceRebind) {
+                // Retrait puis remise différée : deux écritures immédiates peuvent être fusionnées
+                // par l'observateur du système, qui ne relierait alors jamais le service.
+                Settings.Secure.putString(cr, key, others.joinToString(":"))
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ enable() }, REBIND_DELAY_MS)
+            } else {
+                enable()
+            }
             true
         } catch (e: SecurityException) {
             Log.w(TAG, "Réactivation refusée", e)

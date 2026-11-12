@@ -92,7 +92,7 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
         val cr = context.contentResolver
         Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL)
         val current = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS, 128)
-        // Pas perceptuellement réguliers : ±12 % de la plage, au moins 8 crans.
+        // Pas proportionnels à la valeur courante (±25 %, au moins 8 crans) : plus fins dans le sombre.
         val delta = (current * 0.25f).toInt().coerceAtLeast(8)
         Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS, (current + step * delta).coerceIn(1, 255))
     }

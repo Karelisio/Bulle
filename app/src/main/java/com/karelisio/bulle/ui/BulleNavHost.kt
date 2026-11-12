@@ -76,7 +76,7 @@ fun BulleNavHost() {
         popEnterTransition = { scaleIn(tween(380), initialScale = 0.94f) + fadeIn(tween(260)) },
         popExitTransition = { slideOutHorizontally(tween(320)) { it / 4 } + fadeOut(tween(200)) },
     ) {
-        screen(Routes.HOME) { HomeScreen(onOpen = { nav.navigate(it) }) }
+        screen(Routes.HOME) { HomeScreen(onOpen = { nav.navigate(it) { launchSingleTop = true } }) }
         screen(Routes.STYLE) { StyleScreen(onBack = back) }
         screen(Routes.POSITION) { PositionScreen(onBack = back) }
         screen(Routes.VISIBILITY) { VisibilityScreen(onBack = back) }
