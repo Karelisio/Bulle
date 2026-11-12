@@ -44,8 +44,7 @@ data class WeatherSettings(
  * Remplacer alors les deux corps par `weather` et `copy(weather = value)`.
  */
 internal object WeatherSettingsBinding {
-    fun read(settings: BulleSettings): WeatherSettings = WeatherSettings()
+    fun read(settings: BulleSettings): WeatherSettings = settings.weather
 
-    @Suppress("UNUSED_PARAMETER")
-    fun write(settings: BulleSettings, value: WeatherSettings): BulleSettings = settings
+    fun write(settings: BulleSettings, value: WeatherSettings): BulleSettings = settings.copy(weather = value)
 }

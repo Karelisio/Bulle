@@ -26,8 +26,7 @@ data class CalendarSettings(
  * Remplacer alors les deux corps par `calendar` et `copy(calendar = value)`.
  */
 internal object CalendarSettingsBinding {
-    fun read(settings: BulleSettings): CalendarSettings = CalendarSettings()
+    fun read(settings: BulleSettings): CalendarSettings = settings.calendar
 
-    @Suppress("UNUSED_PARAMETER")
-    fun write(settings: BulleSettings, value: CalendarSettings): BulleSettings = settings
+    fun write(settings: BulleSettings, value: CalendarSettings): BulleSettings = settings.copy(calendar = value)
 }

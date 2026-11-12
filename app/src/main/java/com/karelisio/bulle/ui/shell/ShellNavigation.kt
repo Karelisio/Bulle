@@ -16,6 +16,8 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.SettingsBackupRestore
 import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.WbSunny
+import androidx.compose.material.icons.rounded.Event
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -93,6 +95,8 @@ object ShellCatalog {
                     ShellEntry(Routes.LIVE, R.string.home_entry_live, R.string.nav_sum_live, Icons.Rounded.Timer),
                     ShellEntry(Routes.CALLS, R.string.home_entry_calls, R.string.nav_sum_calls, Icons.Rounded.Call),
                     ShellEntry(Routes.ALERTS, R.string.home_entry_alerts, R.string.nav_sum_alerts, Icons.Rounded.NotificationsActive),
+                    ShellEntry(Routes.CALENDAR, R.string.calendar_module_title, R.string.nav_sum_calendar, Icons.Rounded.Event),
+                    ShellEntry(Routes.WEATHER, R.string.weather_module_title, R.string.nav_sum_weather, Icons.Rounded.WbSunny),
                 ),
             ),
             ShellGroup(

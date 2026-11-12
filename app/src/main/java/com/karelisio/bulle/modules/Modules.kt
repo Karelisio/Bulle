@@ -19,6 +19,8 @@ object Modules {
         ModuleRegistry.register(CallModule)
         ModuleRegistry.register(AlertsModule)
         ModuleRegistry.register(EchoModule)
+        ModuleRegistry.register(com.karelisio.bulle.modules.calendar.CalendarModule)
+        ModuleRegistry.register(com.karelisio.bulle.modules.weather.WeatherModule)
         Panels.deck = DeckPanel
     }
 }

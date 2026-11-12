@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_sum_calendar">Prochain rendez-vous et rappel</string>
+    <string name="nav_sum_weather">Pluie à venir et température</string>
+</resources>
