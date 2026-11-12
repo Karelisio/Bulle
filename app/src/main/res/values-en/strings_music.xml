@@ -30,4 +30,8 @@
     </plurals>
     <string name="music_cache_clear">Clear</string>
     <string name="music_cache_cleared">Lyrics cache cleared</string>
+    <string name="music_setting_keep_lyrics_open">Keep lyrics open</string>
+    <string name="music_setting_keep_lyrics_open_summary">While synced lyrics play, touching elsewhere doesn’t close the player. Tap the island or swipe up to close it.</string>
+    <string name="music_setting_visible_lyrics">Always visible with lyrics</string>
+    <string name="music_setting_visible_lyrics_summary">While a song with synced lyrics plays, the island stays on screen even in full screen or in an app where it’s hidden.</string>
 </resources>

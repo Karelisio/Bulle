@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -44,14 +45,20 @@ import com.karelisio.bulle.core.settings.VisibilitySettings
 import com.karelisio.bulle.ui.components.cascade
 import kotlinx.coroutines.launch
 
-/** Masquage automatique : plein écran, paysage, écran verrouillé, applis choisies. */
+/** Liste d'applis en cours d'édition dans le sélecteur. */
+private enum class AppTarget { HIDDEN, FULLSCREEN_IGNORED }
+
+/**
+ * Masquage automatique : plein écran (avec ses exceptions : écran d'accueil, applis choisies),
+ * paysage, écran verrouillé, applis choisies.
+ */
 @Composable
 fun VisibilityScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settings by remember { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
     val v = settings.visibility
-    var picking by remember { mutableStateOf(false) }
+    var picking by remember { mutableStateOf<AppTarget?>(null) }
     var apps by remember { mutableStateOf<List<AppEntry>>(emptyList()) }
     LaunchedEffect(Unit) { apps = AppCatalog.apps(context) }
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -73,47 +80,85 @@ fun VisibilityScreen(onBack: () -> Unit) {
         LazyColumn(contentPadding = PaddingValues(top = padding.calculateTopPadding(), bottom = 32.dp)) {
             item {
                 Toggle(stringResource(R.string.visibility_fullscreen), stringResource(R.string.visibility_fullscreen_desc), v.hideInFullscreen, 0) { on -> edit { it.copy(hideInFullscreen = on) } }
-                Toggle(stringResource(R.string.visibility_landscape), null, v.hideInLandscape, 1) { on -> edit { it.copy(hideInLandscape = on) } }
-                Toggle(stringResource(R.string.visibility_lockscreen), null, v.hideOnLockscreen, 2) { on -> edit { it.copy(hideOnLockscreen = on) } }
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.visibility_apps), color = MaterialTheme.colorScheme.primary) },
-                    supportingContent = { Text(stringResource(R.string.visibility_apps_desc)) },
-                    trailingContent = {
-                        TextButton(onClick = { picking = true }) { Icon(Icons.Rounded.Add, null); Text(stringResource(R.string.deck_add)) }
-                    },
-                    modifier = Modifier.padding(top = 12.dp),
-                )
+                // Exceptions au plein écran : inactives tant que le masquage plein écran est coupé.
+                Toggle(
+                    stringResource(R.string.visibility_fullscreen_launcher),
+                    stringResource(R.string.visibility_fullscreen_launcher_desc),
+                    v.ignoreFullscreenOnLauncher, 1, enabled = v.hideInFullscreen,
+                ) { on -> edit { it.copy(ignoreFullscreenOnLauncher = on) } }
+                AppsHeader(
+                    stringResource(R.string.visibility_fullscreen_apps),
+                    stringResource(R.string.visibility_fullscreen_apps_desc),
+                    index = 2, enabled = v.hideInFullscreen,
+                ) { picking = AppTarget.FULLSCREEN_IGNORED }
             }
-            items(v.hiddenApps.toList().sorted(), key = { it }) { pkg ->
-                val app = apps.firstOrNull { it.packageName == pkg }
-                ListItem(
-                    headlineContent = { Text(app?.label ?: pkg) },
-                    leadingContent = { if (app != null) AppIcon(app, 40.dp) },
-                    trailingContent = {
-                        IconButton(onClick = { edit { it.copy(hiddenApps = it.hiddenApps - pkg) } }) { Icon(Icons.Rounded.Close, null) }
-                    },
-                    modifier = Modifier.animateItem(),
-                )
+            items(v.fullscreenIgnoredApps.toList().sorted(), key = { "fs:$it" }) { pkg ->
+                AppRow(apps.firstOrNull { it.packageName == pkg }, pkg, Modifier.animateItem()) {
+                    edit { it.copy(fullscreenIgnoredApps = it.fullscreenIgnoredApps - pkg) }
+                }
+            }
+            item {
+                Toggle(stringResource(R.string.visibility_landscape), null, v.hideInLandscape, 3) { on -> edit { it.copy(hideInLandscape = on) } }
+                Toggle(stringResource(R.string.visibility_lockscreen), null, v.hideOnLockscreen, 4) { on -> edit { it.copy(hideOnLockscreen = on) } }
+                AppsHeader(stringResource(R.string.visibility_apps), stringResource(R.string.visibility_apps_desc), index = 5) {
+                    picking = AppTarget.HIDDEN
+                }
+            }
+            items(v.hiddenApps.toList().sorted(), key = { "hide:$it" }) { pkg ->
+                AppRow(apps.firstOrNull { it.packageName == pkg }, pkg, Modifier.animateItem()) {
+                    edit { it.copy(hiddenApps = it.hiddenApps - pkg) }
+                }
             }
         }
     }
-    if (picking) {
-        ModalBottomSheet(onDismissRequest = { picking = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    picking?.let { target ->
+        ModalBottomSheet(onDismissRequest = { picking = null }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
             AppList { app ->
-                edit { it.copy(hiddenApps = it.hiddenApps + app.packageName) }
-                picking = false
+                edit {
+                    when (target) {
+                        AppTarget.HIDDEN -> it.copy(hiddenApps = it.hiddenApps + app.packageName)
+                        AppTarget.FULLSCREEN_IGNORED -> it.copy(fullscreenIgnoredApps = it.fullscreenIgnoredApps + app.packageName)
+                    }
+                }
+                picking = null
             }
         }
     }
 }
 
+/** En-tête d'une liste d'applis, avec le bouton d'ajout. */
 @Composable
-private fun Toggle(title: String, desc: String?, checked: Boolean, index: Int, onChange: (Boolean) -> Unit) {
+private fun AppsHeader(title: String, desc: String, index: Int, enabled: Boolean = true, onAdd: () -> Unit) {
+    ListItem(
+        headlineContent = { Text(title, color = MaterialTheme.colorScheme.primary) },
+        supportingContent = { Text(desc) },
+        trailingContent = {
+            TextButton(onClick = onAdd, enabled = enabled) { Icon(Icons.Rounded.Add, null); Text(stringResource(R.string.deck_add)) }
+        },
+        modifier = Modifier.padding(top = 12.dp).cascade(index).alpha(if (enabled) 1f else 0.5f),
+    )
+}
+
+/** Une appli d'une liste, retirée par la croix. */
+@Composable
+private fun AppRow(app: AppEntry?, pkg: String, modifier: Modifier, onRemove: () -> Unit) {
+    ListItem(
+        headlineContent = { Text(app?.label ?: pkg) },
+        leadingContent = { if (app != null) AppIcon(app, 40.dp) },
+        trailingContent = {
+            IconButton(onClick = onRemove) { Icon(Icons.Rounded.Close, stringResource(R.string.visibility_remove_app, app?.label ?: pkg)) }
+        },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun Toggle(title: String, desc: String?, checked: Boolean, index: Int, enabled: Boolean = true, onChange: (Boolean) -> Unit) {
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = desc?.let { { Text(it) } },
-        trailingContent = { Switch(checked = checked, onCheckedChange = onChange) },
-        modifier = Modifier.cascade(index).clickable { onChange(!checked) },
+        trailingContent = { Switch(checked = checked, onCheckedChange = onChange, enabled = enabled) },
+        modifier = Modifier.cascade(index).alpha(if (enabled) 1f else 0.5f).clickable(enabled = enabled) { onChange(!checked) },
     )
 }
 

@@ -89,6 +89,8 @@ object MusicModule : IslandModule {
                 lyrics = lyrics?.takeIf { it.trackIdentity == id }?.state ?: LyricsState.Loading,
                 postedAt = m.lastActive,
                 timeoutMs = if (!playing && s.hideWhenPaused) s.pausedHideMinutes.coerceAtLeast(1) * 60_000L else null,
+                keepLyricsOpen = s.keepLyricsOpen,
+                stayVisibleWithLyrics = s.stayVisibleWithLyrics,
             ),
         )
     }
