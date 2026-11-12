@@ -128,6 +128,13 @@ object VolumeKeys {
         publish(am, stream)
     }
 
+    /** Relit le niveau du flux affiché (réglé depuis la liste des sources), sans changer de flux. */
+    fun refresh(context: Context) {
+        val shown = _overlay.value ?: return
+        val am = context.getSystemService(AudioManager::class.java) ?: return
+        publish(am, shown.stream)
+    }
+
     /** Repousse la disparition du curseur (vue étendue ouverte, glisser en cours). */
     fun keepAlive() = _overlay.update { it?.copy(shownAt = SystemClock.elapsedRealtime()) }
 

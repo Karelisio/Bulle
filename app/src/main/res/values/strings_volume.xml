@@ -10,6 +10,14 @@
     <string name="volume_stream_ring">Sonnerie</string>
     <string name="volume_stream_notification">Notifications</string>
     <string name="volume_stream_alarm">Alarme</string>
+    <string name="volume_stream_call">Appel</string>
+    <string name="volume_stream_accessibility">Accessibilité</string>
+    <string name="volume_stream_ring_notification">Sonnerie et notifications</string>
+    <string name="volume_sources_title">Sources de volume</string>
+    <string name="volume_keys_stream">réglé par les touches</string>
+    <string name="volume_blocked_dnd">Bloqué par Ne pas déranger</string>
+    <string name="volume_dnd_access">Autoriser l\'accès Ne pas déranger</string>
+    <string name="volume_fixed">Volume fixe sur cet appareil</string>
     <!-- Réglages -->
     <string name="volume_settings_title">Volume</string>
     <string name="volume_settings_enable">Volume sur l\'île</string>

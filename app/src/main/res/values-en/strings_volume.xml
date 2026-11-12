@@ -10,6 +10,14 @@
     <string name="volume_stream_ring">Ringtone</string>
     <string name="volume_stream_notification">Notifications</string>
     <string name="volume_stream_alarm">Alarm</string>
+    <string name="volume_stream_call">Call</string>
+    <string name="volume_stream_accessibility">Accessibility</string>
+    <string name="volume_stream_ring_notification">Ring &amp; notifications</string>
+    <string name="volume_sources_title">Volume sources</string>
+    <string name="volume_keys_stream">set by the volume keys</string>
+    <string name="volume_blocked_dnd">Blocked by Do Not Disturb</string>
+    <string name="volume_dnd_access">Allow Do Not Disturb access</string>
+    <string name="volume_fixed">Fixed volume on this device</string>
     <!-- Settings -->
     <string name="volume_settings_title">Volume</string>
     <string name="volume_settings_enable">Volume on the island</string>
