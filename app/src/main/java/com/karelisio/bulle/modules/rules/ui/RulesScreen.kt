@@ -109,6 +109,7 @@ fun MotionStyle.labelRes(): Int = when (this) {
     MotionStyle.SOFT -> R.string.motion_soft
     MotionStyle.SNAPPY -> R.string.motion_snappy
     MotionStyle.SOBER -> R.string.motion_sober
+    MotionStyle.PLAYFUL -> R.string.motion_playful
 }
 
 private fun hhmm(m: Int) = "%d:%02d".format(m / 60, m % 60)
