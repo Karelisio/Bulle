@@ -43,6 +43,17 @@ object DeckWidgets {
 
     fun delete(context: Context, id: Int) = runCatching { host(context).deleteAppWidgetId(id) }
 
+    /** Identifiants alloués par l'hôte du Deck sur cet appareil (null si le système ne répond pas). */
+    fun allocatedIds(context: Context): Set<Int>? =
+        runCatching { host(context).appWidgetIds.toSet() }.getOrNull()
+
+    /**
+     * Le widget [id] est-il utilisable ici : alloué par notre hôte et lié à un fournisseur ?
+     * Un identifiant venu d'une sauvegarde d'un autre téléphone ne l'est pas.
+     */
+    fun isBound(context: Context, id: Int, allocated: Set<Int>? = allocatedIds(context)): Boolean =
+        (allocated == null || id in allocated) && runCatching { info(context, id) }.getOrNull() != null
+
     fun providers(context: Context): List<AppWidgetProviderInfo> =
         manager(context).installedProviders.sortedBy { it.loadLabel(context.packageManager).lowercase() }
 }
