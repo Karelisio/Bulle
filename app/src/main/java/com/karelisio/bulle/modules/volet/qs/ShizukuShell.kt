@@ -161,12 +161,18 @@ class ShellUserService : Binder() {
 
     private fun exec(command: String): Pair<Int, String> = try {
         val p = ProcessBuilder("sh", "-c", command).redirectErrorStream(true).start()
-        val out = p.inputStream.bufferedReader().use { it.readText() }
+        // Lecture de la sortie dans un fil à part : une commande qui ne ferme jamais sa sortie
+        // ne doit pas bloquer le service au-delà du délai maximal.
+        val output = StringBuilder()
+        val reader = Thread { runCatching { p.inputStream.bufferedReader().use { output.append(it.readText()) } } }
+        reader.start()
         if (!p.waitFor(10, TimeUnit.SECONDS)) {
-            p.destroy()
-            -1 to out
+            p.destroyForcibly()
+            reader.join(500)
+            -1 to synchronized(output) { output.toString() }
         } else {
-            p.exitValue() to out
+            reader.join(2_000)
+            p.exitValue() to synchronized(output) { output.toString() }
         }
     } catch (t: Throwable) {
         -1 to t.toString()

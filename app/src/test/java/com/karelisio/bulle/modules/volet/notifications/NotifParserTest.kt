@@ -218,13 +218,35 @@ class NotifParserTest {
         // Persistante exclue de « Tout effacer », résumé inclus.
         val keys = model.clearableKeys.toSet()
         assertTrue("c" !in keys)
-        assertTrue(keys.containsAll(listOf("a", "b", "d", "e")))
+        assertTrue(keys.containsAll(listOf("a", "b", "d", "e", "s")))
         assertEquals("g1".let { model.groupOf("a")?.id }, g1.id)
 
         // Résumé seul : affiché comme une notification normale.
         val lone = NotifListBuilder.build(listOf(summary))
         assertEquals("s", lone.sections.single().groups.single().lead.key)
         assertNull(lone.sections.single().groups.single().summaryKey)
+    }
+
+    @Test
+    fun summaryJoinsChildrenInAnotherSection() {
+        // Enfants « conversation », résumé classé dans les alertes : pas de carte de résumé en double.
+        val style = Notification.MessagingStyle(Person.Builder().setName("Moi").build())
+            .addMessage("Salut", 1_000L, Person.Builder().setName("Alice").build())
+        val conv = RankInfo(isConversation = true)
+        val a = parse(builder().setStyle(style).build(), key = "a", group = "g", rank = conv)
+        val b = parse(builder().setStyle(style).build(), key = "b", group = "g", rank = conv)
+        val summary = parse(builder().setGroup("x").setGroupSummary(true).build(), key = "s", group = "g")
+        val model = NotifListBuilder.build(listOf(a, b, summary))
+        assertEquals(listOf(NotifSection.CONVERSATIONS), model.sections.map { it.section })
+        val group = model.sections.single().groups.single()
+        assertEquals(listOf("a", "b").toSet(), group.items.map { it.key }.toSet())
+        assertEquals("s", group.summaryKey)
+        assertTrue("s" in model.clearableKeys)
+        // Résumé gardé quand un enfant persistant reste.
+        val ongoing = parse(builder().setOngoing(true).build(), key = "o", group = "h")
+        val other = parse(builder().build(), key = "p", group = "h")
+        val sum2 = parse(builder().setGroup("y").setGroupSummary(true).build(), key = "s2", group = "h")
+        assertFalse("s2" in NotifListBuilder.build(listOf(ongoing, other, sum2)).clearableKeys)
     }
 
     @Test

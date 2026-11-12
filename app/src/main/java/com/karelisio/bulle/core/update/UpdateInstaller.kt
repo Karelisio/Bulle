@@ -9,6 +9,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import androidx.core.content.IntentCompat
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,11 +64,21 @@ object UpdateInstaller {
             val apk = download(app, release)
             _state.value = InstallState.Installing
             install(app, apk)
+        } catch (e: CancellationException) {
+            // Annulation (bouton, fermeture de la feuille, rotation) : sans ce retour à Idle,
+            // une émission tardive du thread IO laissait l'état bloqué sur « Téléchargement ».
+            _state.value = InstallState.Idle
+            throw e
         } catch (e: IOException) {
             Log.w(TAG, "Téléchargement impossible", e)
             fail(e.message ?: e.javaClass.simpleName)
         } catch (e: SecurityException) {
             Log.w(TAG, "Installation refusée", e)
+            fail(e.message ?: e.javaClass.simpleName)
+        } catch (e: Exception) {
+            // URL malformée, session PackageInstaller invalide (IllegalStateException)… :
+            // ne doit pas faire planter l'appli via rememberCoroutineScope.
+            Log.w(TAG, "Mise à jour impossible", e)
             fail(e.message ?: e.javaClass.simpleName)
         }
     }

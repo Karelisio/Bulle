@@ -6,6 +6,8 @@ import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
@@ -90,7 +92,7 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
         val cr = context.contentResolver
         Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL)
         val current = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS, 128)
-        // Pas perceptuellement réguliers : ±12 % de la plage, au moins 8 crans.
+        // Pas proportionnels à la valeur courante (±25 %, au moins 8 crans) : plus fins dans le sombre.
         val delta = (current * 0.25f).toInt().coerceAtLeast(8)
         Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS, (current + step * delta).coerceIn(1, 255))
     }
@@ -129,19 +131,21 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
 
 /** Lampe torche : bascule en suivant l'état réel (callback du système). */
 object Torch {
-    @Volatile
-    private var on = false
+    // État par caméra : le rappel arrive aussi pour les autres flashs (caméra avant…).
+    private val states = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
     private var registered = false
 
+    /** Vrai si le rappel vient d'être enregistré (état initial pas encore reçu). */
     @Synchronized
-    private fun ensureCallback(cm: CameraManager) {
-        if (registered) return
+    private fun ensureCallback(cm: CameraManager): Boolean {
+        if (registered) return false
         cm.registerTorchCallback(object : CameraManager.TorchCallback() {
             override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
-                on = enabled
+                states[cameraId] = enabled
             }
-        }, null)
+        }, Handler(Looper.getMainLooper()))
         registered = true
+        return true
     }
 
     fun cameraWithFlash(cm: CameraManager): String? = cm.cameraIdList.firstOrNull { id ->
@@ -152,8 +156,14 @@ object Torch {
 
     fun toggle(context: Context) {
         val cm = context.getSystemService(CameraManager::class.java)
-        ensureCallback(cm)
+        val fresh = ensureCallback(cm)
         val id = cameraWithFlash(cm) ?: return
-        cm.setTorchMode(id, !on)
+        val apply = {
+            runCatching { cm.setTorchMode(id, states[id] != true) }
+                .onFailure { Log.w("Torch", "Lampe indisponible", it) }
+        }
+        // Au premier usage, l'état initial (lampe déjà allumée depuis le volet système…) est
+        // livré de façon asynchrone sur le fil principal : on ne bascule qu'après l'avoir reçu.
+        if (fresh) Handler(Looper.getMainLooper()).post { apply() } else apply()
     }
 }

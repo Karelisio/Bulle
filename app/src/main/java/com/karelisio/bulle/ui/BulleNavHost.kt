@@ -63,7 +63,9 @@ object Routes {
 @Composable
 fun BulleNavHost() {
     val nav = rememberNavController()
-    val back: () -> Unit = { nav.popBackStack() }
+    // Double appui sur « retour » pendant l'animation : sans garde, le second popBackStack()
+    // retirait l'accueil lui-même et laissait un écran vide.
+    val back: () -> Unit = { if (nav.previousBackStackEntry != null) nav.popBackStack() }
     SharedTransitionLayout {
     CompositionLocalProvider(LocalSharedTransitionScope provides this) {
     NavHost(
@@ -74,7 +76,7 @@ fun BulleNavHost() {
         popEnterTransition = { scaleIn(tween(380), initialScale = 0.94f) + fadeIn(tween(260)) },
         popExitTransition = { slideOutHorizontally(tween(320)) { it / 4 } + fadeOut(tween(200)) },
     ) {
-        screen(Routes.HOME) { HomeScreen(onOpen = { nav.navigate(it) }) }
+        screen(Routes.HOME) { HomeScreen(onOpen = { nav.navigate(it) { launchSingleTop = true } }) }
         screen(Routes.STYLE) { StyleScreen(onBack = back) }
         screen(Routes.POSITION) { PositionScreen(onBack = back) }
         screen(Routes.VISIBILITY) { VisibilityScreen(onBack = back) }

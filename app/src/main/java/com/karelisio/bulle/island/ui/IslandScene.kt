@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -254,6 +255,10 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
 
     val compactAlpha = remember { Animatable(0f) }
     val expandedAlpha = remember { Animatable(0f) }
+    // Lus en composition : derivedStateOf évite de recomposer toute l'île à chaque image des fondus.
+    val compactShown by remember { derivedStateOf { compactAlpha.value > 0f } }
+    val expandedShown by remember { derivedStateOf { expandedAlpha.value > 0f } }
+    val secondaryShown by remember { derivedStateOf { secRadius.value > 0.5f } }
     LaunchedEffect(mode, motion) {
         launch { compactAlpha.animateTo(if (mode == Mode.COMPACT) 1f else 0f, if (mode == Mode.COMPACT) motion.contentIn() else motion.contentOut()) }
         launch { expandedAlpha.animateTo(if (mode == Mode.EXPANDED) 1f else 0f, if (mode == Mode.EXPANDED) motion.contentIn() else motion.contentOut()) }
@@ -304,7 +309,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                 .islandGestures(enabled = mode != Mode.HIDDEN, doubleTap = state.doubleTapEnabled, onGesture = controller::onGesture),
         ) {
             // Vue compacte : emplacements de part et d'autre de la caméra.
-            if (mode == Mode.COMPACT || compactAlpha.value > 0f) {
+            if (mode == Mode.COMPACT || compactShown) {
                 Box(
                     Modifier
                         .align(Alignment.TopCenter)
@@ -327,7 +332,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                 }
             }
             // Vue étendue : contenu sous la caméra, en fondu décalé avec flou.
-            if (mode == Mode.EXPANDED || expandedAlpha.value > 0f) {
+            if (mode == Mode.EXPANDED || expandedShown) {
                 Box(
                     Modifier
                         .align(Alignment.TopCenter)
@@ -355,7 +360,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         }
         // Bulle secondaire : contenu minimal, toucher = échanger les deux bulles.
         SecondaryBubble(
-            content = lastSecondary.takeIf { secRadius.value > 0.5f || secondary != null },
+            content = lastSecondary.takeIf { secondaryShown || secondary != null },
             fill = fill,
             offsetX = { secOffset.value },
             radius = { secRadius.value },

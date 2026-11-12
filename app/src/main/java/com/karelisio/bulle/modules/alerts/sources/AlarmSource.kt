@@ -47,10 +47,20 @@ object AlarmSource : AlertSource {
     override fun isEnabled(settings: AlertSettings) = settings.alarm
 
     /** Une alarme « qui sonne » : catégorie alarme, et plein écran ou en cours (pas un simple rappel). */
-    fun isRinging(n: Notification): Boolean =
-        n.category == Notification.CATEGORY_ALARM &&
-            (n.fullScreenIntent != null || n.flags and Notification.FLAG_ONGOING_EVENT != 0) &&
-            n.flags and Notification.FLAG_GROUP_SUMMARY == 0
+    fun isRinging(n: Notification): Boolean {
+        if (n.category != Notification.CATEGORY_ALARM) return false
+        if (n.flags and Notification.FLAG_GROUP_SUMMARY != 0) return false
+        if (n.fullScreenIntent != null) return true
+        // Minuteur qui tourne (compte à rebours, sans plein écran) : il est repris par le module
+        // « live » (voir LiveParser). Sans cette exclusion, il s'affichait aussi comme une alarme
+        // qui sonne, en doublon et étendue pendant une heure.
+        val extras = n.extras
+        val runningTimer = extras != null && n.`when` > 0 &&
+            extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER, false) &&
+            extras.getBoolean(Notification.EXTRA_CHRONOMETER_COUNT_DOWN, false)
+        if (runningTimer) return false
+        return n.flags and Notification.FLAG_ONGOING_EVENT != 0
+    }
 
     override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = NotificationRepository.active
         .map { all -> all.values.filter { isRinging(it.notification) }.sortedByDescending { it.postTime }.take(1) }
@@ -61,7 +71,14 @@ object AlarmSource : AlertSource {
 /** Envoie un PendingIntent de notification depuis le service, en autorisant le lancement d'activité. */
 internal fun PendingIntent.sendFromIsland() {
     runCatching {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            // Android 16 : MODE_..._ALLOWED est déprécié et ne vaut plus que « si visible » ;
+            // comme NotificationIntents, on transmet explicitement notre autorisation.
+            val opts = ActivityOptions.makeBasic()
+                .setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS)
+            send(null, 0, null, null, null, null, opts.toBundle())
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            @Suppress("DEPRECATION")
             val opts = ActivityOptions.makeBasic()
                 .setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
             send(null, 0, null, null, null, null, opts.toBundle())

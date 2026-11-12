@@ -58,6 +58,21 @@ class VoletSettingsScreensTest {
     }
 
     @Test
+    fun zonesNotTintedWhileAppInBackground() {
+        val controller = render { VoletSettingsScreen(onBack = {}) }
+        assertTrue(VoletController.previewFlow.value)
+        // « Accueil » : l'activité est arrêtée sans être détruite.
+        controller.pause().stop()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertFalse(VoletController.previewFlow.value)
+        controller.start().resume()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(VoletController.previewFlow.value)
+        controller.pause().stop().destroy()
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    @Test
     fun historyRenders() {
         render { NotificationHistoryScreen(onBack = {}) }
     }

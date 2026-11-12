@@ -100,9 +100,13 @@ open class OverlayWindow(
 
     /** Rend la fenêtre focusable (saisie clavier, touche Retour) ou non. */
     fun setFocusable(focusable: Boolean, showKeyboard: Boolean = false) {
-        params.softInputMode = (if (focusable && showKeyboard) LP.SOFT_INPUT_STATE_VISIBLE else LP.SOFT_INPUT_STATE_UNSPECIFIED) or
+        val mode = (if (focusable && showKeyboard) LP.SOFT_INPUT_STATE_VISIBLE else LP.SOFT_INPUT_STATE_UNSPECIFIED) or
             LP.SOFT_INPUT_ADJUST_RESIZE
-        setFlag(LP.FLAG_NOT_FOCUSABLE, !focusable)
+        val flags = if (focusable) params.flags and LP.FLAG_NOT_FOCUSABLE.inv() else params.flags or LP.FLAG_NOT_FOCUSABLE
+        if (mode == params.softInputMode && flags == params.flags) return
+        params.softInputMode = mode
+        params.flags = flags
+        commit()
     }
 
     /** Applique les modifications de [params]. */

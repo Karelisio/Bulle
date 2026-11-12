@@ -143,7 +143,12 @@ data class NotifListModel(val sections: List<NotifSectionModel>) {
     /** Clés à effacer pour « Tout effacer » (effaçables seulement, résumés inclus). */
     val clearableKeys: List<String>
         get() = sections.flatMap { s ->
-            s.groups.flatMap { g -> g.items.filter { it.clearable }.map { it.key } }
+            s.groups.flatMap { g ->
+                val keys = g.items.filter { it.clearable }.map { it.key }
+                // Le résumé part aussi quand tous ses enfants partent (sinon il réapparaîtrait seul).
+                val summary = g.summaryKey?.takeIf { g.items.all { it.clearable } }
+                if (summary != null) keys + summary else keys
+            }
         }
 
     fun groupOf(key: String): NotifGroup? =
@@ -331,20 +336,28 @@ object NotifParser {
 object NotifListBuilder {
 
     fun build(items: List<NotifItem>): NotifListModel {
+        // Le résumé et ses enfants peuvent tomber dans des sections différentes (enfants
+        // « conversation », résumé « alertes ») : le résumé est rattaché à ses enfants, où qu'ils soient,
+        // au lieu d'apparaître seul comme une carte en double.
+        val childSections = items.filter { !it.isSummary }.groupBy({ it.groupKey }, { it.section })
+            .mapValues { (_, s) -> s.toSet() }
+        val summaries = items.filter { it.isSummary && it.groupKey in childSections }
+            .groupBy { it.groupKey }.mapValues { (_, s) -> s.first().key }
+        val visible = items.filter { !(it.isSummary && it.groupKey in childSections) }
         val sections = NotifSection.entries.mapNotNull { section ->
-            val inSection = items.filter { it.section == section }
+            val inSection = visible.filter { it.section == section }
             if (inSection.isEmpty()) return@mapNotNull null
             val groups = inSection.groupBy { it.groupKey }.map { (gk, members) ->
-                val children = members.filter { !it.isSummary }
-                val summary = members.firstOrNull { it.isSummary }
                 // Résumé seul (sans enfants) : affiché comme une notification normale.
-                val shown = sorted(children.ifEmpty { members })
+                val shown = sorted(members)
                 NotifGroup(
                     id = "${section.name}|$gk",
                     packageName = shown.first().packageName,
                     appName = shown.first().appName,
                     items = shown,
-                    summaryKey = summary?.key?.takeIf { children.isNotEmpty() },
+                    // Enfants répartis sur plusieurs sections : effacer le résumé effacerait aussi
+                    // ceux de l'autre section, il n'est donc rattaché à aucune.
+                    summaryKey = summaries[gk]?.takeIf { childSections[gk]?.size == 1 },
                 )
             }.sortedWith(compareBy<NotifGroup> { order(it.lead) }.thenByDescending { it.lead.time })
             NotifSectionModel(section, groups)

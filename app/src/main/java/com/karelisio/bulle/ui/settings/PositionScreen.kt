@@ -43,6 +43,7 @@ import com.karelisio.bulle.core.settings.PositionTweak
 import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.island.CutoutLocator
 import com.karelisio.bulle.ui.components.cascade
+import com.karelisio.bulle.ui.components.rememberLiveValue
 import com.karelisio.bulle.ui.components.sharedElement
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -59,9 +60,10 @@ fun PositionScreen(onBack: () -> Unit) {
     val p = settings.position
     val cutout = remember { CutoutLocator.screenInfo(context) }
 
-    fun edit(t: (PositionTweak) -> PositionTweak) = scope.launch {
+    suspend fun save(t: (PositionTweak) -> PositionTweak) =
         SettingsRepository.update(context) { it.copy(position = t(it.position)) }
-    }
+
+    fun edit(t: (PositionTweak) -> PositionTweak) = scope.launch { save(t) }
 
     Scaffold(
         topBar = {
@@ -95,10 +97,10 @@ fun PositionScreen(onBack: () -> Unit) {
                     )
                 }
             }
-            TweakSlider(stringResource(R.string.position_x), p.offsetXDp, -60f..60f, 1) { v -> edit { it.copy(offsetXDp = v) } }
-            TweakSlider(stringResource(R.string.position_y), p.offsetYDp, -20f..40f, 2) { v -> edit { it.copy(offsetYDp = v) } }
-            TweakSlider(stringResource(R.string.position_width), p.extraWidthDp, -30f..120f, 3) { v -> edit { it.copy(extraWidthDp = v) } }
-            TweakSlider(stringResource(R.string.position_height), p.extraHeightDp, -12f..30f, 4) { v -> edit { it.copy(extraHeightDp = v) } }
+            TweakSlider(stringResource(R.string.position_x), p.offsetXDp, -60f..60f, 1) { v -> save { it.copy(offsetXDp = v) } }
+            TweakSlider(stringResource(R.string.position_y), p.offsetYDp, -20f..40f, 2) { v -> save { it.copy(offsetYDp = v) } }
+            TweakSlider(stringResource(R.string.position_width), p.extraWidthDp, -30f..120f, 3) { v -> save { it.copy(extraWidthDp = v) } }
+            TweakSlider(stringResource(R.string.position_height), p.extraHeightDp, -12f..30f, 4) { v -> save { it.copy(extraHeightDp = v) } }
             FilledTonalButton(onClick = { edit { PositionTweak() } }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Icon(Icons.Rounded.CenterFocusStrong, null)
                 Spacer(Modifier.width(8.dp))
@@ -110,7 +112,11 @@ fun PositionScreen(onBack: () -> Unit) {
 
 /** Curseur avec boutons −/+ au demi-dp près, pour un calage fin. */
 @Composable
-private fun TweakSlider(label: String, value: Float, range: ClosedFloatingPointRange<Float>, index: Int, onChange: (Float) -> Unit) {
+private fun TweakSlider(label: String, stored: Float, range: ClosedFloatingPointRange<Float>, index: Int, persist: suspend (Float) -> Unit) {
+    // Valeur locale + écriture conflatée (voir LiveValue) ; les boutons −/+ partent de la
+    // valeur affichée, sinon des appuis rapides se basaient sur une valeur pas encore relue.
+    val live = rememberLiveValue(stored, persist)
+    val value = live.value
     Card(
         Modifier.fillMaxWidth().cascade(index),
         shape = RoundedCornerShape(24.dp),
@@ -122,9 +128,15 @@ private fun TweakSlider(label: String, value: Float, range: ClosedFloatingPointR
                 Text("%+.1f dp".format(value), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                FilledTonalIconButton(onClick = { onChange((value - 0.5f).coerceIn(range)) }) { Icon(Icons.Rounded.Remove, null) }
-                Slider(value = value, onValueChange = { onChange((it * 2).roundToInt() / 2f) }, valueRange = range, modifier = Modifier.weight(1f).padding(horizontal = 6.dp))
-                FilledTonalIconButton(onClick = { onChange((value + 0.5f).coerceIn(range)) }) { Icon(Icons.Rounded.Add, null) }
+                FilledTonalIconButton(onClick = { live.set((value - 0.5f).coerceIn(range)) }) { Icon(Icons.Rounded.Remove, null) }
+                Slider(
+                    value = value,
+                    onValueChange = { live.drag((it * 2).roundToInt() / 2f) },
+                    onValueChangeFinished = live::finish,
+                    valueRange = range,
+                    modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
+                )
+                FilledTonalIconButton(onClick = { live.set((value + 0.5f).coerceIn(range)) }) { Icon(Icons.Rounded.Add, null) }
             }
         }
     }

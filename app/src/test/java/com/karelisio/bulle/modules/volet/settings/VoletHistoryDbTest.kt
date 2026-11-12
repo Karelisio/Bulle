@@ -10,6 +10,12 @@ import com.karelisio.bulle.modules.volet.history.HistoryCandidate
 import com.karelisio.bulle.modules.volet.history.HistoryLogic
 import com.karelisio.bulle.modules.volet.history.NotificationHistory
 import com.karelisio.bulle.modules.volet.history.NotificationHistoryEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -107,6 +113,17 @@ class VoletHistoryDbTest {
         assertEquals(2, NotificationHistory.dao(context).count())
         NotificationHistory.clear(context)
         assertEquals(0, NotificationHistory.dao(context).count())
+    }
+
+    @Test
+    fun startCollectsOnlyOnce() = runBlocking {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val first = NotificationHistory.start(context, scope, emptyFlow())
+        val second = NotificationHistory.start(context, scope, emptyFlow())
+        // Deuxième démarrage (service reconnecté) : la première collecte est arrêtée.
+        assertTrue(first.isCancelled)
+        assertTrue(second.isActive)
+        scope.coroutineContext[Job]!!.cancelAndJoin()
     }
 
     private fun entry(key: String, title: String, text: String, at: Long, app: String = "Appli") =
