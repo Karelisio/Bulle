@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.0
+Nouveaux modules
+- **Agenda** : prochain rendez-vous, rappel quelques minutes avant avec compte à rebours, boutons Itinéraire et Ouvrir, temps restant pendant l'événement.
+- **Météo** (Open-Meteo, sans compte) : alerte « pluie dans N min », température au repos en option, position approximative ou ville choisie, cache hors ligne.
+- **Minuteur / Pomodoro** lancé depuis l'île (nouvelle action de geste « Minuteur ») : anneau de progression, phases travail/pause enchaînées, vibration et son en fin de phase.
+- **Volume sur l'île** (désactivé par défaut) : les touches volume affichent un curseur sur l'île à la place du panneau système, choix du flux et de la sortie audio.
+
+Améliorations et corrections
+- Alertes : une permission accordée après coup démarre l'alerte sans la recocher ; un seul message en branchant un ordinateur (USB + charge) ; heure de l'alarme qui avance.
+- Appels : la durée ne repart plus de zéro quand l'appli reconstruit sa notification.
+- Seconde ligne compacte remplie (artiste, étape suivante, état de l'appel) ; tailles de texte qui suivent le réglage de l'île ; interrupteur « Retour haptique » respecté partout (île, modules, Volet).
+- Volet : grille de tuiles en pages au-delà de 8, plage de luminosité réelle de l'appareil, un second doigt ne fait plus sauter le volet.
+- Sauvegarde : import vérifié (valeurs bornées), widgets et favoris du Deck absents de l'appareil retirés avec un message.
+- Fiabilité : l'alerte balayée ne sonne plus à chaque contrôle (pas avant 12 h sauf problème différent).
+
 ## 0.3.1
 - Scintillement : nouveau « rendu stable ». L'île est dessinée dans une fenêtre fixe qui n'est plus jamais redimensionnée pendant les animations ; une petite zone tactile invisible la suit pour les touchers (désactivable dans Style).
 - Taille : largeur maximale réglable en compact et pour la carte étendue (Style › Taille). Une alerte large (5G…) ne prend plus tout le haut de l'écran.
