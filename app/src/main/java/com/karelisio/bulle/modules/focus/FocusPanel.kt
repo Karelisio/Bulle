@@ -57,8 +57,7 @@ object FocusPanel : IslandPanel {
     @Composable
     override fun Content(host: IslandHost) {
         val context = host.context
-        remember(context) { Focus.ensureLoaded(context) }
-        val data by Focus.data.collectAsStateWithLifecycle()
+        val data by remember(context) { Focus.loaded(context) }.collectAsStateWithLifecycle()
         val reduceMotion = rememberReduceMotion()
         val state = data.state
 
@@ -84,7 +83,7 @@ object FocusPanel : IslandPanel {
                 },
                 label = "focusPanel",
             ) { idle ->
-                val current = Focus.data.value.state
+                val current = data.state
                 if (idle || current == null) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         FocusPreset.quick.forEach { preset ->

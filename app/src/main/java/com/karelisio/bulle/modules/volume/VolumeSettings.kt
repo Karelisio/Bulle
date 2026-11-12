@@ -54,6 +54,12 @@ object VolumePrefs {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val io = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
 
+    /** Réglages, chargés depuis le fichier au premier appel. */
+    fun loaded(context: Context): StateFlow<VolumeSettings> {
+        ensureLoaded(context)
+        return data
+    }
+
     fun ensureLoaded(context: Context) {
         if (file != null) return
         synchronized(this) {

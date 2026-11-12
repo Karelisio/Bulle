@@ -40,8 +40,7 @@ import kotlin.math.roundToLong
 fun VolumeSettingsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    remember(context) { VolumePrefs.ensureLoaded(context) }
-    val prefs by VolumePrefs.data.collectAsStateWithLifecycle()
+    val prefs by remember(context) { VolumePrefs.loaded(context) }.collectAsStateWithLifecycle()
     val bulle by remember(context) { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
     val enabled = VolumeModule.isEnabled(bulle)
 

@@ -49,6 +49,12 @@ object Focus {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val io = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
 
+    /** Données, chargées depuis le fichier au premier appel. */
+    fun loaded(context: Context): StateFlow<FocusData> {
+        ensureLoaded(context)
+        return data
+    }
+
     /** Charge le fichier une seule fois par processus. */
     fun ensureLoaded(context: Context) {
         if (store != null) return

@@ -25,14 +25,12 @@ import kotlinx.coroutines.launch
 fun FocusSettingsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    remember(context) { Focus.ensureLoaded(context) }
-    val data by Focus.data.collectAsStateWithLifecycle()
+    val data by remember(context) { Focus.loaded(context) }.collectAsStateWithLifecycle()
     val bulle by remember(context) { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
     val enabled = FocusModule.isEnabled(bulle)
     val s = data.settings
 
     fun update(transform: (FocusSettings) -> FocusSettings) = Focus.updateSettings(context, transform)
-    val minutes = { n: Int -> context.getString(R.string.focus_settings_minutes_value, n) }
 
     ModuleSettingsScaffold(stringResource(R.string.focus_settings_title), onBack) {
         item {
@@ -49,13 +47,13 @@ fun FocusSettingsScreen(onBack: () -> Unit) {
         item { ModuleSectionHeader(stringResource(R.string.focus_settings_pomodoro_header)) }
         item {
             ModuleSettingsCard {
-                StepperRow(stringResource(R.string.focus_settings_work), minutes(s.workMinutes),
+                StepperRow(stringResource(R.string.focus_settings_work), stringResource(R.string.focus_settings_minutes_value, s.workMinutes),
                     onMinus = { update { it.copy(workMinutes = it.workMinutes - 5) } },
                     onPlus = { update { it.copy(workMinutes = it.workMinutes + 5) } })
-                StepperRow(stringResource(R.string.focus_settings_short_break), minutes(s.shortBreakMinutes),
+                StepperRow(stringResource(R.string.focus_settings_short_break), stringResource(R.string.focus_settings_minutes_value, s.shortBreakMinutes),
                     onMinus = { update { it.copy(shortBreakMinutes = it.shortBreakMinutes - 1) } },
                     onPlus = { update { it.copy(shortBreakMinutes = it.shortBreakMinutes + 1) } })
-                StepperRow(stringResource(R.string.focus_settings_long_break), minutes(s.longBreakMinutes),
+                StepperRow(stringResource(R.string.focus_settings_long_break), stringResource(R.string.focus_settings_minutes_value, s.longBreakMinutes),
                     onMinus = { update { it.copy(longBreakMinutes = it.longBreakMinutes - 5) } },
                     onPlus = { update { it.copy(longBreakMinutes = it.longBreakMinutes + 5) } })
                 StepperRow(stringResource(R.string.focus_settings_cycles), s.cycles.toString(),
