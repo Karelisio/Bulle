@@ -15,4 +15,11 @@
     <string name="live_settings_exclude">Exclure</string>
     <string name="live_settings_include">Réafficher</string>
     <string name="live_settings_privacy">Les activités sont lues dans tes notifications, uniquement sur ton téléphone.</string>
+    <!-- Téléchargements regroupés dans l’île -->
+    <plurals name="live_downloads_count">
+        <item quantity="one">%d téléchargement</item>
+        <item quantity="many">%d téléchargements</item>
+        <item quantity="other">%d téléchargements</item>
+    </plurals>
+    <string name="live_downloads_overall">Progression globale</string>
 </resources>
