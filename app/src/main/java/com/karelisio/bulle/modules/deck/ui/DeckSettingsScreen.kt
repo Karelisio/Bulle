@@ -51,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -203,7 +204,9 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
     val tab = deck.tabs.firstOrNull { it.id == tabId } ?: return
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var sheet by remember { mutableStateOf(TabSheet.NONE) }
-    var pendingWidget by remember { mutableStateOf<Int?>(null) }
+    // rememberSaveable : l'activité peut être recréée (rotation, mort du processus) pendant
+    // l'écran système de liaison/configuration ; sans cela le résultat était ignoré et l'ID fuyait.
+    var pendingWidget by rememberSaveable { mutableStateOf<Int?>(null) }
 
     fun edit(transform: (DeckTab) -> DeckTab) = update { d -> d.copy(tabs = d.tabs.map { if (it.id == tabId) transform(it) else it }) }
 
@@ -215,9 +218,16 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
         if (r.resultCode == Activity.RESULT_OK) addWidget(id) else DeckWidgets.delete(context, id)
         pendingWidget = null
     }
+    // Repli quand l'API cachée est bloquée : intention explicite vers l'activité de configuration.
+    val configureDirect = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+        val id = pendingWidget ?: return@rememberLauncherForActivityResult
+        if (r.resultCode == Activity.RESULT_OK) addWidget(id) else DeckWidgets.delete(context, id)
+        pendingWidget = null
+    }
     fun configureOrAdd(id: Int) {
         val info = DeckWidgets.info(context, id)
-        val sender = if (info?.configure != null) {
+        val configureActivity = info?.configure
+        val sender = if (configureActivity != null) {
             runCatching {
                 DeckWidgets.host(context).let { host ->
                     // IntentSender de configuration fourni par l'hôte (activités non exportées comprises).
@@ -226,11 +236,27 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
                 }
             }.getOrNull()
         } else null
-        if (sender != null) {
-            pendingWidget = id
-            configure.launch(androidx.activity.result.IntentSenderRequest.Builder(sender).build())
-        } else {
-            addWidget(id)
+        try {
+            when {
+                sender != null -> {
+                    pendingWidget = id
+                    configure.launch(androidx.activity.result.IntentSenderRequest.Builder(sender).build())
+                }
+                configureActivity != null -> {
+                    // Sans ce repli, un widget exigeant une configuration était ajouté non configuré.
+                    pendingWidget = id
+                    configureDirect.launch(
+                        Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+                            .setComponent(configureActivity)
+                            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
+                    )
+                }
+                else -> addWidget(id)
+            }
+        } catch (e: Exception) {
+            // Activité absente ou non exportée : on libère l'ID alloué.
+            pendingWidget = null
+            DeckWidgets.delete(context, id)
         }
     }
     val bind = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
@@ -240,15 +266,23 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
     }
     fun pickWidget(provider: AppWidgetProviderInfo) {
         val id = DeckWidgets.allocate(context)
-        if (DeckWidgets.manager(context).bindAppWidgetIdIfAllowed(id, provider.provider)) {
+        val bound = runCatching { DeckWidgets.manager(context).bindAppWidgetIdIfAllowed(id, provider.provider) }
+            .getOrDefault(false)
+        if (bound) {
             configureOrAdd(id)
         } else {
             pendingWidget = id
-            bind.launch(
-                Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider.provider),
-            )
+            try {
+                bind.launch(
+                    Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
+                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider.provider),
+                )
+            } catch (e: Exception) {
+                // Écran de liaison absent (ROM) : l'ID ne doit pas rester alloué.
+                pendingWidget = null
+                DeckWidgets.delete(context, id)
+            }
         }
     }
 

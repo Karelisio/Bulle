@@ -49,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -68,6 +69,7 @@ import com.karelisio.bulle.core.apps.AppIcon
 import com.karelisio.bulle.core.island.IslandGesture
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.SettingsRepository
+import com.karelisio.bulle.system.OemSettings
 import kotlinx.coroutines.launch
 
 private enum class Picker { ACTION, APP, SHORTCUT }
@@ -80,13 +82,16 @@ fun GesturesSettingsScreen(onBack: () -> Unit) {
     val settings by remember { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    var editing by remember { mutableStateOf<IslandGesture?>(null) }
-    var picker by remember { mutableStateOf(Picker.ACTION) }
+    // rememberSaveable : le résultat de l'activité de raccourci arrive après une éventuelle
+    // recréation (rotation) ; avec remember, `editing` était null et le raccourci perdu.
+    var editing by rememberSaveable { mutableStateOf<IslandGesture?>(null) }
+    var picker by rememberSaveable { mutableStateOf(Picker.ACTION) }
 
     fun save(gesture: IslandGesture, action: GestureAction) {
         if (action.type.needsWriteSettings && !Settings.System.canWrite(context)) {
             Toast.makeText(context, R.string.write_settings_needed, Toast.LENGTH_LONG).show()
-            context.startActivity(
+            OemSettings.openSafely(
+                context,
                 Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:${context.packageName}")),
             )
         }
@@ -163,7 +168,13 @@ fun GesturesSettingsScreen(onBack: () -> Unit) {
                 save(gesture, GestureAction(ActionType.OPEN_APP, packageName = app.packageName, label = app.label))
             }
             Picker.SHORTCUT -> ShortcutList { component ->
-                shortcutLauncher.launch(Intent(Intent.ACTION_CREATE_SHORTCUT).setComponent(component))
+                // Activité de création non exportée / protégée par une autorisation, ou appli
+                // désinstallée entre-temps : ActivityNotFoundException / SecurityException.
+                try {
+                    shortcutLauncher.launch(Intent(Intent.ACTION_CREATE_SHORTCUT).setComponent(component))
+                } catch (e: Exception) {
+                    Toast.makeText(context, R.string.shortcut_unsupported, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

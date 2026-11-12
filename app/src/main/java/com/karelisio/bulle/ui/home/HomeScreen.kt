@@ -1,7 +1,5 @@
 package com.karelisio.bulle.ui.home
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -86,6 +84,8 @@ import com.karelisio.bulle.island.IslandAccessibilityService
 import com.karelisio.bulle.modules.push.DemoContent
 import com.karelisio.bulle.modules.push.PushModule
 import com.karelisio.bulle.notifications.NotificationRepository
+import com.karelisio.bulle.ui.onboarding.PermissionChecks
+import com.karelisio.bulle.ui.onboarding.PermissionKey
 import com.karelisio.bulle.system.Reliability
 import com.karelisio.bulle.ui.components.MorphShape
 import com.karelisio.bulle.ui.components.rememberReduceMotion
@@ -133,9 +133,9 @@ fun HomeScreen(onOpen: (String) -> Unit = {}) {
             ServiceCard(
                 running = running,
                 enabledInSystem = enabledInSystem,
-                onOpenAccessibility = {
-                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                },
+                // Via PermissionChecks : intents gardés (ActivityNotFoundException) avec repli,
+                // l'écran de détail de l'accès aux notifications manquant sur certaines surcouches.
+                onOpenAccessibility = { PermissionChecks.openSettings(context, PermissionKey.ACCESSIBILITY) },
             )
             Spacer(Modifier.height(12.dp))
             StatusCard(
@@ -143,13 +143,7 @@ fun HomeScreen(onOpen: (String) -> Unit = {}) {
                 title = stringResource(R.string.home_notif_title),
                 text = stringResource(if (notifGranted) R.string.home_notif_on else R.string.home_notif_off),
                 action = stringResource(R.string.home_open_notif_access),
-                onAction = {
-                    context.startActivity(
-                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
-                            .putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, NotificationRepository.component(context).flattenToString())
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    )
-                },
+                onAction = { PermissionChecks.openSettings(context, PermissionKey.NOTIFICATION_ACCESS) },
             )
             Spacer(Modifier.height(12.dp))
             Card(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
