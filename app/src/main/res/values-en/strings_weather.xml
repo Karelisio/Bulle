@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Weather module (modules/weather) -->
+    <string name="weather_module_title">Weather</string>
+    <string name="weather_minutes_short">%d min</string>
+    <string name="weather_rain_in">Rain in %d min</string>
+    <string name="weather_rain_imminent">Rain starting now</string>
+    <string name="weather_rain_peak">Up to %s mm per quarter hour</string>
+    <string name="weather_updated_at">Updated at %s</string>
+    <string name="weather_kind_clear">Clear sky</string>
+    <string name="weather_kind_partly">Partly cloudy</string>
+    <string name="weather_kind_cloudy">Cloudy</string>
+    <string name="weather_kind_fog">Fog</string>
+    <string name="weather_kind_drizzle">Drizzle</string>
+    <string name="weather_kind_rain">Rain</string>
+    <string name="weather_kind_snow">Snow</string>
+    <string name="weather_kind_storm">Thunderstorm</string>
+    <string name="weather_threshold_light">Drizzle</string>
+    <string name="weather_threshold_moderate">Rain</string>
+    <string name="weather_threshold_heavy">Shower</string>
+    <string name="weather_settings_title">Weather</string>
+    <string name="weather_settings_back">Back</string>
+    <string name="weather_settings_enable">Weather in the island</string>
+    <string name="weather_settings_enable_summary">Open-Meteo forecasts, refreshed at most every 30 minutes.</string>
+    <string name="weather_settings_no_data">No forecast yet</string>
+    <string name="weather_settings_refresh">Refresh</string>
+    <string name="weather_settings_location_header">Location</string>
+    <string name="weather_settings_source_device">Approximate</string>
+    <string name="weather_settings_source_city">City</string>
+    <string name="weather_settings_permission_missing">Approximate location access denied</string>
+    <string name="weather_settings_permission_grant">Allow</string>
+    <string name="weather_settings_city_search">Search for a city</string>
+    <string name="weather_settings_city_none">No city found (or no connection).</string>
+    <string name="weather_settings_show_header">In the island</string>
+    <string name="weather_settings_rain">Rain in N min</string>
+    <string name="weather_settings_rain_summary">Warn once when rain is coming while it is dry. Threshold:</string>
+    <string name="weather_settings_idle">Idle temperature</string>
+    <string name="weather_settings_idle_summary">Show the icon and temperature when the island has nothing else to show.</string>
+    <string name="weather_settings_privacy">Weather data: Open-Meteo (open-meteo.com), no account or key. Only coordinates rounded to 2 decimals (about 1 km) are sent; city search only sends the name you type. The last forecast is kept on the phone to work offline.</string>
+</resources>

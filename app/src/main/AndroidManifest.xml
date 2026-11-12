@@ -38,6 +38,11 @@
          Réseau mobile, VPN, point d'accès, son, USB, caméra et micro utilisés : aucune permission. -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <!-- Module Agenda (modules/calendar) : lecture locale de l'agenda, demandée à l'activation. -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- Module Météo (modules/weather) : INTERNET et ACCESS_COARSE_LOCATION (position approximative,
+         demandée à l'activation) sont déjà déclarées plus haut. -->
+
     <!-- Module Volet, réglages rapides (modules/volet/qs) -->
     <!-- Ne pas déranger : indispensable pour figurer dans « Accès Ne pas déranger ». -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
