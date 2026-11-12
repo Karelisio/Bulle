@@ -111,13 +111,16 @@ class IslandController(
     val state: StateFlow<IslandUiState> = combine(
         settings, screen, ForegroundApp.packageName, arrangement, interaction,
     ) { s, scr, fg, arr, i ->
-        val reason = VisibilityPolicy.hiddenReason(s, scr, fg)
+        val reason = VisibilityPolicy.hiddenReason(s, scr, fg, HomeApp.packageName(context))
         if (_hiddenReason.value != reason) {
             IslandLog.log(if (reason == null) "Île affichée" else "Île masquée : $reason" + (fg?.let { " ($it)" } ?: ""))
         }
         _hiddenReason.value = reason
         val policyVisible = reason == null
-        val forced = s.islandEnabled && arr.primary?.showWhenHidden == true
+        // Contenu prioritaire (appel, paroles…) : passe au-dessus du masquage automatique,
+        // mais pas de l'île désactivée ni du choix « masquer sur l'écran de verrouillage ».
+        val forced = s.islandEnabled && arr.primary?.showWhenHidden == true &&
+            reason != HiddenReason.DISABLED && reason != HiddenReason.LOCKSCREEN
         val primary = arr.primary
         val expanded = i.panel != null || (primary != null && primary.expandable && i.expandedKey == primary.key)
         IslandUiState(
@@ -245,7 +248,10 @@ class IslandController(
     }
 
     fun onOutsideTouch() {
-        if (state.value.expanded) {
+        val st = state.value
+        // Certains contenus restent ouverts (paroles synchronisées) : seul un toucher sur l'île les ferme.
+        if (st.expanded && st.panel == null && st.primary?.stayExpandedOnOutsideTouch == true) return
+        if (st.expanded) {
             autoCollapseJob?.cancel()
             interaction.update { it.copy(expandedKey = null, panel = null) }
         }

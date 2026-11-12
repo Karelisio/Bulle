@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1
+- Scintillement : nouveau « rendu stable ». L'île est dessinée dans une fenêtre fixe qui n'est plus jamais redimensionnée pendant les animations ; une petite zone tactile invisible la suit pour les touchers (désactivable dans Style).
+- Taille : largeur maximale réglable en compact et pour la carte étendue (Style › Taille). Une alerte large (5G…) ne prend plus tout le haut de l'écran.
+- Paroles : pendant un morceau avec paroles synchronisées, l'île reste affichée même en plein écran ou dans une appli exclue, et la carte des paroles ne se ferme plus au toucher extérieur (réglables dans Musique).
+- Masquage : l'écran d'accueil ne masque plus l'île (« Jamais sur l'écran d'accueil »), et une liste d'applis où le plein écran ne la masque jamais.
+
 ## 0.3.0
 - Appli : nouvelle navigation à onglets (Accueil, Style, Contenus, Réglages) avec une barre flottante Material 3 Expressive qui suit au ressort.
 - Alertes : chaque alerte se personnalise (icône, couleur, animation d'entrée, durée) avec un aperçu animé ; écran rangé par catégories avec compteurs « n sur m activées ».
