@@ -33,14 +33,8 @@ object LrclibClient {
     @Throws(IOException::class)
     fun find(title: String, artist: String, album: String, durationMs: Long): String? {
         val seconds = durationMs / 1000
-        if (seconds > 0) {
-            val params = buildList {
-                add("track_name" to title)
-                add("artist_name" to artist)
-                if (album.isNotBlank()) add("album_name" to album)
-                add("duration" to seconds.toString())
-            }
-            get("$BASE/get?${query(params)}")?.let { body ->
+        signatureUrl(title, artist, album, seconds)?.let { url ->
+            get(url)?.let { body ->
                 bestText(json.decodeFromString(LrclibTrack.serializer(), body))?.let { return it }
             }
         }
@@ -48,6 +42,22 @@ object LrclibClient {
         val body = get("$BASE/search?${query(listOf("track_name" to cleanTitle(title), "artist_name" to artist))}") ?: return null
         val results = json.decodeFromString(kotlinx.serialization.builtins.ListSerializer(LrclibTrack.serializer()), body)
         return pickSearchResult(results, seconds)?.let(::bestText)
+    }
+
+    /**
+     * URL de /api/get (recherche exacte par signature), ou null si elle n'est pas utilisable.
+     * L'API exige titre, artiste, album ET durée : sans album, elle répond 400, ce qui levait une
+     * IOException et empêchait le repli sur /api/search. On passe alors directement à la recherche.
+     */
+    internal fun signatureUrl(title: String, artist: String, album: String, seconds: Long): String? {
+        if (seconds <= 0 || album.isBlank()) return null
+        val params = listOf(
+            "track_name" to title,
+            "artist_name" to artist,
+            "album_name" to album,
+            "duration" to seconds.toString(),
+        )
+        return "$BASE/get?${query(params)}"
     }
 
     /** Parmi les résultats de recherche : durée à ±3 s si connue, paroles synchronisées en priorité. */
