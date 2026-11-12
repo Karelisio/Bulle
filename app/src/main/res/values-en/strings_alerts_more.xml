@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Alerts added in 0.3.0 (network, sound, USB, privacy), categories and customization (English). -->
+<resources>
+    <string name="alerts_cell_lost">No signal</string>
+    <string name="alerts_cell_lost_short">No signal</string>
+    <string name="alerts_cell_lost_desc">Calls and mobile data unavailable</string>
+    <string name="alerts_cell_back">Signal is back</string>
+    <string name="alerts_cell_back_short">Signal</string>
+    <string name="alerts_five_g">Now on 5G</string>
+    <string name="alerts_vpn_on">VPN connected</string>
+    <string name="alerts_vpn_off">VPN disconnected</string>
+    <string name="alerts_hotspot_on">Hotspot on</string>
+    <string name="alerts_hotspot_off">Hotspot off</string>
+    <string name="alerts_hotspot_short">Hotspot</string>
+
+    <string name="alerts_ringer">Ring mode</string>
+    <string name="alerts_ringer_silent">Silent</string>
+    <string name="alerts_ringer_vibrate">Vibrate</string>
+    <string name="alerts_ringer_normal">Ring</string>
+    <string name="alerts_volume">Media volume</string>
+
+    <string name="alerts_usb_cable_on">USB cable connected</string>
+    <string name="alerts_usb_cable_off">USB cable disconnected</string>
+    <string name="alerts_usb_device_on">USB accessory connected</string>
+    <string name="alerts_usb_device_off">USB accessory removed</string>
+    <string name="alerts_usb_off_short">Unplugged</string>
+    <string name="alerts_usb_files">File transfer</string>
+    <string name="alerts_usb_photos">Photo transfer</string>
+    <string name="alerts_usb_tethering">USB tethering</string>
+    <string name="alerts_usb_charge_only">No data, charging only</string>
+
+    <string name="alerts_camera_short">Camera</string>
+    <string name="alerts_mic_short">Mic</string>
+    <string name="alerts_camera_in_use">Camera in use</string>
+    <string name="alerts_mic_in_use">Microphone in use</string>
+    <string name="alerts_privacy_generic">By an app on this phone</string>
+    <string name="alerts_privacy_settings">Privacy</string>
+
+    <string name="alerts_cat_energy">Battery &amp; charging</string>
+    <string name="alerts_cat_network">Network &amp; signal</string>
+    <string name="alerts_cat_devices">Bluetooth &amp; USB</string>
+    <string name="alerts_cat_sound">Sound &amp; display</string>
+    <string name="alerts_cat_privacy">Privacy &amp; captures</string>
+    <string name="alerts_cat_apps">Apps</string>
+    <string name="alerts_cat_echo">Echo</string>
+    <plurals name="alerts_cat_count">
+        <item quantity="one">%1$d of %2$d on</item>
+        <item quantity="other">%1$d of %2$d on</item>
+    </plurals>
+    <plurals name="alerts_cat_missing">
+        <item quantity="one">%1$d without permission</item>
+        <item quantity="other">%1$d without permission</item>
+    </plurals>
+    <string name="alerts_cat_expand">Expand or collapse</string>
+
+    <string name="alerts_set_cellular">Mobile network</string>
+    <string name="alerts_set_cellular_desc">\"No signal\" when coverage drops, \"Signal is back\" when it returns.</string>
+    <string name="alerts_set_five_g_desc">When the phone switches to 5G. Asks for phone state access.</string>
+    <string name="alerts_set_vpn_desc">A VPN connects or disconnects.</string>
+    <string name="alerts_set_hotspot">Hotspot</string>
+    <string name="alerts_set_hotspot_desc">Tethering turned on or off.</string>
+    <string name="alerts_set_ringer">Ring mode</string>
+    <string name="alerts_set_ringer_desc">Silent, vibrate or ring.</string>
+    <string name="alerts_set_volume">Media volume</string>
+    <string name="alerts_set_volume_desc">A bar that follows the volume, one alert per adjustment.</string>
+    <string name="alerts_set_usb_desc">Data cable to a computer or USB accessory. Plain charging stays under \"Plugged in\".</string>
+    <string name="alerts_set_camera">Camera in use</string>
+    <string name="alerts_set_camera_desc">A green dot while an app uses the camera.</string>
+    <string name="alerts_set_mic">Microphone in use</string>
+    <string name="alerts_set_mic_desc">An orange dot while an app uses the microphone.</string>
+    <string name="alerts_perm_five_g_denied">Without phone state access, Android won\'t tell whether you\'re on 5G. Alert turned off.</string>
+    <string name="alerts_privacy_note">Screen recording isn\'t shown: Android only reveals it to the recording app. The name of the app using the camera or microphone is reserved to the system.</string>
+
+    <string name="alerts_customize">Customize</string>
+    <string name="alerts_style_customized">Customized</string>
+    <string name="alerts_style_icon">Icon</string>
+    <string name="alerts_style_color">Color</string>
+    <string name="alerts_style_color_n">Color %1$d</string>
+    <string name="alerts_style_entrance">Entrance animation</string>
+    <string name="alerts_style_duration">Display time</string>
+    <string name="alerts_style_default">Default</string>
+    <string name="alerts_style_seconds">%1$d s</string>
+    <string name="alerts_style_reset">Reset</string>
+    <string name="alerts_style_try">Try in the island</string>
+    <string name="alerts_style_replay">Replay</string>
+    <string name="alerts_style_persistent">Stays as long as the state lasts: no display time to set.</string>
+    <string name="alerts_entrance_none">None</string>
+    <string name="alerts_entrance_bounce">Bounce</string>
+    <string name="alerts_entrance_pulse">Pulse</string>
+    <string name="alerts_entrance_slide">Slide</string>
+</resources>
