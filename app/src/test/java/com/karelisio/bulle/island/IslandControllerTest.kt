@@ -100,4 +100,25 @@ class IslandControllerTest {
         idle()
         scope.cancel()
     }
+
+    @Test
+    fun keyboardTapsDoNotCloseInputPanel() {
+        Modules.registerAll()
+        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val scope = MainScope()
+        val controller = IslandController(activity, scope, IslandWindow(activity))
+        controller.updateScreen { it.copy(geometry = geometry) }
+        controller.openPanel(com.karelisio.bulle.modules.search.AppSearchPanel)
+        controller.requestInput(true)
+        idle()
+        // Un appui sur le clavier arrive comme un toucher extérieur : le panneau doit rester.
+        controller.onOutsideTouch()
+        idle()
+        assertEquals(com.karelisio.bulle.modules.search.AppSearchPanel, controller.state.value.panel)
+        controller.requestInput(false)
+        controller.onOutsideTouch()
+        idle()
+        assertEquals(null, controller.state.value.panel)
+        scope.cancel()
+    }
 }

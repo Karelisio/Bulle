@@ -248,7 +248,13 @@ class IslandController(
         return true
     }
 
+    /** Saisie en cours (recherche d'applis…) : les touchers sur le clavier arrivent comme « extérieurs ». */
+    @Volatile
+    private var inputActive = false
+
     fun onOutsideTouch() {
+        // Taper sur le clavier ne doit pas refermer le panneau de saisie.
+        if (inputActive) return
         val st = state.value
         // Certains contenus restent ouverts (paroles synchronisées) : seul un toucher sur l'île les ferme.
         if (st.expanded && st.panel == null && st.primary?.stayExpandedOnOutsideTouch == true) return
@@ -273,10 +279,14 @@ class IslandController(
 
     override fun closePanel() {
         interaction.update { it.copy(panel = null) }
+        inputActive = false
         window.setFocusable(false)
     }
 
-    override fun requestInput(enabled: Boolean) = window.setFocusable(enabled, showKeyboard = enabled)
+    override fun requestInput(enabled: Boolean) {
+        inputActive = enabled
+        window.setFocusable(enabled, showKeyboard = enabled)
+    }
 
     /** À appeler quand l'île s'arrête. */
     fun release() = rules.stop()

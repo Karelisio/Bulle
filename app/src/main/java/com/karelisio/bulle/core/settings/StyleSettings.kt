@@ -55,4 +55,6 @@ data class StyleSettings(
      * (une petite fenêtre invisible suit l'île pour les touchers). Évite le scintillement.
      */
     val stableWindow: Boolean = true,
+    /** Île vide (rien à afficher) : invisible, mais toujours touchable pour les gestes (Deck…). */
+    val hideWhenIdle: Boolean = true,
 )
