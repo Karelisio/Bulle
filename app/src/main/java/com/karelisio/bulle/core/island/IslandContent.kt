@@ -52,6 +52,12 @@ abstract class IslandContent {
     open val showWhenHidden: Boolean = false
 
     /**
+     * Si vrai, un toucher hors de l'île étendue ne la replie pas : seul un toucher sur l'île
+     * (hors boutons) ou un glisser vers le haut la ferme. Ex. : paroles synchronisées en cours.
+     */
+    open val stayExpandedOnOutsideTouch: Boolean = false
+
+    /**
      * Petite seconde ligne optionnelle sous [Trailing] en mode compact (réglage « deux lignes »),
      * affichée seulement si la hauteur de l'île le permet. null = une seule ligne.
      */

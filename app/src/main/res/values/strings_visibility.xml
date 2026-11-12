@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Masquage : exceptions au plein écran -->
+    <string name="visibility_fullscreen_launcher">Jamais sur l’écran d’accueil</string>
+    <string name="visibility_fullscreen_launcher_desc">Certains écrans d’accueil cachent la barre d’état : l’île reste là quand même.</string>
+    <string name="visibility_fullscreen_apps">Applis où le plein écran ne masque pas l’île</string>
+    <string name="visibility_fullscreen_apps_desc">Dans ces applis, l’île reste visible même en plein écran.</string>
+    <string name="visibility_remove_app">Retirer %1$s</string>
+</resources>
