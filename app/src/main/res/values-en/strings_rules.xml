@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Advanced rules (V5): combined conditions, new triggers and actions. -->
+    <string name="rule_and">" and "</string>
+    <string name="rule_or">" or "</string>
+    <string name="rule_not">not “%1$s”</string>
+    <string name="rule_then">", "</string>
+    <string name="rule_when_never">never (no condition)</string>
+    <string name="rule_do_nothing">do nothing</string>
+    <string name="rule_when_battery_below">battery is at %1$d%% or less</string>
+    <string name="rule_when_battery_above">battery is at %1$d%% or more</string>
+    <string name="rule_when_bt">“%1$s” is connected</string>
+    <string name="rule_when_dark">dark theme is on</string>
+    <string name="rule_when_place">I’m at %1$s</string>
+    <string name="rule_when_place_unnamed">I’m at a chosen place</string>
+    <string name="rule_when_locked">the screen is locked</string>
+    <string name="rule_when_call">a call is in progress</string>
+    <string name="rule_when_days">it’s %1$s</string>
+    <string name="rule_days_week">a weekday</string>
+    <string name="rule_days_weekend">the weekend</string>
+    <string name="rule_days_all">any day</string>
+    <string name="rule_days_none">no day</string>
+    <string name="rule_do_module_on">turn on the %1$s module</string>
+    <string name="rule_do_module_off">turn off the %1$s module</string>
+    <string name="rule_do_focus">switch to focus mode</string>
+
+    <string name="rules_conditions">Conditions</string>
+    <string name="rules_actions">Actions</string>
+    <string name="rules_add_condition">Add a condition</string>
+    <string name="rules_add_action">Add an action</string>
+    <string name="rules_match_all">All (AND)</string>
+    <string name="rules_match_any">Any (OR)</string>
+    <string name="rules_not">Not</string>
+    <string name="rules_remove">Remove</string>
+    <string name="rules_active_now">Active now</string>
+    <string name="rules_inactive_now">Not active right now</string>
+    <string name="rules_t_battery">Battery</string>
+    <string name="rules_t_bt">Bluetooth device</string>
+    <string name="rules_t_dark">Dark theme</string>
+    <string name="rules_t_place">Place</string>
+    <string name="rules_t_locked">Screen locked</string>
+    <string name="rules_t_call">Call in progress</string>
+    <string name="rules_t_days">Days</string>
+    <string name="rules_a_module">Module</string>
+    <string name="rules_a_focus">Focus mode</string>
+    <string name="rules_battery_below">≤ threshold</string>
+    <string name="rules_battery_above">≥ threshold</string>
+    <string name="rules_battery_threshold">Threshold: %1$d%%</string>
+    <string name="rules_change_app">Change app</string>
+    <string name="rules_pick_bt">Choose device</string>
+    <string name="rules_bt_title">Paired devices</string>
+    <string name="rules_bt_empty">No paired device, or Bluetooth permission denied.</string>
+    <string name="rules_place_label">Place name</string>
+    <string name="rules_place_lat">Latitude</string>
+    <string name="rules_place_lon">Longitude</string>
+    <string name="rules_place_here">Use my location</string>
+    <string name="rules_place_radius">Radius: %1$d m</string>
+    <string name="rules_place_background">Allow “all the time”</string>
+    <string name="rules_place_background_hint">For the rule to work with the screen off, allow location “all the time”.</string>
+    <string name="rules_place_locating">Finding your location…</string>
+    <string name="rules_module_pick">Choose a module</string>
+    <string name="rules_module_enable">Turn on</string>
+    <string name="rules_module_disable">Turn off</string>
+    <string name="rules_pick_condition">New condition</string>
+    <string name="rules_pick_action">New action</string>
+</resources>

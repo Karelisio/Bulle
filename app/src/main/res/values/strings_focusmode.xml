@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mode focus (V3) : l'île ne montre que l'essentiel. -->
+    <string name="focusmode_title">Mode focus</string>
+    <string name="focusmode_summary">L’île ne montre que l’essentiel ; le reste attend la fin du focus.</string>
+    <string name="focusmode_on">Focus actif</string>
+    <string name="focusmode_off">Focus inactif</string>
+    <string name="focusmode_turn_on">Activer maintenant</string>
+    <string name="focusmode_turn_off">Désactiver</string>
+    <string name="focusmode_by_manual">Activé à la main</string>
+    <string name="focusmode_by_rule">Activé par une règle</string>
+    <string name="focusmode_by_app">Activé par une appli ouverte</string>
+    <string name="focusmode_by_schedule">Activé par un créneau</string>
+    <string name="focusmode_paused">Coupé à la main jusqu’au prochain changement</string>
+    <string name="focusmode_essential">Essentiel</string>
+    <string name="focusmode_threshold_hint">Contenus toujours montrés pendant le focus.</string>
+    <string name="focusmode_threshold_call">Appels</string>
+    <string name="focusmode_threshold_alarm">+ alarmes</string>
+    <string name="focusmode_threshold_alert">+ alertes</string>
+    <string name="focusmode_threshold_live">+ activités en direct</string>
+    <string name="focusmode_modules">Par module</string>
+    <string name="focusmode_module_auto">Auto</string>
+    <string name="focusmode_module_always">Toujours</string>
+    <string name="focusmode_module_never">Jamais</string>
+    <string name="focusmode_schedule">Créneaux</string>
+    <string name="focusmode_schedule_empty">Aucun créneau.</string>
+    <string name="focusmode_add_slot">Ajouter un créneau</string>
+    <string name="focusmode_apps">Applis</string>
+    <string name="focusmode_apps_hint">Le focus s’active tant qu’une de ces applis est ouverte.</string>
+    <string name="focusmode_add_app">Ajouter une appli</string>
+    <string name="focusmode_indicator">Indicateur dans l’île</string>
+    <string name="focusmode_indicator_summary">Une petite lune discrète pendant le focus.</string>
+    <string name="focusmode_remove">Retirer</string>
+</resources>
