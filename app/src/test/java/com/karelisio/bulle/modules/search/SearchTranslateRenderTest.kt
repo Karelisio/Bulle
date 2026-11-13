@@ -117,6 +117,7 @@ class SearchTranslateRenderTest {
 
     @Before
     fun setUp() {
+        com.karelisio.bulle.testing.ComposeDispatcherReset.unstick()
         Settings.Global.putFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
     }
 

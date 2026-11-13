@@ -18,6 +18,10 @@ Personnalisation avancée (V5)
 - **Accessibilité** : île lisible et pilotable avec TalkBack (résumé, actions, annonces réglables), textes agrandis respectés, contraste élevé (suit le réglage système), écran Réglages › Accessibilité.
 - **Règles avancées** : batterie, appareil Bluetooth précis, thème sombre, lieu, écran verrouillé, appel en cours, jours ; conditions ET/OU/PAS ; plusieurs actions ; activer/désactiver un module.
 
+Deck
+- Barre de recherche intégrée en haut du Deck (applis, calculs, conversions, devises, contacts, réglages), désactivable.
+- Favoris et widgets réordonnables dans chaque onglet : appui long sur la poignée puis glisser (ou « Monter / Descendre » avec TalkBack).
+
 Corrections
 - Volume : maintenir une touche volume fait de nouveau monter ou descendre le son en continu.
 - Karaoké : sans paroles mot à mot, le remplissage avance mot par mot selon les syllabes (au lieu de suivre la ligne lettre par lettre), sans ralentir la recherche des paroles.

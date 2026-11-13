@@ -173,4 +173,17 @@ class DeckRenderTest {
         actions.last().first().action()
         assertEquals(listOf("com.b/.Main", "com.c/.Main", "com.a/.Main"), deck.tabs.first().favorites)
     }
+
+    @Test
+    fun deckSearchReusesIslandSearchInPlace() {
+        val activity = launch()
+        val host = FakeHost(activity)
+        activity.setContent { BulleTheme { DeckPanel.DeckContent(host, DeckSettings(), initialSearch = true) } }
+        val all = settleUntil(activity) { it.contains("Back to the Deck") }
+        // Le contenu de la recherche de l'île est affiché dans le Deck et demande la saisie.
+        assertTrue(all.toString(), all.contains("Back to the Deck"))
+        assertEquals(true, host.inputRequests.firstOrNull())
+        assertFalse(all.contains("Flashlight"))
+    }
+
 }

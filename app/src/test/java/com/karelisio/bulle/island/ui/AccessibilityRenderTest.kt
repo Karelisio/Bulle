@@ -76,6 +76,7 @@ class AccessibilityRenderTest {
 
     @Before
     fun noAnimations() {
+        com.karelisio.bulle.testing.ComposeDispatcherReset.unstick()
         Settings.Global.putFloat(RuntimeEnvironment.getApplication().contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
     }
 
