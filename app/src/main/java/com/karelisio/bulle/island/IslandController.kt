@@ -288,6 +288,7 @@ class IslandController(
 
     override fun requestInput(enabled: Boolean) {
         inputActive = enabled
+        if (enabled) autoCollapseJob?.cancel()
         window.setFocusable(enabled, showKeyboard = enabled)
     }
 

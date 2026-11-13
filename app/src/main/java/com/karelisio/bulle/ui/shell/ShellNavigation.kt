@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.Hub
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.HealthAndSafety
@@ -101,6 +102,7 @@ object ShellCatalog {
                     ShellEntry(Routes.CALENDAR, R.string.calendar_module_title, R.string.nav_sum_calendar, Icons.Rounded.Event),
                     ShellEntry(Routes.WEATHER, R.string.weather_module_title, R.string.nav_sum_weather, Icons.Rounded.WbSunny),
                     ShellEntry(Routes.FOCUS, R.string.focus_module_title_nav, R.string.nav_sum_focus, Icons.Rounded.HourglassTop),
+                    ShellEntry(Routes.MESSAGES, R.string.module_messages, R.string.nav_sum_messages, Icons.Rounded.Forum),
                     ShellEntry(Routes.VOLUME, R.string.volume_module_title_nav, R.string.nav_sum_volume, Icons.AutoMirrored.Rounded.VolumeUp),
                 ),
             ),
