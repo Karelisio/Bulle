@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.annotation.StringRes
 import com.karelisio.bulle.R
@@ -27,7 +28,11 @@ object SettingsShortcuts {
         SettingsShortcut("battery", Intent.ACTION_POWER_USAGE_SUMMARY, R.string.search_set_battery, listOf("batterie", "battery", "autonomie", "economie d'energie", "power", "charge")),
         SettingsShortcut("display", Settings.ACTION_DISPLAY_SETTINGS, R.string.search_set_display, listOf("affichage", "ecran", "display", "screen", "luminosite", "brightness", "mode sombre", "dark mode")),
         SettingsShortcut("sound", Settings.ACTION_SOUND_SETTINGS, R.string.search_set_sound, listOf("son", "sound", "sonnerie", "ringtone", "volume", "vibration")),
-        SettingsShortcut("notifications", Settings.ACTION_ALL_APPS_NOTIFICATION_SETTINGS, R.string.search_set_notifications, listOf("notifications", "notification", "alertes", "alerts")),
+        SettingsShortcut(
+            "notifications",
+            // Liste des notifications par appli : Android 13+ ; avant, l'accueil des Réglages.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Settings.ACTION_ALL_APPS_NOTIFICATION_SETTINGS else Settings.ACTION_SETTINGS,
+            R.string.search_set_notifications, listOf("notifications", "notification", "alertes", "alerts")),
         SettingsShortcut("apps", Settings.ACTION_APPLICATION_SETTINGS, R.string.search_set_apps, listOf("applications", "applis", "apps", "application", "app")),
         SettingsShortcut("storage", Settings.ACTION_INTERNAL_STORAGE_SETTINGS, R.string.search_set_storage, listOf("stockage", "storage", "memoire", "espace", "space")),
         SettingsShortcut("location", Settings.ACTION_LOCATION_SOURCE_SETTINGS, R.string.search_set_location, listOf("localisation", "location", "position", "gps")),

@@ -23,7 +23,7 @@
     <string name="translate_settings_phone_language">Traduire vers la langue du téléphone</string>
     <string name="translate_settings_phone_language_summary">Actuellement : %1$s</string>
     <string name="translate_settings_wifi">Télécharger en Wi-Fi uniquement</string>
-    <string name="translate_settings_wifi_summary">Les modèles (≈ 30 Mo chacun) attendent un réseau Wi-Fi</string>
+    <string name="translate_settings_wifi_summary">Les modèles (≈ 30 Mo chacun) ne se téléchargent qu’en Wi-Fi</string>
     <string name="translate_settings_models">Modèles hors ligne</string>
     <string name="translate_settings_target">Langue cible</string>
     <string name="translate_settings_model_ready">Téléchargé</string>

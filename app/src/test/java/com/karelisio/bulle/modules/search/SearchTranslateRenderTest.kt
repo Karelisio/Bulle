@@ -51,6 +51,18 @@ class SearchTranslateRenderTest {
         }
     }
 
+    /** Comme [settle], mais jusqu'à ce que [done] soit vrai (10 s de temps réel au plus : machine chargée). */
+    private fun settleUntil(activity: Activity, done: (List<String>) -> Boolean): List<String> {
+        val end = System.currentTimeMillis() + 10_000
+        var all = texts(activity)
+        while (!done(all) && System.currentTimeMillis() < end) {
+            Thread.sleep(50)
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(100))
+            all = texts(activity)
+        }
+        return all
+    }
+
     private class FakeHost(override val context: Context) : IslandHost {
         val inputRequests = mutableListOf<Boolean>()
         var closed = 0
@@ -98,7 +110,7 @@ class SearchTranslateRenderTest {
     private fun renderSearch(query: String): Pair<ComponentActivity, FakeHost> {
         val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
         val host = FakeHost(activity)
-        activity.setContent { BulleTheme { SearchPanelContent(host, initialQuery = query) } }
+        activity.setContent { BulleTheme { SearchPanelContent(host, initialQuery = query, debounceMs = 0) } }
         settle()
         return activity to host
     }
@@ -111,6 +123,15 @@ class SearchTranslateRenderTest {
     @After
     fun tearDown() {
         CurrencyRates.fetcher = { null }
+        // Le panneau de recherche fait enregistrer à AppCatalog (objet global) son récepteur de paquets
+        // sur l'Application de CE test : on le réarme pour les tests suivants (nouvelle Application).
+        runCatching {
+            com.karelisio.bulle.core.apps.AppCatalog::class.java.getDeclaredField("watching").apply {
+                isAccessible = true
+                setBoolean(null, false)
+            }
+        }
+        com.karelisio.bulle.core.apps.AppCatalog.invalidate()
     }
 
     @Test
@@ -136,7 +157,7 @@ class SearchTranslateRenderTest {
             """{"amount":1.0,"base":"EUR","date":"2026-11-12","rates":{"USD":1.1}}"""
         }
         val (activity, _) = renderSearch("20 € en $")
-        val all = texts(activity)
+        val all = settleUntil(activity) { t -> t.any { it.contains("22") && it.endsWith("USD") } }
         assertTrue(all.toString(), all.any { it.contains("22") && it.endsWith("USD") })
         assertEquals(1, calls)
     }
@@ -163,9 +184,8 @@ class SearchTranslateRenderTest {
         val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
         val host = FakeHost(activity)
         val engine = FakeEngine()
-        activity.setContent { BulleTheme { TranslatePanelContent(host, engine) { "Hello" } } }
-        settle()
-        val all = texts(activity)
+        activity.setContent { BulleTheme { TranslatePanelContent(host, engine, debounceMs = 0, clipboardFallbackMs = 0) { "Hello" } } }
+        val all = settleUntil(activity) { it.contains("Bonjour") }
         assertTrue(all.toString(), all.contains("Hello"))
         assertTrue(all.toString(), all.contains("Bonjour"))
         assertEquals(true, host.inputRequests.first())
@@ -176,9 +196,8 @@ class SearchTranslateRenderTest {
         val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
         val host = FakeHost(activity)
         val engine = FakeEngine(missing = listOf("fr"))
-        activity.setContent { BulleTheme { TranslatePanelContent(host, engine) { "Hello" } } }
-        settle()
-        val all = texts(activity)
+        activity.setContent { BulleTheme { TranslatePanelContent(host, engine, debounceMs = 0, clipboardFallbackMs = 0) { "Hello" } } }
+        val all = settleUntil(activity) { it.contains("Download") }
         assertTrue(all.toString(), all.any { it.startsWith("Offline model missing") && it.contains("French") })
         assertTrue(all.toString(), all.contains("Download"))
     }
@@ -187,7 +206,7 @@ class SearchTranslateRenderTest {
     fun translatePanelEmptyClipboardOffersPaste() {
         val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
         val host = FakeHost(activity)
-        activity.setContent { BulleTheme { TranslatePanelContent(host, FakeEngine()) { null } } }
+        activity.setContent { BulleTheme { TranslatePanelContent(host, FakeEngine(), debounceMs = 0, clipboardFallbackMs = 0) { null } } }
         settle()
         assertTrue(texts(activity).contains("Paste or type some text"))
     }

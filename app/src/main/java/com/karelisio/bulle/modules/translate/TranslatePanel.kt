@@ -112,7 +112,13 @@ private fun onUnmeteredNetwork(context: Context): Boolean = runCatching {
 }.getOrDefault(false)
 
 @Composable
-internal fun TranslatePanelContent(host: IslandHost, engine: TranslationEngine, clipboard: () -> String?) {
+internal fun TranslatePanelContent(
+    host: IslandHost,
+    engine: TranslationEngine,
+    debounceMs: Long = 250,
+    clipboardFallbackMs: Long = 700,
+    clipboard: () -> String?,
+) {
     val context = host.context
     val view = LocalView.current
     val scope = rememberCoroutineScope()
@@ -153,7 +159,7 @@ internal fun TranslatePanelContent(host: IslandHost, engine: TranslationEngine, 
     }
     // Filet de sécurité : certains OEM ne notifient pas le focus ; on tente une lecture après un délai.
     LaunchedEffect(Unit) {
-        delay(700)
+        if (clipboardFallbackMs > 0) delay(clipboardFallbackMs)
         if (!clipboardRead) {
             clipboardRead = true
             clipboard()?.let { if (text.isEmpty()) text = it }
@@ -167,7 +173,7 @@ internal fun TranslatePanelContent(host: IslandHost, engine: TranslationEngine, 
             status = TranslateStatus.Idle
             return@LaunchedEffect
         }
-        delay(250)
+        if (debounceMs > 0) delay(debounceMs)
         status = TranslateStatus.Working
         try {
             val src = manualSource ?: engine.identify(text).also { detected = it }

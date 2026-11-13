@@ -70,7 +70,7 @@ object AppSearchPanel : IslandPanel {
 }
 
 @Composable
-internal fun SearchPanelContent(host: IslandHost, initialQuery: String = "") {
+internal fun SearchPanelContent(host: IslandHost, initialQuery: String = "", debounceMs: Long = 250) {
     val context = host.context
     var query by remember { mutableStateOf(initialQuery) }
     var apps by remember { mutableStateOf<List<AppEntry>>(emptyList()) }
@@ -111,7 +111,7 @@ internal fun SearchPanelContent(host: IslandHost, initialQuery: String = "") {
     LaunchedEffect(money, settings.currency) {
         if (money == null) return@LaunchedEffect
         rates = rates.copy(loading = true)
-        delay(250) // évite une requête par frappe
+        if (debounceMs > 0) delay(debounceMs) // évite une requête par frappe
         val snapshot = CurrencyRates.ratesFor(context, money, settings.currency)
         val now = System.currentTimeMillis()
         rates = RatesState(snapshot, loading = false, stale = snapshot != null && !Currency.isFresh(snapshot, now))
