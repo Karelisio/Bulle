@@ -116,8 +116,8 @@ class StylePacksRenderTest {
 
     @Test
     fun islandPlaysEntryAnimationsWithoutBreaking() {
-        // Animations système actives : les vraies courbes (goutte, éclat) sont jouées.
-        Settings.Global.putFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+        // Animations réduites (réglage de test) : la goutte et l'éclat passent par le fondu de repli ;
+        // leurs vraies courbes sont rendues par les cartes d'aperçu (entryAnimationsScreenRenders).
         runBlocking {
             SettingsRepository.update(context) {
                 it.copy(motion = it.motion.copy(entryAnimations = mapOf("default" to "DROP", "other" to "RIPPLE")))
