@@ -31,11 +31,11 @@ object BtAccessories {
     /** Niveau lu dans l'extra ou par réflexion : 0..100, sinon null (-1 = inconnu côté système). */
     fun parseLevel(raw: Any?): Int? = (raw as? Int)?.let(AlertRules::bluetoothBattery)
 
-    /** Met à jour (ou ajoute) un accessoire, en gardant le niveau connu si le nouveau est absent. */
+    /** Met à jour (ou ajoute) un accessoire (liste triée par nom, accents compris), en gardant le niveau connu si le nouveau est absent. */
     fun upsert(list: List<BtAccessory>, device: BtAccessory): List<BtAccessory> {
         val old = list.firstOrNull { it.address == device.address }
         val merged = if (old != null && device.level == null) device.copy(level = old.level) else device
-        return (list.filterNot { it.address == device.address } + merged).sortedBy { it.name.orEmpty().lowercase() }
+        return (list.filterNot { it.address == device.address } + merged).sortedWith(compareBy(java.text.Collator.getInstance()) { it.name.orEmpty() })
     }
 
     fun withLevel(list: List<BtAccessory>, address: String, level: Int?): List<BtAccessory> =
