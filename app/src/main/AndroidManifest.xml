@@ -45,6 +45,9 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <!-- Module Météo (modules/weather) : INTERNET et ACCESS_COARSE_LOCATION (position approximative,
          demandée à l'activation) sont déjà déclarées plus haut. -->
+    <!-- Recherche de l'île (modules/search) : contacts (appeler, SMS, fiche), lecture locale,
+         demandée à l'activation de la section Contacts ; la recherche fonctionne sans. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <!-- Module Volet, réglages rapides (modules/volet/qs) -->
     <!-- Ne pas déranger : indispensable pour figurer dans « Accès Ne pas déranger ». -->

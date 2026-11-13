@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Recherche de l'île (modules/search) : réponses instantanées, contacts, réglages -->
+    <string name="search_copy">Copier</string>
+    <string name="search_copied">Copié dans le presse-papiers</string>
+    <string name="search_currency_rate">%1$s · taux BCE du %2$s</string>
+    <string name="search_currency_offline">%1$s · taux BCE du %2$s (hors ligne)</string>
+    <string name="search_currency_loading">Récupération des taux de la BCE…</string>
+    <string name="search_currency_unavailable">Taux indisponibles (hors ligne)</string>
+    <string name="search_contact_call">Appeler</string>
+    <string name="search_contact_sms">SMS</string>
+    <string name="search_contacts_allow">Autoriser les contacts</string>
+
+    <!-- Raccourcis vers les Réglages système -->
+    <string name="search_set_wifi">Wi-Fi</string>
+    <string name="search_set_bluetooth">Bluetooth</string>
+    <string name="search_set_battery">Batterie</string>
+    <string name="search_set_display">Affichage</string>
+    <string name="search_set_sound">Son et vibration</string>
+    <string name="search_set_notifications">Notifications</string>
+    <string name="search_set_apps">Applications</string>
+    <string name="search_set_storage">Stockage</string>
+    <string name="search_set_location">Localisation</string>
+    <string name="search_set_accessibility">Accessibilité</string>
+    <string name="search_set_developer">Options pour les développeurs</string>
+    <string name="search_set_nfc">NFC</string>
+    <string name="search_set_mobile_data">Réseau mobile</string>
+    <string name="search_set_airplane">Mode avion</string>
+    <string name="search_set_network">Réseau et Internet</string>
+    <string name="search_set_date">Date et heure</string>
+    <string name="search_set_language">Langues</string>
+    <string name="search_set_keyboard">Clavier</string>
+    <string name="search_set_security">Sécurité</string>
+    <string name="search_set_privacy">Confidentialité</string>
+    <string name="search_set_dnd">Ne pas déranger</string>
+    <string name="search_set_cast">Diffusion d\'écran</string>
+    <string name="search_set_bulle">Autorisations de Bulle</string>
+    <string name="search_set_all">Paramètres</string>
+
+    <!-- Écran de réglages de la recherche -->
+    <string name="search_settings_title">Recherche</string>
+    <string name="search_settings_summary">Ouvrez la recherche depuis un geste sur l\'île : les applis apparaissent toujours, ces sections s\'ajoutent selon la saisie.</string>
+    <string name="search_settings_sections">Sections</string>
+    <string name="search_settings_calc">Calculatrice</string>
+    <string name="search_settings_calc_summary">« 12×3,5 », « sqrt(2) », « 15 % de 80 » : résultat en direct, toucher pour copier</string>
+    <string name="search_settings_units">Conversions d\'unités</string>
+    <string name="search_settings_units_summary">« 5 km en miles », « 30 °C en F », « 2 h en min »</string>
+    <string name="search_settings_currency">Devises</string>
+    <string name="search_settings_currency_summary">« 20 € en $ » : taux de la BCE (Frankfurter), mis en cache 12 h, utilisables hors ligne</string>
+    <string name="search_settings_contacts">Contacts</string>
+    <string name="search_settings_contacts_summary">Appeler, écrire ou ouvrir la fiche d\'un contact (lecture locale)</string>
+    <string name="search_settings_contacts_denied">Autorisation Contacts non accordée : touchez pour l\'accorder</string>
+    <string name="search_settings_system">Raccourcis des Réglages</string>
+    <string name="search_settings_system_summary">« wifi », « batterie », « mode avion »… ouvre directement l\'écran système</string>
+    <string name="search_settings_privacy">Tout est calculé sur le téléphone. Seule la conversion de devises contacte api.frankfurter.app, et uniquement quand la saisie en est une et que les taux en cache ont plus de 12 h.</string>
+    <string name="search_settings_rates_cached">Taux en cache : BCE du %1$s</string>
+    <string name="search_settings_rates_none">Aucun taux en cache</string>
+</resources>

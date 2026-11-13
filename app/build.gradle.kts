@@ -176,6 +176,9 @@ dependencies {
     implementation(libs.mlkit.barcode)
     // --- Zone packs de styles : QR code du partage de style (zxing core, encodeur seul, sans caméra). ---
     implementation(libs.zxing.core)
+    // Zone search/translate : traduction hors ligne (ML Kit Translation + identification de la langue).
+    implementation(libs.mlkit.translate)
+    implementation(libs.mlkit.language.id)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
