@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Accessibility: TalkBack summaries of the island, actions, "Accessibility" settings screen. -->
+<resources>
+    <string name="a11y_island_name">Bulle</string>
+    <string name="a11y_island_generic">Bulle</string>
+    <string name="a11y_island_music">Music</string>
+    <string name="a11y_island_call">Call</string>
+    <string name="a11y_island_video_call">Video call</string>
+    <string name="a11y_unknown_caller">Unknown number</string>
+    <string name="a11y_island_live">Ongoing activity</string>
+    <string name="a11y_island_downloads">Downloads</string>
+    <string name="a11y_downloads_count">%1$d in progress</string>
+    <string name="a11y_island_message">Message</string>
+    <string name="a11y_island_timer">Timer</string>
+    <string name="a11y_island_volume">Volume</string>
+    <string name="a11y_island_countdown">Countdown</string>
+    <string name="a11y_island_alert">Alert</string>
+    <string name="a11y_island_screen_record">Screen recording</string>
+    <string name="a11y_island_memo">Voice memo</string>
+    <string name="a11y_percent">%1$d percent</string>
+    <string name="a11y_remaining">%1$s left</string>
+    <string name="a11y_duration_hms">%1$d h %2$d min %3$d s</string>
+    <string name="a11y_duration_ms">%1$d min %2$d s</string>
+    <string name="a11y_duration_s">%1$d s</string>
+
+    <string name="a11y_state_playing">playing</string>
+    <string name="a11y_state_paused">paused</string>
+    <string name="a11y_state_ringing">ringing</string>
+    <string name="a11y_state_ongoing_for">ongoing for %1$s</string>
+    <string name="a11y_state_typing">typing</string>
+    <string name="a11y_state_muted">muted</string>
+    <string name="a11y_state_recording">recording</string>
+    <string name="a11y_state_expanded">Expanded</string>
+    <string name="a11y_state_collapsed">Collapsed</string>
+
+    <string name="a11y_panel_deck">Shortcut deck</string>
+    <string name="a11y_panel_search">Search</string>
+    <string name="a11y_panel_translate">Translation</string>
+    <string name="a11y_panel_focus">Focus timer</string>
+    <string name="a11y_panel_breathing">Breathing</string>
+
+    <string name="a11y_action_expand">Expand</string>
+    <string name="a11y_action_collapse">Collapse</string>
+    <string name="a11y_action_swap">Swap bubbles</string>
+    <string name="a11y_action_play">Play</string>
+    <string name="a11y_action_pause">Pause</string>
+    <string name="a11y_action_next">Next</string>
+    <string name="a11y_action_previous">Previous</string>
+    <string name="a11y_action_answer">Answer</string>
+    <string name="a11y_action_decline">Decline</string>
+    <string name="a11y_action_hang_up">Hang up</string>
+    <string name="a11y_action_open">Open</string>
+    <string name="a11y_action_mark_read">Mark as read</string>
+
+    <string name="a11y_settings_title">Accessibility</string>
+    <string name="a11y_settings_entry_summary">High contrast, text size, TalkBack announcements</string>
+    <string name="a11y_back">Back</string>
+    <string name="a11y_section_display">Display</string>
+    <string name="a11y_high_contrast">High contrast</string>
+    <string name="a11y_high_contrast_summary">Sharper text, visible outlines and saturated accents in the app and the island</string>
+    <string name="a11y_follow_system">Follow system setting</string>
+    <string name="a11y_follow_system_summary">Turns high contrast on when Android\'s “High contrast text” is on</string>
+    <string name="a11y_system_contrast_active">System high contrast text is on</string>
+    <string name="a11y_island_outline">Island outline</string>
+    <string name="a11y_island_outline_summary">In high contrast, a thin light outline surrounds the island</string>
+    <string name="a11y_text_size">Island text size</string>
+    <string name="a11y_text_size_summary">Applied on top of Android\'s font size</string>
+    <string name="a11y_text_size_value">%1$d percent</string>
+    <string name="a11y_section_talkback">TalkBack</string>
+    <string name="a11y_announcements">Island announcements</string>
+    <string name="a11y_announce_all">All</string>
+    <string name="a11y_announce_all_summary">Every new content, and its updates at most every 10 seconds</string>
+    <string name="a11y_announce_important">Important</string>
+    <string name="a11y_announce_important_summary">Alerts, messages and calls only</string>
+    <string name="a11y_announce_none">None</string>
+    <string name="a11y_announce_none_summary">The island stays readable by touching it</string>
+    <string name="a11y_section_system">System</string>
+    <string name="a11y_reduce_motion_on">“Remove animations” is on: Bulle\'s animations are turned off</string>
+    <string name="a11y_reduce_motion_off">Animations follow the system “Remove animations” setting</string>
+    <string name="a11y_system_settings">Android accessibility settings</string>
+    <string name="a11y_system_settings_summary">TalkBack, font size, contrast, animations</string>
+</resources>

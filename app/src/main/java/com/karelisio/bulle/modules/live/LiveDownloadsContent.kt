@@ -54,6 +54,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -90,6 +92,13 @@ data class LiveDownloadsContent(
     val overall: LiveProgress? = LiveDownloads.overall(items.map { it.activity })
 
     override val key = LiveDownloads.KEY
+
+    override fun describe(res: IslandSpeech.Res): String = single?.describe(res) ?: IslandSpeech.downloads(
+        res, items.size, overall?.takeIf { !it.indeterminate && it.max > 0 }?.let { (it.fraction * 100).toInt() },
+    )
+
+    override fun accessibilityActions(host: IslandHost, res: IslandSpeech.Res): List<IslandAccessibilityAction> =
+        single?.accessibilityActions(host, res) ?: emptyList()
     override val moduleId = LiveModule.ID
     override val priority = Priority.LIVE
     override val postedAt: Long = items.minOf { it.postedAt }

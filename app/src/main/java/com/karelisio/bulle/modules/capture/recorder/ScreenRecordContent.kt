@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -44,6 +46,12 @@ import com.karelisio.bulle.modules.live.ui.RollingText
  * confirmation d'arrêt (« Arrêter » / « Continuer »).
  */
 data class ScreenRecordContent(val session: RecorderSession) : IslandContent() {
+
+    override fun describe(res: IslandSpeech.Res): String = IslandSpeech.recording(
+        res, res.str(R.string.a11y_island_screen_record),
+        IslandSpeech.duration(res, android.os.SystemClock.elapsedRealtime() - session.startedAt).takeIf { session.startedAt > 0L },
+        paused = false,
+    )
     override val key = KEY
     override val moduleId = CaptureModule.ID
     override val priority = Priority.LIVE

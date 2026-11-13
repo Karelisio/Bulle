@@ -81,6 +81,12 @@ import com.karelisio.bulle.core.style.EntryAnimations
 import com.karelisio.bulle.ui.stylepacks.EntryAnimated
 import com.karelisio.bulle.ui.stylepacks.EntryTracker
 import com.karelisio.bulle.ui.theme.bulleColorScheme
+import com.karelisio.bulle.core.a11y.SystemAccessibility
+import com.karelisio.bulle.core.a11y.rememberSystemHighContrast
+import com.karelisio.bulle.core.settings.AccessibilitySettings
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -124,7 +130,14 @@ fun IslandScene(controller: IslandController) {
     val typography = remember(baseTypography, font, textScale) {
         islandTypography(baseTypography, IslandFonts.family(font), textScale)
     }
-    MaterialTheme(colorScheme = bulleColorScheme(dark = true), typography = typography) {
+    // Accessibilité : contraste élevé (réglage ou « Texte à contraste élevé » du système).
+    val settingsState by controller.settings.collectAsStateWithLifecycle()
+    val a11ySettings = settingsState.accessibility
+    val systemContrast by rememberSystemHighContrast()
+    val highContrast = a11ySettings.highContrastActive(systemContrast)
+    val baseScheme = bulleColorScheme(dark = true)
+    val scheme = remember(baseScheme, highContrast) { if (highContrast) highContrastIslandScheme(baseScheme) else baseScheme }
+    MaterialTheme(colorScheme = scheme, typography = typography) {
         // Interrupteur « Retour haptique » : les contenus (modules) qui passent par
         // LocalHapticFeedback deviennent silencieux quand il est coupé.
         val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
@@ -135,13 +148,18 @@ fun IslandScene(controller: IslandController) {
             LocalContentColor provides Color.White,
             androidx.compose.ui.platform.LocalHapticFeedback provides islandHaptics,
         ) {
-            IslandSurface(state, controller)
+            IslandSurface(state, controller, a11ySettings, highContrast)
         }
     }
 }
 
 @Composable
-private fun IslandSurface(state: IslandUiState, controller: IslandController) {
+private fun IslandSurface(
+    state: IslandUiState,
+    controller: IslandController,
+    a11ySettings: AccessibilitySettings = AccessibilitySettings(),
+    highContrast: Boolean = false,
+) {
     val g = state.geometry
     if (g.width == 0) return
     val density = LocalDensity.current
@@ -160,8 +178,15 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     val style = state.style
     val scheme = MaterialTheme.colorScheme
     val fill = islandFill(style, scheme)
-    val outlineColor = scheme.primary
-    val outlinePx = if (style.outline) with(density) { style.outlineWidthDp.dp.toPx() } else 0f
+    // Contraste élevé : fin contour clair (1 dp) autour de l'île, sauf si un contour est déjà choisi.
+    val hcOutline = highContrast && a11ySettings.islandOutline && !style.outline
+    val outlineOn = style.outline || hcOutline
+    val outlineColor = if (hcOutline) Color.White.copy(alpha = 0.9f) else scheme.primary
+    val outlinePx = when {
+        style.outline -> with(density) { style.outlineWidthDp.dp.toPx() }
+        hcOutline -> with(density) { 1.dp.toPx() }
+        else -> 0f
+    }
     val topFrac by animateFloatAsState(style.shape.topRadius, spring(dampingRatio = 0.7f), label = "shape")
     val bottomFrac by animateFloatAsState(style.shape.bottomRadius, spring(dampingRatio = 0.7f), label = "shape")
     val smoothing by animateFloatAsState(style.cornerSmoothing.coerceIn(0f, 1f), spring(dampingRatio = 0.8f), label = "smoothing")
@@ -213,6 +238,13 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
     val anim = remember { SurfaceAnim(target) }
     val currentController by rememberUpdatedState(controller)
 
+    // TalkBack : la fenêtre d'affichage du rendu stable ne capte aucun toucher, et le système
+    // ne présente pas aux services d'accessibilité les fenêtres non touchables. Pendant
+    // l'exploration tactile, l'île passe donc en rendu classique (une seule fenêtre ajustée).
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val touchExploration by remember(context) { SystemAccessibility.touchExploration(context) }.collectAsStateWithLifecycle()
+    val stable = style.stableWindow && !touchExploration
+
     // --- Éclat : la fenêtre s'élargit le temps que les bulles s'envolent ---
     val burstPad = with(density) { 44.dp.toPx() }.toInt()
     val burstState = remember { BurstState() }
@@ -220,7 +252,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         burstState.lastRequest = r
         currentController.applyWindow(
             // En rendu stable, la fenêtre d'affichage a déjà la place : la zone tactile reste celle de l'île.
-            if (burstState.active && !style.stableWindow) r.copy(width = r.width + 2 * burstPad, height = r.height + burstPad, touchable = r.touchable) else r,
+            if (burstState.active && !stable) r.copy(width = r.width + 2 * burstPad, height = r.height + burstPad, touchable = r.touchable) else r,
         )
     }
 
@@ -315,9 +347,29 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         launch { expandedAlpha.animateTo(if (mode == Mode.EXPANDED) 1f else 0f, if (mode == Mode.EXPANDED) motion.contentIn() else motion.contentOut()) }
     }
 
+    // Changement de mode de rendu (TalkBack activé / coupé) : replacer la fenêtre tout de suite.
+    LaunchedEffect(stable) { burstState.lastRequest?.let(::applyWin) }
+
+    // Sémantique TalkBack : résumé, état, actions principales, annonces limitées.
+    val a11y = rememberIslandA11y(
+        primary = primary.takeIf { mode == Mode.COMPACT || mode == Mode.EXPANDED },
+        panel = state.panel.takeIf { mode == Mode.EXPANDED },
+        expanded = mode == Mode.EXPANDED,
+        hasSecondary = secondary != null,
+        level = a11ySettings.announcements,
+        host = controller,
+        onToggleExpand = controller::toggleExpand,
+        onSwap = controller::swapBubbles,
+    )
+    val idleLabel = if (mode == Mode.IDLE && !style.hideWhenIdle) androidx.compose.ui.res.stringResource(com.karelisio.bulle.R.string.a11y_island_name) else null
+    // Texte agrandi (échelle de police système) : la carte étendue est plafonnée en hauteur et défile.
+    val fontScale = density.fontScale
+    val bigText = fontScale >= 1.5f
+    val expandedScroll = androidx.compose.foundation.rememberScrollState()
+    val expandedMaxHeight = with(density) { (view.resources.displayMetrics.heightPixels * 0.8f).toDp() }
+
     // Rendu stable : la fenêtre couvre toute la largeur depuis le haut de l'écran ; on place
     // donc l'île sur la caméra par un décalage (la fenêtre, elle, ne bouge jamais).
-    val stable = style.stableWindow
     Box(
         Modifier
             .fillMaxSize()
@@ -366,14 +418,21 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                     drawShimmer(shimmer.value, accent)
                 }
                 .then(
-                    if (!LiquidSupported && style.outline) {
+                    if (!LiquidSupported && outlineOn) {
                         val borderShape = if (style.cornerSmoothing > CornerSmoothing.Epsilon) {
                             SmoothCornerShape(g.height / 2f * style.shape.topRadius, g.height / 2f * style.shape.bottomRadius, style.cornerSmoothing)
                         } else RoundedCornerShape(50)
                         Modifier.border(with(density) { outlinePx.toDp() }, outlineColor, borderShape)
                     } else Modifier,
                 )
-                .islandGestures(enabled = mode != Mode.HIDDEN, doubleTap = state.doubleTapEnabled, onGesture = controller::onGesture),
+                .islandGestures(enabled = mode != Mode.HIDDEN, doubleTap = state.doubleTapEnabled, onGesture = controller::onGesture)
+                .islandSemantics(
+                    a11y,
+                    visible = mode != Mode.HIDDEN,
+                    compact = mode == Mode.COMPACT,
+                    idleLabel = idleLabel,
+                    onGesture = controller::onGesture,
+                ),
         ) {
             // Vue compacte : emplacements de part et d'autre de la caméra.
             if (mode == Mode.COMPACT || compactShown) {
@@ -381,7 +440,9 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                     Modifier
                         .align(Alignment.TopCenter)
                         .wrapContentSize(Alignment.TopCenter, unbounded = true)
-                        .graphicsLayer { alpha = compactAlpha.value },
+                        .graphicsLayer { alpha = compactAlpha.value }
+                        // Résumé fourni : le contenu compact est décoratif pour TalkBack.
+                        .then(if (a11y.label != null || mode != Mode.COMPACT) Modifier.clearAndSetSemantics { } else Modifier),
                 ) {
                     AnimatedContent(
                         targetState = state.primary,
@@ -401,6 +462,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                         if (content != null) {
                             val entry = remember { if (entryTracker.consume(content.key)) entryFor(content) else EntryAnimation.INFLATE }
                             EntryAnimated(entry, content.accent ?: scheme.primary, state.motion.speed) {
+                            CompactFontScale(g.height, density) {
                             CompactRow(
                                 content, g.width, g.height, density, compactScale,
                                 direction = direction,
@@ -408,6 +470,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                                 subtitle = content.compactSubtitle
                                     ?.takeIf { style.twoLineCompact && IslandLayout.twoLineFits(g.height, density.density, style.textScale) },
                             )
+                            }
                             }
                         }
                     }
@@ -421,6 +484,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                         .align(Alignment.TopCenter)
                         .requiredWidth(with(density) { expandedWidth.toDp() })
                         .wrapContentHeight(Alignment.Top, unbounded = true)
+                        .then(if (bigText) Modifier.heightIn(max = expandedMaxHeight) else Modifier)
                         .onSizeChanged { expandedContentHeight = it.height }
                         .graphicsLayer {
                             val a = expandedAlpha.value
@@ -431,6 +495,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                             val blur = if (blurOn) (1f - a) * 12.dp.toPx() else 0f
                             renderEffect = if (blur > 0.5f) BlurEffect(blur, blur, TileMode.Decal) else null
                         }
+                        .then(if (bigText) Modifier.verticalScroll(expandedScroll) else Modifier)
                         .padding(top = with(density) { g.height.toDp() } + 4.dp, bottom = 18.dp, start = 18.dp, end = 18.dp),
                 ) {
                     val panel = state.panel
@@ -491,7 +556,8 @@ private fun SecondaryBubble(
                 clip = true
             }
             .then(if (LiquidSupported) Modifier else Modifier.background(fill))
-            .pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) },
+            .pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) }
+            .secondarySemantics(content, onTap),
         contentAlignment = Alignment.Center,
     ) {
         content.Minimal()
@@ -571,6 +637,27 @@ private fun CompactRow(
                 OpenDirection.RIGHT -> { camera(); leading(); trailing() }
             }
         }
+    }
+}
+
+/**
+ * Échelle de police appliquée au contenu compact : celle du système, plafonnée pour qu'une ligne
+ * tienne dans la hauteur de l'île (au-delà, défilement ou points de suspension sur la largeur).
+ * Échelle ≤ 1,3 sur une île de hauteur courante : inchangée.
+ */
+internal fun compactFontScale(heightPx: Int, density: androidx.compose.ui.unit.Density): Float {
+    val heightDp = heightPx / density.density.coerceAtLeast(0.1f)
+    val max = (heightDp / 26f).coerceAtLeast(1f)
+    return density.fontScale.coerceIn(0.5f, max)
+}
+
+@Composable
+private fun CompactFontScale(heightPx: Int, density: androidx.compose.ui.unit.Density, content: @Composable () -> Unit) {
+    val scale = compactFontScale(heightPx, density)
+    if (scale == density.fontScale) {
+        content()
+    } else {
+        CompositionLocalProvider(LocalDensity provides androidx.compose.ui.unit.Density(density.density, scale), content = content)
     }
 }
 

@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -85,6 +87,8 @@ data class CountdownContent(
     override val compactSlotWidth: Dp = if (pinned.status == CountdownStatus.Today) 92.dp else 56.dp
     override val compactSubtitle: String = pinned.event.name
 
+    override fun describe(res: IslandSpeech.Res): String = IslandSpeech.countdown(res, pinned.event.name, null)
+
     @Composable
     override fun Leading() = EventEmoji(pinned.event, festive = pinned.status == CountdownStatus.Today, size = 22.dp)
 
@@ -123,6 +127,8 @@ data class CountdownReminderContent(
     override val accent: Color = Color(occurrence.event.color)
     override val compactSlotWidth: Dp = 96.dp
     override val compactSubtitle: String = occurrence.event.name
+
+    override fun describe(res: IslandSpeech.Res): String = IslandSpeech.countdown(res, occurrence.event.name, null)
 
     @Composable
     override fun Leading() = EventEmoji(occurrence.event, festive = false, size = 22.dp)

@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -41,6 +43,18 @@ data class FocusContent(
     override val postedAt: Long,
 ) : IslandContent() {
     override val key = KEY
+
+    override fun describe(res: IslandSpeech.Res): String = IslandSpeech.timer(
+        res,
+        when (state.phase) {
+            FocusPhase.TIMER -> null
+            FocusPhase.WORK -> res.str(R.string.focus_phase_work, state.cycle, state.cycles)
+            FocusPhase.SHORT_BREAK -> res.str(R.string.focus_phase_break, state.cycle, state.cycles)
+            FocusPhase.LONG_BREAK -> res.str(R.string.focus_phase_long_break)
+        },
+        IslandSpeech.duration(res, FocusTimer.remaining(state, System.currentTimeMillis())),
+        state.running,
+    )
     override val moduleId = FocusModule.ID
     override val priority = Priority.LIVE
     override val accent: Color = FocusColors.of(state.phase)

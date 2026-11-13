@@ -10,6 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -70,6 +73,19 @@ data class MusicContent(
     // Calculés à la construction : l'arbitre et le contrôleur les lisent souvent.
     override val stayExpandedOnOutsideTouch: Boolean = keepLyricsOpen && hasSyncedLyrics
     override val showWhenHidden: Boolean = stayVisibleWithLyrics && isPlaying && hasSyncedLyrics
+
+    override fun describe(res: IslandSpeech.Res): String =
+        IslandSpeech.music(res, track.title, track.artist, isPlaying)
+
+    override fun accessibilityActions(host: IslandHost, res: IslandSpeech.Res): List<IslandAccessibilityAction> {
+        val controls = controller.transportControls
+        return listOf(
+            if (isPlaying) IslandAccessibilityAction(res.str(R.string.a11y_action_pause)) { controls.pause() }
+            else IslandAccessibilityAction(res.str(R.string.a11y_action_play)) { controls.play() },
+            IslandAccessibilityAction(res.str(R.string.a11y_action_next)) { controls.skipToNext() },
+            IslandAccessibilityAction(res.str(R.string.a11y_action_previous)) { controls.skipToPrevious() },
+        )
+    }
 
     @Composable
     override fun Leading() = CompactArtwork(artwork?.image, isPlaying, accent)

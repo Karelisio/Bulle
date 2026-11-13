@@ -81,6 +81,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karelisio.bulle.R
+import com.karelisio.bulle.ui.components.switchRow
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.CardStyle
 import com.karelisio.bulle.core.settings.IslandColorMode
@@ -469,9 +470,9 @@ private fun NavCard(title: String, subtitle: String, icon: androidx.compose.ui.g
 private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     ListItem(
         headlineContent = { Text(label) },
-        trailingContent = { Switch(checked = checked, onCheckedChange = onChange) },
+        trailingContent = { Switch(checked = checked, onCheckedChange = null) },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        modifier = Modifier.clickable { onChange(!checked) },
+        modifier = Modifier.switchRow(checked, onChange = onChange),
     )
 }
 
