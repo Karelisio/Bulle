@@ -33,6 +33,8 @@ android {
         versionCode = appVersionCode
         versionName = appVersionName
         buildConfigField("String", "GITHUB_REPO", "\"karelisio/bulle\"")
+        // Appareils cibles 64 bits ARM uniquement : divise par ~4 le poids des bibliothèques natives (ML Kit).
+        ndk { abiFilters += listOf("arm64-v8a") }
     }
 
     signingConfigs {
@@ -88,6 +90,8 @@ android {
 
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        // Bibliothèques natives (ML Kit) compressées dans l'APK : mise à jour ~2× plus légère à télécharger.
+        jniLibs.useLegacyPackaging = true
     }
 }
 
@@ -165,6 +169,18 @@ dependencies {
     // Shizuku (optionnel à l'exécution) : bascules système des réglages rapides du Volet.
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
+    // Zone capture (modules/capture) : scanner QR — CameraX (aperçu + analyse d'image)
+    // et ML Kit Barcode Scanning avec modèle intégré (aucun téléchargement Play Services).
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+    implementation(libs.mlkit.barcode)
+    // --- Zone packs de styles : QR code du partage de style (zxing core, encodeur seul, sans caméra). ---
+    implementation(libs.zxing.core)
+    // Zone search/translate : traduction hors ligne (ML Kit Translation + identification de la langue).
+    implementation(libs.mlkit.translate)
+    implementation(libs.mlkit.language.id)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

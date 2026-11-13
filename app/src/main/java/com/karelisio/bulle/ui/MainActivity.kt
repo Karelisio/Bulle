@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
-            BulleTheme {
+            BulleTheme(highContrast = com.karelisio.bulle.ui.theme.rememberHighContrast()) {
                 val done = onboardingDone ?: return@BulleTheme
                 // Premier lancement : onboarding, puis fondu vers l'appli.
                 AnimatedContent(

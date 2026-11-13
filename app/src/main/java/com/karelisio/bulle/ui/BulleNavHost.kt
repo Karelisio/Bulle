@@ -62,6 +62,15 @@ object Routes {
     const val MESSAGES = "messages"
     const val NETWORK = "network"
     const val BATTERY = "battery"
+    const val COUNTDOWN = "countdown"
+    const val SCREENTIME = "screentime"
+    const val CAPTURE = "capture"
+    const val FOCUS_MODE = "focus_mode"
+    const val ACCESSIBILITY = "settings/accessibility"
+    const val SEARCH = "search_settings"
+    const val TRANSLATE = "translate_settings"
+    const val STYLE_PACKS = "style/packs"
+    const val ENTRY_ANIMATIONS = "style/entry"
     const val VOLET_HISTORY = "volet/history"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
@@ -87,7 +96,15 @@ fun BulleNavHost() {
         // Racine : la coque à onglets (Accueil, Style, Contenus, Réglages) et sa barre flottante.
         // Chaque entrée ouvre un écran existant en plein écran, par-dessus la coque.
         screen(Routes.HOME) { BulleShell(onOpen = { nav.navigate(it) { launchSingleTop = true } }) }
-        screen(Routes.STYLE) { StyleScreen(onBack = back) }
+        screen(Routes.STYLE) {
+            StyleScreen(
+                onBack = back,
+                onOpenStylePacks = { nav.navigate(Routes.STYLE_PACKS) { launchSingleTop = true } },
+                onOpenEntryAnimations = { nav.navigate(Routes.ENTRY_ANIMATIONS) { launchSingleTop = true } },
+            )
+        }
+        composable(Routes.STYLE_PACKS) { com.karelisio.bulle.ui.stylepacks.StylePacksRoute(onBack = back) }
+        composable(Routes.ENTRY_ANIMATIONS) { com.karelisio.bulle.ui.stylepacks.EntryAnimationsScreen(onBack = back) }
         screen(Routes.POSITION) { PositionScreen(onBack = back) }
         screen(Routes.VISIBILITY) { VisibilityScreen(onBack = back) }
         composable(Routes.GESTURES) { GesturesSettingsScreen(onBack = back) }
@@ -101,6 +118,13 @@ fun BulleNavHost() {
         composable(Routes.VOLUME) { com.karelisio.bulle.modules.volume.ui.VolumeSettingsScreen(onBack = back) }
         composable(Routes.NETWORK) { com.karelisio.bulle.modules.network.ui.NetworkSettingsScreen(onBack = back) }
         composable(Routes.BATTERY) { com.karelisio.bulle.modules.battery.ui.BatterySettingsScreen(onBack = back) }
+        composable(Routes.COUNTDOWN) { com.karelisio.bulle.modules.countdown.ui.CountdownSettingsScreen(onBack = back) }
+        composable(Routes.SCREENTIME) { com.karelisio.bulle.modules.screentime.ui.ScreenTimeSettingsScreen(onBack = back) }
+        composable(Routes.CAPTURE) { com.karelisio.bulle.modules.capture.ui.CaptureSettingsScreen(onBack = back) }
+        composable(Routes.FOCUS_MODE) { com.karelisio.bulle.modules.focusmode.ui.FocusModeSettingsScreen(onBack = back) }
+        composable(Routes.SEARCH) { com.karelisio.bulle.modules.search.ui.SearchSettingsScreen(onBack = back) }
+        composable(Routes.TRANSLATE) { com.karelisio.bulle.modules.translate.ui.TranslateSettingsScreen(onBack = back) }
+        composable(Routes.ACCESSIBILITY) { com.karelisio.bulle.ui.settings.AccessibilitySettingsScreen(onBack = back) }
         composable(Routes.MESSAGES) { com.karelisio.bulle.modules.messages.ui.MessagesSettingsScreen(onBack = back) }
         composable(Routes.INTEGRATIONS) { com.karelisio.bulle.modules.external.ui.IntegrationsSettingsScreen(onBack = back) }
         composable(Routes.WEATHER) { com.karelisio.bulle.modules.weather.ui.WeatherSettingsScreen(onBack = back) }

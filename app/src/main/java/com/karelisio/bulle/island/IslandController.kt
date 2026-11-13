@@ -83,7 +83,7 @@ class IslandController(
 
     /** Réglages effectifs (avec les effets des règles automatiques actives). */
     val settings: StateFlow<BulleSettings> = combine(storedSettings, ruleEffects) { s, e ->
-        e.motionStyle?.let { s.copy(motion = s.motion.copy(style = it)) } ?: s
+        e.applyTo(s)
     }.stateIn(scope, SharingStarted.Eagerly, BulleSettings())
 
     private val rules = RuleEngine(
@@ -177,7 +177,9 @@ class IslandController(
     fun applyWindow(request: WindowRequest) {
         lastWindow = request
         val g = screen.value.geometry
-        window.stable = settings.value.style.stableWindow
+        // TalkBack : rendu classique (voir IslandScene), la fenêtre d'affichage stable n'étant pas touchable.
+        window.stable = settings.value.style.stableWindow &&
+            !com.karelisio.bulle.core.a11y.SystemAccessibility.isTouchExplorationEnabled(context)
         window.update(
             g.centerX, g.top, request.width, request.height, request.touchable, request.watchOutside,
             screenWidth = g.screenWidth.takeIf { it > 0 } ?: context.resources.displayMetrics.widthPixels,
@@ -198,6 +200,7 @@ class IslandController(
                 if (deck != null) openPanel(deck) else toggleExpand()
             }
             override fun openTimer() = openPanel(com.karelisio.bulle.modules.focus.FocusPanel)
+            override fun openTranslate() = openPanel(com.karelisio.bulle.modules.translate.TranslatePanel)
             override fun openCraving() {
                 com.karelisio.bulle.modules.ecosystem.Ecosystem.openCraving(context) { openPanel(it) }
             }

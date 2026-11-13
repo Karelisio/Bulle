@@ -71,6 +71,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -119,6 +121,19 @@ data class MessageContent(
     /** Nom affiché selon la confidentialité. */
     val displayName: String get() = (if (visibility.showSender) info.sender else null) ?: info.appName
     val canReply: Boolean get() = visibility.canReply && info.reply != null
+
+    override fun describe(res: IslandSpeech.Res): String = IslandSpeech.message(
+        res,
+        info.sender?.takeIf { visibility.showSender },
+        info.appName,
+        info.messages.lastOrNull()?.text?.toString()?.takeIf { visibility.showText },
+        typing,
+    )
+
+    override fun accessibilityActions(host: IslandHost, res: IslandSpeech.Res): List<IslandAccessibilityAction> = buildList {
+        info.contentIntent?.let { add(IslandAccessibilityAction(res.str(R.string.a11y_action_open)) { NotificationIntents.send(host.context, it) }) }
+        info.markAsRead?.takeIf { visibility.canReply }?.let { add(IslandAccessibilityAction(res.str(R.string.a11y_action_mark_read)) { NotificationIntents.send(host.context, it) }) }
+    }
 
     @Composable
     override fun Leading() = SenderAvatar(24.dp)

@@ -48,6 +48,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -64,6 +66,9 @@ data class VolumeContent(
 ) : IslandContent() {
     override val timeoutMs: Long? = VolumeLogic.timeoutFor(baseTimeoutMs, overlay.holding, overlay.expanded)
     override val key = KEY
+
+    override fun describe(res: IslandSpeech.Res): String =
+        IslandSpeech.volume(res, null, (overlay.fraction * 100).toInt(), overlay.muted)
     override val moduleId = VolumeModule.ID
     override val priority = Priority.ALERT
     override val postedAt: Long = overlay.shownAt

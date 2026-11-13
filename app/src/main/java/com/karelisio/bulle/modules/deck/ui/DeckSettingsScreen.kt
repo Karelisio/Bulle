@@ -71,12 +71,34 @@ import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.modules.deck.DeckSettings
 import com.karelisio.bulle.modules.deck.DeckTab
 import com.karelisio.bulle.modules.deck.DeckWidgets
+import com.karelisio.bulle.modules.deck.moved
 import com.karelisio.bulle.ui.components.cascade
 import com.karelisio.bulle.ui.settings.ActionList
 import com.karelisio.bulle.ui.settings.AppList
 import com.karelisio.bulle.ui.settings.icon
 import com.karelisio.bulle.ui.settings.label
 import kotlinx.coroutines.launch
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.zIndex
+import com.karelisio.bulle.modules.deck.DeckSection
+import com.karelisio.bulle.modules.deck.reorder
+import com.karelisio.bulle.modules.deck.withOrder
+import com.karelisio.bulle.ui.components.rememberReduceMotion
+import kotlinx.coroutines.flow.map
 
 @Composable
 private fun rememberDeck(): Pair<DeckSettings, (suspend (DeckSettings) -> DeckSettings) -> Unit> {
@@ -134,6 +156,13 @@ fun DeckSettingsScreen(onBack: () -> Unit, onOpenTab: (String) -> Unit) {
                         Switch(checked = deck.themedIcons, onCheckedChange = { on -> update { it.copy(themedIcons = on) } })
                     },
                 )
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.deck_search_bar)) },
+                    supportingContent = { Text(stringResource(R.string.deck_search_bar_desc)) },
+                    trailingContent = {
+                        Switch(checked = deck.searchBar, onCheckedChange = { on -> update { it.copy(searchBar = on) } })
+                    },
+                )
                 Text(
                     stringResource(R.string.deck_tabs_hint),
                     style = MaterialTheme.typography.bodySmall,
@@ -187,12 +216,7 @@ fun DeckSettingsScreen(onBack: () -> Unit, onOpenTab: (String) -> Unit) {
 
 private fun Modifier.clip28() = this.clip(RoundedCornerShape(28.dp))
 
-private fun <T> List<T>.move(from: Int, to: Int): List<T> {
-    if (from !in indices || to !in indices) return this
-    val m = toMutableList()
-    m.add(to, m.removeAt(from))
-    return m
-}
+private fun <T> List<T>.move(from: Int, to: Int): List<T> = moved(from, to)
 
 private enum class TabSheet { NONE, FAVORITE, SHORTCUT, WIDGET }
 
@@ -200,6 +224,20 @@ private enum class TabSheet { NONE, FAVORITE, SHORTCUT, WIDGET }
 @Composable
 fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
     val (deck, update) = rememberDeck()
+    val context = LocalContext.current
+    val haptics by remember { SettingsRepository.flow(context).map { it.motion.haptics } }.collectAsStateWithLifecycle(true)
+    DeckTabScreenContent(deck, update, haptics, tabId, onBack)
+}
+
+/** Contenu de [DeckTabScreen], indépendant du stockage (testable). */
+@Composable
+internal fun DeckTabScreenContent(
+    deck: DeckSettings,
+    update: (suspend (DeckSettings) -> DeckSettings) -> Unit,
+    haptics: Boolean,
+    tabId: String,
+    onBack: () -> Unit,
+) {
     val context = LocalContext.current
     val tab = deck.tabs.firstOrNull { it.id == tabId } ?: return
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -211,6 +249,13 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
     fun edit(transform: (DeckTab) -> DeckTab) = update { d -> d.copy(tabs = d.tabs.map { if (it.id == tabId) transform(it) else it }) }
 
     fun addWidget(id: Int) = edit { it.copy(widgets = it.widgets + id) }
+
+    // Réorganisation des favoris et des widgets (glisser-déposer ou actions TalkBack).
+    val listState = rememberLazyListState()
+    val reorder = rememberDeckReorderState(listState)
+    val reduceMotion = rememberReduceMotion()
+    LaunchedEffect(tab.favorites, tab.widgets) { reorder.clearPending() }
+    fun drop(section: DeckSection, order: List<String>) = update { it.withOrder(tabId, section, order) }
 
     // Configuration du widget si nécessaire (via l'hôte), sinon ajout direct.
     val configure = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { r ->
@@ -291,6 +336,7 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
         topBar = { BackTopBar(tab.name.ifBlank { stringResource(R.string.deck_tab_default, deck.tabs.indexOf(tab) + 1) }, onBack, scroll) },
     ) { padding ->
         LazyColumn(
+            state = listState,
             contentPadding = PaddingValues(top = padding.calculateTopPadding(), bottom = 32.dp, start = 16.dp, end = 16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
@@ -305,19 +351,21 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
             }
             // Favoris
             item { SectionHeader(stringResource(R.string.deck_favorites)) { sheet = TabSheet.FAVORITE } }
-            items(tab.favorites, key = { "f$it" }) { flat ->
-                val component = ComponentName.unflattenFromString(flat) ?: return@items
+            val favorites = reorder.displayed(DeckSection.FAVORITES, tab.favorites)
+            itemsIndexed(favorites, key = { _, flat -> "f$flat" }) { i, flat ->
+                val component = ComponentName.unflattenFromString(flat) ?: return@itemsIndexed
                 val label = remember(flat) {
                     runCatching { context.packageManager.getActivityInfo(component, 0).loadLabel(context.packageManager).toString() }
                         .getOrDefault(component.packageName)
                 }
-                SwipeRow(Modifier.animateItem(), onDelete = { edit { it.copy(favorites = it.favorites - flat) } }) {
-                    ListItem(
-                        headlineContent = { Text(label) },
-                        leadingContent = { AppIcon(AppEntry(label, component.packageName, component), 40.dp, themed = deck.themedIcons) },
-                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-                    )
-                }
+                ReorderRow(
+                    reorder, DeckSection.FAVORITES, "f", favorites, flat, i, haptics, reduceMotion,
+                    onMove = { from, to -> update { it.reorder(tabId, DeckSection.FAVORITES, from, to) } },
+                    onDrop = ::drop,
+                    onDelete = { edit { it.copy(favorites = it.favorites - flat) } },
+                    headline = label,
+                    leading = { AppIcon(AppEntry(label, component.packageName, component), 40.dp, themed = deck.themedIcons) },
+                )
             }
             // Raccourcis
             item { SectionHeader(stringResource(R.string.deck_shortcuts)) { sheet = TabSheet.SHORTCUT } }
@@ -332,22 +380,25 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
             }
             // Widgets
             item { SectionHeader(stringResource(R.string.deck_widgets)) { sheet = TabSheet.WIDGET } }
-            items(tab.widgets, key = { "w$it" }) { id ->
+            val widgets = reorder.displayed(DeckSection.WIDGETS, tab.widgets.map { it.toString() })
+            itemsIndexed(widgets, key = { _, id -> "w$id" }) { i, key ->
+                val id = key.toInt()
                 val info = remember(id) { DeckWidgets.info(context, id) }
-                SwipeRow(Modifier.animateItem(), onDelete = {
-                    DeckWidgets.delete(context, id)
-                    edit { it.copy(widgets = it.widgets - id) }
-                }) {
-                    ListItem(
-                        headlineContent = { Text(info?.loadLabel(context.packageManager) ?: "Widget #$id") },
-                        leadingContent = { Icon(Icons.Rounded.Widgets, contentDescription = null) },
-                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-                    )
-                }
+                ReorderRow(
+                    reorder, DeckSection.WIDGETS, "w", widgets, key, i, haptics, reduceMotion,
+                    onMove = { from, to -> update { it.reorder(tabId, DeckSection.WIDGETS, from, to) } },
+                    onDrop = ::drop,
+                    onDelete = {
+                        DeckWidgets.delete(context, id)
+                        edit { it.copy(widgets = it.widgets - id) }
+                    },
+                    headline = info?.loadLabel(context.packageManager) ?: "Widget #$id",
+                    leading = { Icon(Icons.Rounded.Widgets, contentDescription = null) },
+                )
             }
             item {
                 Text(
-                    stringResource(R.string.deck_swipe_hint),
+                    stringResource(R.string.deck_reorder_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(16.dp),
@@ -387,6 +438,74 @@ private fun SectionHeader(title: String, onAdd: () -> Unit) {
             Icon(Icons.Rounded.Add, contentDescription = null)
             Text(stringResource(R.string.deck_add))
         }
+    }
+}
+
+/**
+ * Ligne réordonnable : poignée (appui long + glisser) et actions TalkBack « Monter / Descendre ».
+ * L'élément saisi suit le doigt (graphicsLayer), ses voisins glissent au ressort (animateItem).
+ */
+@Composable
+private fun LazyItemScope.ReorderRow(
+    state: DeckReorderState,
+    section: DeckSection,
+    keyPrefix: String,
+    ids: List<String>,
+    id: String,
+    index: Int,
+    haptics: Boolean,
+    reduceMotion: Boolean,
+    onMove: (Int, Int) -> Unit,
+    onDrop: (DeckSection, List<String>) -> Unit,
+    onDelete: () -> Unit,
+    headline: String,
+    leading: @Composable () -> Unit,
+) {
+    val dragging = state.isDragging(section, id)
+    val lift by animateFloatAsState(
+        if (dragging) 1f else 0f,
+        if (reduceMotion) snap() else spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMediumLow),
+        label = "lift",
+    )
+    val up = stringResource(R.string.deck_move_up)
+    val down = stringResource(R.string.deck_move_down)
+    val placement = if (dragging || reduceMotion) null else spring<IntOffset>(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow)
+    SwipeRow(
+        Modifier
+            .animateItem(placementSpec = placement)
+            .zIndex(if (dragging) 1f else 0f)
+            .graphicsLayer {
+                translationY = if (dragging) state.offset else 0f
+                val scale = 1f + 0.03f * lift
+                scaleX = scale
+                scaleY = scale
+                shadowElevation = 12.dp.toPx() * lift
+                shape = RoundedCornerShape(20.dp)
+            }
+            .semantics {
+                customActions = buildList {
+                    if (index > 0) add(CustomAccessibilityAction(up) { onMove(index, index - 1); true })
+                    if (index < ids.lastIndex) add(CustomAccessibilityAction(down) { onMove(index, index + 1); true })
+                }
+            },
+        onDelete = onDelete,
+    ) {
+        ListItem(
+            headlineContent = { Text(headline) },
+            leadingContent = leading,
+            trailingContent = {
+                Icon(
+                    Icons.Rounded.DragHandle,
+                    contentDescription = stringResource(R.string.deck_drag_handle),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(8.dp)
+                        .deckDragHandle(state, section, keyPrefix, ids, id, haptics, onDrop),
+                )
+            },
+            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        )
     }
 }
 

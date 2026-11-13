@@ -1,8 +1,12 @@
 package com.karelisio.bulle.core.island
 
 import android.os.SystemClock
+import com.karelisio.bulle.modules.focusmode.FocusLogic
+import com.karelisio.bulle.modules.focusmode.FocusMode
+import com.karelisio.bulle.modules.focusmode.FocusState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,10 +24,15 @@ import kotlinx.coroutines.flow.update
 
 /**
  * Agrège les contenus de tous les modules activés, retire les contenus expirés
- * et ceux que l'utilisateur a balayés.
+ * et ceux que l'utilisateur a balayés. Pendant le mode focus, seuls les contenus essentiels
+ * sont publiés : les autres sont retenus (pas supprimés) et reviennent à la fin du focus.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class ContentHub(env: ModuleEnv, registry: ModuleRegistry = ModuleRegistry) {
+class ContentHub(
+    env: ModuleEnv,
+    registry: ModuleRegistry = ModuleRegistry,
+    focus: Flow<FocusState> = FocusMode.observe(env.context),
+) {
 
     private val dismissed = MutableStateFlow<Set<String>>(emptySet())
 
@@ -46,7 +55,7 @@ class ContentHub(env: ModuleEnv, registry: ModuleRegistry = ModuleRegistry) {
         // Un contenu balayé qui disparaît de sa source peut revenir plus tard.
         .onEach { list -> val keys = list.mapTo(HashSet()) { it.key }; dismissed.update { it intersect keys } }
 
-    val contents: StateFlow<List<IslandContent>> = combine(raw, dismissed) { list, d -> list.filter { it.key !in d } }
+    private val alive = combine(raw, dismissed) { list, d -> list.filter { it.key !in d } }
         .transformLatest { list ->
             var alive = list
             while (true) {
@@ -57,6 +66,11 @@ class ContentHub(env: ModuleEnv, registry: ModuleRegistry = ModuleRegistry) {
                 delay((next - now).coerceAtLeast(1))
             }
         }
+
+    /** État du mode focus vu par l'île (indicateur, diagnostic). */
+    val focusState: StateFlow<FocusState> = focus.stateIn(env.scope, SharingStarted.Eagerly, FocusState.Off)
+
+    val contents: StateFlow<List<IslandContent>> = combine(alive, focusState, FocusLogic::visible)
         .distinctUntilChanged()
         .stateIn(env.scope, SharingStarted.Eagerly, emptyList())
 

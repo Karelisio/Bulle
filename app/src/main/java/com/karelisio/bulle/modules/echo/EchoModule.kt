@@ -36,6 +36,8 @@ import com.karelisio.bulle.modules.alerts.ui.AlertLabel
 import com.karelisio.bulle.notifications.NotificationEvent
 import com.karelisio.bulle.notifications.NotificationRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -55,10 +57,20 @@ object EchoModule : IslandModule {
     override fun isEnabled(settings: BulleSettings): Boolean =
         (settings.modules[id] ?: enabledByDefault) && settings.alerts.echoEnabled
 
-    override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = combine(
-        AlertsModule.styles(env),
-        notifications(),
-    ) { styles, list -> list.map { styled(it, styles) } }
+    override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = kotlinx.coroutines.flow.flow {
+        // Vibration / son choisis pour le style « echo », joués une fois à l'apparition.
+        val arrivals = com.karelisio.bulle.modules.alerts.AlertArrivals()
+        emitAll(
+            combine(AlertsModule.styles(env), notifications()) { styles, list -> list.map { styled(it, styles) } }
+                .onEach { list ->
+                    arrivals.onContents(list).firstOrNull()?.let { style ->
+                        com.karelisio.bulle.core.feedback.Feedback.play(
+                            env.context, style.haptic, style.sound, env.settings.value.motion.haptics,
+                        )
+                    }
+                },
+        )
+    }
 
     private fun notifications(): Flow<List<IslandContent>> = NotificationRepository.events
         .filterIsInstance<NotificationEvent.Posted>()

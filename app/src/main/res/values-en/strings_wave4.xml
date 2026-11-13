@@ -13,4 +13,20 @@
     <string name="action_reserve_fuel">Fuel prices (Réserve)</string>
     <string name="nav_sum_integrations">API for Karelisio and third-party apps</string>
     <string name="nav_sum_messages">Quick reply from the island</string>
+    <string name="nav_sum_countdown">Days left until your events</string>
+    <string name="nav_sum_screentime">Today\'s usage and break reminder</string>
+    <string name="action_group_tools">Tools</string>
+    <string name="action_scan_qr">Scan a QR code</string>
+    <string name="action_memo">Voice memo</string>
+    <string name="action_screen_record">Record the screen</string>
+    <string name="nav_title_capture">Capture</string>
+    <string name="nav_sum_capture">QR code, voice memo, screen recorder</string>
+    <string name="action_focus_mode">Focus mode</string>
+    <string name="nav_title_focus_mode">Focus mode</string>
+    <string name="nav_sum_focus_mode">Only the essentials by time or app</string>
+    <string name="action_translate">Translate clipboard</string>
+    <string name="nav_title_search">Search</string>
+    <string name="nav_sum_search">Maths, conversions, currencies, contacts, settings</string>
+    <string name="nav_title_translate">Translation</string>
+    <string name="nav_sum_translate">Clipboard translated offline</string>
 </resources>

@@ -15,10 +15,16 @@ object IslandArbiter {
     /**
      * @param swappedPair paire (principale, secondaire) que l'utilisateur a échangée ;
      * l'échange ne s'applique que tant que ces deux mêmes contenus sont en tête.
+     * @param filter contenus admis (ex. mode focus : l'essentiel seulement) ; tous par défaut.
      */
-    fun arrange(contents: List<IslandContent>, swappedPair: Pair<String, String>? = null): Arrangement {
-        if (contents.isEmpty()) return Arrangement.Empty
-        val sorted = contents.sortedWith(order)
+    fun arrange(
+        contents: List<IslandContent>,
+        swappedPair: Pair<String, String>? = null,
+        filter: (IslandContent) -> Boolean = { true },
+    ): Arrangement {
+        val admitted = contents.filter(filter)
+        if (admitted.isEmpty()) return Arrangement.Empty
+        val sorted = admitted.sortedWith(order)
         val primary = sorted.first()
         val secondary = sorted.drop(1).firstOrNull { it.canBeSecondary && it.moduleId != primary.moduleId }
         if (secondary != null && swappedPair == primary.key to secondary.key && primary.canBeSecondary) {

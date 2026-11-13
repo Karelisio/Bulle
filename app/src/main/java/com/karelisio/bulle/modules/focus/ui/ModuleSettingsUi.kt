@@ -40,6 +40,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.ui.components.switchRow
+import com.karelisio.bulle.ui.theme.LocalHighContrast
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 
 /* Briques communes aux écrans de réglages du minuteur et du volume (même style que les autres modules). */
 
@@ -80,6 +85,8 @@ internal fun ModuleSettingsCard(modifier: Modifier = Modifier, content: @Composa
         modifier = modifier.fillMaxWidth().animateContentSize(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        // Contraste élevé : contour visible autour des cartes.
+        border = if (LocalHighContrast.current) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
     ) { content() }
 }
 
@@ -89,24 +96,20 @@ internal fun ModuleSectionHeader(text: String) {
         text,
         style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+        modifier = Modifier.padding(start = 8.dp, top = 8.dp).semantics { heading() },
     )
 }
 
 @Composable
 internal fun ModuleSwitchRow(title: String, summary: String?, checked: Boolean, enabled: Boolean = true, onChange: (Boolean) -> Unit) {
     val haptic = LocalHapticFeedback.current
+    // Une seule cible TalkBack (titre + résumé + interrupteur), rôle Switch et état.
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = summary?.let { { Text(it) } },
-        trailingContent = {
-            Switch(
-                checked = checked,
-                onCheckedChange = { haptic.performHapticFeedback(HapticFeedbackType.ToggleOn); onChange(it) },
-                enabled = enabled,
-            )
-        },
+        trailingContent = { Switch(checked = checked, onCheckedChange = null, enabled = enabled) },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        modifier = Modifier.switchRow(checked, enabled) { haptic.performHapticFeedback(HapticFeedbackType.ToggleOn); onChange(it) },
     )
 }
 

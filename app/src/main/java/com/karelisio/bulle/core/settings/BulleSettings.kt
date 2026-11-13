@@ -36,6 +36,8 @@ data class BulleSettings(
     val battery: com.karelisio.bulle.modules.battery.BatterySettings = com.karelisio.bulle.modules.battery.BatterySettings(),
     val update: UpdateSettings = UpdateSettings(),
     val backup: BackupSettings = BackupSettings(),
+    /** Accessibilité : contraste élevé, annonces TalkBack de l'île. */
+    val accessibility: AccessibilitySettings = AccessibilitySettings(),
     /** Activation par module (id → activé). Absent = valeur par défaut du module. */
     val modules: Map<String, Boolean> = emptyMap(),
     // Réglages propres à chaque module (un fichier par module).
@@ -96,4 +98,11 @@ data class MotionSettings(
     val blurTransitions: Boolean = true,
     /** Retours haptiques de l'île (ouverture, fermeture). */
     val haptics: Boolean = true,
+    /**
+     * Animation d'entrée par type de contenu : moduleId (ou "default") → nom d'EntryAnimation
+     * (core.style). Stocké en texte pour qu'une valeur inconnue (version plus récente) soit
+     * simplement ignorée au lieu de rendre tout le fichier de réglages illisible.
+     * Vide = gonflement actuel partout.
+     */
+    val entryAnimations: Map<String, String> = emptyMap(),
 )

@@ -10,7 +10,7 @@ import kotlin.math.min
  *
  *  - Avec balises mot à mot (`<mm:ss.xx>`) : chaque mot se remplit entre son horodatage et celui du
  *    mot suivant ; le dernier jusqu'à la fin chantée ([LyricLine.endMs]) ou une durée estimée.
- *  - Sans balises : interpolation linéaire entre l'heure de la ligne et une fin estimée — la ligne
+ *  - Sans balises : répartition entre les mots selon leurs syllabes ([estimatedFill]), entre l'heure de la ligne et une fin estimée — la ligne
  *    suivante (un peu avant), plafonnée à une durée « naturelle » proportionnelle au texte, pour
  *    qu'une ligne suivie d'un long pont instrumental ne se remplisse pas au ralenti.
  *
@@ -56,7 +56,7 @@ object KaraokeProgress {
             val end = lineEnd(line, nextTimeMs)
             if (positionMs <= start) return 0f
             if (positionMs >= end || end <= start) return total.toFloat()
-            return total * ((positionMs - start).toFloat() / (end - start))
+            return estimatedFill(line.text, (positionMs - start).toFloat() / (end - start))
         }
         var acc = 0f
         val words = line.words
@@ -73,6 +73,53 @@ object KaraokeProgress {
         }
         return acc.coerceAtMost(total.toFloat())
     }
+
+    /**
+     * Sans balises mot à mot : le temps de la ligne est réparti entre les mots selon leur nombre de
+     * syllabes (et non leur nombre de lettres), avec une courte respiration après la ponctuation.
+     * Un mot se remplit donc en entier au rythme du chant estimé. [t] = part du temps écoulée (0..1).
+     */
+    fun estimatedFill(text: String, t: Float): Float {
+        val words = WORD.findAll(text).toList()
+        if (words.size <= 1) return text.length * t.coerceIn(0f, 1f)
+        val weights = words.map { m ->
+            val w = WORD_ONSET + syllables(m.value)
+            val after = text.getOrNull(m.range.last + 1)
+            if (after != null && after in PAUSE_PUNCT) w + PAUSE_WEIGHT else w
+        }
+        val totalWeight = weights.sum()
+        var target = t.coerceIn(0f, 1f) * totalWeight
+        for (i in words.indices) {
+            val w = weights[i]
+            val m = words[i]
+            if (target < w) {
+                val sung = target / w
+                return m.range.first + (m.value.length * sung.coerceIn(0f, 1f))
+            }
+            target -= w
+        }
+        return text.length.toFloat()
+    }
+
+    /** Estimation grossière des syllabes : groupes de voyelles (accents compris), au moins une. */
+    fun syllables(word: String): Int {
+        var count = 0
+        var inVowel = false
+        for (c in word.lowercase()) {
+            val v = c in VOWELS
+            if (v && !inVowel) count++
+            inVowel = v
+        }
+        // « e » muet final (français, anglais) : ne compte pas s'il reste une autre syllabe.
+        if (count > 1 && word.length > 2 && word.lowercase().endsWith("e") && word.lowercase()[word.length - 2] !in VOWELS) count--
+        return count.coerceAtLeast(1)
+    }
+
+    private val WORD = Regex("""[^\s]+""")
+    private const val VOWELS = "aeiouyàâäéèêëîïôöùûüÿœæáíóúãõåøı"
+    private const val PAUSE_PUNCT = ",;:.!?…"
+    private const val WORD_ONSET = 0.4f
+    private const val PAUSE_WEIGHT = 0.8f
 
     /** Part remplie (0..1) de [line]. */
     fun fraction(line: LyricLine, nextTimeMs: Long?, positionMs: Long): Float {

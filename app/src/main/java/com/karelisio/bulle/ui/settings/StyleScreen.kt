@@ -43,6 +43,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.animation.togetherWith
+import com.karelisio.bulle.ui.stylepacks.EntryAnimationsScreen
+import com.karelisio.bulle.ui.stylepacks.StylePacksScreen
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -76,6 +81,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karelisio.bulle.R
+import com.karelisio.bulle.ui.components.switchRow
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.CardStyle
 import com.karelisio.bulle.core.settings.IslandColorMode
@@ -95,10 +101,45 @@ private val Swatches = listOf(
     0xFF2D6A4F, 0xFF3A0CA3, 0xFF6A040F, 0xFF7B2CBF, 0xFFB5179E, 0xFF5E503F,
 )
 
-/** Écran Style : forme et angles, taille, couleur, contour, ombre, texte, animations, carte étendue. */
+/**
+ * Écran Style : forme et angles, taille, couleur, contour, ombre, texte, animations, carte étendue.
+ * [onOpenStylePacks] / [onOpenEntryAnimations] : routes de navigation dédiées si l'hôte les fournit ;
+ * null = sous-écrans ouverts sur place (retour système géré).
+ */
+@Composable
+fun StyleScreen(
+    onBack: () -> Unit,
+    onOpenStylePacks: (() -> Unit)? = null,
+    onOpenEntryAnimations: (() -> Unit)? = null,
+) {
+    // 0 = Style, 1 = Packs de styles, 2 = Animations d'entrée (navigation locale de repli).
+    var sub by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableIntStateOf(0) }
+    androidx.compose.animation.AnimatedContent(
+        targetState = sub,
+        transitionSpec = { fadeIn() togetherWith fadeOut() },
+        label = "style_sub",
+    ) { screen ->
+        when (screen) {
+            1 -> {
+                androidx.activity.compose.BackHandler { sub = 0 }
+                StylePacksScreen(onBack = { sub = 0 })
+            }
+            2 -> {
+                androidx.activity.compose.BackHandler { sub = 0 }
+                EntryAnimationsScreen(onBack = { sub = 0 })
+            }
+            else -> StyleMain(
+                onBack = onBack,
+                onOpenStylePacks = onOpenStylePacks ?: { sub = 1 },
+                onOpenEntryAnimations = onOpenEntryAnimations ?: { sub = 2 },
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun StyleScreen(onBack: () -> Unit) {
+private fun StyleMain(onBack: () -> Unit, onOpenStylePacks: () -> Unit, onOpenEntryAnimations: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -127,6 +168,13 @@ fun StyleScreen(onBack: () -> Unit) {
                 Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                // Packs de styles : point d'entrée mis en avant.
+                NavCard(
+                    title = stringResource(R.string.stylepacks_title),
+                    subtitle = stringResource(R.string.stylepacks_open_hint),
+                    icon = Icons.Rounded.Palette,
+                    onClick = onOpenStylePacks,
+                )
                 Section(stringResource(R.string.style_shape), 0) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         IslandShape.entries.forEach { shape ->
@@ -289,6 +337,13 @@ fun StyleScreen(onBack: () -> Unit) {
                     SwitchRow(stringResource(R.string.style_haptics), motion.haptics) { on ->
                         edit { it.copy(motion = it.motion.copy(haptics = on)) }
                     }
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.stylepacks_entry_title)) },
+                        supportingContent = { Text(stringResource(R.string.stylepacks_entry_open_hint)) },
+                        trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        modifier = Modifier.clickable(onClick = onOpenEntryAnimations),
+                    )
                 }
                 Section(stringResource(R.string.style_card), 6) {
                     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
@@ -392,13 +447,32 @@ private fun Section(title: String, index: Int, content: @Composable () -> Unit) 
     }
 }
 
+/** Carte de navigation vers un sous-écran (packs de styles). */
+@Composable
+private fun NavCard(title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().cascade(0),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        ListItem(
+            headlineContent = { Text(title, style = MaterialTheme.typography.titleMedium) },
+            supportingContent = { Text(subtitle) },
+            leadingContent = { Icon(icon, null) },
+            trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        )
+    }
+}
+
 @Composable
 private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     ListItem(
         headlineContent = { Text(label) },
-        trailingContent = { Switch(checked = checked, onCheckedChange = onChange) },
+        trailingContent = { Switch(checked = checked, onCheckedChange = null) },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        modifier = Modifier.clickable { onChange(!checked) },
+        modifier = Modifier.switchRow(checked, onChange = onChange),
     )
 }
 

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module « Temps d'écran » (modules/screentime) -->
+    <string name="screentime_module_title">Temps d\'écran</string>
+    <string name="screentime_duration_hm">%1$d h %2$02d</string>
+    <string name="screentime_duration_m">%1$d min</string>
+    <string name="screentime_today">Temps d\'écran aujourd\'hui</string>
+    <plurals name="screentime_unlocks">
+        <item quantity="one">%1$d déverrouillage</item>
+        <item quantity="many">%1$d déverrouillages</item>
+        <item quantity="other">%1$d déverrouillages</item>
+    </plurals>
+    <string name="screentime_vs_yesterday_more">+%1$s par rapport à hier à la même heure</string>
+    <string name="screentime_vs_yesterday_less">−%1$s par rapport à hier à la même heure</string>
+    <string name="screentime_vs_yesterday_same">Comme hier à la même heure</string>
+    <string name="screentime_no_access">Autorise l\'accès aux données d\'utilisation pour voir le temps d\'écran par appli.</string>
+    <string name="screentime_break_title">Fais une pause</string>
+    <plurals name="screentime_break_body">
+        <item quantity="one">%1$d minute d\'écran sans pause. Lève les yeux, étire-toi.</item>
+        <item quantity="many">%1$d minutes d\'écran sans pause. Lève les yeux, étire-toi.</item>
+        <item quantity="other">%1$d minutes d\'écran sans pause. Lève les yeux, étire-toi.</item>
+    </plurals>
+    <string name="screentime_break_breathe">Respirer 40 secondes</string>
+    <string name="screentime_limit_reached">Limite atteinte</string>
+
+    <string name="screentime_settings_title">Temps d\'écran</string>
+    <string name="screentime_settings_enable">Temps d\'écran dans l\'île</string>
+    <string name="screentime_settings_enable_summary">Rappel de pause, limites par appli et temps du jour. Tout reste sur le téléphone.</string>
+    <string name="screentime_settings_access">Accès aux données d\'utilisation</string>
+    <string name="screentime_settings_access_on">Accordé : temps par appli, déverrouillages et limites disponibles.</string>
+    <string name="screentime_settings_access_off">Non accordé : seul le rappel de pause fonctionne.</string>
+    <string name="screentime_settings_grant">Autoriser l\'accès</string>
+    <string name="screentime_settings_break_header">Rappel de pause</string>
+    <string name="screentime_settings_break">Me rappeler de faire une pause</string>
+    <string name="screentime_settings_break_summary">Après une utilisation continue (téléphone déverrouillé). Remis à zéro après 5 min écran éteint.</string>
+    <string name="screentime_settings_breathing">Proposer une respiration</string>
+    <string name="screentime_settings_breathing_summary">Ouvre une courte respiration guidée depuis le rappel.</string>
+    <string name="screentime_settings_display_header">Affichage</string>
+    <string name="screentime_settings_ambient">Temps du jour au repos</string>
+    <string name="screentime_settings_ambient_summary">Affiche discrètement le temps d\'écran du jour quand rien d\'autre ne s\'affiche.</string>
+    <string name="screentime_settings_limits_header">Limites quotidiennes</string>
+    <string name="screentime_settings_limits_summary">Une alerte s\'affiche quand une appli atteint sa limite du jour.</string>
+    <string name="screentime_settings_used_today">%1$s aujourd\'hui</string>
+    <string name="screentime_settings_no_limit">Aucune</string>
+    <string name="screentime_settings_privacy">Les données d\'utilisation sont lues localement par Android et ne quittent jamais le téléphone.</string>
+</resources>

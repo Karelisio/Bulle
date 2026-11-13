@@ -1,6 +1,7 @@
 package com.karelisio.bulle.modules.alerts
 
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.feedback.Feedback
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandModule
 import com.karelisio.bulle.core.island.ModuleEnv
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.delay
 
 /**
@@ -82,8 +84,24 @@ object AlertsModule : IslandModule {
     override fun isEnabled(settings: BulleSettings): Boolean =
         (settings.modules[id] ?: enabledByDefault) && settings.alerts.enabled
 
+    /**
+     * Contenus stylés, plus le retour (vibration / son) choisi par l'utilisateur, joué une seule
+     * fois à l'apparition d'une alerte (pas lors de ses mises à jour). Un seul retour par émission
+     * pour ne pas superposer deux sons.
+     */
+    override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = flow {
+        val arrivals = AlertArrivals()
+        emitAll(
+            styledContents(env).onEach { list ->
+                arrivals.onContents(list).firstOrNull()?.let { style ->
+                    Feedback.play(env.context, style.haptic, style.sound, env.settings.value.motion.haptics)
+                }
+            },
+        )
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun contents(env: ModuleEnv): Flow<List<IslandContent>> = combine(
+    private fun styledContents(env: ModuleEnv): Flow<List<IslandContent>> = combine(
         styles(env),
         combine(sources.map { source ->
             val ctx = env.context.applicationContext

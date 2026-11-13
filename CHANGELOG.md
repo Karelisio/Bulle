@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.8.0
+Outils sur l'île (V3)
+- **Recherche étendue** (panneau de recherche) : calculatrice, conversions d'unités, devises (taux BCE, utilisables hors ligne), contacts, raccourcis vers les Réglages.
+- **Traduction du presse-papiers hors ligne** (nouvelle action de geste « Traduire le presse-papiers ») : langue détectée automatiquement, modèles téléchargés à la demande en Wi-Fi.
+- **Scanner QR** (action de geste) : liens, Wi-Fi, contacts, téléphone, e-mail, lieux — résultat directement dans l'île.
+- **Mémo vocal** (action de geste) : enregistrement avec chrono et niveau sonore dans l'île, liste des mémos (lecture, renommer, partager).
+- **Enregistreur d'écran** (action de geste) : point rouge et chrono dans l'île, vidéo dans Films/Bulle.
+- **Compte à rebours** vers tes événements (anniversaires, voyages) : « J-12 » au repos, confettis le jour J, rappel la veille.
+- **Temps d'écran** (désactivé par défaut) : temps du jour, top des applis, rappel de pause, limites par appli.
+- **Mode focus** : seulement l'essentiel dans l'île selon un créneau, des applis, une règle ou un geste ; le reste revient à la fin.
+
+Personnalisation avancée (V5)
+- **Packs de styles** : 8 styles intégrés, « Mes styles », partage par QR code, fichier ou texte.
+- **Animations d'entrée** au choix pour chaque type de contenu.
+- **Vibrations et sons** propres à chaque alerte (8 motifs, sons originaux ou système), aussi pour Écho.
+- **Accessibilité** : île lisible et pilotable avec TalkBack (résumé, actions, annonces réglables), textes agrandis respectés, contraste élevé (suit le réglage système), écran Réglages › Accessibilité.
+- **Règles avancées** : batterie, appareil Bluetooth précis, thème sombre, lieu, écran verrouillé, appel en cours, jours ; conditions ET/OU/PAS ; plusieurs actions ; activer/désactiver un module.
+
+Deck
+- Barre de recherche intégrée en haut du Deck (applis, calculs, conversions, devises, contacts, réglages), désactivable.
+- Favoris et widgets réordonnables dans chaque onglet : appui long sur la poignée puis glisser (ou « Monter / Descendre » avec TalkBack).
+
+Corrections
+- Volume : maintenir une touche volume fait de nouveau monter ou descendre le son en continu.
+- Karaoké : sans paroles mot à mot, le remplissage avance mot par mot selon les syllabes (au lieu de suivre la ligne lettre par lettre), sans ralentir la recherche des paroles.
+
+Divers
+- APK optimisé pour les téléphones ARM 64 bits, bibliothèques natives compressées.
+
 ## 0.6.0
 Nouveautés (V2)
 - **Messages** : un nouveau message s'affiche dans l'île (avatar, nom, début du message) ; vue étendue avec les derniers messages, **réponse rapide** au clavier, réponses suggérées, « Marquer comme lu » et « Ouvrir ». Pas d'expiration pendant la saisie ; contenu masqué quand le téléphone est verrouillé.

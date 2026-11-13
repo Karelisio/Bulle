@@ -59,6 +59,24 @@ import com.karelisio.bulle.ui.components.cascade
 import com.karelisio.bulle.ui.settings.icon
 import com.karelisio.bulle.ui.settings.label
 import kotlinx.coroutines.launch
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.Role
+import com.karelisio.bulle.modules.search.SearchPanelContent
+import com.karelisio.bulle.ui.components.rememberReduceMotion
 
 /** Le Deck : carte déroulante avec onglets (applis favorites, raccourcis, widgets). */
 object DeckPanel : IslandPanel {
@@ -75,10 +93,15 @@ object DeckPanel : IslandPanel {
     override fun Content(host: IslandHost) {
         val context = host.context
         val settings by remember { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
-        val deck = settings.deck
+        DeckContent(host, settings.deck)
+    }
+
+    /** Contenu du Deck, indépendant du stockage (testable) ; [initialSearch] ouvre directement la recherche. */
+    @Composable
+    internal fun DeckContent(host: IslandHost, deck: DeckSettings, initialSearch: Boolean = false) {
+        val context = host.context
         val tabs = deck.tabs.ifEmpty { listOf(DeckTab(id = "main")) }
         val pager = rememberPagerState { tabs.size }
-        val scope = rememberCoroutineScope()
 
         DisposableEffect(Unit) {
             DeckWidgets.startListening(context)
@@ -93,7 +116,73 @@ object DeckPanel : IslandPanel {
             host.runAction(action)
         }
 
+        // Recherche intégrée : la barre ouvre, dans le Deck même, le contenu du panneau de recherche
+        // (applis, calculs, conversions, devises, contacts, réglages) sans le dupliquer.
+        var searching by remember { mutableStateOf(initialSearch) }
+        val reduceMotion = rememberReduceMotion()
+        AnimatedContent(
+            targetState = searching && deck.searchBar,
+            transitionSpec = {
+                if (reduceMotion) {
+                    EnterTransition.None togetherWith ExitTransition.None
+                } else {
+                    (fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) +
+                        scaleIn(spring(dampingRatio = 0.75f, stiffness = Spring.StiffnessMediumLow), initialScale = 0.96f)) togetherWith
+                        fadeOut(spring(stiffness = Spring.StiffnessMedium))
+                }
+            },
+            label = "deckSearch",
+        ) { inSearch ->
+            if (inSearch) {
+                DeckSearch(host) { searching = false }
+            } else {
+                DeckHome(host, deck, tabs, pager, ::run, onSearch = { searching = true })
+            }
+        }
+    }
+
+    @Composable
+    private fun DeckSearch(host: IslandHost, onClose: () -> Unit) {
         Column(Modifier.fillMaxWidth()) {
+            SearchPanelContent(host)
+            TextButton(onClick = onClose, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(stringResource(R.string.deck_search_close), color = Color.White.copy(alpha = 0.8f))
+            }
+        }
+    }
+
+    /** Barre de recherche (non éditable) : la toucher bascule le Deck en mode recherche. */
+    @Composable
+    private fun SearchBar(onClick: () -> Unit) {
+        val label = stringResource(R.string.deck_search_hint)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+                .clip(RoundedCornerShape(50))
+                .background(Color.White.copy(alpha = 0.1f))
+                .clickable(onClickLabel = label, role = Role.Button, onClick = onClick)
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Rounded.Search, contentDescription = null, tint = Color.White.copy(alpha = 0.7f))
+            Spacer(Modifier.width(10.dp))
+            Text(label, color = Color.White.copy(alpha = 0.55f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+
+    @Composable
+    private fun DeckHome(
+        host: IslandHost,
+        deck: DeckSettings,
+        tabs: List<DeckTab>,
+        pager: PagerState,
+        run: (GestureAction) -> Unit,
+        onSearch: () -> Unit,
+    ) {
+        val scope = rememberCoroutineScope()
+        Column(Modifier.fillMaxWidth()) {
+            if (deck.searchBar) SearchBar(onSearch)
             if (tabs.size > 1) {
                 Row(Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     tabs.forEachIndexed { i, tab ->
@@ -114,7 +203,7 @@ object DeckPanel : IslandPanel {
                 }
             }
             HorizontalPager(state = pager, pageSpacing = 24.dp, verticalAlignment = Alignment.Top) { page ->
-                DeckTabContent(tabs[page], deck.themedIcons, ::run) { host.closePanel(); host.collapse() }
+                DeckTabContent(tabs[page], deck.themedIcons, run) { host.closePanel(); host.collapse() }
             }
         }
     }

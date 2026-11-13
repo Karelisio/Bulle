@@ -2,12 +2,19 @@ package com.karelisio.bulle.ui.shell
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.Cake
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.Hub
 import androidx.compose.material.icons.rounded.NetworkCheck
+import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.QrCodeScanner
+import androidx.compose.material.icons.rounded.Translate
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.Home
@@ -107,6 +114,8 @@ object ShellCatalog {
                     ShellEntry(Routes.MESSAGES, R.string.module_messages, R.string.nav_sum_messages, Icons.Rounded.Forum),
                     ShellEntry(Routes.NETWORK, R.string.network_module_title, R.string.network_nav_summary, Icons.Rounded.NetworkCheck),
                     ShellEntry(Routes.BATTERY, R.string.battery_module_title, R.string.battery_nav_summary, Icons.Rounded.BatteryChargingFull),
+                    ShellEntry(Routes.COUNTDOWN, R.string.countdown_settings_title, R.string.nav_sum_countdown, Icons.Rounded.Cake),
+                    ShellEntry(Routes.SCREENTIME, R.string.screentime_settings_title, R.string.nav_sum_screentime, Icons.Rounded.PhoneAndroid),
                     ShellEntry(Routes.VOLUME, R.string.volume_module_title_nav, R.string.nav_sum_volume, Icons.AutoMirrored.Rounded.VolumeUp),
                 ),
             ),
@@ -115,7 +124,11 @@ object ShellCatalog {
                 listOf(
                     ShellEntry(Routes.VOLET, R.string.home_entry_volet, R.string.nav_sum_volet, Icons.Rounded.Notifications),
                     ShellEntry(Routes.DECK, R.string.deck_title, R.string.nav_sum_deck, Icons.Rounded.Dashboard),
+                    ShellEntry(Routes.FOCUS_MODE, R.string.nav_title_focus_mode, R.string.nav_sum_focus_mode, Icons.Rounded.Bedtime),
                     ShellEntry(Routes.RULES, R.string.rules_title, R.string.nav_sum_rules, Icons.Rounded.AutoAwesome),
+                    ShellEntry(Routes.SEARCH, R.string.nav_title_search, R.string.nav_sum_search, Icons.Rounded.Search),
+                    ShellEntry(Routes.TRANSLATE, R.string.nav_title_translate, R.string.nav_sum_translate, Icons.Rounded.Translate),
+                    ShellEntry(Routes.CAPTURE, R.string.nav_title_capture, R.string.nav_sum_capture, Icons.Rounded.QrCodeScanner),
                     ShellEntry(Routes.INTEGRATIONS, R.string.external_module_title, R.string.nav_sum_integrations, Icons.Rounded.Hub),
                 ),
             ),
@@ -126,6 +139,7 @@ object ShellCatalog {
                 listOf(
                     ShellEntry(Routes.RELIABILITY, R.string.home_entry_reliability, R.string.nav_sum_reliability, Icons.Rounded.HealthAndSafety),
                     ShellEntry(Routes.PERMISSIONS, R.string.home_entry_permissions, R.string.nav_sum_permissions, Icons.Rounded.VerifiedUser),
+                    ShellEntry(Routes.ACCESSIBILITY, R.string.a11y_settings_title, R.string.a11y_settings_entry_summary, Icons.Rounded.Accessibility),
                 ),
             ),
             ShellGroup(

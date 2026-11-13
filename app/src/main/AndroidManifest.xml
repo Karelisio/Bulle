@@ -23,6 +23,9 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Règles de lieu (modules/rules) : localisation « tout le temps », demandée seulement
+         depuis l'éditeur d'une règle de lieu, pour que le géorepérage marche écran éteint. -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <!-- Bluetooth : appareils connectés et leur batterie. -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <!-- Captures d'écran : lecture des images (Android 13+ / Android 12). -->
@@ -42,6 +45,9 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <!-- Module Météo (modules/weather) : INTERNET et ACCESS_COARSE_LOCATION (position approximative,
          demandée à l'activation) sont déjà déclarées plus haut. -->
+    <!-- Recherche de l'île (modules/search) : contacts (appeler, SMS, fiche), lecture locale,
+         demandée à l'activation de la section Contacts ; la recherche fonctionne sans. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <!-- Module Volet, réglages rapides (modules/volet/qs) -->
     <!-- Ne pas déranger : indispensable pour figurer dans « Accès Ne pas déranger ». -->
@@ -60,8 +66,25 @@
 
     <!-- Module Minuteur (modules/focus) : vibration légère en fin de phase (permission normale). -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Module Temps d'écran (modules/screentime) : « Accès aux données d'utilisation », permission
+         spéciale accordée par l'utilisateur dans les paramètres (UsageStatsManager, lecture locale). -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
 
-    <!-- API d'intégration (modules/external, docs/INTEGRATION.md) : permission que doivent demander
+    <!-- Zone capture (modules/capture) : scanner QR, mémo vocal, enregistreur d'écran.
+         CAMERA : demandée par le scanner QR à son ouverture (analyse locale, aucune image gardée).
+         RECORD_AUDIO (déclarée plus haut) : demandée au premier mémo / à l'activation du son micro.
+         Types de service de premier plan : micro (mémo, son de l'enregistrement d'écran) et
+         mediaProjection (enregistrement d'écran, consentement système à chaque fois). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <!-- API d'intégration (modules/external, docs/INTEGRATION.md): permission que doivent demander
          les applis qui poussent du contenu dans l'île. Accordée aux applis signées avec la même clé
          que Bulle, ou dont le certificat figure dans res/values/arrays_known_certs.xml (Android 12+). -->
     <permission
@@ -115,6 +138,48 @@
             android:launchMode="singleTask"
             android:taskAffinity="com.karelisio.bulle.karaoke"
             android:theme="@style/Theme.Bulle" />
+
+        <!-- Zone capture (modules/capture) -->
+        <!-- Scanner QR plein écran (tâche à part, absente des applis récentes). -->
+        <activity
+            android:name=".modules.capture.qr.QrScanActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.karelisio.bulle.capture"
+            android:theme="@style/Theme.Bulle.Capture.Scanner" />
+        <!-- Activités transparentes : permission micro (mémo) et consentement MediaProjection. -->
+        <activity
+            android:name=".modules.capture.memo.MemoStartActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.karelisio.bulle.capture"
+            android:theme="@style/Theme.Bulle.Capture.Transparent" />
+        <activity
+            android:name=".modules.capture.recorder.ScreenRecordActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.karelisio.bulle.capture"
+            android:theme="@style/Theme.Bulle.Capture.Transparent" />
+        <!-- Mémo vocal (micro) et enregistrement d'écran (mediaProjection, + micro si le son est activé). -->
+        <service
+            android:name=".modules.capture.memo.MemoService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+        <service
+            android:name=".modules.capture.recorder.ScreenRecordService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection|microphone" />
+        <!-- Partage des mémos vocaux (fichiers privés). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.capture.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/capture_file_paths" />
+        </provider>
 
         <!-- L'île : overlay d'accessibilité -->
         <service

@@ -44,11 +44,11 @@ class ShellNavigationTest {
         assertTrue(routes(ShellTab.HOME).isEmpty())
         assertEquals(listOf(Routes.STYLE, Routes.POSITION, Routes.VISIBILITY, Routes.GESTURES), routes(ShellTab.LOOK))
         assertEquals(
-            setOf(Routes.MUSIC, Routes.LIVE, Routes.CALLS, Routes.ALERTS, Routes.CALENDAR, Routes.WEATHER, Routes.FOCUS, Routes.MESSAGES, Routes.NETWORK, Routes.BATTERY, Routes.VOLUME, Routes.VOLET, Routes.DECK, Routes.RULES, Routes.INTEGRATIONS),
+            setOf(Routes.MUSIC, Routes.LIVE, Routes.CALLS, Routes.ALERTS, Routes.CALENDAR, Routes.WEATHER, Routes.FOCUS, Routes.MESSAGES, Routes.NETWORK, Routes.BATTERY, Routes.COUNTDOWN, Routes.SCREENTIME, Routes.VOLUME, Routes.VOLET, Routes.DECK, Routes.FOCUS_MODE, Routes.RULES, Routes.SEARCH, Routes.TRANSLATE, Routes.CAPTURE, Routes.INTEGRATIONS),
             routes(ShellTab.CONTENTS).toSet(),
         )
         assertEquals(
-            listOf(Routes.RELIABILITY, Routes.PERMISSIONS, Routes.BACKUP, Routes.ABOUT),
+            listOf(Routes.RELIABILITY, Routes.PERMISSIONS, Routes.ACCESSIBILITY, Routes.BACKUP, Routes.ABOUT),
             routes(ShellTab.SETTINGS),
         )
         // Aucun écran n'apparaît deux fois, et aucun groupe n'est vide.

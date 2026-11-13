@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Screen time module (modules/screentime) -->
+    <string name="screentime_module_title">Screen time</string>
+    <string name="screentime_duration_hm">%1$d h %2$02d</string>
+    <string name="screentime_duration_m">%1$d min</string>
+    <string name="screentime_today">Screen time today</string>
+    <plurals name="screentime_unlocks">
+        <item quantity="one">%1$d unlock</item>
+        <item quantity="other">%1$d unlocks</item>
+    </plurals>
+    <string name="screentime_vs_yesterday_more">+%1$s vs. yesterday at this time</string>
+    <string name="screentime_vs_yesterday_less">−%1$s vs. yesterday at this time</string>
+    <string name="screentime_vs_yesterday_same">Same as yesterday at this time</string>
+    <string name="screentime_no_access">Allow usage access to see screen time per app.</string>
+    <string name="screentime_break_title">Take a break</string>
+    <plurals name="screentime_break_body">
+        <item quantity="one">%1$d minute of screen time without a break. Look away, stretch.</item>
+        <item quantity="other">%1$d minutes of screen time without a break. Look away, stretch.</item>
+    </plurals>
+    <string name="screentime_break_breathe">Breathe for 40 seconds</string>
+    <string name="screentime_limit_reached">Limit reached</string>
+
+    <string name="screentime_settings_title">Screen time</string>
+    <string name="screentime_settings_enable">Screen time in the island</string>
+    <string name="screentime_settings_enable_summary">Break reminders, per-app limits and today\'s time. Everything stays on your phone.</string>
+    <string name="screentime_settings_access">Usage access</string>
+    <string name="screentime_settings_access_on">Granted: per-app time, unlocks and limits available.</string>
+    <string name="screentime_settings_access_off">Not granted: only the break reminder works.</string>
+    <string name="screentime_settings_grant">Allow access</string>
+    <string name="screentime_settings_break_header">Break reminder</string>
+    <string name="screentime_settings_break">Remind me to take a break</string>
+    <string name="screentime_settings_break_summary">After continuous use (phone unlocked). Resets after 5 min with the screen off.</string>
+    <string name="screentime_settings_breathing">Offer a breathing exercise</string>
+    <string name="screentime_settings_breathing_summary">Opens a short guided breathing session from the reminder.</string>
+    <string name="screentime_settings_display_header">Display</string>
+    <string name="screentime_settings_ambient">Today\'s time while idle</string>
+    <string name="screentime_settings_ambient_summary">Discreetly shows today\'s screen time when nothing else is displayed.</string>
+    <string name="screentime_settings_limits_header">Daily limits</string>
+    <string name="screentime_settings_limits_summary">An alert appears when an app reaches its daily limit.</string>
+    <string name="screentime_settings_used_today">%1$s today</string>
+    <string name="screentime_settings_no_limit">None</string>
+    <string name="screentime_settings_privacy">Usage data is read locally by Android and never leaves your phone.</string>
+</resources>
