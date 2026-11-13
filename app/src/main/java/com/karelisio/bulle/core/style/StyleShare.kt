@@ -76,7 +76,7 @@ object StyleShare {
      */
     fun decode(text: String): StylePack? {
         if (text.length > MAX_BYTES * 2) return null
-        val trimmed = text.trim().removePrefix("﻿")
+        val trimmed = text.trimStart(0xFEFF.toChar()).trim()
         if (trimmed.startsWith("{")) return decodeJson(trimmed)
         val match = QrPattern.find(trimmed) ?: return null
         val version = match.groupValues[1].toIntOrNull() ?: return null
