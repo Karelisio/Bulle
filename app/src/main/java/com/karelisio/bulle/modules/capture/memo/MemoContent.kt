@@ -30,6 +30,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -46,6 +48,10 @@ import com.karelisio.bulle.modules.live.ui.RollingText
 
 /** Mémo vocal en cours : niveau sonore réel + chrono ; vue étendue avec pause / reprise / arrêt. */
 data class MemoContent(val session: MemoSession) : IslandContent() {
+
+    override fun describe(res: IslandSpeech.Res): String = IslandSpeech.recording(
+        res, res.str(R.string.a11y_island_memo), null, paused = session.phase != MemoPhase.RECORDING,
+    )
     override val key = KEY
     override val moduleId = CaptureModule.ID
     override val priority = Priority.LIVE

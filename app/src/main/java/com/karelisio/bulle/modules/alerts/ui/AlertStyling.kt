@@ -72,6 +72,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.karelisio.bulle.core.a11y.IslandSpeech
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.modules.alerts.AlertContent
@@ -139,6 +140,9 @@ data class StyledAlert(val inner: IslandContent, val style: AlertStyle) : Island
     override val expandable: Boolean get() = inner.expandable
     override val notificationKey: String? get() = inner.notificationKey
     override val showWhenHidden: Boolean get() = inner.showWhenHidden
+    override val compactSubtitle: String? get() = inner.compactSubtitle
+    override fun describe(res: IslandSpeech.Res): String? = inner.describe(res)
+    override fun accessibilityActions(host: IslandHost, res: IslandSpeech.Res) = inner.accessibilityActions(host, res)
 
     private val icon: ImageVector? get() = AlertIcons.vector(style.icon)
 

@@ -55,6 +55,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -95,6 +97,22 @@ data class CallContent(
     override val autoExpandMs: Long? = if (ringing && autoExpand) 60_000L else null
 
     override val compactSlotWidth: Dp = if (ringing) 40.dp else 66.dp
+
+    // ---------- Accessibilité ----------
+
+    override fun describe(res: IslandSpeech.Res): String = IslandSpeech.call(
+        res, call.callerName, ringing, call.isVideo,
+        IslandSpeech.duration(res, System.currentTimeMillis() - startWallMillis).takeIf { !ringing },
+    )
+
+    override fun accessibilityActions(host: IslandHost, res: IslandSpeech.Res): List<IslandAccessibilityAction> = buildList {
+        if (ringing) {
+            call.answerIntent?.let { add(IslandAccessibilityAction(res.str(R.string.a11y_action_answer)) { NotificationIntents.send(host.context, it) }) }
+            (call.declineIntent ?: call.hangUpIntent)?.let { add(IslandAccessibilityAction(res.str(R.string.a11y_action_decline)) { NotificationIntents.send(host.context, it) }) }
+        } else {
+            (call.hangUpIntent ?: call.declineIntent)?.let { add(IslandAccessibilityAction(res.str(R.string.a11y_action_hang_up)) { NotificationIntents.send(host.context, it) }) }
+        }
+    }
 
     // ---------- Vue compacte ----------
 

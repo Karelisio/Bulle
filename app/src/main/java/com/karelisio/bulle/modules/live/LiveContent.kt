@@ -44,6 +44,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.karelisio.bulle.R
+import com.karelisio.bulle.core.a11y.IslandSpeech
+import com.karelisio.bulle.core.island.IslandAccessibilityAction
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
@@ -77,6 +80,16 @@ data class LiveContent(
 
     /** Seconde ligne compacte : prochaine étape, statut de livraison… (calculée une fois). */
     override val compactSubtitle: String? = LiveFormat.compactSubtitle(activity)
+
+    override fun describe(res: IslandSpeech.Res): String = IslandSpeech.live(
+        res, visuals.appLabel, activity.title, activity.shortText ?: activity.text,
+        activity.progress?.takeIf { !it.indeterminate && it.max > 0 }?.let { (it.fraction * 100).toInt() },
+    )
+
+    override fun accessibilityActions(host: IslandHost, res: IslandSpeech.Res): List<IslandAccessibilityAction> = buildList {
+        activity.contentIntent?.let { add(IslandAccessibilityAction(res.str(R.string.a11y_action_open)) { NotificationIntents.send(host.context, it) }) }
+        activity.actions.take(3).forEach { a -> add(IslandAccessibilityAction(a.title) { NotificationIntents.send(host.context, a.intent) }) }
+    }
 
     override val compactSlotWidth: Dp = when {
         activity.chrono != null -> if (hoursLikely()) 72.dp else 60.dp
