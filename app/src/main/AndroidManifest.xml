@@ -142,7 +142,6 @@
             android:name=".modules.capture.memo.MemoStartActivity"
             android:exported="false"
             android:excludeFromRecents="true"
-            android:noHistory="true"
             android:taskAffinity="com.karelisio.bulle.capture"
             android:theme="@style/Theme.Bulle.Capture.Transparent" />
         <activity

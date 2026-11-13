@@ -1,14 +1,17 @@
 package com.karelisio.bulle.modules.capture
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.karelisio.bulle.R
 
 /** Canaux et notifications de la capture (service en cours, fin d'enregistrement). */
@@ -66,6 +69,11 @@ object CaptureNotifications {
             .addAction(0, context.getString(R.string.capture_open), openPi)
             .addAction(0, context.getString(R.string.capture_share), sharePi)
             .build()
-        runCatching { NotificationManagerCompat.from(context).notify(ID_SCREEN_DONE, n) }
+        // Notifications refusées (Android 13+) : la vidéo est quand même dans Films/Bulle.
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+        try {
+            NotificationManagerCompat.from(context).notify(ID_SCREEN_DONE, n)
+        } catch (_: SecurityException) {
+        }
     }
 }
