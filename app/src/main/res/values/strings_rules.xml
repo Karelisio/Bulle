@@ -34,7 +34,6 @@
     <string name="rules_remove">Retirer</string>
     <string name="rules_active_now">Active maintenant</string>
     <string name="rules_inactive_now">Inactive pour l’instant</string>
-    <string name="rules_condition_true">vraie</string>
     <string name="rules_t_battery">Batterie</string>
     <string name="rules_t_bt">Appareil Bluetooth</string>
     <string name="rules_t_dark">Thème sombre</string>
@@ -56,7 +55,6 @@
     <string name="rules_place_lon">Longitude</string>
     <string name="rules_place_here">Utiliser ma position</string>
     <string name="rules_place_radius">Rayon : %1$d m</string>
-    <string name="rules_place_no_permission">La localisation est nécessaire pour les règles de lieu.</string>
     <string name="rules_place_background">Autoriser « tout le temps »</string>
     <string name="rules_place_background_hint">Pour que la règle marche écran éteint, autorisez la localisation « tout le temps ».</string>
     <string name="rules_place_locating">Recherche de la position…</string>

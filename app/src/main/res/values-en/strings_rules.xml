@@ -34,7 +34,6 @@
     <string name="rules_remove">Remove</string>
     <string name="rules_active_now">Active now</string>
     <string name="rules_inactive_now">Not active right now</string>
-    <string name="rules_condition_true">true</string>
     <string name="rules_t_battery">Battery</string>
     <string name="rules_t_bt">Bluetooth device</string>
     <string name="rules_t_dark">Dark theme</string>
@@ -56,7 +55,6 @@
     <string name="rules_place_lon">Longitude</string>
     <string name="rules_place_here">Use my location</string>
     <string name="rules_place_radius">Radius: %1$d m</string>
-    <string name="rules_place_no_permission">Location is required for place rules.</string>
     <string name="rules_place_background">Allow “all the time”</string>
     <string name="rules_place_background_hint">For the rule to work with the screen off, allow location “all the time”.</string>
     <string name="rules_place_locating">Finding your location…</string>

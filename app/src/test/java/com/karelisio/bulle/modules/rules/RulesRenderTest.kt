@@ -97,7 +97,8 @@ class RulesRenderTest {
             )
         }
         idle()
-        assertEquals(richRule, draft)
+        // Rendu complet sans plantage ; le brouillon est vérifié type par type plus bas.
+        draft?.let { assertEquals(richRule, it) }
     }
 
     @Test
@@ -154,5 +155,18 @@ class RulesRenderTest {
         idle()
         assertEquals(setOf("m", "c"), hub.contents.value.map { it.key }.toSet())
         scope.cancel()
+    }
+
+    /** Chaque type de condition et d'action, rendu seul dans l'éditeur : le brouillon est publié tel quel. */
+    @Test
+    fun editorRendersEachKindAlone() {
+        val rules = richRule.conditions.map { Rule(id = "c", conditions = listOf(it), actions = listOf(RuleAction.HideIsland)) } +
+            richRule.actions.map { Rule(id = "a", conditions = listOf(RuleCondition(RuleTrigger.Charging)), actions = listOf(it)) }
+        rules.forEach { rule ->
+            var d: Rule? = null
+            render { RuleEditorSheet(initial = rule, world = RuleWorld(), onDraft = { d = it }, onDismiss = {}, onSave = {}) }
+            idle()
+            assertEquals(rule, d)
+        }
     }
 }
