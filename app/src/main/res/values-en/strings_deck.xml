@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Deck: built-in search bar and reordering. -->
+    <string name="deck_search_bar">Search bar</string>
+    <string name="deck_search_bar_desc">At the top of the Deck: apps, calculations, conversions, currencies, contacts and settings.</string>
+    <string name="deck_search_hint">Search apps, maths, contacts…</string>
+    <string name="deck_search_close">Back to the Deck</string>
+    <string name="deck_move_up">Move up</string>
+    <string name="deck_move_down">Move down</string>
+    <string name="deck_drag_handle">Move (long press, then drag)</string>
+    <string name="deck_reorder_hint">Hold the handle to move an item, swipe it left to remove it.</string>
+</resources>
