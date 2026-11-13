@@ -99,8 +99,16 @@ class DeckRenderTest {
         Settings.Global.putFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
     }
 
+    private val controllers = mutableListOf<org.robolectric.android.controller.ActivityController<ComponentActivity>>()
+
+    /** Activité suivie : détruite en fin de test pour libérer les effets (hôte de widgets, saisie…). */
+    private fun launch(): ComponentActivity =
+        Robolectric.buildActivity(ComponentActivity::class.java).setup().also { controllers += it }.get()
+
     @After
     fun tearDown() {
+        controllers.forEach { runCatching { it.pause().stop().destroy() } }
+        shadowOf(Looper.getMainLooper()).idle()
         // La recherche fait enregistrer à AppCatalog (objet global) un récepteur sur l'Application de CE test.
         runCatching {
             com.karelisio.bulle.core.apps.AppCatalog::class.java.getDeclaredField("watching").apply {
@@ -113,7 +121,7 @@ class DeckRenderTest {
 
     @Test
     fun deckShowsSearchBarWithoutKeyboard() {
-        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val activity = launch()
         val host = FakeHost(activity)
         activity.setContent { BulleTheme { DeckPanel.DeckContent(host, DeckSettings()) } }
         settle()
@@ -129,7 +137,7 @@ class DeckRenderTest {
 
     @Test
     fun deckSearchReusesIslandSearchInPlace() {
-        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val activity = launch()
         val host = FakeHost(activity)
         activity.setContent { BulleTheme { DeckPanel.DeckContent(host, DeckSettings(), initialSearch = true) } }
         val all = settleUntil(activity) { it.contains("Back to the Deck") }
@@ -141,7 +149,7 @@ class DeckRenderTest {
 
     @Test
     fun deckHidesSearchBarWhenDisabled() {
-        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val activity = launch()
         activity.setContent {
             BulleTheme { DeckPanel.DeckContent(FakeHost(activity), DeckSettings(searchBar = false), initialSearch = true) }
         }
@@ -154,7 +162,7 @@ class DeckRenderTest {
 
     @Test
     fun settingsScreenHasSearchBarSwitch() {
-        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val activity = launch()
         activity.setContent { BulleTheme { DeckSettingsScreen(onBack = {}, onOpenTab = {}) } }
         settle()
         assertTrue(texts(activity).toString(), texts(activity).contains("Search bar"))
@@ -165,7 +173,7 @@ class DeckRenderTest {
         var deck = DeckSettings(
             tabs = listOf(DeckTab(id = "main", favorites = listOf("com.a/.Main", "com.b/.Main", "com.c/.Main"))),
         )
-        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val activity = launch()
         activity.setContent {
             BulleTheme {
                 DeckTabScreenContent(deck, { t -> deck = runBlocking { t(deck) } }, haptics = false, tabId = "main", onBack = {})
