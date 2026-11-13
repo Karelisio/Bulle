@@ -80,6 +80,8 @@ class StylePacksRenderTest {
         render {
             StylePacksScreen(onBack = {}, onScanQr = {}, importRequest = qr, onImportRequestConsumed = { consumed++ })
         }
+        // Laisse passer quelques images : l'effet d'import démarre après la première composition.
+        repeat(20) { if (consumed == 0) shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(100)) }
         idle()
         // Le texte scanné a été pris en compte une seule fois.
         assertEquals(1, consumed)
@@ -122,7 +124,8 @@ class StylePacksRenderTest {
             }
         }
         Modules.registerAll()
-        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val activityController = Robolectric.buildActivity(ComponentActivity::class.java).setup()
+        val activity = activityController.get()
         val scope = MainScope()
         val controller = IslandController(activity, scope, IslandWindow(activity))
         controller.updateScreen {
@@ -141,5 +144,9 @@ class StylePacksRenderTest {
         PushModule.remove(a.key)
         idle()
         scope.cancel()
+        // Composition détruite et animations système recoupées : aucun ressort ne déborde sur le test suivant.
+        activityController.pause().stop().destroy()
+        idle()
+        Settings.Global.putFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
     }
 }
