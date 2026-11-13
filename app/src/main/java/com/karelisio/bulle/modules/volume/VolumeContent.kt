@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -54,13 +55,14 @@ import com.karelisio.bulle.modules.volet.media.MediaOutput
 import com.karelisio.bulle.modules.volet.media.OutputKind
 import com.karelisio.bulle.modules.volume.ui.VolumeMixerList
 import com.karelisio.bulle.ui.components.rememberReduceMotion
-import kotlinx.coroutines.delay
 
 /** Curseur de volume de l'île (alerte ponctuelle, prolongée à chaque appui). */
 data class VolumeContent(
     val overlay: VolumeOverlay,
-    override val timeoutMs: Long,
+    /** Durée réglée (vue compacte) ; le délai effectif dépend du geste et de la vue étendue. */
+    val baseTimeoutMs: Long,
 ) : IslandContent() {
+    override val timeoutMs: Long? = VolumeLogic.timeoutFor(baseTimeoutMs, overlay.holding, overlay.expanded)
     override val key = KEY
     override val moduleId = VolumeModule.ID
     override val priority = Priority.ALERT
@@ -85,12 +87,10 @@ data class VolumeContent(
     @Composable
     override fun Expanded(host: IslandHost) {
         val context = host.context
-        // Tant que la vue étendue est ouverte, le curseur ne disparaît pas.
-        LaunchedEffect(Unit) {
-            while (true) {
-                delay(1_000)
-                VolumeKeys.keepAlive()
-            }
+        // Vue étendue ouverte : délai plus long (compté depuis la dernière interaction).
+        DisposableEffect(Unit) {
+            VolumeKeys.setExpanded(true)
+            onDispose { VolumeKeys.setExpanded(false) }
         }
         val output = remember { MediaOutput.current(context) }
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -104,7 +104,7 @@ data class VolumeContent(
                     color = Color.White,
                     modifier = Modifier.weight(1f),
                 )
-                FilledTonalIconButton(onClick = { VolumeKeys.openOutputSwitcher(context, host::collapse) }) {
+                FilledTonalIconButton(onClick = { VolumeKeys.keepAlive(force = true); VolumeKeys.openOutputSwitcher(context, host::collapse) }) {
                     Icon(outputIcon(output.kind), contentDescription = stringResource(R.string.volume_output))
                 }
             }
@@ -121,7 +121,10 @@ data class VolumeContent(
     }
 
     /** Toucher sur la vue étendue hors commandes : on garde le curseur ouvert. */
-    override fun onExpandedTap(host: IslandHost): Boolean = true
+    override fun onExpandedTap(host: IslandHost): Boolean {
+        VolumeKeys.keepAlive(force = true)
+        return true
+    }
 
     companion object {
         const val KEY = "volume:slider"
