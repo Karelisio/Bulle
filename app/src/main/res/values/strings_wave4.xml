@@ -12,4 +12,5 @@
     <string name="action_exit_craving">Envie de fumer (Exit)</string>
     <string name="action_reserve_fuel">Prix du carburant (Réserve)</string>
     <string name="nav_sum_integrations">API pour les applis Karelisio et tierces</string>
+    <string name="nav_sum_messages">Réponse rapide depuis l\'île</string>
 </resources>

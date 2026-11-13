@@ -39,4 +39,9 @@ data class MusicSettings(
     val lyricsVisibleLines: Int = 5,
     /** « Mode paroles » : en-tête réduit et commandes masquées pour laisser la place aux paroles. */
     val lyricsFocusMode: Boolean = false,
+    /**
+     * Visualiseur audio réel : l'égaliseur et l'onde suivent le vrai son (Visualizer, micro requis).
+     * Désactivé par défaut : l'égaliseur reste simulé et aucune permission n'est demandée.
+     */
+    val realVisualizer: Boolean = false,
 )

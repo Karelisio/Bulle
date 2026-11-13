@@ -32,6 +32,8 @@ data class BulleSettings(
     val volet: VoletSettings = VoletSettings(),
     val calendar: com.karelisio.bulle.modules.calendar.CalendarSettings = com.karelisio.bulle.modules.calendar.CalendarSettings(),
     val weather: com.karelisio.bulle.modules.weather.WeatherSettings = com.karelisio.bulle.modules.weather.WeatherSettings(),
+    val network: com.karelisio.bulle.modules.network.NetworkSettings = com.karelisio.bulle.modules.network.NetworkSettings(),
+    val battery: com.karelisio.bulle.modules.battery.BatterySettings = com.karelisio.bulle.modules.battery.BatterySettings(),
     val update: UpdateSettings = UpdateSettings(),
     val backup: BackupSettings = BackupSettings(),
     /** Activation par module (id → activé). Absent = valeur par défaut du module. */

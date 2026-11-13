@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Messages" module -->
+    <string name="module_messages">Messages</string>
+    <string name="messages_new">New message</string>
+    <string name="messages_locked">Unlock to read and reply.</string>
+    <string name="messages_reply_hint">Reply…</string>
+    <string name="messages_send">Send</string>
+    <string name="messages_cancel_reply">Cancel reply</string>
+    <string name="messages_sent">Sent</string>
+    <string name="messages_mark_read">Mark as read</string>
+    <string name="messages_open">Open</string>
+    <!-- Settings -->
+    <string name="messages_settings_title">Messages</string>
+    <string name="messages_settings_enable">Show new messages</string>
+    <string name="messages_settings_enable_summary">Sender and message preview in the island, with quick reply.</string>
+    <string name="messages_settings_behavior">Behavior</string>
+    <string name="messages_settings_timeout">Display time</string>
+    <string name="messages_settings_auto_expand">Open the island when a message arrives</string>
+    <string name="messages_settings_auto_expand_summary">Latest messages and quick reply appear right away.</string>
+    <string name="messages_settings_privacy_header">Privacy</string>
+    <string name="messages_settings_show_content">Show message content</string>
+    <string name="messages_settings_show_content_summary">Otherwise, only the sender and “New message”.</string>
+    <string name="messages_settings_excluded">Excluded apps</string>
+    <string name="messages_settings_excluded_summary">Their messages never appear in the island.</string>
+    <string name="messages_settings_add">Add</string>
+    <string name="messages_settings_remove">Remove</string>
+    <string name="messages_settings_hint">When the device is locked, only “New message” and the app name are shown, with no reply. Bulle reads notifications on the device only; nothing is stored or sent.</string>
+</resources>

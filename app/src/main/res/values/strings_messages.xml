@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module « Messages » -->
+    <string name="module_messages">Messages</string>
+    <string name="messages_new">Nouveau message</string>
+    <string name="messages_locked">Déverrouillez pour lire et répondre.</string>
+    <string name="messages_reply_hint">Répondre…</string>
+    <string name="messages_send">Envoyer</string>
+    <string name="messages_cancel_reply">Annuler la réponse</string>
+    <string name="messages_sent">Envoyé</string>
+    <string name="messages_mark_read">Marquer comme lu</string>
+    <string name="messages_open">Ouvrir</string>
+    <!-- Réglages -->
+    <string name="messages_settings_title">Messages</string>
+    <string name="messages_settings_enable">Afficher les nouveaux messages</string>
+    <string name="messages_settings_enable_summary">Expéditeur et début du message dans l’île, avec réponse rapide.</string>
+    <string name="messages_settings_behavior">Comportement</string>
+    <string name="messages_settings_timeout">Durée d’affichage</string>
+    <string name="messages_settings_auto_expand">Ouvrir l’île à l’arrivée d’un message</string>
+    <string name="messages_settings_auto_expand_summary">Les derniers messages et la réponse rapide s’affichent tout de suite.</string>
+    <string name="messages_settings_privacy_header">Confidentialité</string>
+    <string name="messages_settings_show_content">Afficher le contenu des messages</string>
+    <string name="messages_settings_show_content_summary">Sinon, seulement l’expéditeur et « Nouveau message ».</string>
+    <string name="messages_settings_excluded">Applis exclues</string>
+    <string name="messages_settings_excluded_summary">Leurs messages ne s’affichent jamais dans l’île.</string>
+    <string name="messages_settings_add">Ajouter</string>
+    <string name="messages_settings_remove">Retirer</string>
+    <string name="messages_settings_hint">Appareil verrouillé : seuls « Nouveau message » et le nom de l’appli s’affichent, sans réponse. Bulle lit les notifications sur l’appareil uniquement ; rien n’est enregistré ni envoyé.</string>
+</resources>

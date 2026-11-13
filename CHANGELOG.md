@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0
+Nouveautés (V2)
+- **Messages** : un nouveau message s'affiche dans l'île (avatar, nom, début du message) ; vue étendue avec les derniers messages, **réponse rapide** au clavier, réponses suggérées, « Marquer comme lu » et « Ouvrir ». Pas d'expiration pendant la saisie ; contenu masqué quand le téléphone est verrouillé.
+- **Paroles plein écran « karaoké »** depuis la carte musique : très grandes paroles synchronisées remplies au fil du chant (mot à mot si le fichier le permet), fond aux couleurs de la pochette, toucher une ligne pour y aller, écran gardé allumé, fermeture en glissant vers le bas. L'île se masque pendant cette vue.
+- **Visualiseur audio réel** (option dans Musique, désactivé par défaut) : l'égaliseur et une onde suivent le vrai son. Demande l'accès au micro à l'activation — rien n'est enregistré ni envoyé ; repli automatique sur l'animation simulée si indisponible.
+- **Réseau** (désactivé par défaut) : débit ↓/↑ dans l'île pendant un gros transfert, vue étendue avec graphe des 60 dernières secondes, type de connexion et consommation du jour Wi-Fi / mobile (sans permission spéciale).
+- **Batterie détaillée** (désactivé par défaut) : pendant la charge, temps jusqu'à la charge complète ; vue étendue avec autonomie estimée, température, tension, santé, puissance de charge et batteries des montres et écouteurs Bluetooth.
+
 ## 0.5.0
 Écosystème Karelisio (V4)
 - **API d'intégration** : les applis autorisées (même signature ou certificat déclaré) affichent leurs propres contenus dans l'île par simple broadcast — modèles standard, progression, compte à rebours, chronomètre, liste, statut, cœur et respiration. Documentation : `docs/INTEGRATION.md`.

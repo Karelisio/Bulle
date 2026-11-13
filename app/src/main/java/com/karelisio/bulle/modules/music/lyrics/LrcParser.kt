@@ -5,14 +5,17 @@ package com.karelisio.bulle.modules.music.lyrics
  *  - horodatages `[mm:ss]`, `[mm:ss.x]`, `[mm:ss.xx]`, `[mm:ss.xxx]`, `[mm:ss:xx]`, minutes sur 1 à 3 chiffres ;
  *  - plusieurs horodatages sur une même ligne (refrains) ;
  *  - balise `[offset:±ms]` (positive = paroles affichées plus tôt, comme le format LRC le définit) ;
- *  - balises d'en-tête (`[ar:]`, `[ti:]`…) ignorées, balises mot à mot `<mm:ss.xx>` retirées ;
+ *  - balises d'en-tête (`[ar:]`, `[ti:]`…) ignorées ;
+ *  - balises mot à mot `<mm:ss.xx>` (LRC « enrichi ») : retirées du texte mais conservées dans
+ *    [LyricLine.words] pour le remplissage karaoké ; une balise finale sans texte donne [LyricLine.endMs] ;
  *  - BOM, retours chariot, lignes vides.
  * Un texte sans aucun horodatage est rendu comme paroles non synchronisées.
  */
 object LrcParser {
 
     private val TIME_TAG = Regex("""\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?]""")
-    private val WORD_TAG = Regex("""<\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?>""")
+    private val WORD_TAG = Regex("""<(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?>""")
+    private val SPACES = Regex("""\s+""")
     private val META_TAG = Regex("""^\[([a-zA-Z#]+):(.*)]$""")
     private val LRC_LINE = Regex("""^\s*\[\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?]""", RegexOption.MULTILINE)
 
@@ -44,8 +47,19 @@ object LrcParser {
                 rest = rest.substring(m.range.last + 1).trimStart()
             }
             if (times.isNotEmpty()) {
-                val clean = WORD_TAG.replace(rest, "").replace(Regex("\\s+"), " ").trim()
-                for (t in times) timed += LyricLine(t, clean)
+                // Les balises mot à mot sont absolues : rattachées au premier horodatage de la ligne,
+                // puis décalées d'autant pour les répétitions (refrains).
+                val base = times.min()
+                val split = splitWords(rest, base)
+                for (t in times) {
+                    val shift = t - base
+                    timed += LyricLine(
+                        timeMs = t,
+                        text = split.text,
+                        words = if (shift == 0L) split.words else split.words.map { it.copy(timeMs = it.timeMs + shift) },
+                        endMs = if (split.endMs >= 0) split.endMs + shift else -1,
+                    )
+                }
                 continue
             }
             val meta = META_TAG.matchEntire(line)
@@ -60,7 +74,17 @@ object LrcParser {
 
         if (timed.isNotEmpty()) {
             val lines = timed
-                .map { it.copy(timeMs = (it.timeMs - offset).coerceAtLeast(0)) }
+                .map { l ->
+                    if (offset == 0L) {
+                        l
+                    } else {
+                        l.copy(
+                            timeMs = (l.timeMs - offset).coerceAtLeast(0),
+                            words = l.words.map { w -> w.copy(timeMs = (w.timeMs - offset).coerceAtLeast(0)) },
+                            endMs = if (l.endMs >= 0) (l.endMs - offset).coerceAtLeast(0) else -1,
+                        )
+                    }
+                }
                 .sortedBy { it.timeMs } // tri stable : l'ordre d'origine départage les égalités
                 .dropLastWhile { it.text.isEmpty() }
             if (lines.isEmpty()) return null
@@ -75,6 +99,52 @@ object LrcParser {
             compact += LyricLine(-1, l)
         }
         return Lyrics(compact, synced = false, source = source)
+    }
+
+    /** Texte d'une ligne horodatée, ses mots horodatés (s'il y a des balises) et sa fin chantée. */
+    private class SplitLine(val text: String, val words: List<LyricWord>, val endMs: Long)
+
+    /**
+     * Découpe [rest] (le texte après les horodatages de ligne) selon les balises mot à mot.
+     * Les espaces sont normalisés (un seul entre deux mots, aucun en bout de ligne) de sorte que la
+     * concaténation des mots soit exactement le texte affiché : le remplissage karaoké compte en caractères.
+     */
+    private fun splitWords(rest: String, lineTime: Long): SplitLine {
+        val tags = WORD_TAG.findAll(rest).toList()
+        if (tags.isEmpty()) return SplitLine(rest.replace(SPACES, " ").trim(), emptyList(), -1)
+        val raw = ArrayList<Pair<Long, String>>(tags.size + 1)
+        val lead = rest.substring(0, tags[0].range.first)
+        if (lead.isNotBlank()) raw += lineTime to lead
+        tags.forEachIndexed { i, m ->
+            val end = if (i + 1 < tags.size) tags[i + 1].range.first else rest.length
+            raw += toMillis(m) to rest.substring(m.range.last + 1, end)
+        }
+        // Balise(s) finale(s) sans texte : fin chantée de la ligne.
+        var endMs = -1L
+        while (raw.isNotEmpty() && raw[raw.lastIndex].second.isBlank()) {
+            endMs = maxOf(endMs, raw[raw.lastIndex].first)
+            raw.removeAt(raw.lastIndex)
+        }
+        val words = ArrayList<LyricWord>(raw.size)
+        for ((t, segment) in raw) {
+            var piece = segment.replace(SPACES, " ")
+            val prevEndsWithSpace = words.isEmpty() || words[words.lastIndex].text.endsWith(' ')
+            if (prevEndsWithSpace) piece = piece.trimStart()
+            if (piece.isBlank()) {
+                // Segment vide (espace seul entre deux balises) : l'espace revient au mot précédent.
+                if (piece.isNotEmpty() && words.isNotEmpty()) {
+                    val last = words[words.lastIndex]
+                    words[words.lastIndex] = last.copy(text = last.text + " ")
+                }
+                continue
+            }
+            words += LyricWord(t, piece)
+        }
+        if (words.isNotEmpty()) {
+            val last = words[words.lastIndex]
+            words[words.lastIndex] = last.copy(text = last.text.trimEnd())
+        }
+        return SplitLine(words.joinToString("") { it.text }, words, endMs)
     }
 
     private fun toMillis(m: MatchResult): Long {

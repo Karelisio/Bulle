@@ -4,6 +4,7 @@ import com.karelisio.bulle.R
 import com.karelisio.bulle.core.island.IslandContent
 import com.karelisio.bulle.core.island.IslandModule
 import com.karelisio.bulle.core.island.ModuleEnv
+import com.karelisio.bulle.modules.music.karaoke.KaraokeBridge
 import com.karelisio.bulle.modules.music.lyrics.LyricsRepository
 import com.karelisio.bulle.modules.music.lyrics.LyricsState
 import com.karelisio.bulle.modules.music.media.Artwork
@@ -72,7 +73,11 @@ object MusicModule : IslandModule {
             build(m, lastArt, l, s)
         }
             .distinctUntilChanged()
-            .collect { send(it) }
+            .collect {
+                // La vue karaoké (activité à part) suit le même contenu, mis à jour en direct.
+                KaraokeBridge.publish(it.firstOrNull() as? MusicContent)
+                send(it)
+            }
     }
 
     private fun build(m: MediaSnapshot?, art: ArtFor?, lyrics: LyricsFor?, s: MusicSettings): List<IslandContent> {
@@ -93,6 +98,7 @@ object MusicModule : IslandModule {
                 keepLyricsOpen = s.keepLyricsOpen,
                 stayVisibleWithLyrics = s.stayVisibleWithLyrics,
                 lyricsPrefs = s.lyricsPrefs(),
+                realVisualizer = s.realVisualizer,
             ),
         )
     }

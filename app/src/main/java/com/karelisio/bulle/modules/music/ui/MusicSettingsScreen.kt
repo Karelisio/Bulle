@@ -1,5 +1,6 @@
 package com.karelisio.bulle.modules.music.ui
 
+import android.Manifest
 import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.PauseCircle
@@ -62,6 +64,7 @@ import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.modules.music.MusicModule
 import com.karelisio.bulle.modules.music.MusicSettings
 import com.karelisio.bulle.modules.music.lyrics.LyricsRepository
+import com.karelisio.bulle.modules.music.visualizer.AudioVisualizer
 import com.karelisio.bulle.notifications.NotificationRepository
 import kotlinx.coroutines.launch
 
@@ -78,8 +81,14 @@ fun MusicSettingsScreen(onBack: () -> Unit) {
     val snackbar = remember { SnackbarHostState() }
     val cleared = stringResource(R.string.music_cache_cleared)
 
+    // Visualiseur audio réel : micro demandé seulement à l'activation de l'option.
+    var micGranted by remember { mutableStateOf(AudioVisualizer.hasPermission(context)) }
+    val visualizerUnavailable by AudioVisualizer.unavailable
+    val micDenied = stringResource(R.string.music_visualizer_denied)
+
     LifecycleResumeEffect(Unit) {
         accessGranted = NotificationRepository.isAccessGranted(context)
+        micGranted = AudioVisualizer.hasPermission(context)
         onPauseOrDispose { }
     }
     LaunchedEffect(Unit) { cached = LyricsRepository.cachedCount(context) }
@@ -98,6 +107,16 @@ fun MusicSettingsScreen(onBack: () -> Unit) {
             .putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, component.flattenToString())
         val fallback = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
         runCatching { accessLauncher.launch(detail) }.onFailure { runCatching { accessLauncher.launch(fallback) } }
+    }
+
+    val micLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        micGranted = granted
+        if (granted) {
+            AudioVisualizer.resetFailure()
+            updateMusic { it.copy(realVisualizer = true) }
+        } else {
+            scope.launch { snackbar.showSnackbar(micDenied) }
+        }
     }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -154,6 +173,38 @@ fun MusicSettingsScreen(onBack: () -> Unit) {
                 checked = music.hideWhenPaused,
                 enabled = enabled,
             ) { on -> updateMusic { it.copy(hideWhenPaused = on) } }
+
+            SwitchRow(
+                icon = Icons.Rounded.GraphicEq,
+                title = stringResource(R.string.music_setting_visualizer),
+                summary = stringResource(R.string.music_setting_visualizer_summary),
+                checked = music.realVisualizer,
+                enabled = enabled,
+            ) { on ->
+                when {
+                    !on -> updateMusic { it.copy(realVisualizer = false) }
+                    AudioVisualizer.hasPermission(context) -> {
+                        micGranted = true
+                        AudioVisualizer.resetFailure()
+                        updateMusic { it.copy(realVisualizer = true) }
+                    }
+                    else -> micLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            }
+            val visualizerIssue = when {
+                !music.realVisualizer || !enabled -> null
+                !micGranted -> R.string.music_visualizer_denied
+                visualizerUnavailable -> R.string.music_visualizer_unavailable
+                else -> null
+            }
+            AnimatedVisibility(visualizerIssue != null) {
+                Text(
+                    stringResource(visualizerIssue ?: R.string.music_visualizer_unavailable),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(start = 56.dp, end = 16.dp, bottom = 4.dp),
+                )
+            }
 
             SwitchRow(
                 icon = Icons.Rounded.Lyrics,
