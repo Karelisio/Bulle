@@ -34,4 +34,45 @@
     <string name="music_setting_keep_lyrics_open_summary">While synced lyrics play, touching elsewhere doesn’t close the player. Tap the island or swipe up to close it.</string>
     <string name="music_setting_visible_lyrics">Always visible with lyrics</string>
     <string name="music_setting_visible_lyrics_summary">While a song with synced lyrics plays, the island stays on screen even in full screen or in an app where it’s hidden.</string>
+
+    <!-- Lyrics sync and display -->
+    <string name="music_output_speaker">Phone speaker</string>
+    <string name="music_output_bluetooth">Bluetooth device</string>
+    <string name="music_output_hearing">Hearing aid</string>
+    <string name="music_output_wired">Wired headphones</string>
+    <string name="music_output_usb">USB audio</string>
+    <string name="music_output_hdmi">HDMI</string>
+    <string name="music_output_other">Audio output</string>
+    <string name="music_sync_earlier">Show lyrics earlier</string>
+    <string name="music_sync_later">Show lyrics later</string>
+    <string name="music_sync_toast">%1$s: %2$s</string>
+    <string name="music_focus_on">Lyrics mode</string>
+    <string name="music_focus_off">Show the whole player</string>
+    <string name="music_section_display">Lyrics display</string>
+    <string name="music_section_sync">Lyrics sync</string>
+    <string name="music_setting_text_size">Text size</string>
+    <string name="music_setting_window">Lyrics window</string>
+    <plurals name="music_setting_window_lines">
+        <item quantity="one">%1$d visible line</item>
+        <item quantity="other">%1$d visible lines</item>
+    </plurals>
+    <string name="music_setting_focus">Lyrics mode</string>
+    <string name="music_setting_focus_summary">Shrinks artwork and title and hides the controls to give the lyrics more room. Also toggled from the expanded card.</string>
+    <string name="music_preview">Preview</string>
+    <string name="music_sync_summary">Bluetooth headphones play sound with a delay. Set an offset per output: positive = lyrics later. You can also adjust it while listening with − / + under the lyrics.</string>
+    <string name="music_sync_default">Default (new outputs)</string>
+    <string name="music_sync_current">In use</string>
+    <string name="music_sync_not_set">Not set (%1$s)</string>
+    <string name="music_sync_reset">Reset</string>
+    <string name="music_sync_forget">Forget this output</string>
+    <string name="music_sync_done">Done</string>
+    <string name="music_sync_dialog_summary">Positive: the lyrics wait for the sound. Negative: they come in earlier.</string>
+    <string-array name="music_preview_lines">
+        <item>The night lights up all around</item>
+        <item>We sing along without a sound</item>
+        <item>Every word right on the beat</item>
+        <item>Follow the lyrics, feel the heat</item>
+        <item>Until the very last refrain</item>
+        <item>We start it over once again</item>
+    </string-array>
 </resources>

@@ -15,4 +15,10 @@
     <string name="live_settings_exclude">Exclude</string>
     <string name="live_settings_include">Show again</string>
     <string name="live_settings_privacy">Activities are read from your notifications, on your phone only.</string>
+    <!-- Downloads grouped in the island -->
+    <plurals name="live_downloads_count">
+        <item quantity="one">%d download</item>
+        <item quantity="other">%d downloads</item>
+    </plurals>
+    <string name="live_downloads_overall">Overall progress</string>
 </resources>

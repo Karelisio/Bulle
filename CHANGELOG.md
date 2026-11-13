@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1
+- Paroles : décalage de synchronisation réglable pour chaque sortie audio (casque Bluetooth, filaire, haut-parleur), directement dans la carte avec − / + ; paroles plus grandes et plus lisibles, taille du texte et nombre de lignes visibles réglables, « mode paroles » qui leur laisse toute la place.
+- Téléchargements : tous les téléchargements en cours réunis dans l'île, avec leurs pourcentages ; l'île ne se replie plus quand le téléchargement au premier plan change.
+- Volume : la vue étendue affiche un curseur par source disponible (appel, média avec l'appli qui joue, sonnerie, notifications, alarme).
+- Île vide invisible mais toujours touchable (toucher, appui long pour le Deck, glissements) — réglable dans Style.
+- Recherche d'applis (depuis le Deck ou un geste) : ne se ferme plus quand on tape une lettre.
+
 ## 0.4.0
 Nouveaux modules
 - **Agenda** : prochain rendez-vous, rappel quelques minutes avant avec compte à rebours, boutons Itinéraire et Ouvrir, temps restant pendant l'événement.

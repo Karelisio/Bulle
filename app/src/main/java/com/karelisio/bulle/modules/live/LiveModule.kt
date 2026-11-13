@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.map
 /**
  * Module « Live updates » : minuteurs, chronos, guidage, livraisons, VTC, téléchargements…
  * Tout vient des notifications actives (lecture locale, rien n'est stocké ni envoyé).
+ * Les téléchargements sont regroupés par [LiveDownloads].
  */
 object LiveModule : IslandModule {
     const val ID = "live"
@@ -52,7 +53,7 @@ object LiveModule : IslandModule {
                 .toList()
             firstSeen.keys.retainAll(activities.mapTo(HashSet()) { it.second.key })
             visuals.keys.retainAll(firstSeen.keys)
-            activities.map { (sbn, a) ->
+            val contents = activities.map { (sbn, a) ->
                 LiveContent(
                     activity = a,
                     visuals = visuals[sbn.key]?.takeIf { it.first == sbn.postTime }?.second
@@ -60,6 +61,9 @@ object LiveModule : IslandModule {
                     postedAt = firstSeen.getOrPut(a.key) { SystemClock.elapsedRealtime() },
                 )
             }
+            // Tous les téléchargements dans un seul contenu de clé stable (l'île étendue ne se
+            // replie plus quand le téléchargement au premier plan change).
+            LiveDownloads.group(contents) { n -> context.resources.getQuantityString(R.plurals.live_downloads_count, n, n) }
         }.flowOn(Dispatchers.Default)
     }
 

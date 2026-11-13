@@ -35,4 +35,46 @@
     <string name="music_setting_keep_lyrics_open_summary">Pendant des paroles synchronisées, toucher ailleurs ne referme pas le lecteur. Touchez l’île ou glissez vers le haut pour le fermer.</string>
     <string name="music_setting_visible_lyrics">Toujours visible avec les paroles</string>
     <string name="music_setting_visible_lyrics_summary">Pendant la lecture d’un morceau aux paroles synchronisées, l’île reste affichée même en plein écran ou dans une appli où elle est masquée.</string>
+
+    <!-- Synchronisation et affichage des paroles -->
+    <string name="music_output_speaker">Haut-parleur du téléphone</string>
+    <string name="music_output_bluetooth">Appareil Bluetooth</string>
+    <string name="music_output_hearing">Appareil auditif</string>
+    <string name="music_output_wired">Casque filaire</string>
+    <string name="music_output_usb">Audio USB</string>
+    <string name="music_output_hdmi">HDMI</string>
+    <string name="music_output_other">Sortie audio</string>
+    <string name="music_sync_earlier">Afficher les paroles plus tôt</string>
+    <string name="music_sync_later">Afficher les paroles plus tard</string>
+    <string name="music_sync_toast">%1$s : %2$s</string>
+    <string name="music_focus_on">Mode paroles</string>
+    <string name="music_focus_off">Afficher tout le lecteur</string>
+    <string name="music_section_display">Affichage des paroles</string>
+    <string name="music_section_sync">Synchronisation des paroles</string>
+    <string name="music_setting_text_size">Taille du texte</string>
+    <string name="music_setting_window">Fenêtre des paroles</string>
+    <plurals name="music_setting_window_lines">
+        <item quantity="one">%1$d ligne visible</item>
+        <item quantity="many">%1$d lignes visibles</item>
+        <item quantity="other">%1$d lignes visibles</item>
+    </plurals>
+    <string name="music_setting_focus">Mode paroles</string>
+    <string name="music_setting_focus_summary">Réduit la pochette et le titre et masque les commandes pour laisser plus de place aux paroles. Activable aussi depuis la carte étendue.</string>
+    <string name="music_preview">Aperçu</string>
+    <string name="music_sync_summary">Un casque Bluetooth fait entendre le son avec du retard. Réglez un décalage par sortie : positif = paroles plus tard. Vous pouvez aussi l’ajuster en écoutant avec − / + sous les paroles.</string>
+    <string name="music_sync_default">Par défaut (nouvelles sorties)</string>
+    <string name="music_sync_current">En cours</string>
+    <string name="music_sync_not_set">Non réglé (%1$s)</string>
+    <string name="music_sync_reset">Réinitialiser</string>
+    <string name="music_sync_forget">Oublier cette sortie</string>
+    <string name="music_sync_done">OK</string>
+    <string name="music_sync_dialog_summary">Positif : les paroles attendent le son. Négatif : elles arrivent plus tôt.</string>
+    <string-array name="music_preview_lines">
+        <item>La nuit s’allume tout autour</item>
+        <item>On chante à mi-voix, sans détour</item>
+        <item>Chaque mot tombe sur le temps</item>
+        <item>Suis les paroles, laisse-toi porter</item>
+        <item>Jusqu’au tout dernier refrain</item>
+        <item>Et l’on recommence demain</item>
+    </string-array>
 </resources>

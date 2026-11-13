@@ -185,7 +185,8 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
 
     val target = when (mode) {
         Mode.HIDDEN -> SurfaceTarget(mode, g.width.toFloat(), g.height.toFloat(), g.height / 2f, 0f, 0f)
-        Mode.IDLE -> SurfaceTarget(mode, g.width.toFloat(), g.height.toFloat(), g.height / 2f, 0f, 1f)
+        // Au repos, l'île peut être invisible (alpha 0) tout en restant touchable (mode ≠ HIDDEN).
+        Mode.IDLE -> SurfaceTarget(mode, g.width.toFloat(), g.height.toFloat(), g.height / 2f, 0f, if (style.hideWhenIdle) 0f else 1f)
         Mode.COMPACT -> {
             val dx = IslandLayout.openingOffsetX(
                 direction, g.width.toFloat(), compactWidth, g.centerX.toFloat(), g.screenWidth.toFloat(),

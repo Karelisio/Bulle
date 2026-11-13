@@ -184,6 +184,8 @@ fun StyleScreen(onBack: () -> Unit) {
                         style = MaterialTheme.typography.labelLarge,
                     )
                     Slider(value = maxExpanded.value, onValueChange = maxExpanded::drag, onValueChangeFinished = maxExpanded::finish, valueRange = 0.5f..1f, steps = 9)
+                    SwitchRow(stringResource(R.string.style_hide_idle), style.hideWhenIdle) { on -> editStyle { it.copy(hideWhenIdle = on) } }
+                    Text(stringResource(R.string.style_hide_idle_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     SwitchRow(stringResource(R.string.style_stable_window), style.stableWindow) { on -> editStyle { it.copy(stableWindow = on) } }
                     Text(stringResource(R.string.style_stable_window_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }

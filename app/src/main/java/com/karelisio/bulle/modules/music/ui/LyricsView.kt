@@ -31,43 +31,86 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.karelisio.bulle.modules.music.lyrics.Lyrics
 import com.karelisio.bulle.ui.components.rememberReduceMotion
 import kotlin.math.abs
 
-/** Fondu en haut et en bas d'une zone de texte défilante. */
-private fun Modifier.fadingEdges(): Modifier = this
+/** Fondu en haut et en bas d'une zone de texte défilante ([edge] = part de la hauteur estompée). */
+private fun Modifier.fadingEdges(edge: Float = 0.2f): Modifier = this
     .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
     .drawWithContent {
         drawContent()
         drawRect(
             Brush.verticalGradient(
                 0f to Color.Transparent,
-                0.2f to Color.Black,
-                0.78f to Color.Black,
+                edge to Color.Black,
+                (1f - edge * 1.1f) to Color.Black,
                 1f to Color.Transparent,
             ),
             blendMode = BlendMode.DstIn,
         )
     }
 
+/** Espace entre deux lignes de paroles. */
+private val LineSpacing = 8.dp
+
+/** Taille de base de la ligne courante (multipliée par la taille choisie dans les réglages). */
+private const val BASE_FONT_SP = 22f
+private const val BASE_LINE_HEIGHT_SP = 29f
+
+/** Les lignes voisines sont dessinées à cette échelle de la ligne courante. */
+private const val INACTIVE_SCALE = 0.8f
+
+/** Style d'une ligne de paroles synchronisées à l'échelle [scale] : grand, très gras, interligne confortable. */
+@Composable
+internal fun lyricsLineStyle(scale: Float): TextStyle = MaterialTheme.typography.titleLarge.copy(
+    fontSize = (BASE_FONT_SP * scale).sp,
+    lineHeight = (BASE_LINE_HEIGHT_SP * scale).sp,
+    fontWeight = FontWeight.ExtraBold,
+    letterSpacing = (-0.1).sp,
+)
+
+/** Hauteur de la fenêtre de paroles pour [lines] lignes visibles à l'échelle [scale]. */
+@Composable
+internal fun lyricsWindowHeight(lines: Int, scale: Float): Dp = with(LocalDensity.current) {
+    ((BASE_LINE_HEIGHT_SP * scale).sp.toDp() + LineSpacing) * lines
+}
+
+/** Opacité d'une ligne selon sa distance à la ligne courante (contraste renforcé pour les voisines). */
+internal fun lineAlpha(distance: Int): Float = when (distance) {
+    0 -> 1f
+    1 -> 0.62f
+    2 -> 0.46f
+    else -> 0.34f
+}
+
 /** Mesures des lignes, partagées entre la mise en page et l'animation de défilement. */
 private class LyricsScroll {
     val offset = Animatable(0f)
-    /** Défilement souhaité, recalculé à chaque mesure (ligne courante placée au tiers de la hauteur). */
+    /** Défilement souhaité, recalculé à chaque mesure (ligne courante placée un peu au-dessus du milieu). */
     val target = mutableFloatStateOf(Float.NaN)
 }
 
 /**
- * Paroles synchronisées : la ligne courante est mise en avant (pleine opacité, taille normale),
- * les autres s'estompent et se floutent légèrement avec la distance ; le défilement suit au ressort.
+ * Paroles synchronisées : la ligne courante est mise en avant (pleine opacité, pleine taille),
+ * les autres restent lisibles mais plus petites et s'estompent avec la distance (léger flou au-delà
+ * de deux lignes) ; le défilement suit au ressort.
  */
 @Composable
-internal fun SyncedLyrics(lyrics: Lyrics, currentIndex: Int, height: Dp, modifier: Modifier = Modifier) {
+internal fun SyncedLyrics(
+    lyrics: Lyrics,
+    currentIndex: Int,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    textScale: Float = 1f,
+) {
     val reduceMotion = rememberReduceMotion()
     val scroll = remember(lyrics) { LyricsScroll() }
     LaunchedEffect(scroll, reduceMotion) {
@@ -82,12 +125,16 @@ internal fun SyncedLyrics(lyrics: Lyrics, currentIndex: Int, height: Dp, modifie
             }
         }
     }
+    val style = lyricsLineStyle(textScale)
+    // Fondu des bords proportionné à la hauteur : une grande fenêtre garde ses lignes nettes.
+    val edge = with(LocalDensity.current) { (22.dp.toPx() / height.toPx().coerceAtLeast(1f)).coerceIn(0.08f, 0.2f) }
     Layout(
         content = {
             lyrics.lines.forEachIndexed { i, line ->
                 LyricLineText(
                     text = line.text.ifBlank { "♪" },
                     distance = if (currentIndex < 0) i + 1 else abs(i - currentIndex),
+                    style = style,
                     reduceMotion = reduceMotion,
                 )
             }
@@ -96,18 +143,19 @@ internal fun SyncedLyrics(lyrics: Lyrics, currentIndex: Int, height: Dp, modifie
             .fillMaxWidth()
             .height(height)
             .clipToBounds()
-            .fadingEdges(),
+            .fadingEdges(edge),
     ) { measurables, constraints ->
         val lineConstraints = Constraints(maxWidth = constraints.maxWidth)
         val placeables = measurables.map { it.measure(lineConstraints) }
-        val spacing = 6.dp.roundToPx()
+        val spacing = LineSpacing.roundToPx()
         val tops = IntArray(placeables.size)
         var y = 0
         placeables.forEachIndexed { i, p -> tops[i] = y; y += p.height + spacing }
         val viewport = constraints.maxHeight
         if (placeables.isNotEmpty()) {
             val idx = currentIndex.coerceIn(0, placeables.lastIndex)
-            val anchor = viewport * 0.34f
+            // Ligne courante un peu au-dessus du milieu : on voit surtout ce qui arrive.
+            val anchor = viewport * 0.38f
             scroll.target.floatValue = tops[idx] + placeables[idx].height / 2f - anchor
         }
         layout(constraints.maxWidth, viewport) {
@@ -122,20 +170,21 @@ internal fun SyncedLyrics(lyrics: Lyrics, currentIndex: Int, height: Dp, modifie
 }
 
 @Composable
-private fun LyricLineText(text: String, distance: Int, reduceMotion: Boolean) {
+private fun LyricLineText(text: String, distance: Int, style: TextStyle, reduceMotion: Boolean) {
     val spec = if (reduceMotion) snap() else spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessLow)
     val active by animateFloatAsState(if (distance == 0) 1f else 0f, spec, label = "active")
-    val blur by animateFloatAsState(if (reduceMotion) 0f else ((distance - 1).coerceIn(0, 2) * 0.9f), spec, label = "blur")
+    val alpha by animateFloatAsState(lineAlpha(distance), spec, label = "alpha")
+    // Flou très léger, seulement loin de la ligne courante : les voisines restent nettes.
+    val blur by animateFloatAsState(if (reduceMotion) 0f else ((distance - 2).coerceIn(0, 2) * 0.7f), spec, label = "blur")
     Text(
         text,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
+        style = style,
         color = Color.White,
         modifier = Modifier
             .fillMaxWidth()
             .graphicsLayer {
-                alpha = 0.34f + 0.66f * active
-                val s = 0.92f + 0.08f * active
+                this.alpha = alpha
+                val s = INACTIVE_SCALE + (1f - INACTIVE_SCALE) * active
                 scaleX = s
                 scaleY = s
                 transformOrigin = TransformOrigin(0f, 0.5f)
@@ -147,20 +196,25 @@ private fun LyricLineText(text: String, distance: Int, reduceMotion: Boolean) {
 
 /** Paroles non synchronisées : texte qui défile librement au doigt. */
 @Composable
-internal fun PlainLyrics(lyrics: Lyrics, height: Dp, modifier: Modifier = Modifier) {
+internal fun PlainLyrics(lyrics: Lyrics, height: Dp, modifier: Modifier = Modifier, textScale: Float = 1f) {
+    val style = MaterialTheme.typography.bodyLarge.copy(
+        fontSize = (18f * textScale).sp,
+        lineHeight = (26f * textScale).sp,
+        fontWeight = FontWeight.SemiBold,
+    )
     Column(
         modifier
             .fillMaxWidth()
             .height(height)
-            .fadingEdges()
+            .fadingEdges(0.12f)
             .verticalScroll(rememberScrollState())
-            .padding(vertical = height * 0.18f),
+            .padding(vertical = height * 0.12f),
     ) {
         lyrics.lines.forEach { line ->
             Text(
                 line.text,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = if (line.text.isBlank()) 0f else 0.82f),
+                style = style,
+                color = Color.White.copy(alpha = if (line.text.isBlank()) 0f else 0.9f),
             )
         }
     }

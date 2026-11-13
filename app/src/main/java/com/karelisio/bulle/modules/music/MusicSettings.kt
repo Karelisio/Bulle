@@ -24,4 +24,19 @@ data class MusicSettings(
      * masquage automatique (plein écran, écran d'accueil, appli exclue) la cacherait.
      */
     val stayVisibleWithLyrics: Boolean = true,
+    /**
+     * Décalage de synchronisation des paroles par sortie audio (clé de sortie → ms, −2000 à +3000).
+     * Positif = paroles retardées (casque Bluetooth). Voir sync/AudioOutput pour les clés.
+     */
+    val lyricsOffsets: Map<String, Int> = emptyMap(),
+    /** Nom lisible des sorties mémorisées (clé de sortie → nom du produit), pour l'écran de réglages. */
+    val lyricsOutputNames: Map<String, String> = emptyMap(),
+    /** Décalage des sorties pas encore réglées (le haut-parleur du téléphone reste à 0). */
+    val lyricsDefaultOffsetMs: Int = 0,
+    /** Taille du texte des paroles (0.8 à 1.6). */
+    val lyricsTextScale: Float = 1f,
+    /** Hauteur de la zone de paroles, en lignes visibles (3 à 9). */
+    val lyricsVisibleLines: Int = 5,
+    /** « Mode paroles » : en-tête réduit et commandes masquées pour laisser la place aux paroles. */
+    val lyricsFocusMode: Boolean = false,
 )

@@ -232,24 +232,8 @@ data class LiveContent(
     // ---------- Éléments ----------
 
     @Composable
-    private fun AppGlyph(size: Dp, preferLarge: Boolean = false) {
-        val large = visuals.largeIcon
-        val small = visuals.smallIcon
-        when {
-            large != null && (preferLarge || small == null || activity.kind == LiveKind.NAVIGATION) -> Image(
-                large,
-                contentDescription = visuals.appLabel,
-                modifier = Modifier.size(size).clip(RoundedCornerShape(size * 0.3f)),
-            )
-            small != null -> Image(
-                small,
-                contentDescription = visuals.appLabel,
-                colorFilter = ColorFilter.tint(accent),
-                modifier = Modifier.size(size),
-            )
-            else -> Icon(Icons.Rounded.Bolt, contentDescription = null, tint = accent, modifier = Modifier.size(size))
-        }
-    }
+    private fun AppGlyph(size: Dp, preferLarge: Boolean = false) =
+        LiveAppGlyph(visuals, accent, size, preferLarge = preferLarge || activity.kind == LiveKind.NAVIGATION)
 
     @Composable
     private fun ActionButton(action: LiveAction, onClick: () -> Unit) {
@@ -270,7 +254,7 @@ data class LiveContent(
     }
 
     companion object {
-        private val DefaultAccent = Color(0xFF8FD3FF)
+        internal val DefaultAccent = Color(0xFF8FD3FF)
 
         fun accentOf(color: Int): Color {
             if (color == 0) return DefaultAccent
@@ -278,5 +262,29 @@ data class LiveContent(
             // Sur le fond noir de l'île, une couleur trop sombre est illisible : on l'éclaircit.
             return if (c.luminance() < 0.18f) androidx.compose.ui.graphics.lerp(c, Color.White, 0.45f) else c
         }
+    }
+}
+
+/**
+ * Icône d'une activité : grande icône (arrondie) si demandée ou seule disponible,
+ * sinon petite icône teintée de l'accent, sinon un éclair.
+ */
+@Composable
+internal fun LiveAppGlyph(visuals: LiveVisuals, accent: Color, size: Dp, preferLarge: Boolean = false) {
+    val large = visuals.largeIcon
+    val small = visuals.smallIcon
+    when {
+        large != null && (preferLarge || small == null) -> Image(
+            large,
+            contentDescription = visuals.appLabel,
+            modifier = Modifier.size(size).clip(RoundedCornerShape(size * 0.3f)),
+        )
+        small != null -> Image(
+            small,
+            contentDescription = visuals.appLabel,
+            colorFilter = ColorFilter.tint(accent),
+            modifier = Modifier.size(size),
+        )
+        else -> Icon(Icons.Rounded.Bolt, contentDescription = null, tint = accent, modifier = Modifier.size(size))
     }
 }

@@ -67,6 +67,25 @@ import com.karelisio.bulle.modules.music.MusicContent
 import com.karelisio.bulle.modules.music.lyrics.LyricsSource
 import com.karelisio.bulle.modules.music.lyrics.LyricsState
 import com.karelisio.bulle.ui.components.rememberReduceMotion
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.rounded.CloseFullscreen
+import androidx.compose.material.icons.rounded.OpenInFull
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.runtime.MutableLongState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.unit.Dp
+import com.karelisio.bulle.core.settings.SettingsRepository
+import com.karelisio.bulle.modules.music.sync.AudioOutput
+import com.karelisio.bulle.modules.music.sync.AudioOutputTracker
+import com.karelisio.bulle.modules.music.sync.LyricsPrefs
+import com.karelisio.bulle.modules.music.sync.LyricsSync
+import com.karelisio.bulle.modules.music.sync.withOffset
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -103,6 +122,16 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
     var scrub by remember { mutableStateOf<Float?>(null) }
     val playing = base.isPlaying
 
+    // Sortie audio courante, suivie en direct (casque branché/débranché) sans recréer le contenu.
+    val appContext = host.context.applicationContext
+    val initialOutput = remember(appContext) { AudioOutputTracker.current(appContext) }
+    val output by remember(appContext) { AudioOutputTracker.observe(appContext) }.collectAsState(initialOutput)
+    val prefs = content.lyricsPrefs
+    val scope = rememberCoroutineScope()
+    // Mode paroles : appliqué tout de suite au toucher, puis mémorisé dans les réglages.
+    var focus by remember(prefs.focusMode) { mutableStateOf(prefs.focusMode) }
+    val focused = focus && content.lyrics is LyricsState.Found
+
     fun now() = SystemClock.elapsedRealtime()
     fun setPlaying(play: Boolean) {
         val p = base.positionAt(now(), duration)
@@ -131,77 +160,116 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
                 )
             },
     ) {
-        Header(content, playing, accent, reduceMotion) {
+        val togglePlay = {
+            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+            if (playing) controls.pause() else controls.play()
+            setPlaying(!playing)
+        }
+        Header(
+            content, playing, accent, reduceMotion,
+            compact = focused,
+            onTogglePlay = togglePlay,
+        ) {
             content.openPlayer(host.context)
             host.collapse()
         }
-        Spacer(Modifier.height(14.dp))
 
-        val seekable = duration > 0 && (base.can(PlaybackState.ACTION_SEEK_TO) || base.actions == 0L)
-        WavyScrubber(
-            fraction = { if (duration > 0) position.longValue.toFloat() / duration else 0f },
-            playing = playing,
-            accent = accent,
-            seekable = seekable,
-            onScrub = { scrub = it },
-            onSeek = { f ->
-                val target = (f * duration).toLong()
-                controls.seekTo(target)
-                base = base.copy(positionMs = target, updatedAt = now())
-                position.longValue = target
-            },
-        )
-        TimeRow(
-            elapsed = { scrub?.let { (it * duration).toLong() } ?: position.longValue },
-            duration = duration,
-        )
-        Spacer(Modifier.height(6.dp))
-
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
+        // En mode paroles, le reste du lecteur se replie pour laisser la place au texte.
+        AnimatedVisibility(
+            visible = !focused,
+            enter = fadeIn(tween(220, 80)) + expandVertically(spring(stiffness = Spring.StiffnessMediumLow)),
+            exit = fadeOut(tween(120)) + shrinkVertically(spring(stiffness = Spring.StiffnessMedium)),
         ) {
-            SkipButton(
-                icon = Icons.Rounded.SkipPrevious,
-                label = stringResource(R.string.music_previous),
-                direction = -1f,
-                enabled = base.can(PlaybackState.ACTION_SKIP_TO_PREVIOUS) || base.actions == 0L,
-            ) { controls.skipToPrevious() }
-            PlayPauseButton(
-                playing = playing,
-                accent = accent,
-                contentDescription = stringResource(if (playing) R.string.music_pause else R.string.music_play),
-                onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                    if (playing) controls.pause() else controls.play()
-                    setPlaying(!playing)
-                },
-            )
-            SkipButton(
-                icon = Icons.Rounded.SkipNext,
-                label = stringResource(R.string.music_next),
-                direction = 1f,
-                enabled = base.can(PlaybackState.ACTION_SKIP_TO_NEXT) || base.actions == 0L,
-            ) { controls.skipToNext() }
+            Column(Modifier.fillMaxWidth()) {
+                Spacer(Modifier.height(14.dp))
+                val seekable = duration > 0 && (base.can(PlaybackState.ACTION_SEEK_TO) || base.actions == 0L)
+                WavyScrubber(
+                    fraction = { if (duration > 0) position.longValue.toFloat() / duration else 0f },
+                    playing = playing,
+                    accent = accent,
+                    seekable = seekable,
+                    onScrub = { scrub = it },
+                    onSeek = { f ->
+                        val target = (f * duration).toLong()
+                        controls.seekTo(target)
+                        base = base.copy(positionMs = target, updatedAt = now())
+                        position.longValue = target
+                    },
+                )
+                TimeRow(
+                    elapsed = { scrub?.let { (it * duration).toLong() } ?: position.longValue },
+                    duration = duration,
+                )
+                Spacer(Modifier.height(6.dp))
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    SkipButton(
+                        icon = Icons.Rounded.SkipPrevious,
+                        label = stringResource(R.string.music_previous),
+                        direction = -1f,
+                        enabled = base.can(PlaybackState.ACTION_SKIP_TO_PREVIOUS) || base.actions == 0L,
+                    ) { controls.skipToPrevious() }
+                    PlayPauseButton(
+                        playing = playing,
+                        accent = accent,
+                        contentDescription = stringResource(if (playing) R.string.music_pause else R.string.music_play),
+                        onClick = togglePlay,
+                    )
+                    SkipButton(
+                        icon = Icons.Rounded.SkipNext,
+                        label = stringResource(R.string.music_next),
+                        direction = 1f,
+                        enabled = base.can(PlaybackState.ACTION_SKIP_TO_NEXT) || base.actions == 0L,
+                    ) { controls.skipToNext() }
+                }
+            }
         }
 
-        LyricsSection(content.lyrics, position)
+        LyricsSection(
+            state = content.lyrics,
+            position = position,
+            prefs = prefs,
+            output = output,
+            focused = focused,
+            onOffsetChange = { ms ->
+                scope.launch { SettingsRepository.update(appContext) { it.copy(music = it.music.withOffset(output, ms)) } }
+            },
+            onToggleFocus = {
+                haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
+                val next = !focus
+                focus = next
+                scope.launch { SettingsRepository.update(appContext) { it.copy(music = it.music.copy(lyricsFocusMode = next)) } }
+            },
+        )
     }
 }
 
 @Composable
-private fun Header(content: MusicContent, playing: Boolean, accent: Color, reduceMotion: Boolean, onOpen: () -> Unit) {
+private fun Header(
+    content: MusicContent,
+    playing: Boolean,
+    accent: Color,
+    reduceMotion: Boolean,
+    compact: Boolean = false,
+    onTogglePlay: () -> Unit = {},
+    onOpen: () -> Unit,
+) {
+    val sizeSpec = if (reduceMotion) snap() else spring<Dp>(stiffness = Spring.StiffnessMediumLow)
+    val artSize by animateDpAsState(if (compact) 44.dp else 60.dp, sizeSpec, label = "artSize")
     Row(verticalAlignment = Alignment.CenterVertically) {
         ArtworkImage(
             content.artwork?.image,
             accent,
             Modifier
-                .size(60.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .size(artSize)
+                .clip(RoundedCornerShape(if (compact) 12.dp else 16.dp))
                 .clickable(onClickLabel = stringResource(R.string.music_open_player), onClick = onOpen),
         )
-        Spacer(Modifier.width(14.dp))
+        Spacer(Modifier.width(if (compact) 12.dp else 14.dp))
         AnimatedContent(
             targetState = content.track.title to content.track.artist,
             transitionSpec = {
@@ -214,7 +282,7 @@ private fun Header(content: MusicContent, playing: Boolean, accent: Color, reduc
             Column {
                 Text(
                     title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = if (reduceMotion) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -223,8 +291,8 @@ private fun Header(content: MusicContent, playing: Boolean, accent: Color, reduc
                 if (artist.isNotEmpty()) {
                     Text(
                         artist,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.66f),
+                        style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.7f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -232,7 +300,19 @@ private fun Header(content: MusicContent, playing: Boolean, accent: Color, reduc
             }
         }
         Spacer(Modifier.width(10.dp))
-        CompactEqualizer(playing, accent, Modifier.height(18.dp))
+        if (compact) {
+            // Mode paroles : seule la lecture/pause reste à portée de pouce.
+            IconButton(onClick = onTogglePlay, modifier = Modifier.size(44.dp)) {
+                Icon(
+                    if (playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                    contentDescription = stringResource(if (playing) R.string.music_pause else R.string.music_play),
+                    tint = accent,
+                    modifier = Modifier.size(28.dp),
+                )
+            }
+        } else {
+            CompactEqualizer(playing, accent, Modifier.height(18.dp))
+        }
     }
 }
 
@@ -277,37 +357,105 @@ private fun SkipButton(icon: ImageVector, label: String, direction: Float, enabl
     }
 }
 
+/** Mode paroles : deux lignes de plus dans la fenêtre. */
+internal fun lyricsWindowLines(visibleLines: Int, focused: Boolean): Int = visibleLines + if (focused) 2 else 0
+
 @Composable
-private fun LyricsSection(state: LyricsState, position: androidx.compose.runtime.MutableLongState) {
+private fun LyricsSection(
+    state: LyricsState,
+    position: MutableLongState,
+    prefs: LyricsPrefs,
+    output: AudioOutput,
+    focused: Boolean,
+    onOffsetChange: (Int) -> Unit,
+    onToggleFocus: () -> Unit,
+) {
     val found = state as? LyricsState.Found
     // Garde les dernières paroles affichées pendant l'animation de sortie.
     var shown by remember { mutableStateOf(found?.lyrics) }
     if (found != null) shown = found.lyrics
+    // Décalage de la sortie courante, modifié de façon optimiste au toucher (puis mémorisé).
+    val saved = prefs.offsetFor(output.key)
+    var offset by remember(output.key, saved) { mutableIntStateOf(saved) }
+    // Bulle « Casque XYZ : +250 ms », affichée un instant après chaque réglage.
+    var toastTick by remember { mutableIntStateOf(0) }
+    var toastVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(toastTick) {
+        if (toastTick == 0) return@LaunchedEffect
+        toastVisible = true
+        delay(1_800)
+        toastVisible = false
+    }
     AnimatedVisibility(
         visible = found != null,
         enter = fadeIn(tween(300, 120)) + expandVertically(spring(stiffness = Spring.StiffnessMediumLow)),
         exit = fadeOut(tween(150)) + shrinkVertically(spring(stiffness = Spring.StiffnessMedium)),
     ) {
         val lyrics = shown ?: return@AnimatedVisibility
+        val height = lyricsWindowHeight(lyricsWindowLines(prefs.visibleLines, focused), prefs.textScale)
         Column(Modifier.fillMaxWidth()) {
-            Spacer(Modifier.height(12.dp))
-            if (lyrics.synced) {
-                // Léger décalage : la ligne s'allume un instant avant d'être chantée.
-                val index by remember(lyrics) { derivedStateOf { lyrics.indexAt(position.longValue + 250) } }
-                SyncedLyrics(lyrics, index, height = 118.dp)
-            } else {
-                PlainLyrics(lyrics, height = 118.dp)
+            Spacer(Modifier.height(if (focused) 10.dp else 12.dp))
+            Box(Modifier.fillMaxWidth()) {
+                if (lyrics.synced) {
+                    val currentOffset by rememberUpdatedState(offset)
+                    val index by remember(lyrics) {
+                        derivedStateOf { LyricsSync.currentLine(lyrics, position.longValue, currentOffset) }
+                    }
+                    SyncedLyrics(lyrics, index, height = height, textScale = prefs.textScale)
+                } else {
+                    PlainLyrics(lyrics, height = height, textScale = prefs.textScale)
+                }
+                val label = outputLabel(output.kind, output.name)
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = toastVisible,
+                    enter = fadeIn(tween(160)) + scaleIn(spring(stiffness = Spring.StiffnessMedium), initialScale = 0.9f),
+                    exit = fadeOut(tween(400)),
+                    modifier = Modifier.align(Alignment.TopCenter),
+                ) {
+                    Text(
+                        stringResource(R.string.music_sync_toast, label, LyricsSync.formatOffset(offset)),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(Color(0xE6202020))
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                    )
+                }
             }
-            Spacer(Modifier.height(6.dp))
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+            Spacer(Modifier.height(2.dp))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                if (lyrics.synced) {
+                    OffsetStepper(
+                        offsetMs = offset,
+                        onChange = { ms ->
+                            offset = ms
+                            toastTick++
+                            onOffsetChange(ms)
+                        },
+                    )
+                }
+                Spacer(Modifier.weight(1f))
                 Text(
                     stringResource(
                         R.string.music_lyrics_source,
                         stringResource(if (lyrics.source == LyricsSource.LRCLIB) R.string.music_source_lrclib else R.string.music_source_player),
                     ),
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.42f),
+                    color = Color.White.copy(alpha = 0.5f),
+                    maxLines = 1,
                 )
+                IconButton(onClick = onToggleFocus, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        if (focused) Icons.Rounded.CloseFullscreen else Icons.Rounded.OpenInFull,
+                        contentDescription = stringResource(if (focused) R.string.music_focus_off else R.string.music_focus_on),
+                        tint = Color.White.copy(alpha = 0.8f),
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
             }
         }
     }
