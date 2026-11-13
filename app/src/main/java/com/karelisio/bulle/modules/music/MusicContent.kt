@@ -43,6 +43,8 @@ data class MusicContent(
      * en direct dans la vue étendue, sans recréer le contenu.
      */
     val lyricsPrefs: LyricsPrefs = LyricsPrefs(),
+    /** Réglage [MusicSettings.realVisualizer] : égaliseur et onde suivent le vrai son. */
+    val realVisualizer: Boolean = false,
 ) : IslandContent() {
     override val key = "music:${track.packageName}"
     override val moduleId = MusicModule.id
@@ -73,7 +75,7 @@ data class MusicContent(
     override fun Leading() = CompactArtwork(artwork?.image, isPlaying, accent)
 
     @Composable
-    override fun Trailing() = CompactEqualizer(isPlaying, accent)
+    override fun Trailing() = CompactEqualizer(isPlaying, accent, realSpectrum = realVisualizer)
 
     @Composable
     override fun Minimal() = MinimalArtwork(artwork?.image, isPlaying, accent)

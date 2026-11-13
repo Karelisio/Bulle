@@ -73,10 +73,12 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.rounded.CloseFullscreen
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.OpenInFull
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.runtime.MutableLongState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.unit.Dp
@@ -86,6 +88,9 @@ import com.karelisio.bulle.modules.music.sync.AudioOutputTracker
 import com.karelisio.bulle.modules.music.sync.LyricsPrefs
 import com.karelisio.bulle.modules.music.sync.LyricsSync
 import com.karelisio.bulle.modules.music.sync.withOffset
+import com.karelisio.bulle.modules.music.karaoke.KaraokeBridge
+import com.karelisio.bulle.modules.music.visualizer.AudioWave
+import com.karelisio.bulle.modules.music.visualizer.rememberRealSpectrum
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -121,6 +126,8 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
     }
     var scrub by remember { mutableStateOf<Float?>(null) }
     val playing = base.isPlaying
+    // Visualiseur audio réel (option) : l'onde sous l'en-tête suit le vrai son.
+    val spectrum = rememberRealSpectrum(content.realVisualizer && !reduceMotion, playing)
 
     // Sortie audio courante, suivie en direct (casque branché/débranché) sans recréer le contenu.
     val appContext = host.context.applicationContext
@@ -181,6 +188,7 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
             exit = fadeOut(tween(120)) + shrinkVertically(spring(stiffness = Spring.StiffnessMedium)),
         ) {
             Column(Modifier.fillMaxWidth()) {
+                RealSoundWave(spectrum, accent)
                 Spacer(Modifier.height(14.dp))
                 val seekable = duration > 0 && (base.can(PlaybackState.ACTION_SEEK_TO) || base.actions == 0L)
                 WavyScrubber(
@@ -243,6 +251,11 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
                 val next = !focus
                 focus = next
                 scope.launch { SettingsRepository.update(appContext) { it.copy(music = it.music.copy(lyricsFocusMode = next)) } }
+            },
+            onOpenKaraoke = {
+                haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
+                KaraokeBridge.open(host.context, content)
+                host.collapse()
             },
         )
     }
@@ -311,7 +324,7 @@ private fun Header(
                 )
             }
         } else {
-            CompactEqualizer(playing, accent, Modifier.height(18.dp))
+            CompactEqualizer(playing, accent, Modifier.height(18.dp), realSpectrum = content.realVisualizer)
         }
     }
 }
@@ -357,6 +370,21 @@ private fun SkipButton(icon: ImageVector, label: String, direction: Float, enabl
     }
 }
 
+/** Onde du vrai son, affichée seulement quand le visualiseur fournit des captures. */
+@Composable
+private fun RealSoundWave(spectrum: State<FloatArray?>?, accent: Color) {
+    val visible by remember(spectrum) { derivedStateOf { spectrum?.value != null } }
+    AnimatedVisibility(
+        visible = visible && spectrum != null,
+        enter = fadeIn(tween(300)) + expandVertically(spring(stiffness = Spring.StiffnessMediumLow)),
+        exit = fadeOut(tween(200)) + shrinkVertically(spring(stiffness = Spring.StiffnessMedium)),
+    ) {
+        if (spectrum != null) {
+            AudioWave(spectrum, accent, Modifier.fillMaxWidth().padding(top = 12.dp).height(26.dp))
+        }
+    }
+}
+
 /** Mode paroles : deux lignes de plus dans la fenêtre. */
 internal fun lyricsWindowLines(visibleLines: Int, focused: Boolean): Int = visibleLines + if (focused) 2 else 0
 
@@ -369,6 +397,7 @@ private fun LyricsSection(
     focused: Boolean,
     onOffsetChange: (Int) -> Unit,
     onToggleFocus: () -> Unit,
+    onOpenKaraoke: () -> Unit = {},
 ) {
     val found = state as? LyricsState.Found
     // Garde les dernières paroles affichées pendant l'animation de sortie.
@@ -448,6 +477,17 @@ private fun LyricsSection(
                     color = Color.White.copy(alpha = 0.5f),
                     maxLines = 1,
                 )
+                if (lyrics.synced) {
+                    // Paroles plein écran « karaoké ».
+                    IconButton(onClick = onOpenKaraoke, modifier = Modifier.size(36.dp)) {
+                        Icon(
+                            Icons.Rounded.Mic,
+                            contentDescription = stringResource(R.string.music_karaoke_open),
+                            tint = Color.White.copy(alpha = 0.8f),
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                }
                 IconButton(onClick = onToggleFocus, modifier = Modifier.size(36.dp)) {
                     Icon(
                         if (focused) Icons.Rounded.CloseFullscreen else Icons.Rounded.OpenInFull,

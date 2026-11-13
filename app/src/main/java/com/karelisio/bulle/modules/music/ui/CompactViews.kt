@@ -21,6 +21,7 @@ import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +39,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.karelisio.bulle.modules.music.visualizer.SpectrumMath
+import com.karelisio.bulle.modules.music.visualizer.approach
+import com.karelisio.bulle.modules.music.visualizer.rememberRealSpectrum
 import com.karelisio.bulle.ui.components.rememberReduceMotion
 import kotlinx.coroutines.isActive
 import kotlin.math.sin
@@ -149,9 +153,13 @@ internal fun barHeight(i: Int, t: Float, level: Float): Float {
 /**
  * Égaliseur compact (à droite de la caméra) : 4 barres arrondies à la couleur de la pochette.
  * Le temps est lu dans la lambda de dessin : seule la phase de dessin est invalidée à chaque image.
+ *
+ * [realSpectrum] (option « visualiseur audio réel ») : les barres suivent le vrai son tant que le
+ * Visualizer fournit des captures ; sinon (refus, indisponible, muet) l'animation simulée reprend,
+ * avec un fondu entre les deux.
  */
 @Composable
-internal fun CompactEqualizer(playing: Boolean, accent: Color, modifier: Modifier = Modifier) {
+internal fun CompactEqualizer(playing: Boolean, accent: Color, modifier: Modifier = Modifier, realSpectrum: Boolean = false) {
     val reduceMotion = rememberReduceMotion()
     val color by animateColorAsState(accent, tween(600), label = "eqColor")
     val time = remember { mutableFloatStateOf(0f) }
@@ -159,13 +167,26 @@ internal fun CompactEqualizer(playing: Boolean, accent: Color, modifier: Modifie
     LaunchedEffect(playing, reduceMotion) {
         level.animateTo(if (playing && !reduceMotion) 1f else 0f, spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessLow))
     }
-    LaunchedEffect(playing, reduceMotion) {
+    // Vrai son : inscrit auprès du visualiseur tant que l'égaliseur est affiché.
+    val spectrum = rememberRealSpectrum(realSpectrum && !reduceMotion, playing)
+    val real = remember { FloatArray(RestHeights.size) }
+    val realMix = remember { Animatable(0f) }
+    val hasReal by remember(spectrum) { derivedStateOf { spectrum?.value != null } }
+    LaunchedEffect(hasReal) {
+        realMix.animateTo(if (hasReal) 1f else 0f, spring(dampingRatio = 1f, stiffness = Spring.StiffnessLow))
+    }
+    LaunchedEffect(playing, reduceMotion, spectrum) {
         if (!playing || reduceMotion) return@LaunchedEffect
         var last = withFrameNanos { it }
         while (isActive) {
             withFrameNanos { now ->
-                time.floatValue += (now - last) / 1e9f
+                val dt = (now - last) / 1e9f
+                time.floatValue += dt
                 last = now
+                spectrum?.value?.let { bands ->
+                    val target = SpectrumMath.regroup(bands, real.size)
+                    for (i in real.indices) real[i] = approach(real[i], target[i], dt, rate = 22f)
+                }
             }
         }
     }
@@ -179,8 +200,11 @@ internal fun CompactEqualizer(playing: Boolean, accent: Color, modifier: Modifie
                 val gap = size.width * 0.12f
                 val barW = (size.width - gap * (n - 1)) / n
                 val top = lerp(color, Color.White, 0.35f)
+                val mix = realMix.value
                 for (i in 0 until n) {
-                    val h = (barHeight(i, time.floatValue, level.value) * size.height).coerceAtLeast(barW)
+                    val simulated = barHeight(i, time.floatValue, level.value)
+                    val rel = if (mix > 0f) simulated + (realBarHeight(real[i], level.value) - simulated) * mix else simulated
+                    val h = (rel * size.height).coerceAtLeast(barW)
                     val x = i * (barW + gap)
                     val y = (size.height - h) / 2f
                     drawRoundRect(
@@ -193,3 +217,6 @@ internal fun CompactEqualizer(playing: Boolean, accent: Color, modifier: Modifie
             },
     )
 }
+
+/** Hauteur relative d'une barre réelle (niveau 0..1) : jamais plus bas qu'un point, posée en pause. */
+internal fun realBarHeight(value: Float, level: Float): Float = 0.18f + 0.82f * value.coerceIn(0f, 1f) * level
