@@ -29,6 +29,23 @@ class KaraokeProgressTest {
     }
 
     @Test
+    fun wordsWithoutTagsFollowSyllablesNotLetters() {
+        // « the » et « strength » : une syllabe chacun → la moitié du temps chacun (et non 3/11 contre 8/11).
+        assertEquals(4f, KaraokeProgress.estimatedFill("the strength", 0.5f), 0.01f)
+        assertEquals(0f, KaraokeProgress.estimatedFill("the strength", 0f), 0f)
+        assertEquals(12f, KaraokeProgress.estimatedFill("the strength", 1f), 0f)
+        assertEquals(3, KaraokeProgress.syllables("beautiful"))
+        assertEquals(1, KaraokeProgress.syllables("rêve"))
+        // Monotone sur toute la ligne.
+        var last = 0f
+        for (i in 0..100) {
+            val f = KaraokeProgress.estimatedFill("Je t'aime, mon amour, toujours", i / 100f)
+            assertTrue(f >= last)
+            last = f
+        }
+    }
+
+    @Test
     fun longGapIsCappedToNaturalDuration() {
         // Pont instrumental de 30 s après une ligne courte : remplissage en durée « naturelle ».
         val line = LyricLine(0, "abcd")

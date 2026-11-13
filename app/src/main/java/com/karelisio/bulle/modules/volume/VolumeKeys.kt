@@ -6,6 +6,8 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
@@ -49,6 +51,12 @@ object VolumeKeys {
     /** Touches dont l'appui a été consommé : leur relâchement doit l'être aussi. */
     private val consumedDown = HashSet<Int>()
 
+    // Répétition en maintenant la touche : une fois l'appui intercepté, le système ne génère plus
+    // ses propres répétitions ; on les recrée (délai initial puis pas réguliers jusqu'au relâchement).
+    private val handler = Handler(Looper.getMainLooper())
+    private var repeat: Runnable? = null
+    private var repeatCode = 0
+
     /** Flux choisi dans la vue étendue : prioritaire tant que le curseur reste affiché. */
     @Volatile
     private var pinned: VolumeStream? = null
@@ -68,14 +76,46 @@ object VolumeKeys {
                 if (VolumeLogic.shouldIntercept(conditions(context))) consumedDown += code else consumedDown -= code
             }
             if (code in consumedDown) {
-                adjust(context, if (code == KeyEvent.KEYCODE_VOLUME_UP) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER)
+                val direction = if (code == KeyEvent.KEYCODE_VOLUME_UP) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER
+                if (event.repeatCount == 0) {
+                    adjust(context, direction)
+                    startRepeat(context, code, direction)
+                } else if (repeat == null) {
+                    // Répétitions système (si elles arrivent) : utilisées seulement sans la nôtre.
+                    adjust(context, direction)
+                }
                 true
             } else {
                 false
             }
         }
-        KeyEvent.ACTION_UP -> consumedDown.remove(code)
+        KeyEvent.ACTION_UP -> {
+            if (code == repeatCode) stopRepeat()
+            consumedDown.remove(code)
+        }
         else -> code in consumedDown
+    }
+
+    private fun startRepeat(context: Context, code: Int, direction: Int) {
+        stopRepeat()
+        repeatCode = code
+        var steps = 0
+        val r = object : Runnable {
+            override fun run() {
+                // Garde-fou si le relâchement n'arrive jamais (service coupé…).
+                if (++steps > MAX_REPEAT_STEPS || code !in consumedDown) { stopRepeat(); return }
+                runCatching { adjust(context, direction) }
+                handler.postDelayed(this, REPEAT_INTERVAL_MS)
+            }
+        }
+        repeat = r
+        handler.postDelayed(r, REPEAT_DELAY_MS)
+    }
+
+    private fun stopRepeat() {
+        repeat?.let(handler::removeCallbacks)
+        repeat = null
+        repeatCode = 0
     }
 
     /** État courant (service, île, appel, écran). Sans île en marche : aucune interception. */
@@ -226,4 +266,10 @@ object VolumeKeys {
         val sessions = msm.getActiveSessions(NotificationRepository.component(context))
         (sessions.firstOrNull { it.playbackState?.state == PlaybackState.STATE_PLAYING } ?: sessions.firstOrNull())?.packageName
     }.getOrNull()
+
+    /** Délai avant la première répétition, puis intervalle (proches du comportement système). */
+    private const val REPEAT_DELAY_MS = 400L
+    private const val REPEAT_INTERVAL_MS = 90L
+    private const val MAX_REPEAT_STEPS = 120
+
 }
