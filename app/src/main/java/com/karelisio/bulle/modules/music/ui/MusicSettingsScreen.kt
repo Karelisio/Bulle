@@ -187,6 +187,11 @@ fun MusicSettingsScreen(onBack: () -> Unit) {
                 enabled = enabled && music.lyricsEnabled,
             ) { on -> updateMusic { it.copy(stayVisibleWithLyrics = on) } }
 
+            val lyricsOn = enabled && music.lyricsEnabled
+            LyricsDisplaySettings(music, lyricsOn) { t -> updateMusic(t) }
+            LyricsSyncSettings(music, lyricsOn) { t -> updateMusic(t) }
+            Spacer(Modifier.height(8.dp))
+
             ListItem(
                 leadingContent = { Icon(Icons.Rounded.DeleteSweep, contentDescription = null) },
                 headlineContent = { Text(stringResource(R.string.music_cache_title)) },

@@ -18,6 +18,7 @@ import com.karelisio.bulle.modules.music.media.Artwork
 import com.karelisio.bulle.modules.music.media.ArtworkLoader
 import com.karelisio.bulle.modules.music.media.PlaybackSnapshot
 import com.karelisio.bulle.modules.music.media.TrackInfo
+import com.karelisio.bulle.modules.music.sync.LyricsPrefs
 import com.karelisio.bulle.modules.music.ui.CompactArtwork
 import com.karelisio.bulle.modules.music.ui.CompactEqualizer
 import com.karelisio.bulle.modules.music.ui.MinimalArtwork
@@ -36,6 +37,12 @@ data class MusicContent(
     val keepLyricsOpen: Boolean = true,
     /** Réglage [MusicSettings.stayVisibleWithLyrics] au moment de la publication. */
     val stayVisibleWithLyrics: Boolean = true,
+    /**
+     * Affichage et synchronisation des paroles (décalages par sortie, taille, mode paroles).
+     * Ne change que lorsque l'utilisateur modifie un réglage : la sortie audio courante est suivie
+     * en direct dans la vue étendue, sans recréer le contenu.
+     */
+    val lyricsPrefs: LyricsPrefs = LyricsPrefs(),
 ) : IslandContent() {
     override val key = "music:${track.packageName}"
     override val moduleId = MusicModule.id

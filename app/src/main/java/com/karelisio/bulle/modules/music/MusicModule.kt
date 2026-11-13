@@ -10,6 +10,7 @@ import com.karelisio.bulle.modules.music.media.Artwork
 import com.karelisio.bulle.modules.music.media.ArtworkLoader
 import com.karelisio.bulle.modules.music.media.MediaSessionSource
 import com.karelisio.bulle.modules.music.media.MediaSnapshot
+import com.karelisio.bulle.modules.music.sync.lyricsPrefs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -91,6 +92,7 @@ object MusicModule : IslandModule {
                 timeoutMs = if (!playing && s.hideWhenPaused) s.pausedHideMinutes.coerceAtLeast(1) * 60_000L else null,
                 keepLyricsOpen = s.keepLyricsOpen,
                 stayVisibleWithLyrics = s.stayVisibleWithLyrics,
+                lyricsPrefs = s.lyricsPrefs(),
             ),
         )
     }
