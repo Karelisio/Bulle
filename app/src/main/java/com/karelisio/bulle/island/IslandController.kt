@@ -108,9 +108,11 @@ class IslandController(
         combine(hub.contents, interaction) { list, i -> IslandArbiter.arrange(list, i.swappedPair) }
             .stateIn(scope, SharingStarted.Eagerly, Arrangement.Empty)
 
+    private val foreground = combine(ForegroundApp.packageName, IslandOcclusion.active) { fg, occ -> fg to occ.isNotEmpty() }
+
     val state: StateFlow<IslandUiState> = combine(
-        settings, screen, ForegroundApp.packageName, arrangement, interaction,
-    ) { s, scr, fg, arr, i ->
+        settings, screen, foreground, arrangement, interaction,
+    ) { s, scr, (fg, occluded), arr, i ->
         val reason = VisibilityPolicy.hiddenReason(s, scr, fg, HomeApp.packageName(context))
         if (_hiddenReason.value != reason) {
             IslandLog.log(if (reason == null) "Île affichée" else "Île masquée : $reason" + (fg?.let { " ($it)" } ?: ""))
@@ -125,7 +127,7 @@ class IslandController(
         val expanded = i.panel != null || (primary != null && primary.expandable && i.expandedKey == primary.key)
         IslandUiState(
             geometry = scr.geometry,
-            visible = policyVisible || forced,
+            visible = (policyVisible || forced) && !occluded,
             primary = primary,
             secondary = arr.secondary.takeIf { policyVisible },
             expanded = expanded,

@@ -65,6 +65,16 @@ class KaraokeActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        com.karelisio.bulle.island.IslandOcclusion.set(OCCLUSION_TAG, true)
+    }
+
+    override fun onStop() {
+        com.karelisio.bulle.island.IslandOcclusion.set(OCCLUSION_TAG, false)
+        super.onStop()
+    }
+
     override fun finish() {
         super.finish()
         // Sortie en fondu (le geste de fermeture a déjà fait glisser le contenu vers le bas).
@@ -74,5 +84,6 @@ class KaraokeActivity : ComponentActivity() {
 
     private companion object {
         const val EMPTY_GRACE_MS = 600L
+        const val OCCLUSION_TAG = "karaoke"
     }
 }
