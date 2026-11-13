@@ -67,6 +67,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -143,7 +144,8 @@ internal fun RuleEditorSheet(
     var locating by remember { mutableStateOf(false) }
 
     val draft = Rule(id = baseId, enabled = initial?.enabled ?: true, conditions = conditions, match = match, actions = actions)
-    LaunchedEffect(draft) { onDraft(draft) }
+    // Publié après chaque composition appliquée (aperçu en direct, géorepérage du brouillon).
+    SideEffect { onDraft(draft) }
 
     fun setCondition(i: Int, c: RuleCondition) {
         conditions = conditions.toMutableList().also { if (i in it.indices) it[i] = c else it += c }
