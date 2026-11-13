@@ -76,6 +76,32 @@ object VolumeLogic {
     fun isCommunicationMode(mode: Int): Boolean =
         mode == AudioManager.MODE_IN_CALL || mode == AudioManager.MODE_IN_COMMUNICATION ||
             mode == AudioManager.MODE_CALL_SCREENING
+
+    // --- Délai d'affichage (« keep alive ») ---
+
+    /** Regroupement des prolongations pendant un glissement : au plus une toutes les 400 ms. */
+    const val KEEP_ALIVE_THROTTLE_MS = 400L
+
+    /** Délai minimal quand la vue étendue est ouverte. */
+    const val EXPANDED_MIN_TIMEOUT_MS = 6_000L
+
+    /**
+     * Délai d'affichage après la dernière interaction : aucun (jamais d'expiration) tant qu'un
+     * doigt est posé sur un curseur ; plus long vue étendue ouverte (durée × 2,5, au moins 6 s).
+     */
+    fun timeoutFor(baseMs: Long, holding: Boolean, expanded: Boolean): Long? = when {
+        holding -> null
+        expanded -> maxOf((baseMs * 5) / 2, EXPANDED_MIN_TIMEOUT_MS)
+        else -> baseMs
+    }
+
+    /** Instant d'expiration (null = n'expire pas) à partir du dernier événement. */
+    fun expiresAt(lastEventAt: Long, baseMs: Long, holding: Boolean, expanded: Boolean): Long? =
+        timeoutFor(baseMs, holding, expanded)?.let { lastEventAt + it }
+
+    /** Prolonger maintenant ? Toujours si [force] (début / fin de geste), sinon au plus toutes les 400 ms. */
+    fun shouldKeepAlive(now: Long, lastBumpAt: Long, force: Boolean): Boolean =
+        force || now - lastBumpAt >= KEEP_ALIVE_THROTTLE_MS
 }
 
 /** Contexte qui décide des sources de volume listées (réduit à des booléens : testable). */
