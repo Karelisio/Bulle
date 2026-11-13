@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Focus mode (V3): the island only shows what matters. -->
+    <string name="focusmode_title">Focus mode</string>
+    <string name="focusmode_summary">The island only shows what matters; the rest waits until focus ends.</string>
+    <string name="focusmode_on">Focus on</string>
+    <string name="focusmode_off">Focus off</string>
+    <string name="focusmode_turn_on">Turn on now</string>
+    <string name="focusmode_turn_off">Turn off</string>
+    <string name="focusmode_by_manual">Turned on manually</string>
+    <string name="focusmode_by_rule">Turned on by a rule</string>
+    <string name="focusmode_by_app">Turned on by an open app</string>
+    <string name="focusmode_by_schedule">Turned on by a time slot</string>
+    <string name="focusmode_paused">Turned off manually until the next change</string>
+    <string name="focusmode_essential">Essentials</string>
+    <string name="focusmode_threshold_hint">Content always shown during focus.</string>
+    <string name="focusmode_threshold_call">Calls</string>
+    <string name="focusmode_threshold_alarm">+ alarms</string>
+    <string name="focusmode_threshold_alert">+ alerts</string>
+    <string name="focusmode_threshold_live">+ live activities</string>
+    <string name="focusmode_modules">Per module</string>
+    <string name="focusmode_module_auto">Auto</string>
+    <string name="focusmode_module_always">Always</string>
+    <string name="focusmode_module_never">Never</string>
+    <string name="focusmode_schedule">Time slots</string>
+    <string name="focusmode_schedule_empty">No time slot.</string>
+    <string name="focusmode_add_slot">Add a time slot</string>
+    <string name="focusmode_apps">Apps</string>
+    <string name="focusmode_apps_hint">Focus turns on while one of these apps is open.</string>
+    <string name="focusmode_add_app">Add an app</string>
+    <string name="focusmode_indicator">Indicator in the island</string>
+    <string name="focusmode_indicator_summary">A small, discreet moon during focus.</string>
+    <string name="focusmode_remove">Remove</string>
+</resources>
