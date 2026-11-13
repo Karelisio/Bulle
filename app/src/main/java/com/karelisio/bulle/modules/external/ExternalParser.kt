@@ -195,11 +195,11 @@ object ExternalParser {
     }
 
     private fun parseItems(x: ExternalExtras): List<ExternalItem> {
-        val texts = x.stringList(Api.EXTRA_ITEMS)
-            .mapNotNull { clean(it, Api.MAX_ITEM_LENGTH) }
-            .take(Api.MAX_ITEMS)
+        // Les coches sont associées par position dans la liste ENVOYÉE (avant retrait des lignes vides).
         val checked = (x[Api.EXTRA_ITEMS_CHECKED] as? BooleanArray) ?: BooleanArray(0)
-        return texts.mapIndexed { i, t -> ExternalItem(t, checked.getOrElse(i) { false }) }
+        return x.stringList(Api.EXTRA_ITEMS)
+            .mapIndexedNotNull { i, t -> clean(t, Api.MAX_ITEM_LENGTH)?.let { ExternalItem(it, checked.getOrElse(i) { false }) } }
+            .take(Api.MAX_ITEMS)
     }
 
     private fun parseActions(x: ExternalExtras): List<ExternalAction> {
