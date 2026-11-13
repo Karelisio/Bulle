@@ -105,11 +105,14 @@ fun rememberHighContrast(): Boolean {
 fun BulleTheme(
     dark: Boolean = isSystemInDarkTheme(),
     dynamic: Boolean = true,
-    /** null = suit le réglage d'accessibilité (contraste élevé). */
-    highContrast: Boolean? = null,
+    /**
+     * Contraste élevé. L'activité principale passe [rememberHighContrast] (elle lit déjà les
+     * réglages) ; ailleurs, schéma habituel.
+     */
+    highContrast: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val hc = highContrast ?: rememberHighContrast()
+    val hc = highContrast
     val base = bulleColorScheme(dark, dynamic)
     val scheme = remember(base, hc, dark) { if (hc) highContrastScheme(base, dark) else base }
     CompositionLocalProvider(LocalHighContrast provides hc) {
