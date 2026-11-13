@@ -93,7 +93,13 @@ object DeckPanel : IslandPanel {
     override fun Content(host: IslandHost) {
         val context = host.context
         val settings by remember { SettingsRepository.flow(context) }.collectAsStateWithLifecycle(BulleSettings())
-        val deck = settings.deck
+        DeckContent(host, settings.deck)
+    }
+
+    /** Contenu du Deck, indépendant du stockage (testable) ; [initialSearch] ouvre directement la recherche. */
+    @Composable
+    internal fun DeckContent(host: IslandHost, deck: DeckSettings, initialSearch: Boolean = false) {
+        val context = host.context
         val tabs = deck.tabs.ifEmpty { listOf(DeckTab(id = "main")) }
         val pager = rememberPagerState { tabs.size }
 
@@ -112,7 +118,7 @@ object DeckPanel : IslandPanel {
 
         // Recherche intégrée : la barre ouvre, dans le Deck même, le contenu du panneau de recherche
         // (applis, calculs, conversions, devises, contacts, réglages) sans le dupliquer.
-        var searching by remember { mutableStateOf(false) }
+        var searching by remember { mutableStateOf(initialSearch) }
         val reduceMotion = rememberReduceMotion()
         AnimatedContent(
             targetState = searching && deck.searchBar,

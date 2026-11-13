@@ -225,6 +225,20 @@ private enum class TabSheet { NONE, FAVORITE, SHORTCUT, WIDGET }
 fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
     val (deck, update) = rememberDeck()
     val context = LocalContext.current
+    val haptics by remember { SettingsRepository.flow(context).map { it.motion.haptics } }.collectAsStateWithLifecycle(true)
+    DeckTabScreenContent(deck, update, haptics, tabId, onBack)
+}
+
+/** Contenu de [DeckTabScreen], indépendant du stockage (testable). */
+@Composable
+internal fun DeckTabScreenContent(
+    deck: DeckSettings,
+    update: (suspend (DeckSettings) -> DeckSettings) -> Unit,
+    haptics: Boolean,
+    tabId: String,
+    onBack: () -> Unit,
+) {
+    val context = LocalContext.current
     val tab = deck.tabs.firstOrNull { it.id == tabId } ?: return
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var sheet by remember { mutableStateOf(TabSheet.NONE) }
@@ -239,7 +253,6 @@ fun DeckTabScreen(tabId: String, onBack: () -> Unit) {
     // Réorganisation des favoris et des widgets (glisser-déposer ou actions TalkBack).
     val listState = rememberLazyListState()
     val reorder = rememberDeckReorderState(listState)
-    val haptics by remember { SettingsRepository.flow(context).map { it.motion.haptics } }.collectAsStateWithLifecycle(true)
     val reduceMotion = rememberReduceMotion()
     LaunchedEffect(tab.favorites, tab.widgets) { reorder.clearPending() }
     fun drop(section: DeckSection, order: List<String>) = update { it.withOrder(tabId, section, order) }
