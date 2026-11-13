@@ -13,4 +13,6 @@
     <string name="action_reserve_fuel">Prix du carburant (Réserve)</string>
     <string name="nav_sum_integrations">API pour les applis Karelisio et tierces</string>
     <string name="nav_sum_messages">Réponse rapide depuis l\'île</string>
+    <string name="nav_sum_countdown">Jours restants avant tes événements</string>
+    <string name="nav_sum_screentime">Temps du jour et rappel de pause</string>
 </resources>

@@ -27,6 +27,8 @@ object Modules {
         ModuleRegistry.register(com.karelisio.bulle.modules.messages.MessagesModule)
         ModuleRegistry.register(com.karelisio.bulle.modules.network.NetworkModule)
         ModuleRegistry.register(com.karelisio.bulle.modules.battery.BatteryModule)
+        ModuleRegistry.register(com.karelisio.bulle.modules.countdown.CountdownModule)
+        ModuleRegistry.register(com.karelisio.bulle.modules.screentime.ScreenTimeModule)
         Panels.deck = DeckPanel
     }
 }

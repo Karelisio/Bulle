@@ -13,4 +13,6 @@
     <string name="action_reserve_fuel">Fuel prices (Réserve)</string>
     <string name="nav_sum_integrations">API for Karelisio and third-party apps</string>
     <string name="nav_sum_messages">Quick reply from the island</string>
+    <string name="nav_sum_countdown">Days left until your events</string>
+    <string name="nav_sum_screentime">Today\'s usage and break reminder</string>
 </resources>

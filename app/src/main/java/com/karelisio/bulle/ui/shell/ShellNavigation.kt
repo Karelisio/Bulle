@@ -4,10 +4,12 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.Cake
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.Hub
 import androidx.compose.material.icons.rounded.NetworkCheck
+import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.Home
@@ -107,6 +109,8 @@ object ShellCatalog {
                     ShellEntry(Routes.MESSAGES, R.string.module_messages, R.string.nav_sum_messages, Icons.Rounded.Forum),
                     ShellEntry(Routes.NETWORK, R.string.network_module_title, R.string.network_nav_summary, Icons.Rounded.NetworkCheck),
                     ShellEntry(Routes.BATTERY, R.string.battery_module_title, R.string.battery_nav_summary, Icons.Rounded.BatteryChargingFull),
+                    ShellEntry(Routes.COUNTDOWN, R.string.countdown_settings_title, R.string.nav_sum_countdown, Icons.Rounded.Cake),
+                    ShellEntry(Routes.SCREENTIME, R.string.screentime_settings_title, R.string.nav_sum_screentime, Icons.Rounded.PhoneAndroid),
                     ShellEntry(Routes.VOLUME, R.string.volume_module_title_nav, R.string.nav_sum_volume, Icons.AutoMirrored.Rounded.VolumeUp),
                 ),
             ),
