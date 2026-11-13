@@ -206,6 +206,15 @@ fun AlertStyleEditor(ui: AlertUi, def: AlertDef, style: AlertStyle, onChange: (A
             }
         }
 
+        // Vibration et son à l'apparition : l'aperçu joue lui-même le retour, pas de tic en plus.
+        AlertFeedbackPickers(
+            haptic = style.haptic,
+            sound = style.sound,
+            onHaptic = { onChange(style.copy(haptic = it)) },
+            onSound = { onChange(style.copy(sound = it)) },
+            section = { Section(it) },
+        )
+
         Section(R.string.alerts_style_duration)
         if (def.persistent) {
             Text(

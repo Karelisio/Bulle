@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Retours haptiques et sonores (core/feedback, sélecteurs des alertes). -->
+<resources>
+    <string name="feedback_haptic_title">Vibration à l’apparition</string>
+    <string name="feedback_haptic_none">Aucune</string>
+    <string name="feedback_haptic_light">Légère</string>
+    <string name="feedback_haptic_double_tap">Double tapotement</string>
+    <string name="feedback_haptic_heartbeat">Battement de cœur</string>
+    <string name="feedback_haptic_rise">Montée</string>
+    <string name="feedback_haptic_wave">Vague</string>
+    <string name="feedback_haptic_insistent">Insistante</string>
+    <string name="feedback_haptic_crisp">Clic net</string>
+    <string name="feedback_sound_title">Son à l’apparition</string>
+    <string name="feedback_sound_none">Aucun</string>
+    <string name="feedback_sound_system_default">Son de notification</string>
+    <string name="feedback_sound_chime">Carillon</string>
+    <string name="feedback_sound_bubble">Bulle</string>
+    <string name="feedback_sound_pop">Pop</string>
+    <string name="feedback_sound_soft_ding">Ding doux</string>
+    <string name="feedback_sound_twinkle">Scintillement</string>
+    <string name="feedback_sound_system_pick">Son du système…</string>
+    <string name="feedback_sound_muted_hint">Son coupé : le téléphone est en silencieux, en vibreur ou en Ne pas déranger.</string>
+</resources>

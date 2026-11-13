@@ -1,5 +1,7 @@
 package com.karelisio.bulle.modules.alerts
 
+import com.karelisio.bulle.core.feedback.FeedbackSound
+import com.karelisio.bulle.core.feedback.HapticPattern
 import kotlinx.serialization.Serializable
 
 /** Animation d'entrée choisie pour une alerte (null dans [AlertStyle] = animation propre à l'alerte). */
@@ -31,8 +33,16 @@ data class AlertStyle(
     val entrance: AlertEntrance? = null,
     /** Durée d'affichage en secondes ([MIN_SECONDS]..[MAX_SECONDS]), alertes ponctuelles seulement. */
     val durationSec: Int? = null,
+    /** Motif haptique joué à l'apparition de l'alerte (aucun par défaut, comme avant). */
+    val haptic: HapticPattern = HapticPattern.NONE,
+    /** Son joué à l'apparition de l'alerte (aucun par défaut). */
+    val sound: FeedbackSound = FeedbackSound.None,
 ) {
-    val isDefault: Boolean get() = icon == null && accent == null && entrance == null && durationSec == null
+    val isDefault: Boolean
+        get() = icon == null && accent == null && entrance == null && durationSec == null && !hasFeedback
+
+    /** Vrai si un retour (vibration ou son) est choisi pour cette alerte. */
+    val hasFeedback: Boolean get() = haptic != HapticPattern.NONE || !sound.isNone
 
     /** Durée effective en millisecondes, bornée, ou null si non personnalisée. */
     val durationMs: Long? get() = durationSec?.coerceIn(MIN_SECONDS, MAX_SECONDS)?.times(1_000L)

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feedback_haptic_title">Vibration on appearance</string>
+    <string name="feedback_haptic_none">None</string>
+    <string name="feedback_haptic_light">Light</string>
+    <string name="feedback_haptic_double_tap">Double tap</string>
+    <string name="feedback_haptic_heartbeat">Heartbeat</string>
+    <string name="feedback_haptic_rise">Rise</string>
+    <string name="feedback_haptic_wave">Wave</string>
+    <string name="feedback_haptic_insistent">Insistent</string>
+    <string name="feedback_haptic_crisp">Crisp click</string>
+    <string name="feedback_sound_title">Sound on appearance</string>
+    <string name="feedback_sound_none">None</string>
+    <string name="feedback_sound_system_default">Notification sound</string>
+    <string name="feedback_sound_chime">Chime</string>
+    <string name="feedback_sound_bubble">Bubble</string>
+    <string name="feedback_sound_pop">Pop</string>
+    <string name="feedback_sound_soft_ding">Soft ding</string>
+    <string name="feedback_sound_twinkle">Twinkle</string>
+    <string name="feedback_sound_system_pick">System sound…</string>
+    <string name="feedback_sound_muted_hint">Sound muted: the phone is on silent, vibrate or Do Not Disturb.</string>
+</resources>
