@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.annotation.StringRes
 import com.karelisio.bulle.R
 import com.karelisio.bulle.core.island.IslandHost
+import com.karelisio.bulle.core.island.IslandPanel
 import com.karelisio.bulle.modules.external.BreathPattern
 import com.karelisio.bulle.modules.external.ExternalModule
 import com.karelisio.bulle.modules.external.ExternalPreset
@@ -78,9 +79,12 @@ object Ecosystem {
      * Exit : « Envie de fumer » → ouvre l'exercice de respiration dans l'île et prévient Exit
      * (qui compte l'envie). La respiration s'ouvre même si Exit n'est pas installée.
      */
-    fun openCraving(host: IslandHost): Boolean {
-        host.openPanel(BreathingPanel(BreathPattern.RELAX_478))
-        return send(host.context, KarelisioApp.EXIT, ACTION_CRAVING)
+    fun openCraving(host: IslandHost): Boolean = openCraving(host.context, host::openPanel)
+
+    /** Variante sans [IslandHost] (ex. IslandController : `openCraving(context) { openPanel(it) }`). */
+    fun openCraving(context: Context, openPanel: (IslandPanel) -> Unit): Boolean {
+        openPanel(BreathingPanel(BreathPattern.RELAX_478))
+        return send(context, KarelisioApp.EXIT, ACTION_CRAVING)
     }
 
     /** Réserve : demande les prix du carburant ; Réserve répondra en poussant un contenu via l'API. */
