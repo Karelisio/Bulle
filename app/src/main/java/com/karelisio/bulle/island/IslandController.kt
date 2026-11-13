@@ -198,6 +198,7 @@ class IslandController(
                 if (deck != null) openPanel(deck) else toggleExpand()
             }
             override fun openTimer() = openPanel(com.karelisio.bulle.modules.focus.FocusPanel)
+            override fun openTranslate() = openPanel(com.karelisio.bulle.modules.translate.TranslatePanel)
             override fun openCraving() {
                 com.karelisio.bulle.modules.ecosystem.Ecosystem.openCraving(context) { openPanel(it) }
             }

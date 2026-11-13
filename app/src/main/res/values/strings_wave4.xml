@@ -24,4 +24,9 @@
     <string name="action_focus_mode">Mode focus</string>
     <string name="nav_title_focus_mode">Mode focus</string>
     <string name="nav_sum_focus_mode">Seulement l\'essentiel selon l\'heure ou l\'appli</string>
+    <string name="action_translate">Traduire le presse-papiers</string>
+    <string name="nav_title_search">Recherche</string>
+    <string name="nav_sum_search">Calculs, conversions, devises, contacts, réglages</string>
+    <string name="nav_title_translate">Traduction</string>
+    <string name="nav_sum_translate">Presse-papiers traduit hors ligne</string>
 </resources>

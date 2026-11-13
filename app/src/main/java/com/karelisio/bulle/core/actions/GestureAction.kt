@@ -17,7 +17,7 @@ enum class ActionType(val needsWriteSettings: Boolean = false) {
     TIMER,
     ECHO_THOUGHT, EXIT_CRAVING, RESERVE_FUEL,
     SCAN_QR, MEMO, SCREEN_RECORD,
-    FOCUS_MODE,
+    FOCUS_MODE, TRANSLATE,
 }
 
 /**

@@ -90,6 +90,8 @@ android {
 
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        // Bibliothèques natives (ML Kit) compressées dans l'APK : mise à jour ~2× plus légère à télécharger.
+        jniLibs.useLegacyPackaging = true
     }
 }
 
