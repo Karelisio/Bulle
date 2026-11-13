@@ -1,12 +1,14 @@
 package com.karelisio.bulle.modules.music.karaoke
 
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
+import androidx.core.graphics.drawable.toDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -15,7 +17,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.currentStateAsState
 import com.karelisio.bulle.ui.theme.BulleTheme
-import kotlinx.coroutines.delay
 
 /**
  * Paroles plein écran « karaoké », ouvertes depuis la carte musique de l'île.
@@ -24,10 +25,13 @@ import kotlinx.coroutines.delay
  */
 class KaraokeActivity : ComponentActivity() {
 
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
+    private val finishIfEmpty = Runnable { if (KaraokeBridge.content.value == null) finish() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Fond noir immédiat (pas de flash du thème de l'appli) et écran gardé allumé.
-        window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
+        window.setBackgroundDrawable(Color.BLACK.toDrawable())
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.attributes = window.attributes.apply {
             layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
@@ -50,10 +54,11 @@ class KaraokeActivity : ComponentActivity() {
                         active = lifecycle.isAtLeast(Lifecycle.State.STARTED),
                     )
                 } else {
-                    // Plus de session média (ou processus recréé) : rien à afficher.
-                    LaunchedEffect(Unit) {
-                        delay(600)
-                        finish()
+                    // Plus de session média (ou processus recréé) : fermeture après un court délai de
+                    // grâce (une session qui se reconnecte aussitôt ne ferme pas la vue).
+                    DisposableEffect(Unit) {
+                        handler.postDelayed(finishIfEmpty, EMPTY_GRACE_MS)
+                        onDispose { handler.removeCallbacks(finishIfEmpty) }
                     }
                 }
             }
@@ -65,5 +70,9 @@ class KaraokeActivity : ComponentActivity() {
         // Sortie en fondu (le geste de fermeture a déjà fait glisser le contenu vers le bas).
         @Suppress("DEPRECATION")
         overridePendingTransition(0, android.R.anim.fade_out)
+    }
+
+    private companion object {
+        const val EMPTY_GRACE_MS = 600L
     }
 }

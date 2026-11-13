@@ -171,9 +171,8 @@ class KaraokeRenderTest {
         KaraokeBridge.publish(null)
         assertNull(KaraokeBridge.content.value)
         val empty = Robolectric.buildActivity(KaraokeActivity::class.java).setup().get()
-        // Le délai de grâce (600 ms) peut courir en temps réel (delay hors horloge d'images).
+        // Délai de grâce (600 ms) : la vue se ferme ensuite faute de musique.
         idle()
-        Thread.sleep(900)
         shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(2))
         assertTrue(empty.isFinishing)
     }
