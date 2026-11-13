@@ -89,6 +89,7 @@ import com.karelisio.bulle.modules.music.media.MediaSessionSource
 import com.karelisio.bulle.modules.volume.StreamLevel
 import com.karelisio.bulle.modules.volume.VolumeContent
 import com.karelisio.bulle.modules.volume.VolumeLogic
+import com.karelisio.bulle.modules.volume.VolumeKeys
 import com.karelisio.bulle.modules.volume.VolumeMixer
 import com.karelisio.bulle.modules.volume.VolumeStream
 import com.karelisio.bulle.ui.components.rememberReduceMotion
@@ -119,7 +120,11 @@ fun VolumeMixerList(
 
     var tick by remember { mutableIntStateOf(0) }
     DisposableEffect(context) {
-        val stop = VolumeMixer.watch(context) { tick++ }
+        val stop = VolumeMixer.watch(context) {
+            tick++
+            // Changement de volume détecté pendant l'affichage : on prolonge (regroupé).
+            VolumeKeys.keepAlive()
+        }
         onDispose(stop)
     }
     val mixer = remember(tick, playing) { VolumeMixer.context(context, playing) }
@@ -145,6 +150,7 @@ fun VolumeMixerList(
                 onLevel = { v -> if (!VolumeMixer.setLevel(context, l.stream, v)) tick++ },
                 onToggleMute = if (VolumeLogic.canMute(l.stream)) ({ VolumeMixer.toggleMute(context, l.stream); tick++ }) else null,
                 onBlockedClick = onBlockedClick,
+                onHoldChange = VolumeKeys::setHolding,
             )
         }
     }
@@ -168,6 +174,8 @@ fun StreamRow(
     onLevel: (Int) -> Unit,
     onToggleMute: (() -> Unit)?,
     onBlockedClick: () -> Unit,
+    /** Doigt posé (vrai) / levé (faux) sur le curseur : suspend le délai d'affichage. */
+    onHoldChange: (Boolean) -> Unit = {},
 ) {
     val haptic = LocalHapticFeedback.current
     var dragging by remember { mutableStateOf<Int?>(null) }
@@ -202,6 +210,7 @@ fun StreamRow(
                 onLevel(v)
             },
             onRelease = { dragging = null },
+            onHoldChange = onHoldChange,
             muteLabel = stringResource(if (level.muted) R.string.volume_unmute else R.string.volume_mute),
             onIconTap = onToggleMute?.let { toggle ->
                 {
@@ -244,6 +253,7 @@ fun ThickSlider(
     muteLabel: String,
     onIconTap: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    onHoldChange: (Boolean) -> Unit = {},
 ) {
     val reduceMotion = rememberReduceMotion()
     val fill = remember { Animatable(fraction) }
@@ -256,6 +266,7 @@ fun ThickSlider(
     val onLevelNow by rememberUpdatedState(onLevel)
     val onReleaseNow by rememberUpdatedState(onRelease)
     val onIconTapNow by rememberUpdatedState(onIconTap)
+    val onHoldChangeNow by rememberUpdatedState(onHoldChange)
     val range = (max - min).coerceAtLeast(1)
     val shape = RoundedCornerShape(18.dp)
     val description = listOfNotNull(label, subtitle).joinToString(", ")
@@ -294,9 +305,9 @@ fun ThickSlider(
                     }
                     .pointerInput(min, max) {
                         detectHorizontalDragGestures(
-                            onDragStart = { p -> held = true; onLevelNow(levelAt(p.x, size.width)) },
-                            onDragEnd = { held = false; onReleaseNow() },
-                            onDragCancel = { held = false; onReleaseNow() },
+                            onDragStart = { p -> held = true; onHoldChangeNow(true); onLevelNow(levelAt(p.x, size.width)) },
+                            onDragEnd = { held = false; onReleaseNow(); onHoldChangeNow(false) },
+                            onDragCancel = { held = false; onReleaseNow(); onHoldChangeNow(false) },
                             onHorizontalDrag = { change, _ ->
                                 change.consume()
                                 onLevelNow(levelAt(change.position.x, size.width))

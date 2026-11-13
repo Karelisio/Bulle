@@ -7,4 +7,9 @@
     <string name="volume_module_title_nav">Volume sur l’île</string>
     <string name="nav_sum_focus">Pomodoro et compte à rebours</string>
     <string name="nav_sum_volume">Curseur de volume à la place du système</string>
+    <string name="action_group_ecosystem">Écosystème Karelisio</string>
+    <string name="action_echo_thought">Envoyer un pense-à-toi (Écho)</string>
+    <string name="action_exit_craving">Envie de fumer (Exit)</string>
+    <string name="action_reserve_fuel">Prix du carburant (Réserve)</string>
+    <string name="nav_sum_integrations">API pour les applis Karelisio et tierces</string>
 </resources>

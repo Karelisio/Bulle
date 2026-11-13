@@ -27,6 +27,7 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
         fun openAppSearch()
         fun openDeck()
         fun openTimer()
+        fun openCraving()
     }
 
     private val audio get() = context.getSystemService(AudioManager::class.java)
@@ -41,6 +42,9 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
                 ActionType.APP_SEARCH -> island.openAppSearch()
                 ActionType.OPEN_DECK -> island.openDeck()
                 ActionType.TIMER -> island.openTimer()
+                ActionType.ECHO_THOUGHT -> com.karelisio.bulle.modules.ecosystem.Ecosystem.sendThought(context)
+                ActionType.EXIT_CRAVING -> island.openCraving()
+                ActionType.RESERVE_FUEL -> com.karelisio.bulle.modules.ecosystem.Ecosystem.requestFuel(context)
 
                 ActionType.BACK -> global(AccessibilityService.GLOBAL_ACTION_BACK)
                 ActionType.HOME -> global(AccessibilityService.GLOBAL_ACTION_HOME)

@@ -23,6 +23,7 @@ object Modules {
         ModuleRegistry.register(com.karelisio.bulle.modules.weather.WeatherModule)
         ModuleRegistry.register(com.karelisio.bulle.modules.focus.FocusModule)
         ModuleRegistry.register(com.karelisio.bulle.modules.volume.VolumeModule)
+        ModuleRegistry.register(com.karelisio.bulle.modules.external.ExternalModule)
         Panels.deck = DeckPanel
     }
 }

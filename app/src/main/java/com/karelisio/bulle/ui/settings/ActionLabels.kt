@@ -39,6 +39,9 @@ fun ActionType.labelRes(): Int = when (this) {
     OPEN_DECK -> R.string.action_open_deck
     SWAP_BUBBLES -> R.string.action_swap_bubbles
     TIMER -> R.string.action_timer
+    ECHO_THOUGHT -> R.string.action_echo_thought
+    EXIT_CRAVING -> R.string.action_exit_craving
+    RESERVE_FUEL -> R.string.action_reserve_fuel
 }
 
 /** Groupes d'actions pour le sélecteur. */
@@ -48,6 +51,7 @@ val ActionGroups: List<Pair<Int, List<ActionType>>> = listOf(
     R.string.action_group_media to listOf(PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, VOLUME_UP, VOLUME_DOWN, MUTE),
     R.string.action_group_toggles to listOf(BRIGHTNESS_UP, BRIGHTNESS_DOWN, TORCH, ROTATION, WIFI, BLUETOOTH, BATTERY_SAVER),
     R.string.action_group_apps to listOf(OPEN_APP, LAUNCH_SHORTCUT),
+    R.string.action_group_ecosystem to listOf(ECHO_THOUGHT, EXIT_CRAVING, RESERVE_FUEL),
 )
 
 @Composable

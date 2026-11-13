@@ -26,6 +26,10 @@ data class VolumeOverlay(
     val max: Int,
     val muted: Boolean,
     val shownAt: Long,
+    /** Doigt posé sur un curseur : le contenu n'expire pas. */
+    val holding: Boolean = false,
+    /** Vue étendue ouverte : délai plus long. */
+    val expanded: Boolean = false,
 ) {
     val fraction: Float get() = if (muted) 0f else VolumeLogic.fraction(level, min, max)
 }
@@ -92,7 +96,8 @@ object VolumeKeys {
     private fun currentStream(context: Context, am: AudioManager): VolumeStream {
         val shown = _overlay.value
         // Le flux choisi à la main n'est gardé que tant que le curseur est à l'écran.
-        if (shown == null || SystemClock.elapsedRealtime() - shown.shownAt > VolumePrefs.data.value.timeoutMs) pinned = null
+        val expires = shown?.let { VolumeLogic.expiresAt(it.shownAt, VolumePrefs.data.value.timeoutMs, it.holding, it.expanded) }
+        if (shown == null || (expires != null && SystemClock.elapsedRealtime() > expires)) pinned = null
         VolumePrefs.ensureLoaded(context)
         return VolumeLogic.pickStream(VolumePrefs.data.value.stream, am.isMusicActive, pinned)
     }
@@ -128,15 +133,52 @@ object VolumeKeys {
         publish(am, stream)
     }
 
-    /** Relit le niveau du flux affiché (réglé depuis la liste des sources), sans changer de flux. */
+    /**
+     * Relit le niveau du flux affiché (réglé depuis la liste des sources), sans changer de flux.
+     * Niveau inchangé : simple prolongation regroupée (pas de recréation à chaque image).
+     */
     fun refresh(context: Context) {
         val shown = _overlay.value ?: return
         val am = context.getSystemService(AudioManager::class.java) ?: return
-        publish(am, shown.stream)
+        val type = shown.stream.streamType
+        val same = am.getStreamVolume(type) == shown.level &&
+            runCatching { am.isStreamMute(type) }.getOrDefault(false) == shown.muted
+        if (same) keepAlive() else publish(am, shown.stream)
     }
 
-    /** Repousse la disparition du curseur (vue étendue ouverte, glisser en cours). */
-    fun keepAlive() = _overlay.update { it?.copy(shownAt = SystemClock.elapsedRealtime()) }
+    /** Dernière prolongation (elapsedRealtime), pour le regroupement. */
+    @Volatile
+    private var lastBumpAt = 0L
+
+    /**
+     * Repousse la disparition du curseur (toucher, glissement, changement détecté).
+     * Regroupé : au plus toutes les 400 ms, sauf [force] (début / fin de geste, bouton).
+     */
+    fun keepAlive(force: Boolean = false) {
+        val now = SystemClock.elapsedRealtime()
+        if (_overlay.value == null || !VolumeLogic.shouldKeepAlive(now, lastBumpAt, force)) return
+        lastBumpAt = now
+        _overlay.update { it?.copy(shownAt = now) }
+    }
+
+    /** Doigt posé / levé sur un curseur de l'île : suspend puis relance le délai. */
+    fun setHolding(holding: Boolean) {
+        val now = SystemClock.elapsedRealtime()
+        lastBumpAt = now
+        _overlay.update { it?.copy(holding = holding, shownAt = now) }
+    }
+
+    /** Vue étendue ouverte / fermée (ouverture = interaction). */
+    fun setExpanded(expanded: Boolean) {
+        val now = SystemClock.elapsedRealtime()
+        _overlay.update { o ->
+            when {
+                o == null || o.expanded == expanded -> o
+                expanded -> o.copy(expanded = true, shownAt = now).also { lastBumpAt = now }
+                else -> o.copy(expanded = false, holding = false)
+            }
+        }
+    }
 
     fun hide() {
         _overlay.value = null
@@ -145,13 +187,19 @@ object VolumeKeys {
 
     private fun publish(am: AudioManager, stream: VolumeStream) {
         val type = stream.streamType
+        val prev = _overlay.value
+        val now = SystemClock.elapsedRealtime()
+        lastBumpAt = now
         _overlay.value = VolumeOverlay(
             stream = stream,
             level = am.getStreamVolume(type),
             min = runCatching { am.getStreamMinVolume(type) }.getOrDefault(0),
             max = am.getStreamMaxVolume(type),
             muted = runCatching { am.isStreamMute(type) }.getOrDefault(false),
-            shownAt = SystemClock.elapsedRealtime(),
+            shownAt = now,
+            // Geste et vue étendue conservés : une relecture ne relance pas l'expiration.
+            holding = prev?.holding == true,
+            expanded = prev?.expanded == true,
         )
     }
 
