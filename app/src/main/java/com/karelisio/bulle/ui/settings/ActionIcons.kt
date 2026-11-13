@@ -5,7 +5,10 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.VolumeDown
 import androidx.compose.material.icons.automirrored.rounded.VolumeOff
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.rounded.Air
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.LocalGasStation
 import androidx.compose.material.icons.rounded.BatterySaver
 import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.BrightnessHigh
@@ -63,4 +66,7 @@ fun ActionType.icon(): ImageVector = when (this) {
     OPEN_DECK -> Icons.Rounded.Dashboard
     SWAP_BUBBLES -> Icons.Rounded.SwapHoriz
     TIMER -> Icons.Rounded.HourglassTop
+    ECHO_THOUGHT -> Icons.Rounded.Favorite
+    EXIT_CRAVING -> Icons.Rounded.Air
+    RESERVE_FUEL -> Icons.Rounded.LocalGasStation
 }

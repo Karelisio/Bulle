@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0
+Écosystème Karelisio (V4)
+- **API d'intégration** : les applis autorisées (même signature ou certificat déclaré) affichent leurs propres contenus dans l'île par simple broadcast — modèles standard, progression, compte à rebours, chronomètre, liste, statut, cœur et respiration. Documentation : `docs/INTEGRATION.md`.
+- Nouvel écran **Applis connectées** (Contenus) : autoriser ou bloquer chaque appli, voir et fermer ses contenus, bouton « Tester » qui enchaîne tous les modèles.
+- Préréglages pour les applis Karelisio (couleurs, modèles, priorités).
+- Trois nouvelles actions de geste : « Envoyer un pense-à-toi » (Écho), « Envie de fumer » (Exit, ouvre un exercice de respiration guidé 4-7-8 même sans l'appli), « Prix du carburant » (Réserve).
+
+Corrections
+- Volume : l'île ne se replie plus pendant qu'on fait glisser un curseur ni juste après.
+
 ## 0.4.1
 - Paroles : décalage de synchronisation réglable pour chaque sortie audio (casque Bluetooth, filaire, haut-parleur), directement dans la carte avec − / + ; paroles plus grandes et plus lisibles, taille du texte et nombre de lignes visibles réglables, « mode paroles » qui leur laisse toute la place.
 - Téléchargements : tous les téléchargements en cours réunis dans l'île, avec leurs pourcentages ; l'île ne se replie plus quand le téléchargement au premier plan change.
