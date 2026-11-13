@@ -34,9 +34,11 @@ fun EntryAnimated(
     speed: Float = 1f,
     modifier: Modifier = Modifier,
     replayKey: Any? = Unit,
+    /** Aperçu (réglages) : le gonflement est alors rejoué aussi, comme le fait l'île. */
+    preview: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    if (animation == EntryAnimation.INFLATE) {
+    if (animation == EntryAnimation.INFLATE && !preview) {
         content()
         return
     }
@@ -93,7 +95,8 @@ object EntryMotion {
         val s = speed.coerceIn(0.5f, 2f)
         fun ms(base: Int) = (base / s).toInt()
         return when (animation) {
-            EntryAnimation.INFLATE -> tween(0)
+            // Gonflement : imitation de la transition historique de l'île (aperçus uniquement).
+            EntryAnimation.INFLATE -> tween(ms(280), easing = FastOutSlowInEasing)
             EntryAnimation.FADE -> tween(ms(260), easing = FastOutSlowInEasing)
             EntryAnimation.SLIDE -> spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow * s)
             EntryAnimation.ELASTIC -> spring(dampingRatio = 0.36f, stiffness = Spring.StiffnessMediumLow * s)
@@ -106,7 +109,11 @@ object EntryMotion {
     fun applyLayer(layer: GraphicsLayerScope, animation: EntryAnimation, p: Float) = with(layer) {
         val q = p.coerceIn(0f, 1f)
         when (animation) {
-            EntryAnimation.INFLATE -> Unit
+            EntryAnimation.INFLATE -> {
+                val sc = 0.85f + 0.15f * q
+                scaleX = sc; scaleY = sc
+                alpha = q
+            }
             EntryAnimation.FADE -> alpha = q
             EntryAnimation.SLIDE -> {
                 // Descend de la caméra (haut de l'île).
