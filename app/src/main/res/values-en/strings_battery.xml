@@ -2,6 +2,7 @@
 <resources>
     <!-- "Battery details" module (modules/battery) -->
     <string name="battery_module_title">Battery details</string>
+    <string name="battery_nav_summary">Charge time, time left and accessories</string>
     <string name="battery_percent">%1$d%%</string>
     <string name="battery_status_charging">Charging</string>
     <string name="battery_status_discharging">On battery</string>

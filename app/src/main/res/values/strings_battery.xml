@@ -2,6 +2,7 @@
 <resources>
     <!-- Module « Batterie détaillée » (modules/battery) -->
     <string name="battery_module_title">Batterie détaillée</string>
+    <string name="battery_nav_summary">Temps de charge, autonomie et accessoires</string>
     <string name="battery_percent">%1$d %%</string>
     <string name="battery_status_charging">En charge</string>
     <string name="battery_status_discharging">Sur batterie</string>

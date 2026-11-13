@@ -2,6 +2,7 @@
 <resources>
     <!-- "Network" module (modules/network) -->
     <string name="network_module_title">Network</string>
+    <string name="network_nav_summary">Heavy transfer speed and today\'s data</string>
     <string-array name="network_units_bytes">
         <item>B/s</item>
         <item>kB/s</item>

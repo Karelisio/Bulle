@@ -2,6 +2,7 @@
 <resources>
     <!-- Module « Réseau » (modules/network) -->
     <string name="network_module_title">Réseau</string>
+    <string name="network_nav_summary">Débit des gros transferts et données du jour</string>
     <string-array name="network_units_bytes">
         <item>o/s</item>
         <item>Ko/s</item>
