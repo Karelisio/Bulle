@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Deck : barre de recherche intégrée et réorganisation. -->
+    <string name="deck_search_bar">Barre de recherche</string>
+    <string name="deck_search_bar_desc">En haut du Deck : applis, calculs, conversions, devises, contacts et réglages.</string>
+    <string name="deck_search_hint">Rechercher applis, calculs, contacts…</string>
+    <string name="deck_search_close">Revenir au Deck</string>
+    <string name="deck_move_up">Monter</string>
+    <string name="deck_move_down">Descendre</string>
+    <string name="deck_drag_handle">Déplacer (appui long puis glisser)</string>
+    <string name="deck_reorder_hint">Maintiens la poignée pour déplacer un élément, glisse-le vers la gauche pour le retirer.</string>
+</resources>
