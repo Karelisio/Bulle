@@ -5,8 +5,6 @@ import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.os.Looper
 import android.provider.Settings
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -30,6 +28,7 @@ import com.karelisio.bulle.modules.music.sync.AudioOutputTracker
 import com.karelisio.bulle.modules.music.sync.LyricsPrefs
 import com.karelisio.bulle.modules.music.ui.LyricsPreview
 import com.karelisio.bulle.modules.music.ui.MusicSettingsScreen
+import com.karelisio.bulle.modules.music.ui.lyricsWindowHeight
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -86,29 +85,30 @@ class MusicLyricsRenderTest {
         lyricsPrefs = prefs,
     )
 
-    /** Hauteur rendue de la vue Compose de l'activité. */
-    private fun renderedHeight(): Int {
-        val root = activity.findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as View
-        root.measure(
-            View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-        )
-        return root.measuredHeight
-    }
-
-    private fun renderExpanded(c: MusicContent): Int {
+    private fun renderExpanded(c: MusicContent) {
         activity.setContent { Box(Modifier.width(360.dp)) { c.Expanded(host) } }
         shadowOf(Looper.getMainLooper()).idle()
-        return renderedHeight()
     }
 
     @Test
     fun expandedCardRendersAtAllSizes() {
         val synced = LyricsState.Found(LrcParser.parse("[00:01.00]un\n[00:05.00]deux\n[00:09.00]trois", LyricsSource.LRCLIB)!!)
         val plain = LyricsState.Found(Lyrics(listOf(LyricLine(-1, "texte libre")), synced = false, source = LyricsSource.PLAYER))
-        val small = renderExpanded(content(synced, LyricsPrefs(textScale = 0.8f, visibleLines = 3)))
-        val large = renderExpanded(content(synced, LyricsPrefs(textScale = 1.6f, visibleLines = 9)))
-        assertTrue("fenêtre plus haute avec plus de lignes ($small < $large)", large > small)
+        renderExpanded(content(synced, LyricsPrefs(textScale = 0.8f, visibleLines = 3)))
+        renderExpanded(content(synced, LyricsPrefs(textScale = 1.6f, visibleLines = 9)))
+        // Hauteur de la fenêtre : croît avec le nombre de lignes et la taille du texte.
+        var heights = emptyList<Float>()
+        activity.setContent {
+            heights = listOf(
+                lyricsWindowHeight(3, 0.8f).value,
+                lyricsWindowHeight(5, 1f).value,
+                lyricsWindowHeight(9, 1f).value,
+                lyricsWindowHeight(9, 1.6f).value,
+            )
+        }
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(4, heights.size)
+        assertTrue("hauteurs croissantes : $heights", heights.zipWithNext().all { (a, b) -> b > a })
         renderExpanded(content(synced, LyricsPrefs(offsets = mapOf(AudioOutput.SPEAKER_KEY to 400))))
         renderExpanded(content(synced, LyricsPrefs(focusMode = true)))
         renderExpanded(content(plain, LyricsPrefs(textScale = 1.2f, visibleLines = 6, focusMode = true)))
