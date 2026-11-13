@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Traduction du presse-papiers (modules/translate), hors ligne avec ML Kit -->
+    <string name="translate_detect">Détecter</string>
+    <string name="translate_detected">détectée</string>
+    <string name="translate_swap">Inverser les langues</string>
+    <string name="translate_paste_hint">Collez ou saisissez un texte</string>
+    <string name="translate_empty">Presse-papiers vide : collez un texte ci-dessus</string>
+    <string name="translate_failed">Langue non reconnue ou traduction impossible</string>
+    <string name="translate_missing_model">Modèle hors ligne manquant : %1$s</string>
+    <string name="translate_missing_wifi">Environ 30 Mo par langue, téléchargés en Wi-Fi</string>
+    <string name="translate_missing_any">Environ 30 Mo par langue</string>
+    <string name="translate_download">Télécharger</string>
+    <string name="translate_downloading">Téléchargement du modèle : %1$s…</string>
+    <string name="translate_waiting_wifi">En attente du Wi-Fi pour télécharger : %1$s</string>
+    <string name="translate_copy">Copier</string>
+    <string name="translate_copied">Copié</string>
+    <string name="translate_change_language">Langue</string>
+
+    <!-- Écran de réglages -->
+    <string name="translate_settings_title">Traduction</string>
+    <string name="translate_settings_summary">Traduit le texte copié directement dans l\'île, sans connexion : tout reste sur le téléphone. Touchez une langue ci-dessous pour en faire la langue cible.</string>
+    <string name="translate_settings_phone_language">Traduire vers la langue du téléphone</string>
+    <string name="translate_settings_phone_language_summary">Actuellement : %1$s</string>
+    <string name="translate_settings_wifi">Télécharger en Wi-Fi uniquement</string>
+    <string name="translate_settings_wifi_summary">Les modèles (≈ 30 Mo chacun) attendent un réseau Wi-Fi</string>
+    <string name="translate_settings_models">Modèles hors ligne</string>
+    <string name="translate_settings_target">Langue cible</string>
+    <string name="translate_settings_model_ready">Téléchargé</string>
+    <string name="translate_settings_model_absent">Non téléchargé</string>
+    <string name="translate_settings_model_builtin">Intégré</string>
+    <string name="translate_settings_model_busy">En cours…</string>
+    <string name="translate_settings_model_failed">Échec (réseau ?)</string>
+    <string name="translate_settings_delete">Supprimer le modèle</string>
+    <string name="translate_settings_show_all">Afficher les %1$d langues</string>
+    <string name="translate_settings_privacy">Traduction et détection de la langue ML Kit, exécutées sur l\'appareil. Seuls les modèles sont téléchargés (serveurs de Google), à votre demande.</string>
+</resources>

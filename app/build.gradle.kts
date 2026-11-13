@@ -165,6 +165,9 @@ dependencies {
     // Shizuku (optionnel à l'exécution) : bascules système des réglages rapides du Volet.
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
+    // Zone search/translate : traduction hors ligne (ML Kit Translation + identification de la langue).
+    implementation(libs.mlkit.translate)
+    implementation(libs.mlkit.language.id)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

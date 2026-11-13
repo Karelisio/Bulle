@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Clipboard translation (modules/translate), offline with ML Kit -->
+    <string name="translate_detect">Detect</string>
+    <string name="translate_detected">detected</string>
+    <string name="translate_swap">Swap languages</string>
+    <string name="translate_paste_hint">Paste or type some text</string>
+    <string name="translate_empty">Clipboard empty: paste some text above</string>
+    <string name="translate_failed">Language not recognised or translation failed</string>
+    <string name="translate_missing_model">Offline model missing: %1$s</string>
+    <string name="translate_missing_wifi">About 30 MB per language, downloaded over Wi-Fi</string>
+    <string name="translate_missing_any">About 30 MB per language</string>
+    <string name="translate_download">Download</string>
+    <string name="translate_downloading">Downloading model: %1$s…</string>
+    <string name="translate_waiting_wifi">Waiting for Wi-Fi to download: %1$s</string>
+    <string name="translate_copy">Copy</string>
+    <string name="translate_copied">Copied</string>
+    <string name="translate_change_language">Language</string>
+
+    <string name="translate_settings_title">Translation</string>
+    <string name="translate_settings_summary">Translates copied text right in the island, offline: everything stays on the phone. Tap a language below to make it the target language.</string>
+    <string name="translate_settings_phone_language">Translate to the phone language</string>
+    <string name="translate_settings_phone_language_summary">Currently: %1$s</string>
+    <string name="translate_settings_wifi">Download over Wi-Fi only</string>
+    <string name="translate_settings_wifi_summary">Models (≈ 30 MB each) wait for a Wi-Fi network</string>
+    <string name="translate_settings_models">Offline models</string>
+    <string name="translate_settings_target">Target language</string>
+    <string name="translate_settings_model_ready">Downloaded</string>
+    <string name="translate_settings_model_absent">Not downloaded</string>
+    <string name="translate_settings_model_builtin">Built in</string>
+    <string name="translate_settings_model_busy">In progress…</string>
+    <string name="translate_settings_model_failed">Failed (network?)</string>
+    <string name="translate_settings_delete">Delete model</string>
+    <string name="translate_settings_show_all">Show all %1$d languages</string>
+    <string name="translate_settings_privacy">ML Kit translation and language identification run on the device. Only the models are downloaded (Google servers), when you ask.</string>
+</resources>
