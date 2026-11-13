@@ -59,12 +59,20 @@ class CountdownScreenTimeRenderTest {
 
     @After
     fun tearDown() {
+        controllers.forEach { runCatching { it.pause().stop().destroy() } }
+        controllers.clear()
+        idle()
         CountdownPrefs.store.resetForTests()
         ScreenTimePrefs.store.resetForTests()
     }
 
+    /** Activités créées par le test : détruites à la fin (une boîte de dialogue restée ouverte gardait le focus). */
+    private val controllers = mutableListOf<org.robolectric.android.controller.ActivityController<ComponentActivity>>()
+
     private fun render(content: @Composable () -> Unit): ComponentActivity {
-        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        val controller = Robolectric.buildActivity(ComponentActivity::class.java).setup()
+        controllers += controller
+        val activity = controller.get()
         activity.setContent { BulleTheme { content() } }
         idle()
         assertFalse(activity.isFinishing)
