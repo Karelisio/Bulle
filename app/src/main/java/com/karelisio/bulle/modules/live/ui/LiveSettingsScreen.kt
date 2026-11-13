@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import com.karelisio.bulle.ui.components.switchRow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -172,8 +173,10 @@ private fun SwitchRow(title: String, summary: String, checked: Boolean, enabled:
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = { Text(summary) },
-        trailingContent = { Switch(checked = checked, onCheckedChange = onChange, enabled = enabled) },
+        trailingContent = { Switch(checked = checked, onCheckedChange = null, enabled = enabled) },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        // Une seule cible TalkBack : rôle Switch et état.
+        modifier = Modifier.switchRow(checked, enabled, onChange),
     )
 }
 
