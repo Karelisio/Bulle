@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Network" module (modules/network) -->
+    <string name="network_module_title">Network</string>
+    <string-array name="network_units_bytes">
+        <item>B/s</item>
+        <item>kB/s</item>
+        <item>MB/s</item>
+        <item>GB/s</item>
+    </string-array>
+    <string-array name="network_units_bits">
+        <item>bps</item>
+        <item>kbps</item>
+        <item>Mbps</item>
+        <item>Gbps</item>
+    </string-array>
+    <string-array name="network_units_amount">
+        <item>B</item>
+        <item>kB</item>
+        <item>MB</item>
+        <item>GB</item>
+        <item>TB</item>
+    </string-array>
+    <string name="network_down">Download</string>
+    <string name="network_up">Upload</string>
+    <string name="network_kind_wifi">Wi-Fi</string>
+    <string name="network_kind_mobile">Mobile data</string>
+    <string name="network_kind_ethernet">Ethernet</string>
+    <string name="network_kind_none">Offline</string>
+    <string name="network_kind_vpn">VPN</string>
+    <string name="network_usage_line">Today · Wi-Fi %1$s · Mobile %2$s</string>
+    <string name="network_usage_today">Since midnight</string>
+    <string name="network_usage_since">Since activation (%1$s)</string>
+    <string name="network_graph_description">Throughput over the last 60 seconds</string>
+
+    <string name="network_settings_title">Network</string>
+    <string name="network_settings_enable">Network module</string>
+    <string name="network_settings_enable_summary">Throughput during heavy transfers and today\'s data usage</string>
+    <string name="network_settings_reset">Reset</string>
+    <string name="network_settings_show_header">Display</string>
+    <string name="network_settings_compact">Throughput in the island</string>
+    <string name="network_settings_compact_summary">↓↑ arrows and speed when a transfer stays above the threshold for 3 s; hides after 5 s below it</string>
+    <string name="network_settings_threshold">Threshold</string>
+    <string name="network_settings_threshold_summary">Total throughput that counts as a heavy transfer</string>
+    <string name="network_settings_unit">Unit</string>
+    <string name="network_settings_unit_bytes">Bytes (MB/s)</string>
+    <string name="network_settings_unit_bits">Bits (Mbps)</string>
+    <string name="network_settings_privacy">Computed locally from system counters, no special permission. Throughput is only measured when it can be shown (screen on). Today\'s usage is an estimate: it resets at midnight and VPN traffic may be counted twice.</string>
+</resources>
