@@ -17,6 +17,10 @@ Personnalisation avancée (V5)
 - **Vibrations et sons** propres à chaque alerte (8 motifs, sons originaux ou système), aussi pour Écho.
 - **Règles avancées** : batterie, appareil Bluetooth précis, thème sombre, lieu, écran verrouillé, appel en cours, jours ; conditions ET/OU/PAS ; plusieurs actions ; activer/désactiver un module.
 
+Corrections
+- Volume : maintenir une touche volume fait de nouveau monter ou descendre le son en continu.
+- Karaoké : sans paroles mot à mot, le remplissage avance mot par mot selon les syllabes (au lieu de suivre la ligne lettre par lettre), sans ralentir la recherche des paroles.
+
 Divers
 - APK optimisé pour les téléphones ARM 64 bits, bibliothèques natives compressées.
 
