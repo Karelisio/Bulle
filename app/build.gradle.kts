@@ -174,6 +174,8 @@ dependencies {
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
     implementation(libs.mlkit.barcode)
+    // --- Zone packs de styles : QR code du partage de style (zxing core, encodeur seul, sans caméra). ---
+    implementation(libs.zxing.core)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

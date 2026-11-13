@@ -96,4 +96,11 @@ data class MotionSettings(
     val blurTransitions: Boolean = true,
     /** Retours haptiques de l'île (ouverture, fermeture). */
     val haptics: Boolean = true,
+    /**
+     * Animation d'entrée par type de contenu : moduleId (ou "default") → nom d'EntryAnimation
+     * (core.style). Stocké en texte pour qu'une valeur inconnue (version plus récente) soit
+     * simplement ignorée au lieu de rendre tout le fichier de réglages illisible.
+     * Vide = gonflement actuel partout.
+     */
+    val entryAnimations: Map<String, String> = emptyMap(),
 )

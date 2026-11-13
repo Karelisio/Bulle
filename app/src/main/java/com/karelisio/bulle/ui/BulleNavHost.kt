@@ -66,6 +66,8 @@ object Routes {
     const val SCREENTIME = "screentime"
     const val CAPTURE = "capture"
     const val FOCUS_MODE = "focus_mode"
+    const val STYLE_PACKS = "style/packs"
+    const val ENTRY_ANIMATIONS = "style/entry"
     const val VOLET_HISTORY = "volet/history"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
@@ -91,7 +93,15 @@ fun BulleNavHost() {
         // Racine : la coque à onglets (Accueil, Style, Contenus, Réglages) et sa barre flottante.
         // Chaque entrée ouvre un écran existant en plein écran, par-dessus la coque.
         screen(Routes.HOME) { BulleShell(onOpen = { nav.navigate(it) { launchSingleTop = true } }) }
-        screen(Routes.STYLE) { StyleScreen(onBack = back) }
+        screen(Routes.STYLE) {
+            StyleScreen(
+                onBack = back,
+                onOpenStylePacks = { nav.navigate(Routes.STYLE_PACKS) { launchSingleTop = true } },
+                onOpenEntryAnimations = { nav.navigate(Routes.ENTRY_ANIMATIONS) { launchSingleTop = true } },
+            )
+        }
+        composable(Routes.STYLE_PACKS) { com.karelisio.bulle.ui.stylepacks.StylePacksRoute(onBack = back) }
+        composable(Routes.ENTRY_ANIMATIONS) { com.karelisio.bulle.ui.stylepacks.EntryAnimationsScreen(onBack = back) }
         screen(Routes.POSITION) { PositionScreen(onBack = back) }
         screen(Routes.VISIBILITY) { VisibilityScreen(onBack = back) }
         composable(Routes.GESTURES) { GesturesSettingsScreen(onBack = back) }

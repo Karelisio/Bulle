@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Packs de styles -->
+    <string name="stylepacks_title">Packs de styles</string>
+    <string name="stylepacks_open_hint">Encre, Néon, Rétro… ou vos propres styles, à partager</string>
+    <string name="stylepacks_builtin">Packs intégrés</string>
+    <string name="stylepacks_builtin_hint">Touchez un pack pour l’appliquer. La position de l’île n’est jamais modifiée.</string>
+    <string name="stylepacks_apply">Appliquer</string>
+    <string name="stylepacks_applied">Style « %1$s » appliqué</string>
+    <string name="stylepacks_undo">Annuler</string>
+    <string name="stylepacks_current">Actuel</string>
+    <string name="stylepacks_mine">Mes styles</string>
+    <string name="stylepacks_mine_empty">Enregistrez le style actuel pour le retrouver ici, le partager ou y revenir plus tard.</string>
+    <string name="stylepacks_save_current">Enregistrer le style actuel</string>
+    <string name="stylepacks_name">Nom du style</string>
+    <string name="stylepacks_save">Enregistrer</string>
+    <string name="stylepacks_cancel">Annuler</string>
+    <string name="stylepacks_rename">Renommer</string>
+    <string name="stylepacks_delete">Supprimer</string>
+    <string name="stylepacks_deleted">Style « %1$s » supprimé</string>
+    <string name="stylepacks_saved">Style « %1$s » enregistré</string>
+    <string name="stylepacks_more">Plus d’options</string>
+    <string name="stylepacks_share">Partager</string>
+    <string name="stylepacks_share_current">Partager le style actuel</string>
+    <string name="stylepacks_share_current_hint">Fichier, texte ou QR code à scanner sur un autre téléphone</string>
+    <string name="stylepacks_import">Importer un style</string>
+    <string name="stylepacks_import_file">Depuis un fichier</string>
+    <string name="stylepacks_import_text">Coller un texte</string>
+    <string name="stylepacks_import_qr">Scanner un QR code</string>
+    <string name="stylepacks_import_text_hint">Collez un texte commençant par bulle-style: ou le contenu d’un fichier .bulle-style.</string>
+    <string name="stylepacks_import_action">Importer</string>
+    <string name="stylepacks_import_invalid">Ce style est illisible ou vient d’une version plus récente de Bulle.</string>
+    <string name="stylepacks_import_title">Style reçu</string>
+    <string name="stylepacks_import_default_name">Style importé</string>
+    <string name="stylepacks_import_save">Ajouter à Mes styles</string>
+    <string name="stylepacks_my_style_default">Mon style</string>
+
+    <!-- Noms et descriptions des packs intégrés -->
+    <string name="stylepacks_pack_bulle">Bulle</string>
+    <string name="stylepacks_pack_bulle_desc">L’île d’origine</string>
+    <string name="stylepacks_pack_ink">Encre</string>
+    <string name="stylepacks_pack_ink_desc">Noir pur, discret, sans effet</string>
+    <string name="stylepacks_pack_frost">Givre</string>
+    <string name="stylepacks_pack_frost_desc">Ardoise givrée, contour fin, squircle</string>
+    <string name="stylepacks_pack_neon">Néon</string>
+    <string name="stylepacks_pack_neon_desc">Contour d’accent vif et éclats</string>
+    <string name="stylepacks_pack_pastel">Pastel</string>
+    <string name="stylepacks_pack_pastel_desc">Teinte du fond d’écran, rebonds tendres</string>
+    <string name="stylepacks_pack_retro">Rétro</string>
+    <string name="stylepacks_pack_retro_desc">Coins francs et chasse fixe</string>
+    <string name="stylepacks_pack_minimal">Minimal</string>
+    <string name="stylepacks_pack_minimal_desc">Plus petite, plus étroite, sobre</string>
+    <string name="stylepacks_pack_liquid">Liquide</string>
+    <string name="stylepacks_pack_liquid_desc">Goutte, ressorts joueurs, chute de la caméra</string>
+
+    <!-- Partage -->
+    <string name="stylepacks_share_title">Partager un style</string>
+    <string name="stylepacks_share_qr_hint">Scannez ce code avec Bulle sur un autre téléphone. Touchez-le pour l’afficher en plein écran.</string>
+    <string name="stylepacks_share_file">Enregistrer un fichier</string>
+    <string name="stylepacks_share_send">Envoyer</string>
+    <string name="stylepacks_share_copy">Copier le texte</string>
+    <string name="stylepacks_copied">Texte copié</string>
+    <string name="stylepacks_file_saved">Fichier enregistré</string>
+    <string name="stylepacks_file_error">Impossible d’écrire le fichier</string>
+    <string name="stylepacks_share_message">Mon style Bulle « %1$s » : %2$s</string>
+    <string name="stylepacks_qr_too_long">Style trop long pour un QR code : utilisez un fichier.</string>
+    <string name="stylepacks_qr_label">QR code du style</string>
+    <string name="stylepacks_close">Fermer</string>
+
+    <!-- Animations d'entrée -->
+    <string name="stylepacks_entry_title">Animations d’entrée</string>
+    <string name="stylepacks_entry_open_hint">Gonflement, goutte, rebond… par type de contenu</string>
+    <string name="stylepacks_entry_hint">L’animation jouée quand un nouveau contenu arrive dans l’île.</string>
+    <string name="stylepacks_entry_default">Par défaut</string>
+    <string name="stylepacks_entry_per_type">Par type de contenu</string>
+    <string name="stylepacks_entry_same_as_default">Comme par défaut (%1$s)</string>
+    <string name="stylepacks_entry_follow_default">Comme par défaut</string>
+    <string name="stylepacks_entry_reduce_motion">Les animations sont réduites dans les réglages du système : un simple fondu est utilisé.</string>
+    <string name="stylepacks_entry_alerts_note">Une alerte dont l’animation est choisie dans Alertes garde la sienne.</string>
+    <string name="stylepacks_entry_inflate">Gonflement</string>
+    <string name="stylepacks_entry_fade">Fondu</string>
+    <string name="stylepacks_entry_slide">Glissement</string>
+    <string name="stylepacks_entry_elastic">Rebond élastique</string>
+    <string name="stylepacks_entry_drop">Goutte</string>
+    <string name="stylepacks_entry_ripple">Éclat</string>
+    <string name="stylepacks_module_music">Musique</string>
+    <string name="stylepacks_module_messages">Messages</string>
+    <string name="stylepacks_module_alerts">Alertes</string>
+    <string name="stylepacks_module_call">Appels</string>
+    <string name="stylepacks_module_live">Activités en direct</string>
+    <string name="stylepacks_module_calendar">Agenda</string>
+    <string name="stylepacks_module_weather">Météo</string>
+    <string name="stylepacks_module_focus">Minuteur</string>
+    <string name="stylepacks_module_battery">Batterie</string>
+    <string name="stylepacks_module_network">Réseau</string>
+    <string name="stylepacks_module_volume">Volume</string>
+    <string name="stylepacks_module_echo">Écho</string>
+    <string name="stylepacks_module_external">Applis externes</string>
+</resources>
