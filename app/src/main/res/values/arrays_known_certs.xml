@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Certificats autorisés à utiliser l'API d'intégration de Bulle
+        (permission com.karelisio.bulle.permission.SHOW, protectionLevel="signature|knownSigner").
+
+        Une appli signée avec la MÊME clé que Bulle obtient la permission automatiquement : rien à faire.
+        Pour une appli signée avec une autre clé, ajouter ici le condensé SHA-256 de son certificat
+        de signature : 64 caractères hexadécimaux, en minuscules et SANS deux-points (par prudence), puis
+        mettre Bulle à jour. Si l'appli cliente n'obtient pas la permission (adb shell dumpsys package
+        <paquet> | grep bulle), la réinstaller après Bulle : la permission est accordée à l'installation.
+
+        Obtenir le condensé :
+          apksigner verify -print-certs mon-appli.apk   → ligne « certificate SHA-256 digest »
+          keytool -list -v -keystore ma-cle.jks -alias mon-alias   → ligne « SHA256 »
+
+        Exemple :
+          <item>3a7f...c2</item>  (64 caractères)
+        Vide par défaut.
+    -->
+    <string-array name="bulle_known_certs" translatable="false">
+    </string-array>
+</resources>
