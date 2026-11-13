@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- API d'intégration (modules/external) et écosystème Karelisio (modules/ecosystem). -->
+<resources>
+    <string name="ext_permission_label">Afficher du contenu dans Bulle</string>
+    <string name="ext_permission_description">Permet à l\'appli d\'afficher des contenus (minuteurs, listes, alertes…) dans l\'île de Bulle.</string>
+    <string name="external_module_title">Applis connectées</string>
+
+    <!-- Écosystème Karelisio -->
+    <string name="eco_echo">Écho</string>
+    <string name="eco_echo_role">Pense-à-toi de couple : cœur pulsé</string>
+    <string name="eco_somna">Somna</string>
+    <string name="eco_somna_role">Sommeil : heure du coucher, réveil progressif</string>
+    <string name="eco_exit">Exit</string>
+    <string name="eco_exit_role">Arrêt du tabac : temps sans cigarette, respiration</string>
+    <string name="eco_mago">Mago</string>
+    <string name="eco_mago_role">Courses : liste à cocher</string>
+    <string name="eco_orbit">Orbit</string>
+    <string name="eco_orbit_role">Agenda de couple : compte à rebours</string>
+    <string name="eco_miroir">Miroir</string>
+    <string name="eco_miroir_role">Question du jour</string>
+    <string name="eco_reserve">Réserve</string>
+    <string name="eco_reserve_role">Carburant : prix à la demande</string>
+    <string name="eco_vigie">Vigie</string>
+    <string name="eco_vigie_role">Serveur et conteneurs : état en direct</string>
+    <string name="eco_trame">Trame</string>
+    <string name="eco_trame_role">Lecture : nouveau chapitre</string>
+    <string name="eco_feedback_thought_sent">Pense-à-toi envoyé avec %1$s</string>
+    <string name="eco_feedback_missing">%1$s n\'est pas installée</string>
+    <string name="eco_feedback_fuel_requested">Prix demandés à %1$s…</string>
+
+    <!-- Exemples (bouton « Tester ») -->
+    <string name="ext_demo_standard_title">Question du jour</string>
+    <string name="ext_demo_standard_text">Quel est ton plus beau souvenir de vacances ?</string>
+    <string name="ext_demo_progress_title">Réveil en douceur</string>
+    <string name="ext_demo_progress_text">Lumière à 65 %</string>
+    <string name="ext_demo_countdown_title">Dîner au restaurant</string>
+    <string name="ext_demo_countdown_text">Pense à réserver un taxi</string>
+    <string name="ext_demo_chrono_title">Sans cigarette</string>
+    <string name="ext_demo_chrono_text">Bravo, continue !</string>
+    <string name="ext_demo_list_title">Courses</string>
+    <string name="ext_demo_list_1">Pain</string>
+    <string name="ext_demo_list_2">Lait</string>
+    <string name="ext_demo_list_3">Pommes</string>
+    <string name="ext_demo_list_4">Café</string>
+    <string name="ext_demo_list_5">Riz</string>
+    <string name="ext_demo_status_text">Conteneur « web » arrêté depuis 3 min</string>
+    <string name="ext_demo_status_action1">Redémarrer</string>
+    <string name="ext_demo_status_action2">Journal</string>
+    <string name="ext_demo_heart_title">Quelqu\'un pense à toi</string>
+    <string name="ext_demo_heart_text">Un petit cœur rien que pour toi</string>
+    <string name="ext_demo_breath_title">Respirer</string>
+    <string name="ext_demo_breath_text">Une minute pour laisser passer l\'envie</string>
+
+    <!-- Rendu dans l'île -->
+    <string name="ext_unit_day">j</string>
+    <string name="ext_unit_hour">h</string>
+    <string name="ext_status_ok">En ligne</string>
+    <string name="ext_status_warn">Attention</string>
+    <string name="ext_status_down">En panne</string>
+    <string name="ext_percent">%1$d %%</string>
+    <string name="ext_list_count">%1$d/%2$d</string>
+    <string name="ext_dismiss">Fermer</string>
+    <string name="ext_countdown_in">Dans</string>
+
+    <!-- Respiration -->
+    <string name="ext_breath_title">Respiration</string>
+    <string name="ext_breath_start">Commencer</string>
+    <string name="ext_breath_478">4-7-8</string>
+    <string name="ext_breath_box">4-4-4-4</string>
+    <string name="ext_breath_inhale">Inspire</string>
+    <string name="ext_breath_hold">Bloque</string>
+    <string name="ext_breath_exhale">Expire</string>
+    <string name="ext_breath_done">Bravo</string>
+    <string name="ext_breath_done_text">Exercice terminé. Tu as tenu bon.</string>
+    <string name="ext_breath_cycle">Cycle %1$d / %2$d</string>
+    <string name="ext_breath_again">Recommencer</string>
+    <string name="ext_breath_stop">Terminer</string>
+    <string name="ext_breath_close">Fermer</string>
+
+    <!-- Écran Intégrations -->
+    <string name="ext_settings_title">Intégrations</string>
+    <string name="ext_settings_intro">D\'autres applis peuvent afficher du contenu dans l\'île : minuteurs, listes, état d\'un serveur, petits cœurs… Seules les applis signées avec la même clé que Bulle, ou dont le certificat est déclaré dans Bulle, y ont accès.</string>
+    <string name="ext_settings_privacy">Tout reste sur le téléphone : Bulle ne lit pas les données des autres applis, ce sont elles qui envoient ce qu\'elles veulent montrer.</string>
+    <string name="ext_settings_test">Tester</string>
+    <string name="ext_settings_doc">Documentation</string>
+    <string name="ext_settings_templates">Essayer un modèle</string>
+    <string name="ext_settings_apps">Applis</string>
+    <string name="ext_settings_no_apps">Aucune appli n\'a encore envoyé de contenu.</string>
+    <string name="ext_settings_ecosystem">Applis Karelisio</string>
+    <string name="ext_settings_installed">Installée</string>
+    <string name="ext_settings_not_installed">Absente</string>
+    <string name="ext_settings_blocked">Bloquée : ses contenus sont ignorés</string>
+    <string name="ext_settings_last_seen">Dernière activité : %1$s</string>
+    <string name="ext_tpl_standard">Standard</string>
+    <string name="ext_tpl_progress">Progression</string>
+    <string name="ext_tpl_countdown">Compte à rebours</string>
+    <string name="ext_tpl_chronometer">Chronomètre</string>
+    <string name="ext_tpl_list">Liste</string>
+    <string name="ext_tpl_status">Statut</string>
+    <string name="ext_tpl_heart">Cœur</string>
+    <string name="ext_tpl_breathing">Respiration</string>
+</resources>

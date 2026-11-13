@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Integration API (modules/external) and Karelisio ecosystem (modules/ecosystem). -->
+<resources>
+    <string name="ext_permission_label">Show content in Bulle</string>
+    <string name="ext_permission_description">Allows the app to show content (timers, lists, alerts…) in the Bulle island.</string>
+    <string name="external_module_title">Connected apps</string>
+
+    <!-- Karelisio ecosystem -->
+    <string name="eco_echo">Écho</string>
+    <string name="eco_echo_role">Couple thinking-of-you: beating heart</string>
+    <string name="eco_somna">Somna</string>
+    <string name="eco_somna_role">Sleep: bedtime, gentle wake-up</string>
+    <string name="eco_exit">Exit</string>
+    <string name="eco_exit_role">Quit smoking: smoke-free time, breathing</string>
+    <string name="eco_mago">Mago</string>
+    <string name="eco_mago_role">Groceries: checklist</string>
+    <string name="eco_orbit">Orbit</string>
+    <string name="eco_orbit_role">Couple calendar: countdown</string>
+    <string name="eco_miroir">Miroir</string>
+    <string name="eco_miroir_role">Question of the day</string>
+    <string name="eco_reserve">Réserve</string>
+    <string name="eco_reserve_role">Fuel: prices on demand</string>
+    <string name="eco_vigie">Vigie</string>
+    <string name="eco_vigie_role">Server and containers: live status</string>
+    <string name="eco_trame">Trame</string>
+    <string name="eco_trame_role">Reading: new chapter</string>
+    <string name="eco_feedback_thought_sent">Thinking-of-you sent with %1$s</string>
+    <string name="eco_feedback_missing">%1$s is not installed</string>
+    <string name="eco_feedback_fuel_requested">Asking %1$s for prices…</string>
+
+    <!-- Samples ("Test" button) -->
+    <string name="ext_demo_standard_title">Question of the day</string>
+    <string name="ext_demo_standard_text">What is your best holiday memory?</string>
+    <string name="ext_demo_progress_title">Gentle wake-up</string>
+    <string name="ext_demo_progress_text">Light at 65%</string>
+    <string name="ext_demo_countdown_title">Dinner at the restaurant</string>
+    <string name="ext_demo_countdown_text">Remember to book a taxi</string>
+    <string name="ext_demo_chrono_title">Smoke-free</string>
+    <string name="ext_demo_chrono_text">Well done, keep going!</string>
+    <string name="ext_demo_list_title">Groceries</string>
+    <string name="ext_demo_list_1">Bread</string>
+    <string name="ext_demo_list_2">Milk</string>
+    <string name="ext_demo_list_3">Apples</string>
+    <string name="ext_demo_list_4">Coffee</string>
+    <string name="ext_demo_list_5">Rice</string>
+    <string name="ext_demo_status_text">Container “web” stopped 3 min ago</string>
+    <string name="ext_demo_status_action1">Restart</string>
+    <string name="ext_demo_status_action2">Logs</string>
+    <string name="ext_demo_heart_title">Someone is thinking of you</string>
+    <string name="ext_demo_heart_text">A little heart just for you</string>
+    <string name="ext_demo_breath_title">Breathe</string>
+    <string name="ext_demo_breath_text">One minute to let the craving pass</string>
+
+    <!-- Island rendering -->
+    <string name="ext_unit_day">d</string>
+    <string name="ext_unit_hour">h</string>
+    <string name="ext_status_ok">Online</string>
+    <string name="ext_status_warn">Warning</string>
+    <string name="ext_status_down">Down</string>
+    <string name="ext_percent">%1$d%%</string>
+    <string name="ext_list_count">%1$d/%2$d</string>
+    <string name="ext_dismiss">Dismiss</string>
+    <string name="ext_countdown_in">In</string>
+
+    <!-- Breathing -->
+    <string name="ext_breath_title">Breathing</string>
+    <string name="ext_breath_start">Start</string>
+    <string name="ext_breath_478">4-7-8</string>
+    <string name="ext_breath_box">4-4-4-4</string>
+    <string name="ext_breath_inhale">Breathe in</string>
+    <string name="ext_breath_hold">Hold</string>
+    <string name="ext_breath_exhale">Breathe out</string>
+    <string name="ext_breath_done">Well done</string>
+    <string name="ext_breath_done_text">Exercise complete. You held on.</string>
+    <string name="ext_breath_cycle">Cycle %1$d / %2$d</string>
+    <string name="ext_breath_again">Again</string>
+    <string name="ext_breath_stop">Finish</string>
+    <string name="ext_breath_close">Close</string>
+
+    <!-- Integrations screen -->
+    <string name="ext_settings_title">Integrations</string>
+    <string name="ext_settings_intro">Other apps can show content in the island: timers, lists, server status, little hearts… Only apps signed with the same key as Bulle, or whose certificate is declared in Bulle, have access.</string>
+    <string name="ext_settings_privacy">Everything stays on the phone: Bulle never reads other apps\' data, they send what they want to show.</string>
+    <string name="ext_settings_test">Test</string>
+    <string name="ext_settings_doc">Documentation</string>
+    <string name="ext_settings_templates">Try a template</string>
+    <string name="ext_settings_apps">Apps</string>
+    <string name="ext_settings_no_apps">No app has sent content yet.</string>
+    <string name="ext_settings_ecosystem">Karelisio apps</string>
+    <string name="ext_settings_installed">Installed</string>
+    <string name="ext_settings_not_installed">Not installed</string>
+    <string name="ext_settings_blocked">Blocked: its content is ignored</string>
+    <string name="ext_settings_last_seen">Last activity: %1$s</string>
+    <string name="ext_tpl_standard">Standard</string>
+    <string name="ext_tpl_progress">Progress</string>
+    <string name="ext_tpl_countdown">Countdown</string>
+    <string name="ext_tpl_chronometer">Stopwatch</string>
+    <string name="ext_tpl_list">List</string>
+    <string name="ext_tpl_status">Status</string>
+    <string name="ext_tpl_heart">Heart</string>
+    <string name="ext_tpl_breathing">Breathing</string>
+</resources>

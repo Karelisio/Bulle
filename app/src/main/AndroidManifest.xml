@@ -54,6 +54,19 @@
     <!-- Module Minuteur (modules/focus) : vibration légère en fin de phase (permission normale). -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- API d'intégration (modules/external, docs/INTEGRATION.md) : permission que doivent demander
+         les applis qui poussent du contenu dans l'île. Accordée aux applis signées avec la même clé
+         que Bulle, ou dont le certificat figure dans res/values/arrays_known_certs.xml (Android 12+). -->
+    <permission
+        android:name="com.karelisio.bulle.permission.SHOW"
+        android:description="@string/ext_permission_description"
+        android:knownCerts="@array/bulle_known_certs"
+        android:label="@string/ext_permission_label"
+        android:protectionLevel="signature|knownSigner" />
+    <!-- Bulle détient aussi sa propre permission : les applis Karelisio peuvent ainsi protéger
+         leurs receivers (SEND_THOUGHT, CRAVING, REQUEST_FUEL) pour n'accepter que Bulle. -->
+    <uses-permission android:name="com.karelisio.bulle.permission.SHOW" />
+
     <!-- Applis lançables et raccourcis d'applis (gestes, recherche, Deck) -->
     <queries>
         <intent>
@@ -145,6 +158,19 @@
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- API d'intégration (modules/external) : exporté, mais réservé aux applis détenant
+             la permission SHOW (signature ou certificat connu). -->
+        <receiver
+            android:name=".modules.external.ExternalReceiver"
+            android:exported="true"
+            android:permission="com.karelisio.bulle.permission.SHOW">
+            <intent-filter>
+                <action android:name="com.karelisio.bulle.action.SHOW" />
+                <action android:name="com.karelisio.bulle.action.UPDATE" />
+                <action android:name="com.karelisio.bulle.action.DISMISS" />
             </intent-filter>
         </receiver>
 
