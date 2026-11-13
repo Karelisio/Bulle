@@ -26,8 +26,7 @@ data class NetworkSettings(
  * Remplacer alors les deux corps par `settings.network` et `settings.copy(network = value)`.
  */
 internal object NetworkSettingsBinding {
-    fun read(settings: BulleSettings): NetworkSettings = NetworkSettings()
+    fun read(settings: BulleSettings): NetworkSettings = settings.network
 
-    @Suppress("UNUSED_PARAMETER")
-    fun write(settings: BulleSettings, value: NetworkSettings): BulleSettings = settings
+    fun write(settings: BulleSettings, value: NetworkSettings): BulleSettings = settings.copy(network = value)
 }

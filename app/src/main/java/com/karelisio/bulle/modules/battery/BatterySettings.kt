@@ -20,8 +20,7 @@ data class BatterySettings(
  * Remplacer alors les deux corps par `settings.battery` et `settings.copy(battery = value)`.
  */
 internal object BatterySettingsBinding {
-    fun read(settings: BulleSettings): BatterySettings = BatterySettings()
+    fun read(settings: BulleSettings): BatterySettings = settings.battery
 
-    @Suppress("UNUSED_PARAMETER")
-    fun write(settings: BulleSettings, value: BatterySettings): BulleSettings = settings
+    fun write(settings: BulleSettings, value: BatterySettings): BulleSettings = settings.copy(battery = value)
 }

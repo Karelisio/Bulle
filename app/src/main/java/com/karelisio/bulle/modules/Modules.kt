@@ -25,6 +25,8 @@ object Modules {
         ModuleRegistry.register(com.karelisio.bulle.modules.volume.VolumeModule)
         ModuleRegistry.register(com.karelisio.bulle.modules.external.ExternalModule)
         ModuleRegistry.register(com.karelisio.bulle.modules.messages.MessagesModule)
+        ModuleRegistry.register(com.karelisio.bulle.modules.network.NetworkModule)
+        ModuleRegistry.register(com.karelisio.bulle.modules.battery.BatteryModule)
         Panels.deck = DeckPanel
     }
 }
