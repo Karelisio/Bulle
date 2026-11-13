@@ -36,6 +36,8 @@ data class BulleSettings(
     val battery: com.karelisio.bulle.modules.battery.BatterySettings = com.karelisio.bulle.modules.battery.BatterySettings(),
     val update: UpdateSettings = UpdateSettings(),
     val backup: BackupSettings = BackupSettings(),
+    /** Accessibilité : contraste élevé, annonces TalkBack de l'île. */
+    val accessibility: AccessibilitySettings = AccessibilitySettings(),
     /** Activation par module (id → activé). Absent = valeur par défaut du module. */
     val modules: Map<String, Boolean> = emptyMap(),
     // Réglages propres à chaque module (un fichier par module).

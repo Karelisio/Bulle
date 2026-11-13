@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Accessibilité : résumés TalkBack de l'île, actions, écran de réglages « Accessibilité ». -->
+<resources>
+    <!-- Résumés de l'île -->
+    <string name="a11y_island_name">Bulle</string>
+    <string name="a11y_island_generic">Bulle</string>
+    <string name="a11y_island_music">Musique</string>
+    <string name="a11y_island_call">Appel</string>
+    <string name="a11y_island_video_call">Appel vidéo</string>
+    <string name="a11y_unknown_caller">Numéro inconnu</string>
+    <string name="a11y_island_live">Activité en cours</string>
+    <string name="a11y_island_downloads">Téléchargements</string>
+    <string name="a11y_downloads_count">%1$d en cours</string>
+    <string name="a11y_island_message">Message</string>
+    <string name="a11y_island_timer">Minuteur</string>
+    <string name="a11y_island_volume">Volume</string>
+    <string name="a11y_island_countdown">Compte à rebours</string>
+    <string name="a11y_island_alert">Alerte</string>
+    <string name="a11y_island_screen_record">Enregistrement de l\'écran</string>
+    <string name="a11y_island_memo">Mémo vocal</string>
+    <string name="a11y_percent">%1$d pour cent</string>
+    <string name="a11y_remaining">reste %1$s</string>
+    <string name="a11y_duration_hms">%1$d h %2$d min %3$d s</string>
+    <string name="a11y_duration_ms">%1$d min %2$d s</string>
+    <string name="a11y_duration_s">%1$d s</string>
+
+    <!-- États -->
+    <string name="a11y_state_playing">en lecture</string>
+    <string name="a11y_state_paused">en pause</string>
+    <string name="a11y_state_ringing">sonne</string>
+    <string name="a11y_state_ongoing_for">en cours depuis %1$s</string>
+    <string name="a11y_state_typing">en train d\'écrire</string>
+    <string name="a11y_state_muted">coupé</string>
+    <string name="a11y_state_recording">enregistrement en cours</string>
+    <string name="a11y_state_expanded">Déplié</string>
+    <string name="a11y_state_collapsed">Replié</string>
+
+    <!-- Panneaux -->
+    <string name="a11y_panel_deck">Deck de raccourcis</string>
+    <string name="a11y_panel_search">Recherche</string>
+    <string name="a11y_panel_translate">Traduction</string>
+    <string name="a11y_panel_focus">Minuteur de concentration</string>
+    <string name="a11y_panel_breathing">Respiration</string>
+
+    <!-- Actions TalkBack -->
+    <string name="a11y_action_expand">Déplier</string>
+    <string name="a11y_action_collapse">Replier</string>
+    <string name="a11y_action_swap">Échanger les bulles</string>
+    <string name="a11y_action_play">Lecture</string>
+    <string name="a11y_action_pause">Pause</string>
+    <string name="a11y_action_next">Suivant</string>
+    <string name="a11y_action_previous">Précédent</string>
+    <string name="a11y_action_answer">Répondre</string>
+    <string name="a11y_action_decline">Refuser</string>
+    <string name="a11y_action_hang_up">Raccrocher</string>
+    <string name="a11y_action_open">Ouvrir</string>
+    <string name="a11y_action_mark_read">Marquer comme lu</string>
+
+    <!-- Écran « Accessibilité » -->
+    <string name="a11y_settings_title">Accessibilité</string>
+    <string name="a11y_settings_entry_summary">Contraste élevé, taille du texte, annonces TalkBack</string>
+    <string name="a11y_back">Retour</string>
+    <string name="a11y_section_display">Affichage</string>
+    <string name="a11y_high_contrast">Contraste élevé</string>
+    <string name="a11y_high_contrast_summary">Textes plus nets, contours visibles et accents saturés dans l\'appli et l\'île</string>
+    <string name="a11y_follow_system">Suivre le réglage système</string>
+    <string name="a11y_follow_system_summary">Active le contraste élevé quand « Texte à contraste élevé » est activé dans Android</string>
+    <string name="a11y_system_contrast_active">Le texte à contraste élevé du système est actif</string>
+    <string name="a11y_island_outline">Contour de l\'île</string>
+    <string name="a11y_island_outline_summary">En contraste élevé, un fin contour clair entoure l\'île</string>
+    <string name="a11y_text_size">Taille du texte dans l\'île</string>
+    <string name="a11y_text_size_summary">S\'ajoute à la taille de police choisie dans Android</string>
+    <string name="a11y_text_size_value">%1$d pour cent</string>
+    <string name="a11y_section_talkback">TalkBack</string>
+    <string name="a11y_announcements">Annonces de l\'île</string>
+    <string name="a11y_announce_all">Toutes</string>
+    <string name="a11y_announce_all_summary">Chaque nouveau contenu, et ses mises à jour au plus toutes les 10 secondes</string>
+    <string name="a11y_announce_important">Importantes</string>
+    <string name="a11y_announce_important_summary">Alertes, messages et appels seulement</string>
+    <string name="a11y_announce_none">Aucune</string>
+    <string name="a11y_announce_none_summary">L\'île reste lisible en la touchant</string>
+    <string name="a11y_section_system">Système</string>
+    <string name="a11y_reduce_motion_on">« Supprimer les animations » est actif : les animations de Bulle sont coupées</string>
+    <string name="a11y_reduce_motion_off">Les animations suivent le réglage système « Supprimer les animations »</string>
+    <string name="a11y_system_settings">Réglages d\'accessibilité d\'Android</string>
+    <string name="a11y_system_settings_summary">TalkBack, taille de police, contraste, animations</string>
+</resources>

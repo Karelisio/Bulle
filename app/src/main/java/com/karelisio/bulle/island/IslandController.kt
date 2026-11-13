@@ -177,7 +177,9 @@ class IslandController(
     fun applyWindow(request: WindowRequest) {
         lastWindow = request
         val g = screen.value.geometry
-        window.stable = settings.value.style.stableWindow
+        // TalkBack : rendu classique (voir IslandScene), la fenêtre d'affichage stable n'étant pas touchable.
+        window.stable = settings.value.style.stableWindow &&
+            !com.karelisio.bulle.core.a11y.SystemAccessibility.isTouchExplorationEnabled(context)
         window.update(
             g.centerX, g.top, request.width, request.height, request.touchable, request.watchOutside,
             screenWidth = g.screenWidth.takeIf { it > 0 } ?: context.resources.displayMetrics.widthPixels,

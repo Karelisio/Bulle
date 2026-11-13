@@ -5,6 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.karelisio.bulle.core.a11y.IslandSpeech
+
+/** Action proposée à TalkBack sur l'île (libellé lu + action). */
+class IslandAccessibilityAction(val label: String, val run: () -> Unit)
 
 /**
  * Un contenu affichable par l'île (une musique, un minuteur, une alerte…).
@@ -62,6 +66,24 @@ abstract class IslandContent {
      * affichée seulement si la hauteur de l'île le permet. null = une seule ligne.
      */
     open val compactSubtitle: String? = null
+
+    /**
+     * Résumé lu par TalkBack (ex. « Musique : Titre, Artiste, en lecture »). null = repli sur
+     * [describe], puis sur [compactSubtitle] et un libellé générique.
+     */
+    open val accessibilityLabel: String? = null
+
+    /**
+     * Résumé TalkBack construit avec les chaînes localisées (les contenus n'ont pas de Context).
+     * Par défaut : [accessibilityLabel].
+     */
+    open fun describe(res: IslandSpeech.Res): String? = accessibilityLabel
+
+    /**
+     * Actions principales proposées par TalkBack (actions personnalisées) : lecture/pause, suivant,
+     * répondre, raccrocher… Déplier/Replier est ajouté par l'île elle-même.
+     */
+    open fun accessibilityActions(host: IslandHost, res: IslandSpeech.Res): List<IslandAccessibilityAction> = emptyList()
 
     val expiresAt: Long? get() = timeoutMs?.let { postedAt + it }
 
