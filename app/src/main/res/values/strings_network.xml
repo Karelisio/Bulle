@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Module « Réseau » (modules/network) -->
+    <string name="network_module_title">Réseau</string>
+    <string name="network_nav_summary">Débit des gros transferts et données du jour</string>
+    <string-array name="network_units_bytes">
+        <item>o/s</item>
+        <item>Ko/s</item>
+        <item>Mo/s</item>
+        <item>Go/s</item>
+    </string-array>
+    <string-array name="network_units_bits">
+        <item>bit/s</item>
+        <item>kbit/s</item>
+        <item>Mbit/s</item>
+        <item>Gbit/s</item>
+    </string-array>
+    <string-array name="network_units_amount">
+        <item>o</item>
+        <item>Ko</item>
+        <item>Mo</item>
+        <item>Go</item>
+        <item>To</item>
+    </string-array>
+    <string name="network_down">Réception</string>
+    <string name="network_up">Envoi</string>
+    <string name="network_kind_wifi">Wi-Fi</string>
+    <string name="network_kind_mobile">Données mobiles</string>
+    <string name="network_kind_ethernet">Ethernet</string>
+    <string name="network_kind_none">Hors ligne</string>
+    <string name="network_kind_vpn">VPN</string>
+    <string name="network_usage_line">Aujourd\'hui · Wi-Fi %1$s · Mobile %2$s</string>
+    <string name="network_usage_today">Depuis minuit</string>
+    <string name="network_usage_since">Depuis l\'activation (%1$s)</string>
+    <string name="network_graph_description">Débit des 60 dernières secondes</string>
+
+    <string name="network_settings_title">Réseau</string>
+    <string name="network_settings_enable">Module Réseau</string>
+    <string name="network_settings_enable_summary">Débit pendant les gros transferts et consommation du jour</string>
+    <string name="network_settings_reset">Remettre à zéro</string>
+    <string name="network_settings_show_header">Affichage</string>
+    <string name="network_settings_compact">Débit dans l\'île</string>
+    <string name="network_settings_compact_summary">Flèches ↓↑ et débit quand un transfert dépasse le seuil plus de 3 s ; disparaît après 5 s sous le seuil</string>
+    <string name="network_settings_threshold">Seuil</string>
+    <string name="network_settings_threshold_summary">Débit total à partir duquel on parle de gros transfert</string>
+    <string name="network_settings_unit">Unité</string>
+    <string name="network_settings_unit_bytes">Octets (Mo/s)</string>
+    <string name="network_settings_unit_bits">Bits (Mbit/s)</string>
+    <string name="network_settings_privacy">Calcul local à partir des compteurs du système, sans permission particulière. Le débit n\'est mesuré que quand il peut être affiché (écran allumé). La consommation du jour est une estimation : elle repart de zéro à minuit et les transferts via VPN peuvent être comptés deux fois.</string>
+</resources>
