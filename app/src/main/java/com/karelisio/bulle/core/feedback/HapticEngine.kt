@@ -1,5 +1,6 @@
 package com.karelisio.bulle.core.feedback
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.VibrationAttributes
 import android.os.VibrationEffect
@@ -47,8 +48,11 @@ object HapticEngine {
 class AndroidVibratorPort(private val vibrator: Vibrator) : VibratorPort {
     override val hasVibrator: Boolean get() = vibrator.hasVibrator()
     override val hasAmplitudeControl: Boolean get() = vibrator.hasAmplitudeControl()
+    // Les identifiants viennent exclusivement de HapticDesigns (constantes PRIMITIVE_* valides).
+    @SuppressLint("WrongConstant")
     override fun supportsAll(primitiveIds: IntArray): Boolean = vibrator.areAllPrimitivesSupported(*primitiveIds)
 
+    @SuppressLint("WrongConstant")
     override fun play(plan: HapticPlan) {
         val effect = when (plan) {
             HapticPlan.Silent -> return

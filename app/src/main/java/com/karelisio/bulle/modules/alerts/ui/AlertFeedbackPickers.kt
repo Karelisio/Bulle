@@ -91,6 +91,7 @@ fun AlertFeedbackPickers(
         muted = !s.isNone && !d.sound
     }
 
+    val pickerTitle = stringResource(R.string.feedback_sound_system_pick)
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
         val uri = result.data?.let { IntentCompat.getParcelableExtra(it, RingtoneManager.EXTRA_RINGTONE_PICKED_URI, Uri::class.java) }
@@ -142,7 +143,7 @@ fun AlertFeedbackPickers(
                 .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
                 .putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
                 .putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
-                .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, context.getString(R.string.feedback_sound_system_pick))
+                .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, pickerTitle)
                 .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, sound.uri?.let(Uri::parse))
             runCatching { picker.launch(intent) }
         }
