@@ -509,8 +509,9 @@ private fun Messages(item: NotifItem, expanded: Boolean) {
     }
 }
 
+/** Bulle d'un message (réutilisée par le module Messages de l'île). */
 @Composable
-private fun MessageBubble(m: NotifMessage, showName: Boolean, expanded: Boolean) {
+internal fun MessageBubble(m: NotifMessage, showName: Boolean, expanded: Boolean) {
     val scheme = MaterialTheme.colorScheme
     val self = m.fromSelf
     Row(
@@ -548,8 +549,9 @@ private fun MessageBubble(m: NotifMessage, showName: Boolean, expanded: Boolean)
     }
 }
 
+/** Avatar rond : image de la personne, sinon ses initiales (réutilisé par le module Messages). */
 @Composable
-private fun Avatar(name: CharSequence?, icon: Icon?, size: Dp) {
+internal fun Avatar(name: CharSequence?, icon: Icon?, size: Dp) {
     val bitmap = rememberIconBitmap(icon, size)
     val scheme = MaterialTheme.colorScheme
     Box(
