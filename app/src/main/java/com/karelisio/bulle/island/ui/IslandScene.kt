@@ -2,6 +2,7 @@ package com.karelisio.bulle.island.ui
 
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -75,6 +76,10 @@ import com.karelisio.bulle.island.IslandController
 import com.karelisio.bulle.island.IslandUiState
 import com.karelisio.bulle.island.WindowRequest
 import com.karelisio.bulle.ui.components.rememberReduceMotion
+import com.karelisio.bulle.core.style.EntryAnimation
+import com.karelisio.bulle.core.style.EntryAnimations
+import com.karelisio.bulle.ui.stylepacks.EntryAnimated
+import com.karelisio.bulle.ui.stylepacks.EntryTracker
 import com.karelisio.bulle.ui.theme.bulleColorScheme
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -294,6 +299,11 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
         }
     }
 
+    // Animations d'entrée par type de contenu (packs de styles) : jouées une fois par arrivée.
+    val entryTracker = remember { EntryTracker() }
+    entryTracker.onPrimary(primary?.key)
+    val entryFor = { c: IslandContent? -> EntryAnimations.resolve(c, state.motion, reduceMotion) }
+
     val compactAlpha = remember { Animatable(0f) }
     val expandedAlpha = remember { Animatable(0f) }
     // Lus en composition : derivedStateOf évite de recomposer toute l'île à chaque image des fondus.
@@ -377,7 +387,11 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                         targetState = state.primary,
                         contentKey = { it?.key },
                         transitionSpec = {
-                            (fadeIn(tween(220, 90)) + scaleIn(tween(260, 60), initialScale = 0.85f))
+                            // Gonflement (défaut) : transition historique ; sinon l'entrée est jouée par EntryAnimated.
+                            val enter = if (entryFor(targetState) == EntryAnimation.INFLATE) {
+                                fadeIn(tween(220, 90)) + scaleIn(tween(260, 60), initialScale = 0.85f)
+                            } else EnterTransition.None
+                            enter
                                 .togetherWith(fadeOut(tween(90)))
                                 .using(SizeTransform(clip = false))
                         },
@@ -385,6 +399,8 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                         label = "compact",
                     ) { content ->
                         if (content != null) {
+                            val entry = remember { if (entryTracker.consume(content.key)) entryFor(content) else EntryAnimation.INFLATE }
+                            EntryAnimated(entry, content.accent ?: scheme.primary, state.motion.speed) {
                             CompactRow(
                                 content, g.width, g.height, density, compactScale,
                                 direction = direction,
@@ -392,6 +408,7 @@ private fun IslandSurface(state: IslandUiState, controller: IslandController) {
                                 subtitle = content.compactSubtitle
                                     ?.takeIf { style.twoLineCompact && IslandLayout.twoLineFits(g.height, density.density, style.textScale) },
                             )
+                            }
                         }
                     }
                 }

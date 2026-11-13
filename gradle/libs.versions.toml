@@ -20,6 +20,8 @@ junit = "4.13.2"
 robolectric = "4.17"
 androidxTestCore = "1.7.0"
 shizuku = "13.1.5"
+# --- Zone packs de styles : génération de QR code (encodeur uniquement) ---
+zxing = "3.5.3"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -53,6 +55,8 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 androidx-test-core = { module = "androidx.test:core-ktx", version.ref = "androidxTestCore" }
 shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
+# --- Zone packs de styles ---
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

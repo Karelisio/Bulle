@@ -165,6 +165,8 @@ dependencies {
     // Shizuku (optionnel à l'exécution) : bascules système des réglages rapides du Volet.
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
+    // --- Zone packs de styles : QR code du partage de style (zxing core, encodeur seul, sans caméra). ---
+    implementation(libs.zxing.core)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
