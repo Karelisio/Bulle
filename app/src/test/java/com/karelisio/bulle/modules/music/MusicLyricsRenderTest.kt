@@ -98,7 +98,10 @@ class MusicLyricsRenderTest {
         renderExpanded(content(synced, LyricsPrefs(textScale = 1.6f, visibleLines = 9)))
         // Hauteur de la fenêtre : croît avec le nombre de lignes et la taille du texte.
         var heights = emptyList<Float>()
-        activity.setContent {
+        // Activité neuve : enchaîner plusieurs setContent sur la même activité sous Robolectric
+        // peut laisser la composition sans effet quand toute la suite tourne.
+        val fresh = org.robolectric.Robolectric.buildActivity(androidx.activity.ComponentActivity::class.java).setup().get()
+        fresh.setContent {
             heights = listOf(
                 lyricsWindowHeight(3, 0.8f).value,
                 lyricsWindowHeight(5, 1f).value,
