@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.VolumeOff
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.automirrored.rounded.VolumeOff
+import androidx.compose.material.icons.rounded.AccessibilityNew
 import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.Cast
 import androidx.compose.material.icons.rounded.Headphones
@@ -26,20 +28,13 @@ import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.RingVolume
 import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material.icons.rounded.Usb
-import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -47,8 +42,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -59,9 +52,9 @@ import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.Priority
 import com.karelisio.bulle.modules.volet.media.MediaOutput
 import com.karelisio.bulle.modules.volet.media.OutputKind
+import com.karelisio.bulle.modules.volume.ui.VolumeMixerList
 import com.karelisio.bulle.ui.components.rememberReduceMotion
 import kotlinx.coroutines.delay
-import kotlin.math.roundToInt
 
 /** Curseur de volume de l'île (alerte ponctuelle, prolongée à chaque appui). */
 data class VolumeContent(
@@ -92,7 +85,6 @@ data class VolumeContent(
     @Composable
     override fun Expanded(host: IslandHost) {
         val context = host.context
-        val haptic = LocalHapticFeedback.current
         // Tant que la vue étendue est ouverte, le curseur ne disparaît pas.
         LaunchedEffect(Unit) {
             while (true) {
@@ -100,59 +92,31 @@ data class VolumeContent(
                 VolumeKeys.keepAlive()
             }
         }
-        var dragging by remember { mutableStateOf<Float?>(null) }
         val output = remember { MediaOutput.current(context) }
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(iconOf(overlay), contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
+                Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    stringResource(labelOf(overlay.stream)),
+                    stringResource(R.string.volume_sources_title),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
                     modifier = Modifier.weight(1f),
                 )
-                Text(
-                    "${((dragging?.let { VolumeLogic.fraction(it.roundToInt(), overlay.min, overlay.max) } ?: overlay.fraction) * 100).roundToInt()} %",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = accent,
-                )
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                FilledTonalIconButton(onClick = { VolumeKeys.toggleMute(context, overlay.stream) }) {
-                    Icon(
-                        if (overlay.muted || overlay.level == overlay.min) Icons.AutoMirrored.Rounded.VolumeOff else Icons.AutoMirrored.Rounded.VolumeUp,
-                        contentDescription = stringResource(if (overlay.muted) R.string.volume_unmute else R.string.volume_mute),
-                    )
-                }
-                Slider(
-                    value = dragging ?: (if (overlay.muted) overlay.min else overlay.level).toFloat(),
-                    onValueChange = { v ->
-                        if (dragging?.roundToInt() != v.roundToInt()) haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                        dragging = v
-                        VolumeKeys.setLevel(context, overlay.stream, v.roundToInt())
-                    },
-                    onValueChangeFinished = { dragging = null },
-                    valueRange = overlay.min.toFloat()..overlay.max.coerceAtLeast(overlay.min + 1).toFloat(),
-                    colors = SliderDefaults.colors(thumbColor = accent, activeTrackColor = accent),
-                    modifier = Modifier.weight(1f).height(36.dp),
-                )
                 FilledTonalIconButton(onClick = { VolumeKeys.openOutputSwitcher(context, host::collapse) }) {
                     Icon(outputIcon(output.kind), contentDescription = stringResource(R.string.volume_output))
                 }
             }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                VolumeStream.entries.forEach { s ->
-                    FilledIconToggleButton(
-                        checked = s == overlay.stream,
-                        onCheckedChange = { VolumeKeys.select(context, s) },
-                        colors = IconButtonDefaults.filledIconToggleButtonColors(checkedContainerColor = accent, checkedContentColor = Color.Black),
-                    ) {
-                        Icon(streamIcon(s), contentDescription = stringResource(labelOf(s)))
-                    }
-                }
-            }
+            // Toutes les sources ; la ligne du flux des touches est mise en évidence.
+            VolumeMixerList(
+                context = context,
+                keyStream = overlay.stream,
+                keyTick = overlay,
+                accent = accent,
+                onBlockedClick = { VolumeMixer.openDndAccess(context, host::collapse) },
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 
@@ -167,6 +131,8 @@ data class VolumeContent(
             VolumeStream.RING -> R.string.volume_stream_ring
             VolumeStream.NOTIFICATION -> R.string.volume_stream_notification
             VolumeStream.ALARM -> R.string.volume_stream_alarm
+            VolumeStream.CALL -> R.string.volume_stream_call
+            VolumeStream.ACCESSIBILITY -> R.string.volume_stream_accessibility
         }
 
         fun streamIcon(stream: VolumeStream): ImageVector = when (stream) {
@@ -174,6 +140,8 @@ data class VolumeContent(
             VolumeStream.RING -> Icons.Rounded.RingVolume
             VolumeStream.NOTIFICATION -> Icons.Rounded.Notifications
             VolumeStream.ALARM -> Icons.Rounded.Alarm
+            VolumeStream.CALL -> Icons.Rounded.Call
+            VolumeStream.ACCESSIBILITY -> Icons.Rounded.AccessibilityNew
         }
 
         fun iconOf(o: VolumeOverlay): ImageVector =

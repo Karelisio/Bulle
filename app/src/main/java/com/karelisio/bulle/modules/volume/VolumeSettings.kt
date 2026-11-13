@@ -22,6 +22,10 @@ enum class VolumeStream(val streamType: Int) {
     RING(AudioManager.STREAM_RING),
     NOTIFICATION(AudioManager.STREAM_NOTIFICATION),
     ALARM(AudioManager.STREAM_ALARM),
+    /** Appel (téléphonie ou VoIP) : listé seulement pendant une communication. */
+    CALL(AudioManager.STREAM_VOICE_CALL),
+    /** Accessibilité (lecteur d'écran) : listé seulement si l'exploration tactile est active. */
+    ACCESSIBILITY(AudioManager.STREAM_ACCESSIBILITY),
 }
 
 /** Flux réglé par les touches : automatique (média si lecture en cours, sinon sonnerie) ou fixé. */
