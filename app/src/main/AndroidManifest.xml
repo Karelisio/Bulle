@@ -60,6 +60,11 @@
 
     <!-- Module Minuteur (modules/focus) : vibration légère en fin de phase (permission normale). -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Module Temps d'écran (modules/screentime) : « Accès aux données d'utilisation », permission
+         spéciale accordée par l'utilisateur dans les paramètres (UsageStatsManager, lecture locale). -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
 
     <!-- API d'intégration (modules/external, docs/INTEGRATION.md) : permission que doivent demander
          les applis qui poussent du contenu dans l'île. Accordée aux applis signées avec la même clé

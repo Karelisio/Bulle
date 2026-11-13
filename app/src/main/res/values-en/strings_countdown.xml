@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Countdown module (modules/countdown) -->
+    <string name="countdown_module_title">Countdown</string>
+    <string name="countdown_days_short">%1$dd</string>
+    <string name="countdown_hours_short">%1$d h</string>
+    <string name="countdown_minutes_short">%1$d min</string>
+    <string name="countdown_today">Today</string>
+    <string name="countdown_reminder_tomorrow">Tomorrow: %1$s</string>
+    <string name="countdown_upcoming">Upcoming</string>
+    <plurals name="countdown_in_days">
+        <item quantity="one">in %1$d day</item>
+        <item quantity="other">in %1$d days</item>
+    </plurals>
+    <plurals name="countdown_in_hours">
+        <item quantity="one">in %1$d hour</item>
+        <item quantity="other">in %1$d hours</item>
+    </plurals>
+    <plurals name="countdown_in_minutes">
+        <item quantity="one">in %1$d minute</item>
+        <item quantity="other">in %1$d minutes</item>
+    </plurals>
+
+    <string name="countdown_settings_title">Countdown</string>
+    <string name="countdown_settings_enable">Countdown in the island</string>
+    <string name="countdown_settings_enable_summary">Your next event while idle (“🎂 12d”) and a reminder the day before. Does nothing until you create an event.</string>
+    <string name="countdown_settings_events">Events</string>
+    <string name="countdown_settings_empty">No events yet. Add a birthday, a holiday, a trip…</string>
+    <string name="countdown_settings_past">Past</string>
+    <string name="countdown_settings_pin">Pin to the island</string>
+    <string name="countdown_settings_delete">Delete</string>
+    <string name="countdown_settings_add">Add an event</string>
+    <string name="countdown_settings_display">Display</string>
+    <string name="countdown_settings_idle">Show while idle</string>
+    <string name="countdown_settings_idle_summary">Which event the island shows when nothing else is displayed.</string>
+    <string name="countdown_idle_pinned">Pinned</string>
+    <string name="countdown_idle_next">Next one</string>
+    <string name="countdown_idle_off">None</string>
+    <string name="countdown_settings_remind">Reminder the day before</string>
+    <string name="countdown_settings_remind_summary">A short alert from 9 am the day before each event.</string>
+
+    <string name="countdown_editor_new">New event</string>
+    <string name="countdown_editor_edit">Edit event</string>
+    <string name="countdown_editor_name">Name</string>
+    <string name="countdown_editor_emoji">Emoji</string>
+    <string name="countdown_editor_time">Specific time</string>
+    <string name="countdown_editor_yearly">Every year</string>
+    <string name="countdown_editor_yearly_summary">Birthdays, holidays: repeats yearly (February 29 falls on the 28th in other years).</string>
+    <string name="countdown_editor_color">Color</string>
+</resources>
