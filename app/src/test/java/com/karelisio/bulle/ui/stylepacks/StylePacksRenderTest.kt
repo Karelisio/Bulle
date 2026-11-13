@@ -81,7 +81,13 @@ class StylePacksRenderTest {
             StylePacksScreen(onBack = {}, onScanQr = {}, importRequest = qr, onImportRequestConsumed = { consumed++ })
         }
         // Laisse passer quelques images : l'effet d'import démarre après la première composition.
-        repeat(20) { if (consumed == 0) shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(100)) }
+        // Machine chargée (builds en parallèle) : jusqu'à ~10 s d'images simulées et réelles.
+        repeat(100) {
+            if (consumed == 0) {
+                shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(100))
+                Thread.sleep(10)
+            }
+        }
         idle()
         // Le texte scanné a été pris en compte une seule fois.
         assertEquals(1, consumed)
