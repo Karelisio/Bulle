@@ -2,6 +2,7 @@ package com.karelisio.bulle.ui.shell
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Bedtime
@@ -138,6 +139,7 @@ object ShellCatalog {
                 listOf(
                     ShellEntry(Routes.RELIABILITY, R.string.home_entry_reliability, R.string.nav_sum_reliability, Icons.Rounded.HealthAndSafety),
                     ShellEntry(Routes.PERMISSIONS, R.string.home_entry_permissions, R.string.nav_sum_permissions, Icons.Rounded.VerifiedUser),
+                    ShellEntry(Routes.ACCESSIBILITY, R.string.a11y_settings_title, R.string.a11y_settings_entry_summary, Icons.Rounded.Accessibility),
                 ),
             ),
             ShellGroup(

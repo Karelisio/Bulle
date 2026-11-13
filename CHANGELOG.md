@@ -15,6 +15,7 @@ Personnalisation avancée (V5)
 - **Packs de styles** : 8 styles intégrés, « Mes styles », partage par QR code, fichier ou texte.
 - **Animations d'entrée** au choix pour chaque type de contenu.
 - **Vibrations et sons** propres à chaque alerte (8 motifs, sons originaux ou système), aussi pour Écho.
+- **Accessibilité** : île lisible et pilotable avec TalkBack (résumé, actions, annonces réglables), textes agrandis respectés, contraste élevé (suit le réglage système), écran Réglages › Accessibilité.
 - **Règles avancées** : batterie, appareil Bluetooth précis, thème sombre, lieu, écran verrouillé, appel en cours, jours ; conditions ET/OU/PAS ; plusieurs actions ; activer/désactiver un module.
 
 Corrections

@@ -66,6 +66,7 @@ object Routes {
     const val SCREENTIME = "screentime"
     const val CAPTURE = "capture"
     const val FOCUS_MODE = "focus_mode"
+    const val ACCESSIBILITY = "settings/accessibility"
     const val SEARCH = "search_settings"
     const val TRANSLATE = "translate_settings"
     const val STYLE_PACKS = "style/packs"
@@ -123,6 +124,7 @@ fun BulleNavHost() {
         composable(Routes.FOCUS_MODE) { com.karelisio.bulle.modules.focusmode.ui.FocusModeSettingsScreen(onBack = back) }
         composable(Routes.SEARCH) { com.karelisio.bulle.modules.search.ui.SearchSettingsScreen(onBack = back) }
         composable(Routes.TRANSLATE) { com.karelisio.bulle.modules.translate.ui.TranslateSettingsScreen(onBack = back) }
+        composable(Routes.ACCESSIBILITY) { com.karelisio.bulle.ui.settings.AccessibilitySettingsScreen(onBack = back) }
         composable(Routes.MESSAGES) { com.karelisio.bulle.modules.messages.ui.MessagesSettingsScreen(onBack = back) }
         composable(Routes.INTEGRATIONS) { com.karelisio.bulle.modules.external.ui.IntegrationsSettingsScreen(onBack = back) }
         composable(Routes.WEATHER) { com.karelisio.bulle.modules.weather.ui.WeatherSettingsScreen(onBack = back) }

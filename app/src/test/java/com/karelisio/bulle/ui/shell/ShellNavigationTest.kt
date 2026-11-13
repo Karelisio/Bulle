@@ -48,7 +48,7 @@ class ShellNavigationTest {
             routes(ShellTab.CONTENTS).toSet(),
         )
         assertEquals(
-            listOf(Routes.RELIABILITY, Routes.PERMISSIONS, Routes.BACKUP, Routes.ABOUT),
+            listOf(Routes.RELIABILITY, Routes.PERMISSIONS, Routes.ACCESSIBILITY, Routes.BACKUP, Routes.ABOUT),
             routes(ShellTab.SETTINGS),
         )
         // Aucun écran n'apparaît deux fois, et aucun groupe n'est vide.
