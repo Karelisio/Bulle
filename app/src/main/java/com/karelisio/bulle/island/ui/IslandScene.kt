@@ -87,8 +87,6 @@ import com.karelisio.bulle.core.settings.AccessibilitySettings
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -133,9 +131,8 @@ fun IslandScene(controller: IslandController) {
         islandTypography(baseTypography, IslandFonts.family(font), textScale)
     }
     // Accessibilité : contraste élevé (réglage ou « Texte à contraste élevé » du système).
-    val a11ySettings by remember(controller) {
-        controller.settings.map { it.accessibility }.distinctUntilChanged()
-    }.collectAsStateWithLifecycle(controller.settings.value.accessibility)
+    val settingsState by controller.settings.collectAsStateWithLifecycle()
+    val a11ySettings = settingsState.accessibility
     val systemContrast by rememberSystemHighContrast()
     val highContrast = a11ySettings.highContrastActive(systemContrast)
     val baseScheme = bulleColorScheme(dark = true)
