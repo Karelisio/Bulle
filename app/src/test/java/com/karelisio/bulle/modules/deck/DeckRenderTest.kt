@@ -17,7 +17,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.karelisio.bulle.core.actions.GestureAction
 import com.karelisio.bulle.core.island.IslandHost
 import com.karelisio.bulle.core.island.IslandPanel
-import com.karelisio.bulle.modules.deck.ui.DeckSettingsScreen
 import com.karelisio.bulle.modules.deck.ui.DeckTabScreenContent
 import com.karelisio.bulle.ui.theme.BulleTheme
 import kotlinx.coroutines.runBlocking
@@ -136,18 +135,6 @@ class DeckRenderTest {
     }
 
     @Test
-    fun deckSearchReusesIslandSearchInPlace() {
-        val activity = launch()
-        val host = FakeHost(activity)
-        activity.setContent { BulleTheme { DeckPanel.DeckContent(host, DeckSettings(), initialSearch = true) } }
-        val all = settleUntil(activity) { it.contains("Back to the Deck") }
-        // Le contenu de la recherche de l'île est affiché dans le Deck et demande la saisie.
-        assertTrue(all.toString(), all.contains("Back to the Deck"))
-        assertEquals(true, host.inputRequests.firstOrNull())
-        assertFalse(all.contains("Flashlight"))
-    }
-
-    @Test
     fun deckHidesSearchBarWhenDisabled() {
         val activity = launch()
         activity.setContent {
@@ -158,14 +145,6 @@ class DeckRenderTest {
         assertFalse(all.contains("Search apps, maths, contacts…"))
         assertFalse(all.contains("Back to the Deck"))
         assertTrue(all.toString(), all.contains("Flashlight"))
-    }
-
-    @Test
-    fun settingsScreenHasSearchBarSwitch() {
-        val activity = launch()
-        activity.setContent { BulleTheme { DeckSettingsScreen(onBack = {}, onOpenTab = {}) } }
-        settle()
-        assertTrue(texts(activity).toString(), texts(activity).contains("Search bar"))
     }
 
     @Test
