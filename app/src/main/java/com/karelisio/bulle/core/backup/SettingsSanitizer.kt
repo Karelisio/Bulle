@@ -5,8 +5,6 @@ import com.karelisio.bulle.island.ui.IslandTextScaleRange
 import com.karelisio.bulle.modules.alerts.AlertStyle
 import com.karelisio.bulle.modules.deck.DeckSettings
 import com.karelisio.bulle.modules.deck.DeckTab
-import com.karelisio.bulle.modules.rules.Rule
-import com.karelisio.bulle.modules.rules.RuleTrigger
 
 /**
  * Bornes des réglages numériques, alignées sur les curseurs de l'appli.
@@ -107,16 +105,6 @@ private fun AlertStyle.sanitized() = copy(
     accent = accent?.takeIf { it.isArgb() },
     durationSec = durationSec?.coerceIn(AlertStyle.MIN_SECONDS, AlertStyle.MAX_SECONDS),
 )
-
-private fun Rule.sanitized(): Rule = when (val t = trigger) {
-    is RuleTrigger.TimeRange -> copy(
-        trigger = RuleTrigger.TimeRange(
-            t.startMinute.coerceIn(SettingsBounds.MINUTE_OF_DAY),
-            t.endMinute.coerceIn(SettingsBounds.MINUTE_OF_DAY),
-        ),
-    )
-    else -> this
-}
 
 /** Au moins un onglet, identifiants d'onglets uniques, widgets sans doublon (un widget n'a qu'une place). */
 private fun DeckSettings.sanitized(): DeckSettings {

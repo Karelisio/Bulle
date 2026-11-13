@@ -83,7 +83,7 @@ class IslandController(
 
     /** Réglages effectifs (avec les effets des règles automatiques actives). */
     val settings: StateFlow<BulleSettings> = combine(storedSettings, ruleEffects) { s, e ->
-        e.motionStyle?.let { s.copy(motion = s.motion.copy(style = it)) } ?: s
+        e.applyTo(s)
     }.stateIn(scope, SharingStarted.Eagerly, BulleSettings())
 
     private val rules = RuleEngine(

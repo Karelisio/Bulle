@@ -21,4 +21,7 @@
     <string name="action_screen_record">Enregistrer l\'écran</string>
     <string name="nav_title_capture">Capture</string>
     <string name="nav_sum_capture">QR code, mémo vocal, enregistreur d\'écran</string>
+    <string name="action_focus_mode">Mode focus</string>
+    <string name="nav_title_focus_mode">Mode focus</string>
+    <string name="nav_sum_focus_mode">Seulement l\'essentiel selon l\'heure ou l\'appli</string>
 </resources>

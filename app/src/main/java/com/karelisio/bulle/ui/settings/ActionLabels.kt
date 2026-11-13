@@ -45,11 +45,12 @@ fun ActionType.labelRes(): Int = when (this) {
     SCAN_QR -> R.string.action_scan_qr
     MEMO -> R.string.action_memo
     SCREEN_RECORD -> R.string.action_screen_record
+    FOCUS_MODE -> R.string.action_focus_mode
 }
 
 /** Groupes d'actions pour le sélecteur. */
 val ActionGroups: List<Pair<Int, List<ActionType>>> = listOf(
-    R.string.action_group_island to listOf(NONE, TOGGLE_EXPAND, OPEN_DECK, APP_SEARCH, TIMER, SWAP_BUBBLES),
+    R.string.action_group_island to listOf(NONE, TOGGLE_EXPAND, OPEN_DECK, APP_SEARCH, TIMER, FOCUS_MODE, SWAP_BUBBLES),
     R.string.action_group_system to listOf(BACK, HOME, RECENTS, NOTIFICATIONS, QUICK_SETTINGS, LOCK_SCREEN, SCREENSHOT),
     R.string.action_group_media to listOf(PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, VOLUME_UP, VOLUME_DOWN, MUTE),
     R.string.action_group_toggles to listOf(BRIGHTNESS_UP, BRIGHTNESS_DOWN, TORCH, ROTATION, WIFI, BLUETOOTH, BATTERY_SAVER),

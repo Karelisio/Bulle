@@ -7,6 +7,7 @@ import androidx.compose.material.icons.automirrored.rounded.VolumeOff
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Air
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.QrCodeScanner
@@ -75,4 +76,5 @@ fun ActionType.icon(): ImageVector = when (this) {
     SCAN_QR -> Icons.Rounded.QrCodeScanner
     MEMO -> Icons.Rounded.Mic
     SCREEN_RECORD -> Icons.Rounded.Videocam
+    FOCUS_MODE -> Icons.Rounded.Bedtime
 }

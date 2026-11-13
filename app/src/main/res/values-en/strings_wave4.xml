@@ -21,4 +21,7 @@
     <string name="action_screen_record">Record the screen</string>
     <string name="nav_title_capture">Capture</string>
     <string name="nav_sum_capture">QR code, voice memo, screen recorder</string>
+    <string name="action_focus_mode">Focus mode</string>
+    <string name="nav_title_focus_mode">Focus mode</string>
+    <string name="nav_sum_focus_mode">Only the essentials by time or app</string>
 </resources>

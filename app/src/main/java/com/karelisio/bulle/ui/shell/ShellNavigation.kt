@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.Cake
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Forum
@@ -120,6 +121,7 @@ object ShellCatalog {
                 listOf(
                     ShellEntry(Routes.VOLET, R.string.home_entry_volet, R.string.nav_sum_volet, Icons.Rounded.Notifications),
                     ShellEntry(Routes.DECK, R.string.deck_title, R.string.nav_sum_deck, Icons.Rounded.Dashboard),
+                    ShellEntry(Routes.FOCUS_MODE, R.string.nav_title_focus_mode, R.string.nav_sum_focus_mode, Icons.Rounded.Bedtime),
                     ShellEntry(Routes.RULES, R.string.rules_title, R.string.nav_sum_rules, Icons.Rounded.AutoAwesome),
                     ShellEntry(Routes.CAPTURE, R.string.nav_title_capture, R.string.nav_sum_capture, Icons.Rounded.QrCodeScanner),
                     ShellEntry(Routes.INTEGRATIONS, R.string.external_module_title, R.string.nav_sum_integrations, Icons.Rounded.Hub),
