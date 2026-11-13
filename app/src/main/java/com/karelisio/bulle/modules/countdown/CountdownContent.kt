@@ -28,7 +28,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -250,7 +249,7 @@ private fun ProgressBar(progress: Float, color: Color, track: Color) {
 /** Date lisible de l'occurrence (format court localisé, avec l'heure si choisie). */
 @Composable
 fun occurrenceDate(occurrence: CountdownOccurrence): String {
-    val locale = LocalContext.current.resources.configuration.locales[0]
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     return remember(occurrence.target, locale) {
         val date = occurrence.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))
         val time = CountdownMath.parseTime(occurrence.event.time)

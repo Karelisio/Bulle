@@ -249,7 +249,7 @@ fun CountdownSettingsScreen(onBack: () -> Unit) {
 @Composable
 fun CountdownEventEditor(initial: CountdownEvent?, onDismiss: () -> Unit, onSave: (CountdownEvent) -> Unit) {
     val context = LocalContext.current
-    val locale = context.resources.configuration.locales[0]
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     var name by rememberSaveable { mutableStateOf(initial?.name.orEmpty()) }
     var emoji by rememberSaveable { mutableStateOf(initial?.emoji ?: CountdownEvent.DEFAULT_EMOJI) }
     var dateText by rememberSaveable { mutableStateOf(initial?.date ?: LocalDate.now().plusDays(7).toString()) }
