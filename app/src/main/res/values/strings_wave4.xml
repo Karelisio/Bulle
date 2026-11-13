@@ -15,4 +15,10 @@
     <string name="nav_sum_messages">Réponse rapide depuis l\'île</string>
     <string name="nav_sum_countdown">Jours restants avant tes événements</string>
     <string name="nav_sum_screentime">Temps du jour et rappel de pause</string>
+    <string name="action_group_tools">Outils</string>
+    <string name="action_scan_qr">Scanner un QR code</string>
+    <string name="action_memo">Mémo vocal</string>
+    <string name="action_screen_record">Enregistrer l\'écran</string>
+    <string name="nav_title_capture">Capture</string>
+    <string name="nav_sum_capture">QR code, mémo vocal, enregistreur d\'écran</string>
 </resources>

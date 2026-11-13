@@ -44,7 +44,7 @@ class ShellNavigationTest {
         assertTrue(routes(ShellTab.HOME).isEmpty())
         assertEquals(listOf(Routes.STYLE, Routes.POSITION, Routes.VISIBILITY, Routes.GESTURES), routes(ShellTab.LOOK))
         assertEquals(
-            setOf(Routes.MUSIC, Routes.LIVE, Routes.CALLS, Routes.ALERTS, Routes.CALENDAR, Routes.WEATHER, Routes.FOCUS, Routes.MESSAGES, Routes.NETWORK, Routes.BATTERY, Routes.COUNTDOWN, Routes.SCREENTIME, Routes.VOLUME, Routes.VOLET, Routes.DECK, Routes.RULES, Routes.INTEGRATIONS),
+            setOf(Routes.MUSIC, Routes.LIVE, Routes.CALLS, Routes.ALERTS, Routes.CALENDAR, Routes.WEATHER, Routes.FOCUS, Routes.MESSAGES, Routes.NETWORK, Routes.BATTERY, Routes.COUNTDOWN, Routes.SCREENTIME, Routes.VOLUME, Routes.VOLET, Routes.DECK, Routes.RULES, Routes.CAPTURE, Routes.INTEGRATIONS),
             routes(ShellTab.CONTENTS).toSet(),
         )
         assertEquals(

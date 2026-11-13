@@ -10,6 +10,7 @@ import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.Hub
 import androidx.compose.material.icons.rounded.NetworkCheck
 import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.HealthAndSafety
 import androidx.compose.material.icons.rounded.Home
@@ -120,6 +121,7 @@ object ShellCatalog {
                     ShellEntry(Routes.VOLET, R.string.home_entry_volet, R.string.nav_sum_volet, Icons.Rounded.Notifications),
                     ShellEntry(Routes.DECK, R.string.deck_title, R.string.nav_sum_deck, Icons.Rounded.Dashboard),
                     ShellEntry(Routes.RULES, R.string.rules_title, R.string.nav_sum_rules, Icons.Rounded.AutoAwesome),
+                    ShellEntry(Routes.CAPTURE, R.string.nav_title_capture, R.string.nav_sum_capture, Icons.Rounded.QrCodeScanner),
                     ShellEntry(Routes.INTEGRATIONS, R.string.external_module_title, R.string.nav_sum_integrations, Icons.Rounded.Hub),
                 ),
             ),

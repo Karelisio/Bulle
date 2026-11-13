@@ -45,6 +45,9 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
                 ActionType.ECHO_THOUGHT -> com.karelisio.bulle.modules.ecosystem.Ecosystem.sendThought(context)
                 ActionType.EXIT_CRAVING -> island.openCraving()
                 ActionType.RESERVE_FUEL -> com.karelisio.bulle.modules.ecosystem.Ecosystem.requestFuel(context)
+                ActionType.SCAN_QR -> com.karelisio.bulle.modules.capture.CaptureActions.scanQr(context)
+                ActionType.MEMO -> com.karelisio.bulle.modules.capture.CaptureActions.toggleMemo(context)
+                ActionType.SCREEN_RECORD -> com.karelisio.bulle.modules.capture.CaptureActions.toggleScreenRecord(context)
 
                 ActionType.BACK -> global(AccessibilityService.GLOBAL_ACTION_BACK)
                 ActionType.HOME -> global(AccessibilityService.GLOBAL_ACTION_HOME)

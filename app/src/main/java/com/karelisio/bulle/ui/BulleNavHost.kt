@@ -64,6 +64,7 @@ object Routes {
     const val BATTERY = "battery"
     const val COUNTDOWN = "countdown"
     const val SCREENTIME = "screentime"
+    const val CAPTURE = "capture"
     const val VOLET_HISTORY = "volet/history"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
@@ -105,6 +106,7 @@ fun BulleNavHost() {
         composable(Routes.BATTERY) { com.karelisio.bulle.modules.battery.ui.BatterySettingsScreen(onBack = back) }
         composable(Routes.COUNTDOWN) { com.karelisio.bulle.modules.countdown.ui.CountdownSettingsScreen(onBack = back) }
         composable(Routes.SCREENTIME) { com.karelisio.bulle.modules.screentime.ui.ScreenTimeSettingsScreen(onBack = back) }
+        composable(Routes.CAPTURE) { com.karelisio.bulle.modules.capture.ui.CaptureSettingsScreen(onBack = back) }
         composable(Routes.MESSAGES) { com.karelisio.bulle.modules.messages.ui.MessagesSettingsScreen(onBack = back) }
         composable(Routes.INTEGRATIONS) { com.karelisio.bulle.modules.external.ui.IntegrationsSettingsScreen(onBack = back) }
         composable(Routes.WEATHER) { com.karelisio.bulle.modules.weather.ui.WeatherSettingsScreen(onBack = back) }

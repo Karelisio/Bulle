@@ -33,6 +33,8 @@ android {
         versionCode = appVersionCode
         versionName = appVersionName
         buildConfigField("String", "GITHUB_REPO", "\"karelisio/bulle\"")
+        // Appareils cibles 64 bits ARM uniquement : divise par ~4 le poids des bibliothèques natives (ML Kit).
+        ndk { abiFilters += listOf("arm64-v8a") }
     }
 
     signingConfigs {
