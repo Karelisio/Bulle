@@ -165,6 +165,13 @@ dependencies {
     // Shizuku (optionnel à l'exécution) : bascules système des réglages rapides du Volet.
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
+    // Zone capture (modules/capture) : scanner QR — CameraX (aperçu + analyse d'image)
+    // et ML Kit Barcode Scanning avec modèle intégré (aucun téléchargement Play Services).
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+    implementation(libs.mlkit.barcode)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
