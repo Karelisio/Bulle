@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paroles plein écran (karaoké) -->
+    <string name="music_karaoke_open">Paroles plein écran</string>
+    <string name="music_karaoke_close">Fermer les paroles</string>
+    <string name="music_karaoke_seek">Aller à cette ligne</string>
+    <string name="music_karaoke_no_lyrics">Pas de paroles pour ce morceau</string>
+
+    <!-- Visualiseur audio réel -->
+    <string name="music_setting_visualizer">Visualiseur audio réel</string>
+    <string name="music_setting_visualizer_summary">L’égaliseur et l’onde suivent le vrai son. Demande l’accès au micro : seules des amplitudes sont lues en mémoire, rien n’est enregistré ni envoyé.</string>
+    <string name="music_visualizer_denied">Accès au micro refusé : l’égaliseur reste simulé.</string>
+    <string name="music_visualizer_unavailable">Visualiseur indisponible sur cet appareil : égaliseur simulé utilisé.</string>
+</resources>

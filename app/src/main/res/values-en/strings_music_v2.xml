@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Full-screen lyrics (karaoke) -->
+    <string name="music_karaoke_open">Full-screen lyrics</string>
+    <string name="music_karaoke_close">Close lyrics</string>
+    <string name="music_karaoke_seek">Jump to this line</string>
+    <string name="music_karaoke_no_lyrics">No lyrics for this track</string>
+
+    <!-- Real audio visualizer -->
+    <string name="music_setting_visualizer">Real audio visualizer</string>
+    <string name="music_setting_visualizer_summary">The equalizer and wave follow the actual sound. Needs microphone access: only amplitudes are read in memory, nothing is recorded or sent.</string>
+    <string name="music_visualizer_denied">Microphone access denied: the equalizer stays simulated.</string>
+    <string name="music_visualizer_unavailable">Visualizer unavailable on this device: using the simulated equalizer.</string>
+</resources>

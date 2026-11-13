@@ -1,7 +1,20 @@
 package com.karelisio.bulle.modules.music.lyrics
 
-/** Une ligne de paroles. [timeMs] = -1 pour des paroles non synchronisées. */
-data class LyricLine(val timeMs: Long, val text: String)
+/**
+ * Une ligne de paroles. [timeMs] = -1 pour des paroles non synchronisées.
+ * [words] : découpage mot à mot horodaté (balises `<mm:ss.xx>` du LRC « enrichi »), vide sinon.
+ * Quand il est présent, la concaténation des textes des mots est exactement [text].
+ * [endMs] : fin chantée de la ligne si le LRC la donne (balise finale sans texte), sinon -1.
+ */
+data class LyricLine(
+    val timeMs: Long,
+    val text: String,
+    val words: List<LyricWord> = emptyList(),
+    val endMs: Long = -1,
+)
+
+/** Un mot (ou syllabe) horodaté d'une ligne ; [text] garde son espace final éventuel. */
+data class LyricWord(val timeMs: Long, val text: String)
 
 /** Provenance des paroles, affichée sous le texte. */
 enum class LyricsSource { PLAYER, LRCLIB }

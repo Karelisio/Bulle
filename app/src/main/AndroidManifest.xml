@@ -51,6 +51,13 @@
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- Module Musique (modules/music) : visualiseur audio réel, OPTIONNEL et désactivé par défaut.
+         RECORD_AUDIO n'est demandée qu'à l'activation de l'option : le Visualizer ne lit que des
+         amplitudes (FFT) en mémoire, rien n'est enregistré ni envoyé. MODIFY_AUDIO_SETTINGS (permission
+         normale) est exigée par Android pour un Visualizer sur la sortie globale (session audio 0). -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
     <!-- Module Minuteur (modules/focus) : vibration légère en fin de phase (permission normale). -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -85,6 +92,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Module Musique : paroles plein écran « karaoké », lancées depuis l'île (nouvelle tâche à part,
+             absente des applis récentes pour ne pas mêler la vue à l'appli de réglages). -->
+        <activity
+            android:name=".modules.music.karaoke.KaraokeActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.karelisio.bulle.karaoke"
+            android:theme="@style/Theme.Bulle" />
 
         <!-- L'île : overlay d'accessibilité -->
         <service
