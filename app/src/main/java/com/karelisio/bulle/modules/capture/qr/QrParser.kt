@@ -222,7 +222,9 @@ object QrParser {
 
     private fun parseSms(raw: String): QrPayload {
         val rest = raw.substringAfter(':')
-        val (number, body) = if (rest.contains('?')) {
+        // SMSTO:numéro:texte (le texte peut contenir « ? ») ; sms:numéro?body=texte (forme URI).
+        val uriForm = !raw.startsWith("SMSTO:", ignoreCase = true)
+        val (number, body) = if (uriForm && rest.contains('?')) {
             rest.substringBefore('?') to queryParams(rest.substringAfter('?'))["body"]
         } else {
             rest.substringBefore(':') to rest.substringAfter(':', "").takeIf { it.isNotEmpty() }
