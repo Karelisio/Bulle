@@ -44,6 +44,21 @@ object LrclibClient {
         return pickSearchResult(results, seconds)?.let(::bestText)
     }
 
+    /** Paroles synchronisées mot à mot (balises <mm:ss.xx>) parmi les résultats de recherche, ou null. */
+    @Throws(IOException::class)
+    fun findWordSynced(title: String, artist: String, durationMs: Long): String? {
+        val body = get("$BASE/search?${query(listOf("track_name" to cleanTitle(title), "artist_name" to artist))}") ?: return null
+        val results = json.decodeFromString(kotlinx.serialization.builtins.ListSerializer(LrclibTrack.serializer()), body)
+        return pickWordSynced(results, durationMs / 1000)
+    }
+
+    private val WORD_TAG = Regex("""<\d{1,2}:\d{2}(\.\d{1,3})?>""")
+
+    internal fun pickWordSynced(results: List<LrclibTrack>, seconds: Long): String? = results
+        .filter { seconds <= 0 || it.duration == null || abs(it.duration - seconds) <= 3.0 }
+        .mapNotNull { it.syncedLyrics?.takeIf { s -> WORD_TAG.containsMatchIn(s) } }
+        .firstOrNull()
+
     /**
      * URL de /api/get (recherche exacte par signature), ou null si elle n'est pas utilisable.
      * L'API exige titre, artiste, album ET durée : sans album, elle répond 400, ce qui levait une

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.3
+- Volet : correction du plantage à l'ouverture (animation lancée sans horloge d'images).
+- Karaoké : après l'affichage des paroles, Bulle cherche en arrière-plan une version synchronisée mot à mot sur LRCLIB ; si elle existe, elle remplace l'estimation (aucune attente en plus, gardée en cache).
+
 ## 0.8.2
 - Diagnostic : en cas de plantage, la trace de l'erreur est gardée sur le téléphone (jamais envoyée) et apparaît au redémarrage dans Réglages › Fiabilité › Journal de l'île (bouton Copier).
 - Volet : test d'ouverture complet ajouté (fenêtre, demi-ouverture, ouverture complète, fermeture).

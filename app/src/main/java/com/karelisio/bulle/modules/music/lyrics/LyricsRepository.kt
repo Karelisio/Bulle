@@ -64,6 +64,29 @@ object LyricsRepository {
         if (lyrics != null) LyricsState.Found(lyrics) else LyricsState.NotFound
     }
 
+    /** Morceaux déjà essayés pendant cette session (une seule requête par morceau). */
+    private val wordSyncTried = java.util.Collections.synchronizedSet(HashSet<String>())
+
+    /**
+     * Après affichage : cherche sur LRCLIB une version « mot à mot » (LRC enrichi) du morceau.
+     * Ne retarde jamais l'affichage ; null si rien de mieux. Le résultat remplace le cache.
+     */
+    suspend fun upgradeToWordSync(context: Context, track: TrackInfo, current: Lyrics): Lyrics? = withContext(Dispatchers.IO) {
+        if (current.source != LyricsSource.LRCLIB || current.lines.any { it.words.isNotEmpty() }) return@withContext null
+        val key = LyricsKey.of(track.artist, track.title, track.durationMs)
+        if (!wordSyncTried.add(key)) return@withContext null
+        val text = runCatching { LrclibClient.findWordSynced(track.title, track.artist, track.durationMs) }.getOrNull()
+            ?: return@withContext null
+        val lyrics = LrcParser.parse(text, LyricsSource.LRCLIB)?.takeIf { l -> l.lines.any { it.words.isNotEmpty() } }
+            ?: return@withContext null
+        runCatching {
+            BulleDatabase.get(context).lyricsDao().put(
+                LyricsEntity(key = key, content = text, source = LyricsSource.LRCLIB.name, notFound = false, fetchedAt = System.currentTimeMillis()),
+            )
+        }
+        lyrics
+    }
+
     suspend fun cachedCount(context: Context): Int = withContext(Dispatchers.IO) {
         runCatching { BulleDatabase.get(context).lyricsDao().countFound() }.getOrDefault(0)
     }
