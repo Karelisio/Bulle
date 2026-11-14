@@ -99,6 +99,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -673,13 +674,16 @@ internal fun MessageBubble(
     }
 }
 
+/** Étiquette des avatars (tests de rendu). */
+internal const val AVATAR_TAG = "notif_avatar"
+
 /** Avatar rond : image de la personne, sinon ses initiales (réutilisé par le module Messages). */
 @Composable
 internal fun Avatar(name: CharSequence?, icon: Icon?, size: Dp) {
     val bitmap = rememberIconBitmap(icon, size)
     val scheme = MaterialTheme.colorScheme
     Box(
-        Modifier.size(size).clip(CircleShape).background(scheme.tertiaryContainer),
+        Modifier.size(size).clip(CircleShape).background(scheme.tertiaryContainer).testTag(AVATAR_TAG),
         contentAlignment = Alignment.Center,
     ) {
         if (bitmap != null) {
