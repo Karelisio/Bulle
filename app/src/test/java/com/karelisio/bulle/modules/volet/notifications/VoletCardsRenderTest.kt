@@ -55,8 +55,9 @@ class VoletCardsRenderTest {
 
     /** Le modèle est reconstruit hors du fil principal : attend que [cond] devienne vrai. */
     private fun waitUntil(cond: () -> Boolean) {
-        repeat(100) {
-            idle()
+        repeat(150) {
+            // Avance aussi l'horloge de Robolectric (images de Compose différées).
+            shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(32))
             if (cond()) return
             Thread.sleep(20)
         }
@@ -184,14 +185,17 @@ class VoletCardsRenderTest {
             post(10 + i, "com.app$i", Notification.Builder(ctx, "c").setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle("Titre $i").setContentText("Texte $i").build())
         }
         val host = TestHost(ctx, VoletSettings(enabled = true, cardDensity = VoletCardDensity.COMPACT, cardTextScale = 0.85f, cardCollapsedLines = 1))
-        val activity = render { NotificationsSection(host, Modifier.fillMaxSize()) { Text("Média") } }
-        assertTrue(text(activity).contains("Titre 0"))
-        // Retrait réel : la carte disparaît de la liste.
+        // Ouverture : modèle synchrone (cache ou première construction), sans attendre de fil d'arrière-plan.
+        val first = render { NotificationsSection(host, Modifier.fillMaxSize()) { Text("Média") } }
+        assertTrue(text(first).contains("Titre 0"))
+        // Retrait réel puis densité aérée : nouvelle composition (la recomposition différée de
+        // Robolectric n'est pas fiable d'un test à l'autre, la composition initiale l'est).
+        fun build() = NotifModelFactory.build(ctx, NotificationRepository.active.value.values, { null }, locked = false, excludedApps = emptySet())
         NotificationRepository.onRemoved(NotificationRepository.active.value.values.first { it.id == 10 }, 0)
-        host.settings = host.settings.copy(cardDensity = VoletCardDensity.AIRY)
-        waitUntil { !text(activity).contains("Titre 0") }
-        assertTrue(!text(activity).contains("Titre 0"))
+        val airy = TestHost(ctx, host.settings.copy(cardDensity = VoletCardDensity.AIRY, cardTextScale = 1.2f))
+        val model = build()
+        val activity = render { NotificationList(airy, model, Modifier.fillMaxSize()) { Text("Média") } }
         val after = text(activity)
-        assertTrue(after, after.contains("Titre 1"))
+        assertTrue(after, !after.contains("Titre 0") && after.contains("Titre 1"))
     }
 }

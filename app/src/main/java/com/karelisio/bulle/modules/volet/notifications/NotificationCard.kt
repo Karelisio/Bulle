@@ -481,26 +481,28 @@ private fun TitleLine(
     val time = if (item.showTime) relativeTimeLabel(item.time) else null
     val parts = listOfNotNull(item.appName.takeIf { showApp }, time)
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            title.toString(),
-            style = if (dims.compact || muted) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = scheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f, fill = false),
-        )
-        if (parts.isNotEmpty()) {
+        // Nom (tronqué au besoin), puis « · appli · heure » toujours visibles ; chevron à droite.
+        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                parts.joinToString(" · ", prefix = " · "),
-                style = MaterialTheme.typography.labelMedium,
-                color = scheme.onSurfaceVariant,
+                title.toString(),
+                style = if (dims.compact || muted) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.onSurface,
                 maxLines = 1,
-                softWrap = false,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
             )
+            if (parts.isNotEmpty()) {
+                Text(
+                    parts.joinToString(" · ", prefix = " · "),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = scheme.onSurfaceVariant,
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
-        Spacer(Modifier.weight(0.001f))
         if (item.expandable && showApp) Chevron(expanded, onToggle, if (dims.compact) 24.dp else 28.dp)
     }
 }
