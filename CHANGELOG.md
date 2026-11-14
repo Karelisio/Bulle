@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.8
+- Paysage natif revu : la bulle reste autour de la caméra (sur le côté de l'écran), invisible au repos mais active, et s'ouvre depuis la caméra vers l'intérieur de l'écran.
+
 ## 0.8.7
 - Volet, éditeur de tuiles : deux onglets « Mes tuiles » / « Ajouter (n) » — les tuiles des applis (et système) à ajouter sont accessibles sans faire défiler toute la grille.
 - Journal : un plantage n'est affiché qu'une fois, avec sa date et la version (l'ancien plantage du Volet réapparaissait à chaque démarrage).

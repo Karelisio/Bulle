@@ -134,7 +134,8 @@ class IslandController(
             panel = i.panel,
             motion = s.motion,
             doubleTapEnabled = s.gestures.doubleTap.type != ActionType.NONE,
-            style = s.style,
+            // Paysage natif : île invisible au repos autour de la caméra, mais active.
+            style = if (scr.landscape && s.visibility.landscapeNative) s.style.copy(hideWhenIdle = true) else s.style,
         )
     }.stateIn(scope, SharingStarted.Eagerly, IslandUiState())
 

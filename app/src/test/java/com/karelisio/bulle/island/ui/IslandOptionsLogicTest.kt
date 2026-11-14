@@ -214,4 +214,16 @@ class IslandOptionsLogicTest {
         assertEquals(IslandFont.DEFAULT, s.style.font)
         assertEquals(1.2f, s.style.size, 0f)
     }
+
+    @Test
+    fun landscapeIslandHugsSideCamera() {
+        val cam = android.graphics.Rect(0, 600, 90, 690)
+        val info = ScreenInfo(width = 2800, height = 1280, statusBarHeight = 90, cutout = null, density = 3f, rotation = 1, sideCutout = cam, sideCutoutLeft = true)
+        val g = CutoutLocator.geometry(info, PositionTweak())
+        assertEquals(OpenDirection.RIGHT, g.openDirection)
+        // (Rect est un bouchon en test JVM : seule la logique de sens est vérifiée ici.)
+        val right = CutoutLocator.geometry(info.copy(sideCutout = android.graphics.Rect(2710, 600, 2800, 690), sideCutoutLeft = false), PositionTweak())
+        assertEquals(OpenDirection.LEFT, right.openDirection)
+    }
+
 }
