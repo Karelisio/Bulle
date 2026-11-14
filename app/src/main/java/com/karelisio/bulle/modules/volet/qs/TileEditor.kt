@@ -118,6 +118,21 @@ internal fun TileEditor(host: VoletHost, modifier: Modifier = Modifier) {
             }
         }
         Spacer(Modifier.height(6.dp))
+        // Deux onglets : « Mes tuiles » (réorganiser) et « Ajouter » (système + applis), pour ne pas
+        // avoir à faire défiler toute la grille avant d'atteindre les tuiles à ajouter.
+        var adding by remember { mutableStateOf(false) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            androidx.compose.material3.FilterChip(
+                selected = !adding, onClick = { adding = false },
+                label = { Text(stringResource(R.string.volet_qs_tab_mine)) },
+            )
+            androidx.compose.material3.FilterChip(
+                selected = adding, onClick = { adding = true },
+                label = { Text(stringResource(R.string.volet_qs_tab_add, available.size + availableApps.size)) },
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        if (!adding) {
         ReorderableTileGrid(
             order = order,
             corner = corner,
@@ -126,7 +141,7 @@ internal fun TileEditor(host: VoletHost, modifier: Modifier = Modifier) {
             onRemove = { id -> save(QsTileRegistry.remove(order, id)) },
             lookup = lookup,
         )
-        Spacer(Modifier.height(16.dp))
+        } else {
         Text(
             stringResource(R.string.volet_qs_available),
             style = MaterialTheme.typography.titleMedium,
@@ -157,6 +172,7 @@ internal fun TileEditor(host: VoletHost, modifier: Modifier = Modifier) {
             }
         }
         AppTilesSection(apps, availableApps, corner) { save(QsTileRegistry.add(order, it.id)) }
+        }
     }
 }
 
