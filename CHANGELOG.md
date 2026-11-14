@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.8.4
+- Deck : les outils qui ouvrent un autre écran (scanner QR, enregistreur, mémo, applis, réglages, capture d'écran…) referment d'abord le Deck ; les réglages instantanés (lampe, volume, média…) le laissent ouvert.
 - Deck : les raccourcis se réordonnent aussi en glissant (appui long sur la poignée, ou « Monter / Descendre » avec TalkBack), comme les favoris et les widgets.
 
 ## 0.8.3

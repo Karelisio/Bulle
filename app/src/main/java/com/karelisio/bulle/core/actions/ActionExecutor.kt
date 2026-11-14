@@ -20,6 +20,23 @@ import com.karelisio.bulle.system.Reliability
  */
 class ActionExecutor(private val context: Context, private val island: IslandActions) {
 
+    companion object {
+        private const val TAG = "ActionExecutor"
+
+        /** Actions qui restent dans l'île (panneaux, réglages instantanés, média) : le Deck reste ouvert. */
+        private val STAYS = setOf(
+            ActionType.NONE, ActionType.TOGGLE_EXPAND, ActionType.SWAP_BUBBLES, ActionType.APP_SEARCH,
+            ActionType.OPEN_DECK, ActionType.TIMER, ActionType.TRANSLATE, ActionType.EXIT_CRAVING,
+            ActionType.PLAY_PAUSE, ActionType.NEXT_TRACK, ActionType.PREVIOUS_TRACK,
+            ActionType.VOLUME_UP, ActionType.VOLUME_DOWN, ActionType.MUTE,
+            ActionType.BRIGHTNESS_UP, ActionType.BRIGHTNESS_DOWN, ActionType.TORCH, ActionType.ROTATION,
+            ActionType.BATTERY_SAVER, ActionType.FOCUS_MODE,
+        )
+
+        /** L'action ouvre un autre écran (ou montre un résultat dans l'île) : l'île doit se refermer avant. */
+        fun leavesIsland(type: ActionType): Boolean = type !in STAYS
+    }
+
     /** Ce que seule l'île sait faire. */
     interface IslandActions {
         fun toggleExpand()
@@ -136,9 +153,6 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
-    private companion object {
-        const val TAG = "ActionExecutor"
-    }
 }
 
 /** Lampe torche : bascule en suivant l'état réel (callback du système). */
