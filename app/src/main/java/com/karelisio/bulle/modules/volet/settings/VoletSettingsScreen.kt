@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.animation.animateContentSize
+import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -73,6 +77,8 @@ import com.karelisio.bulle.core.apps.AppIcon
 import com.karelisio.bulle.core.settings.SettingsRepository
 import com.karelisio.bulle.modules.volet.VoletController
 import com.karelisio.bulle.modules.volet.VoletDensity
+import com.karelisio.bulle.modules.volet.VoletCardDensity
+import com.karelisio.bulle.modules.volet.notifications.NotifCardPreview
 import com.karelisio.bulle.modules.volet.VoletSettings
 import com.karelisio.bulle.modules.volet.VoletZones
 import com.karelisio.bulle.modules.volet.history.NotificationHistoryScreen
@@ -98,6 +104,11 @@ object VoletSettingsBounds {
     const val SCRIM_MAX = 0.95f
     const val CORNER_MIN = 8f
     const val CORNER_MAX = 40f
+    const val TEXT_SCALE_MIN = 0.8f
+    const val TEXT_SCALE_MAX = 1.2f
+
+    /** Taille du texte des cartes : pas de 5 %, bornée à 80 – 120 %. */
+    fun textScale(raw: Float): Float = ((raw * 20).roundToInt() / 20f).coerceIn(TEXT_SCALE_MIN, TEXT_SCALE_MAX)
 
     /** Hauteur de zone : sous le minimum, on revient à « auto » (0). */
     fun triggerHeight(raw: Float): Float = if (raw < TRIGGER_MIN) 0f else raw.roundToInt().toFloat().coerceAtMost(TRIGGER_MAX)
@@ -287,14 +298,6 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
                         onDone = { commit { it.copy(scrimOpacity = draft.scrimOpacity) } },
                     )
                     SliderRow(
-                        label = stringResource(R.string.vset_corners),
-                        value = s.cornerRadiusDp,
-                        valueText = stringResource(R.string.vset_dp, s.cornerRadiusDp.roundToInt()),
-                        range = VoletSettingsBounds.CORNER_MIN..VoletSettingsBounds.CORNER_MAX,
-                        onChange = { v -> live { it.copy(cornerRadiusDp = v.roundToInt().toFloat()) } },
-                        onDone = { commit { it.copy(cornerRadiusDp = draft.cornerRadiusDp) } },
-                    )
-                    SliderRow(
                         label = stringResource(R.string.vset_tiles),
                         value = s.collapsedTileCount.toFloat(),
                         valueText = s.collapsedTileCount.toString(),
@@ -321,8 +324,77 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
                 }
             }
 
+            item("cards") {
+                SectionCard(Icons.Rounded.FormatSize, stringResource(R.string.vset_cards), 3) {
+                    Text(
+                        stringResource(R.string.vset_cards_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    // Aperçu en direct d'une conversation et d'une notification.
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(MaterialTheme.shapes.large)
+                            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                            .padding(10.dp),
+                    ) {
+                        NotifCardPreview(s, Modifier.animateContentSize())
+                    }
+                    Text(
+                        stringResource(R.string.vset_cards_density),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+                    )
+                    val cardDensities = listOf(
+                        VoletCardDensity.COMPACT to R.string.vset_cards_compact,
+                        VoletCardDensity.NORMAL to R.string.vset_cards_normal,
+                        VoletCardDensity.AIRY to R.string.vset_cards_airy,
+                    )
+                    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                        cardDensities.forEachIndexed { i, (d, label) ->
+                            SegmentedButton(
+                                selected = s.effectiveCardDensity == d,
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                                    commit { it.copy(cardDensity = d) }
+                                },
+                                shape = SegmentedButtonDefaults.itemShape(i, cardDensities.size),
+                            ) { Text(stringResource(label), maxLines = 1) }
+                        }
+                    }
+                    SliderRow(
+                        label = stringResource(R.string.vset_cards_text),
+                        value = s.cardTextScale,
+                        valueText = stringResource(R.string.vset_percent, (s.cardTextScale * 100).roundToInt()),
+                        range = VoletSettingsBounds.TEXT_SCALE_MIN..VoletSettingsBounds.TEXT_SCALE_MAX,
+                        steps = 7,
+                        onChange = { v -> live { it.copy(cardTextScale = VoletSettingsBounds.textScale(v)) } },
+                        onDone = { commit { it.copy(cardTextScale = draft.cardTextScale) } },
+                    )
+                    SliderRow(
+                        label = stringResource(R.string.vset_corners),
+                        value = s.cornerRadiusDp,
+                        valueText = stringResource(R.string.vset_dp, s.cornerRadiusDp.roundToInt()),
+                        range = VoletSettingsBounds.CORNER_MIN..VoletSettingsBounds.CORNER_MAX,
+                        onChange = { v -> live { it.copy(cornerRadiusDp = v.roundToInt().toFloat()) } },
+                        onDone = { commit { it.copy(cornerRadiusDp = draft.cornerRadiusDp) } },
+                    )
+                    SliderRow(
+                        label = stringResource(R.string.vset_cards_lines),
+                        value = s.cardCollapsedLines.toFloat(),
+                        valueText = s.cardCollapsedLines.toString(),
+                        range = 1f..4f,
+                        steps = 2,
+                        onChange = { v -> live { it.copy(cardCollapsedLines = v.roundToInt().coerceIn(1, 4)) } },
+                        onDone = { commit { it.copy(cardCollapsedLines = draft.cardCollapsedLines) } },
+                    )
+                }
+            }
+
             item("behaviour") {
-                SectionCard(Icons.Rounded.Block, stringResource(R.string.vset_behaviour), 3) {
+                SectionCard(Icons.Rounded.Block, stringResource(R.string.vset_behaviour), 4) {
                     SwitchRow(
                         stringResource(R.string.vset_lockscreen),
                         stringResource(R.string.vset_lockscreen_desc),
@@ -359,7 +431,7 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
             }
 
             item("history") {
-                SectionCard(Icons.Rounded.History, stringResource(R.string.vset_history), 4) {
+                SectionCard(Icons.Rounded.History, stringResource(R.string.vset_history), 5) {
                     SwitchRow(
                         stringResource(R.string.vset_history_enable),
                         stringResource(R.string.vset_history_desc),
@@ -381,7 +453,7 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
             }
 
             item("permissions") {
-                SectionCard(Icons.Rounded.Shield, stringResource(R.string.vset_permissions), 5) {
+                SectionCard(Icons.Rounded.Shield, stringResource(R.string.vset_permissions), 6) {
                     VoletPermissions()
                 }
             }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.9
+- Volet, fluidité : une notification balayée sort aussitôt et celles du dessous remontent au ressort ; « Tout effacer » en cascade ; ouverture plus fluide (liste préparée hors du fil principal, icônes en cache).
+- Volet, taille des cartes (nouvelle section des réglages) : densité Compacte / Normale / Aérée, taille du texte (80–120 %), arrondi, nombre de lignes en replié, aperçu en direct ; aussi pour la carte média.
+- Conversations plus compactes : un seul avatar en 1-à-1 (avec la pastille de l'appli), nom · appli · heure sur une ligne ; texte sans bulle en Compacte.
+
 ## 0.8.8
 - Paysage natif revu : la bulle reste autour de la caméra (sur le côté de l'écran), invisible au repos mais active, et s'ouvre depuis la caméra vers l'intérieur de l'écran.
 
