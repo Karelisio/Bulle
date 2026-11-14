@@ -60,7 +60,13 @@ object MusicModule : IslandModule {
                     !s.first -> emit(LyricsFor(t.identity, LyricsState.Off))
                     else -> {
                         emit(LyricsFor(t.identity, LyricsState.Loading))
-                        emit(LyricsFor(t.identity, LyricsRepository.load(context, t, online = s.second)))
+                        val found = LyricsRepository.load(context, t, online = s.second)
+                        emit(LyricsFor(t.identity, found))
+                        // Paroles déjà affichées ; en arrière-plan, version mot à mot éventuelle.
+                        if (s.second && found is LyricsState.Found) {
+                            LyricsRepository.upgradeToWordSync(context, t, found.lyrics)
+                                ?.let { emit(LyricsFor(t.identity, LyricsState.Found(it))) }
+                        }
                     }
                 }
             }
