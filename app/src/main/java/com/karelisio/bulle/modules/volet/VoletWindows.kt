@@ -176,33 +176,48 @@ private class StripView(context: Context, private val side: Int, private val lis
     }
 }
 
-/** Les deux zones de déclenchement, de part et d'autre de l'île. */
+/**
+ * Zones de déclenchement autour de l'île : colonnes gauche et droite, plus les bandes au-dessus et
+ * au-dessous de l'île quand elle ne remplit pas la hauteur (voir [VoletStrips.zones]).
+ * Une fenêtre par zone ; une fenêtre dont le côté change est recréée.
+ */
 class TriggerStrips(private val context: Context, private val listener: StripListener) {
-    private val windows = arrayOfNulls<OverlayWindow>(2)
-    private val views = arrayOfNulls<View>(2)
+    private val windows = mutableListOf<OverlayWindow?>()
+    private val views = mutableListOf<View?>()
+    private val sides = mutableListOf<Int>()
 
-    /** [rects] : zone gauche (côté 0) et droite (côté 1) ; null = pas de zone. */
-    fun update(rects: List<StripRect?>, touchable: Boolean, preview: Boolean, previewColor: Int) {
-        for (side in 0..1) {
-            val r = rects.getOrNull(side)
-            if (r == null || r.width <= 0 || r.height <= 0) {
-                windows[side]?.destroy()
-                windows[side] = null
-                views[side] = null
-                continue
+    fun update(zones: List<VoletStrips.Zone>, touchable: Boolean, preview: Boolean, previewColor: Int) {
+        // Fenêtres en trop : retirées.
+        while (windows.size > zones.size) {
+            windows.removeAt(windows.lastIndex)?.destroy()
+            views.removeAt(views.lastIndex)
+            sides.removeAt(sides.lastIndex)
+        }
+        zones.forEachIndexed { i, zone ->
+            val r = zone.rect
+            if (i < windows.size && sides[i] != zone.side) {
+                windows[i]?.destroy()
+                windows[i] = null
+                views[i] = null
             }
-            val w = windows[side] ?: OverlayWindow(context, "Bulle — zone du volet").also { win ->
-                val v = StripView(context, side, listener)
+            if (i >= windows.size) {
+                windows += null
+                views += null
+                sides += zone.side
+            }
+            sides[i] = zone.side
+            val w = windows[i] ?: OverlayWindow(context, "Bulle — zone du volet").also { win ->
+                val v = StripView(context, zone.side, listener)
                 win.params.width = r.width
                 win.params.height = r.height
                 win.params.x = r.x
                 win.params.y = r.y
                 if (!win.showView(v)) return@also
-                views[side] = v
-                windows[side] = win
+                views[i] = v
+                windows[i] = win
             }
-            if (!w.isShown) continue
-            views[side]?.setBackgroundColor(if (preview) previewColor else Color.TRANSPARENT)
+            if (!w.isShown) return@forEachIndexed
+            views[i]?.setBackgroundColor(if (preview) previewColor else Color.TRANSPARENT)
             val p = w.params
             val flags = if (touchable || preview) p.flags and LP.FLAG_NOT_TOUCHABLE.inv() else p.flags or LP.FLAG_NOT_TOUCHABLE
             if (p.x != r.x || p.y != r.y || p.width != r.width || p.height != r.height || p.flags != flags) {
@@ -214,8 +229,9 @@ class TriggerStrips(private val context: Context, private val listener: StripLis
 
     fun destroy() {
         windows.forEach { it?.destroy() }
-        windows.fill(null)
-        views.fill(null)
+        windows.clear()
+        views.clear()
+        sides.clear()
     }
 }
 

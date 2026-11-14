@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.BatteryStd
@@ -48,9 +50,12 @@ import com.karelisio.bulle.modules.volet.VoletHost
 import kotlinx.coroutines.delay
 import java.util.Date
 
-/** En-tête du volet : heure, date, batterie, édition des tuiles, réglages. */
+/**
+ * En-tête du volet : heure, date, batterie, édition des tuiles, réglages.
+ * [compact] (paysage) : heure plus petite, sur une seule ligne avec la date et la batterie.
+ */
 @Composable
-fun VoletHeader(host: VoletHost) {
+fun VoletHeader(host: VoletHost, compact: Boolean = false) {
     val context = LocalContext.current
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) {
@@ -72,6 +77,10 @@ fun VoletHeader(host: VoletHost) {
         onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
 
+    if (compact) {
+        CompactHeader(host, now, battery)
+        return
+    }
     Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             val time = DateFormat.getTimeFormat(context).format(Date(now))
@@ -105,6 +114,52 @@ fun VoletHeader(host: VoletHost) {
         }
         FilledTonalIconButton(onClick = { host.startActivity(Intent(Settings.ACTION_SETTINGS)) }) {
             Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.volet_open_settings))
+        }
+    }
+}
+
+/** En-tête paysage : une ligne (heure, date, batterie) et des boutons plus petits. */
+@Composable
+private fun CompactHeader(host: VoletHost, now: Long, battery: Pair<Int, Boolean>) {
+    val context = LocalContext.current
+    Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            val time = DateFormat.getTimeFormat(context).format(Date(now))
+            AnimatedContent(time, transitionSpec = {
+                (slideInVertically { it } + fadeIn()).togetherWith(slideOutVertically { -it } + fadeOut())
+            }, label = "time") {
+                Text(it, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(
+                DateFormat.format("EEE d MMM", now).toString().replaceFirstChar { it.uppercase() },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            if (battery.first >= 0) {
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    if (battery.second) Icons.Rounded.BatteryChargingFull else Icons.Rounded.BatteryStd,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp),
+                )
+                Text("${battery.first} %", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            }
+        }
+        FilledTonalIconButton(onClick = { host.editingTiles = !host.editingTiles }, modifier = Modifier.size(36.dp)) {
+            Icon(
+                if (host.editingTiles) Icons.Rounded.Check else Icons.Rounded.Edit,
+                contentDescription = stringResource(R.string.volet_edit_tiles),
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        Spacer(Modifier.width(4.dp))
+        FilledTonalIconButton(onClick = { host.startActivity(Intent(Settings.ACTION_SETTINGS)) }, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.volet_open_settings), modifier = Modifier.size(18.dp))
         }
     }
 }

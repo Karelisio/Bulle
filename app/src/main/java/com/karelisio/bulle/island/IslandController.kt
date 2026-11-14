@@ -185,6 +185,11 @@ class IslandController(
             screenWidth = g.screenWidth.takeIf { it > 0 } ?: context.resources.displayMetrics.widthPixels,
             screenHeight = context.resources.displayMetrics.heightPixels,
         )
+        // Enveloppe tactile réelle de l'île : les zones du Volet s'y collent sans trou.
+        com.karelisio.bulle.modules.volet.VoletStrips.islandEnvelope.value = com.karelisio.bulle.modules.volet.IslandEnvelope(
+            g.centerX - request.width.coerceAtLeast(1) / 2, g.top,
+            request.width.coerceAtLeast(1), request.height.coerceAtLeast(1), request.touchable,
+        )
     }
 
     // --- Gestes ---

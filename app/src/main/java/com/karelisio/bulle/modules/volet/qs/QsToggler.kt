@@ -40,7 +40,7 @@ internal class QsToggler(private val host: VoletHost) {
     }
 
     fun longPress(tile: QsTile) {
-        tile.settingsIntent(context)?.let(::start)
+        tile.longPressIntent(context)?.let(::start)
     }
 
     private fun open(tile: QsTile, method: ToggleMethod) {

@@ -1,5 +1,10 @@
 package com.karelisio.bulle.modules.deck
 
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.animation.animateColorAsState
 import android.appwidget.AppWidgetHostView
 import android.content.ComponentName
 import android.os.Bundle
@@ -241,15 +246,41 @@ object DeckPanel : IslandPanel {
                 }
             }
             // Grille de raccourcis (4 colonnes).
+            // États des bascules : relus chaque seconde tant que le Deck est ouvert, et juste après un toucher.
+            var stateTick by remember { mutableIntStateOf(0) }
+            LaunchedEffect(Unit) { while (true) { kotlinx.coroutines.delay(1000); stateTick++ } }
             tab.shortcuts.chunked(4).forEachIndexed { row, items ->
                 Row(Modifier.fillMaxWidth()) {
                     items.forEachIndexed { col, action ->
-                        Pressable(onClick = { run(action) }, modifier = Modifier.weight(1f).cascade(6 + row * 4 + col)) {
+                        val active = remember(stateTick, action.type) {
+                            if (action.type in ShortcutStates.toggles) ShortcutStates.read(context, action.type) else null
+                        }
+                        val on = active == true
+                        val stateOn = stringResource(R.string.deck_state_on)
+                        val stateOff = stringResource(R.string.deck_state_off)
+                        val bg by animateColorAsState(
+                            if (on) MaterialTheme.colorScheme.primaryContainer else Color.White.copy(alpha = 0.1f),
+                            label = "tileBg",
+                        )
+                        val fg by animateColorAsState(
+                            if (on) MaterialTheme.colorScheme.onPrimaryContainer else Color.White,
+                            label = "tileFg",
+                        )
+                        Pressable(
+                            onClick = {
+                                run(action)
+                                // Relecture rapide de l'état (le système applique la bascule en différé).
+                                stateTick++
+                            },
+                            modifier = Modifier.weight(1f).cascade(6 + row * 4 + col).semantics {
+                                if (active != null) stateDescription = if (on) stateOn else stateOff
+                            },
+                        ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Box(
-                                    Modifier.size(50.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.1f)),
+                                    Modifier.size(50.dp).clip(CircleShape).background(bg),
                                     contentAlignment = Alignment.Center,
-                                ) { Icon(action.type.icon(), contentDescription = null) }
+                                ) { Icon(action.type.icon(), contentDescription = null, tint = fg) }
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     action.label(),

@@ -9,4 +9,6 @@
     <string name="deck_move_down">Move down</string>
     <string name="deck_drag_handle">Move (long press, then drag)</string>
     <string name="deck_reorder_hint">Hold the handle to move an item, swipe it left to remove it.</string>
+    <string name="deck_state_on">On</string>
+    <string name="deck_state_off">Off</string>
 </resources>
