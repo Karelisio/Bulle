@@ -17,9 +17,19 @@ object CurrencyRates {
     @Volatile
     private var mutex = Mutex()
 
-    /** Tests : repart d'un verrou libre (un test précédent interrompu peut l'avoir laissé pris). */
+    /** Cache des taux (DataStore par défaut ; remplaçable en test). */
+    @Volatile
+    internal var readCache: suspend (Context) -> RatesSnapshot? = { SearchPrefs.cachedRates(it) }
+
+    @Volatile
+    internal var writeCache: suspend (Context, RatesSnapshot) -> Unit = { c, r -> SearchPrefs.saveRates(c, r) }
+
+    /** Tests : verrou libre et cache en mémoire (indépendants des tests précédents). */
     internal fun resetForTests() {
         mutex = Mutex()
+        var mem: RatesSnapshot? = null
+        readCache = { mem }
+        writeCache = { _, r -> mem = r }
     }
 
     /** Source réseau remplaçable (tests). */
@@ -29,11 +39,11 @@ object CurrencyRates {
     /** Taux à utiliser pour [query] : cache frais, sinon rafraîchis, sinon cache périmé (ou null). */
     suspend fun ratesFor(context: Context, query: CurrencyQuery, enabled: Boolean, now: Long = System.currentTimeMillis()): RatesSnapshot? =
         mutex.withLock {
-            val cached = SearchPrefs.cachedRates(context)
+            val cached = readCache(context)
             if (!Currency.shouldFetch(query, cached, now, enabled)) return@withLock cached
             val fresh = withContext(Dispatchers.IO) { fetcher(Currency.LATEST_URL) }?.let { Currency.parseRates(it, now) }
             if (fresh != null) {
-                SearchPrefs.saveRates(context, fresh)
+                writeCache(context, fresh)
                 fresh
             } else {
                 cached
