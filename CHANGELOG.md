@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.10
+- Volet, éditeur de tuiles : la zone d'édition prend toute la hauteur et défile (longue liste de tuiles d'applis).
+- Sortie audio : le sélecteur système de sortie (MediaRouter2) est essayé en premier, puis le panneau de Paramètres, puis SystemUI — depuis la bulle Volume et la carte média ; chaque essai est noté dans le Journal de l'île.
+- Notification « Changement de périphérique audio » : un toucher ouvre le choix de la sortie audio.
+
 ## 0.8.9
 - Volet, fluidité : une notification balayée sort aussitôt et celles du dessous remontent au ressort ; « Tout effacer » en cascade ; ouverture plus fluide (liste préparée hors du fil principal, icônes en cache).
 - Volet, taille des cartes (nouvelle section des réglages) : densité Compacte / Normale / Aérée, taille du texte (80–120 %), arrondi, nombre de lignes en replié, aperçu en direct ; aussi pour la carte média.

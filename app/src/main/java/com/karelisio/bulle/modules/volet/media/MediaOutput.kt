@@ -113,16 +113,32 @@ object MediaOutput {
      * sinon réglages Bluetooth. [startActivity] lance une activité en fermant le volet.
      */
     fun openSwitcher(context: Context, packageName: String, close: () -> Unit, startActivity: (Intent) -> Unit) {
-        switcherIntent(context, packageName)?.let { startActivity(it); return }
+        // 1. Sélecteur système de MediaRouter2 (boîte de SystemUI, fonctionne depuis l'arrière-plan).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             val shown = runCatching { MediaRouter2.getInstance(context).showSystemOutputSwitcher() }
                 .onFailure { Log.d(TAG, "Sélecteur de sortie indisponible", it) }
                 .getOrDefault(false)
+            com.karelisio.bulle.island.IslandLog.log("Sortie audio : MediaRouter2 → $shown")
             if (shown) {
                 close()
                 return
             }
         }
+        // 2. Panneau « Sortie audio » de Paramètres.
+        switcherIntent(context, packageName)?.let {
+            com.karelisio.bulle.island.IslandLog.log("Sortie audio : panneau Paramètres")
+            startActivity(it)
+            return
+        }
+        // 3. Boîte de SystemUI (AOSP), puis réglages Bluetooth en dernier recours.
+        val sent = runCatching {
+            context.sendBroadcast(
+                Intent("com.android.systemui.action.LAUNCH_MEDIA_OUTPUT_DIALOG")
+                    .setPackage("com.android.systemui")
+                    .putExtra("package_name", packageName),
+            )
+        }.isSuccess
+        com.karelisio.bulle.island.IslandLog.log("Sortie audio : diffusion SystemUI ($sent) puis Bluetooth")
         startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS))
     }
 
