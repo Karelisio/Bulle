@@ -25,7 +25,12 @@ object CrashLog {
         runCatching {
             val f = File(app.filesDir, FILE)
             if (f.exists()) {
-                IslandLog.log("Plantage précédent :\n" + f.readText())
+                val text = f.readText()
+                val whenMs = text.substringBefore(' ').toLongOrNull()
+                val date = whenMs?.let { java.text.DateFormat.getDateTimeInstance().format(java.util.Date(it)) } ?: "?"
+                IslandLog.log("Plantage précédent ($date, version ${com.karelisio.bulle.BuildConfig.VERSION_NAME} au démarrage) :\n$text")
+                // Montré une seule fois : renommé pour ne pas réapparaître à chaque démarrage.
+                f.renameTo(File(app.filesDir, "$FILE.seen"))
             }
         }
     }

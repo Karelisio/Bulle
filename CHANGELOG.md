@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.7
+- Volet, éditeur de tuiles : deux onglets « Mes tuiles » / « Ajouter (n) » — les tuiles des applis (et système) à ajouter sont accessibles sans faire défiler toute la grille.
+- Journal : un plantage n'est affiché qu'une fois, avec sa date et la version (l'ancien plantage du Volet réapparaissait à chaque démarrage).
+
 ## 0.8.6
 - Volet, tuiles des applis : découverte élargie (déclaration explicite pour MagicOS, tuiles activées à l'exécution prises en compte) ; l'éditeur indique « Recherche… » puis, si rien n'est trouvé, le nombre de services détectés (aussi noté dans le Journal de l'île).
 

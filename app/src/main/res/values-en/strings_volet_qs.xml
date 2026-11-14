@@ -35,4 +35,6 @@
     <string name="volet_qs_apps_hint_no_shizuku">Without Shizuku, tapping opens the app or the tile settings. Use Shizuku to toggle directly.</string>
     <string name="volet_qs_apps_searching">Looking for app tiles…</string>
     <string name="volet_qs_apps_scan">(%1$d services found, %2$d kept)</string>
+    <string name="volet_qs_tab_mine">My tiles</string>
+    <string name="volet_qs_tab_add">Add (%1$d)</string>
 </resources>
