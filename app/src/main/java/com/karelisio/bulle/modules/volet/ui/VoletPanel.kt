@@ -74,7 +74,7 @@ import kotlin.math.min
 fun VoletPanel(host: VoletController) {
     BulleTheme {
         // Réglage « Retour haptique » coupé : toutes les vibrations du panneau sont neutralisées.
-        ProvideVoletHaptics(host.haptics) { VoletPanelContent(host) { host.backProgress } }
+        ProvideVoletHaptics(host.haptics) { VoletPanelContent(host, backProgress = { host.backProgress }) }
     }
 }
 
