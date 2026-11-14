@@ -131,9 +131,9 @@ class AppTilesTest {
         assertFalse(AppTiles.isAppTileId("wifi"))
         val app = AppTile(ComponentName("com.foo", "com.foo.Tile"), "Tuile", "Foo", hasOwnIcon = true)
         // Tuile d'appli enregistrée : placée à son rang ; désinstallée : ignorée sans tout réinitialiser.
-        val saved = listOf("wifi", app.id, "torch")
+        val saved = listOf("wifi", app.id, "rotation")
         val withApp = QsTileRegistry.current(context, saved, listOf(app)).map { it.id }
-        assertEquals(listOf("wifi", app.id, "torch"), withApp.filter { it in saved })
+        assertEquals(listOf("wifi", app.id, "rotation"), withApp.filter { it in saved })
         val without = QsTileRegistry.current(context, saved, emptyList()).map { it.id }
         assertFalse(app.id in without)
         assertTrue("wifi" in without)

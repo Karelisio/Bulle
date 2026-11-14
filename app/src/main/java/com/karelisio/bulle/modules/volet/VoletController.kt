@@ -101,17 +101,19 @@ class VoletController(
             combine(
                 settingsFlow,
                 island.screenEnv,
-                island.state.map { it.expanded }.distinctUntilChanged(),
+                island.state.map { Triple(it.expanded, it.visible, it.primary != null) }.distinctUntilChanged(),
                 ForegroundApp.packageName,
-                combine(previewFlow, refreshStrips) { p, _ -> p },
-            ) { s, env, islandExpanded, fg, preview ->
+                combine(previewFlow, refreshStrips, VoletStrips.islandEnvelope) { p, _, e -> p to e },
+            ) { s, env, islandState, fg, previewAndEnvelope ->
+                val (islandExpanded, islandVisible, hasContent) = islandState
+                val (preview, published) = previewAndEnvelope
                 locked = env.locked
                 if (!s.enabled) return@combine null
                 val active = !islandExpanded &&
                     env.statusBarVisible &&
                     (!env.locked || s.showOnLockscreen) &&
                     (fg == null || fg !in s.excludedApps)
-                Triple(stripRects(s, env.geometry), active, preview)
+                Triple(stripZones(s, env.geometry, islandVisible, hasContent, published), active, preview)
             }.collect { r ->
                 if (r == null) strips.destroy()
                 else strips.update(r.first, touchable = r.second, preview = r.third, previewColor = PREVIEW_COLOR)
@@ -126,17 +128,34 @@ class VoletController(
         strips.destroy()
     }
 
-    /** Zones : de part et d'autre de l'île (l'île reste touchable), sur la hauteur choisie. */
-    private fun stripRects(s: VoletSettings, g: com.karelisio.bulle.island.IslandGeometry): List<StripRect?> {
+    /**
+     * Zones : toute la largeur, sur au moins la hauteur de la barre d'état, bordant exactement
+     * l'enveloppe tactile de l'île (publiée par l'île, sinon estimée). L'île masquée ou vide
+     * invisible (non touchable) n'est pas épargnée : aucun trou au centre.
+     */
+    private fun stripZones(
+        s: VoletSettings,
+        g: com.karelisio.bulle.island.IslandGeometry,
+        islandVisible: Boolean,
+        hasContent: Boolean,
+        published: IslandEnvelope?,
+    ): List<VoletStrips.Zone> {
         val info = CutoutLocator.screenInfo(service)
         val w = info.width
-        val h = if (s.triggerHeightDp > 0f) (s.triggerHeightDp * density).roundToInt() else info.statusBarHeight.coerceAtLeast((24 * density).roundToInt())
-        val inset = (s.edgeInsetDp * density).roundToInt()
+        val trigger = if (s.triggerHeightDp > 0f) (s.triggerHeightDp * density).roundToInt() else 0
+        val statusBar = info.statusBarHeight.coerceAtLeast((24 * density).roundToInt())
         val centerX = if (g.width > 0) g.centerX else w / 2
-        val half = if (g.width > 0) g.width / 2 + (52 * density).roundToInt() else 0
-        val left = StripRect(inset, 0, (centerX - half - inset).coerceAtLeast(0), h)
-        val right = StripRect(centerX + half, 0, (w - inset - centerX - half).coerceAtLeast(0), h)
-        return listOf(left, right)
+        val envelope = when {
+            !islandVisible -> null
+            published != null -> published
+            // Sans enveloppe publiée : île au repos exacte ; avec un contenu compact, marge prudente
+            // pour ne pas recouvrir ses ailes (les zones sont au-dessus de la fenêtre tactile de l'île).
+            else -> VoletStrips.estimate(
+                centerX, g.top, g.width, g.height, visible = true,
+                contentMarginPx = if (hasContent) (52 * density).roundToInt() else 0,
+            )
+        }
+        return VoletStrips.zones(w, statusBar, trigger, (s.edgeInsetDp * density).roundToInt(), centerX, envelope)
     }
 
     private fun zoneForSide(side: Int): VoletZone = when (settings.zones) {
