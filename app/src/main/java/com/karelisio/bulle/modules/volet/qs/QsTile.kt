@@ -3,6 +3,7 @@ package com.karelisio.bulle.modules.volet.qs
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.StringRes
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.karelisio.bulle.core.actions.GestureAction
 import kotlinx.coroutines.flow.Flow
@@ -38,8 +39,14 @@ interface QsTile {
 
     val icon: ImageVector
 
+    /** Libellé dynamique (tuiles d'applis) : prioritaire sur [label] quand il est fourni. */
+    val labelText: String? get() = null
+
     /** Tuile d'action ponctuelle (capture, verrouillage) : pas d'état actif. */
     val action: GestureAction? get() = null
+
+    /** Pas d'état actif affiché (actions ponctuelles, tuiles d'applis dont l'état est illisible). */
+    val stateless: Boolean get() = action != null
 
     val direct: DirectToggle? get() = null
 
@@ -51,6 +58,12 @@ interface QsTile {
 
     /** Page système de la tuile : appui long, et dernier recours au toucher (null : aucune). */
     fun settingsIntent(context: Context): Intent?
+
+    /** Page ouverte par un appui long (par défaut : [settingsIntent]). */
+    fun longPressIntent(context: Context): Intent? = settingsIntent(context)
+
+    /** Icône bitmap (tuiles d'applis) : prioritaire sur [icon] quand elle se charge. */
+    fun loadIcon(context: Context, sizePx: Int): ImageBitmap? = null
 
     /** Faux si le matériel manque (pas de NFC, pas de flash…) : la tuile n'est pas proposée. */
     fun isSupported(context: Context): Boolean = true

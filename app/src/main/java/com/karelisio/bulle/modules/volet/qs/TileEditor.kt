@@ -35,7 +35,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -82,6 +88,17 @@ internal fun TileEditor(host: VoletHost, modifier: Modifier = Modifier) {
         }
     }
     val available = remember(order) { QsTileRegistry.available(context, order) }
+    // Tuiles des applis : découvertes hors du fil principal (null tant que la recherche dure).
+    val apps by produceState<List<AppTile>?>(null, context) {
+        value = withContext(Dispatchers.IO) { AppTiles.discover(context) }
+    }
+    val availableApps = remember(order, apps) { QsTileRegistry.availableApps(apps.orEmpty(), order) }
+    // Recherche d'une tuile de la liste (système, ou appli déjà ajoutée / découverte).
+    val savedApps = remember { QsTileRegistry.current(context, host.settings.tiles).filterIsInstance<AppTile>() }
+    val lookup: (String) -> QsTile? = remember(apps) {
+        val byId = (savedApps + apps.orEmpty()).associateBy { it.id }
+        { id -> QsTileRegistry.get(id) ?: byId[id] }
+    }
     val corner = host.settings.cornerRadiusDp.dp
 
     Column(modifier) {
@@ -107,6 +124,7 @@ internal fun TileEditor(host: VoletHost, modifier: Modifier = Modifier) {
             onOrderChange = { order = it },
             onDrop = { save(order) },
             onRemove = { id -> save(QsTileRegistry.remove(order, id)) },
+            lookup = lookup,
         )
         Spacer(Modifier.height(16.dp))
         Text(
@@ -138,6 +156,60 @@ internal fun TileEditor(host: VoletHost, modifier: Modifier = Modifier) {
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
         }
+        AppTilesSection(apps, availableApps, corner) { save(QsTileRegistry.add(order, it.id)) }
+    }
+}
+
+/** Section « Applis » : tuiles Réglages rapides des applis tierces, à ajouter à la liste. */
+@Composable
+private fun AppTilesSection(apps: List<AppTile>?, available: List<AppTile>, corner: Dp, onAdd: (AppTile) -> Unit) {
+    val context = LocalContext.current
+    val shizuku = remember { ShizukuShell.status() }
+    Spacer(Modifier.height(8.dp))
+    Text(
+        stringResource(R.string.volet_qs_apps_section),
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurface,
+    )
+    Spacer(Modifier.height(4.dp))
+    Text(
+        stringResource(
+            if (shizuku == ShizukuStatus.UNAVAILABLE) R.string.volet_qs_apps_hint_no_shizuku
+            else R.string.volet_qs_apps_hint_shizuku,
+        ),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Spacer(Modifier.height(8.dp))
+    if (apps != null && available.isEmpty()) {
+        Text(
+            stringResource(if (apps.isEmpty()) R.string.volet_qs_apps_none else R.string.volet_qs_available_none),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    val iconPx = with(LocalDensity.current) { 40.dp.roundToPx() }
+    available.chunked(2).forEach { pair ->
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 8.dp)) {
+            pair.forEach { tile ->
+                key(tile.id) {
+                    val bitmap = remember(tile) { tile.loadIcon(context, iconPx) }
+                    EditTile(
+                        icon = tile.icon,
+                        label = tile.title,
+                        corner = corner,
+                        added = false,
+                        onButton = { onAdd(tile) },
+                        modifier = Modifier.weight(1f),
+                        bitmap = bitmap,
+                        tintBitmap = tile.hasOwnIcon,
+                        subtitle = tile.appName.takeIf { it != tile.title },
+                    )
+                }
+            }
+            if (pair.size == 1) Spacer(Modifier.weight(1f))
+        }
     }
 }
 
@@ -149,7 +221,9 @@ private fun ReorderableTileGrid(
     onOrderChange: (List<String>) -> Unit,
     onDrop: () -> Unit,
     onRemove: (String) -> Unit,
+    lookup: (String) -> QsTile?,
 ) {
+    val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val reduce = rememberReduceMotion()
     val currentOrder by rememberUpdatedState(order)
@@ -183,7 +257,7 @@ private fun ReorderableTileGrid(
 
         Box(Modifier.fillMaxWidth().height(tileH * rows + gap * (rows - 1).coerceAtLeast(0))) {
             order.forEachIndexed { index, id ->
-                val tile = QsTileRegistry.get(id) ?: return@forEachIndexed
+                val tile = lookup(id) ?: return@forEachIndexed
                 key(id) {
                     val target = slot(index)
                     val anim = remember { Animatable(target, Offset.VectorConverter) }
@@ -198,9 +272,12 @@ private fun ReorderableTileGrid(
                         if (reduce) snap() else spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium),
                         label = "lift",
                     )
+                    val bitmap = remember(tile) { tile.loadIcon(context, with(density) { 40.dp.roundToPx() }) }
                     EditTile(
                         icon = tile.icon,
-                        label = stringResource(tile.label),
+                        label = tile.labelText ?: stringResource(tile.label),
+                        bitmap = bitmap,
+                        tintBitmap = (tile as? AppTile)?.hasOwnIcon != false,
                         corner = corner,
                         added = true,
                         onButton = { onRemove(id) },
@@ -255,6 +332,9 @@ private fun EditTile(
     added: Boolean,
     onButton: () -> Unit,
     modifier: Modifier = Modifier,
+    bitmap: ImageBitmap? = null,
+    tintBitmap: Boolean = true,
+    subtitle: String? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     Row(
@@ -269,18 +349,37 @@ private fun EditTile(
             Modifier.size(38.dp).clip(CircleShape).background(scheme.surfaceContainerHighest),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, contentDescription = null, tint = scheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+            if (bitmap != null) {
+                Icon(
+                    bitmap,
+                    contentDescription = null,
+                    tint = if (tintBitmap) scheme.onSurfaceVariant else Color.Unspecified,
+                    modifier = Modifier.size(20.dp),
+                )
+            } else {
+                Icon(icon, contentDescription = null, tint = scheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+            }
         }
         Spacer(Modifier.width(10.dp))
-        Text(
-            label,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = scheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                label,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (subtitle != null) {
+                Text(
+                    subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
         IconButton(onClick = onButton) {
             Icon(
                 if (added) Icons.Rounded.RemoveCircle else Icons.Rounded.AddCircle,

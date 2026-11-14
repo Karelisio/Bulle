@@ -2,7 +2,28 @@ package com.karelisio.bulle.modules.volet.ui
 
 import android.os.Build
 import android.view.WindowManager
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.unit.Dp
+import com.karelisio.bulle.ui.components.rememberReduceMotion
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
@@ -52,12 +73,13 @@ import kotlin.math.min
 fun VoletPanel(host: VoletController) {
     BulleTheme {
         // Réglage « Retour haptique » coupé : toutes les vibrations du panneau sont neutralisées.
-        ProvideVoletHaptics(host.haptics) { VoletPanelContent(host) }
+        ProvideVoletHaptics(host.haptics) { VoletPanelContent(host) { host.backProgress } }
     }
 }
 
+/** Contenu du volet (hôte abstrait : rendu testable). [backProgress] : avancée du retour prédictif. */
 @Composable
-private fun VoletPanelContent(host: VoletController) {
+internal fun VoletPanelContent(host: VoletHost, backProgress: () -> Float) {
     run {
         val context = LocalContext.current
         val density = LocalDensity.current
@@ -68,8 +90,8 @@ private fun VoletPanelContent(host: VoletController) {
         }
         // Sans flou, le voile est plus opaque pour rester lisible.
         val scrimAlpha = if (blur) s.scrimOpacity else max(s.scrimOpacity, 0.88f)
-        val topInset = remember { with(density) { CutoutLocator.screenInfo(context).statusBarHeight.toDp() } }
         val connection = remember(host) { VoletScrollConnection(host) }
+        val reduce = rememberReduceMotion()
 
         Box(Modifier.fillMaxSize()) {
             // Voile : toucher dehors referme le volet.
@@ -80,55 +102,132 @@ private fun VoletPanelContent(host: VoletController) {
                     .background(scheme.surfaceContainerLowest.copy(alpha = scrimAlpha))
                     .pointerInput(Unit) { detectTapGestures { host.close() } },
             )
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        val e = min(host.expansion, 1f)
-                        translationY = (e - 1f) * 160.dp.toPx()
-                        alpha = e.coerceIn(0f, 1f)
-                        // Retour prédictif : le volet recule légèrement en suivant le geste.
-                        val sc = 1f - 0.08f * host.backProgress
-                        scaleX = sc
-                        scaleY = sc
-                        transformOrigin = TransformOrigin(0.5f, 0f)
-                    }
-                    // Fenêtre non redimensionnée par le clavier (fitInsetsTypes = 0) : sans cette marge,
-                    // le champ de réponse directe resterait caché sous le clavier.
-                    .imePadding()
-                    .padding(top = topInset + 6.dp, start = 12.dp, end = 12.dp, bottom = 12.dp)
-                    .nestedScroll(connection),
-            ) {
-                // En-tête et tuiles : glisser déplie ou replie.
-                Column(
-                    Modifier.draggable(
-                        state = rememberDraggableState { host.dragBy(it) },
-                        orientation = Orientation.Vertical,
-                        onDragStopped = { v -> host.settle(v) },
-                    ),
-                ) {
-                    VoletHeader(host)
-                    QuickSettingsSection(host, Modifier.fillMaxWidth())
+            BoxWithConstraints(Modifier.fillMaxSize()) {
+                val orientation = VoletLayout.orientation(maxWidth.value, maxHeight.value)
+                // Barre d'état relue à chaque rotation (sa hauteur change avec l'orientation).
+                val topInset = remember(orientation) {
+                    with(density) { CutoutLocator.screenInfo(context).statusBarHeight.toDp() }
                 }
-                Spacer(Modifier.height(10.dp))
-                NotificationsSection(
-                    host = host,
-                    modifier = Modifier.weight(1f, fill = false).fillMaxWidth(),
-                    header = { MediaSection(host, Modifier.fillMaxWidth()) },
-                )
-                Handle(host)
+                // Rotation : bascule de mise en page en fondu au ressort (instantanée si « réduire les animations »).
+                AnimatedContent(
+                    targetState = orientation,
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter,
+                    transitionSpec = {
+                        if (reduce) {
+                            EnterTransition.None togetherWith ExitTransition.None
+                        } else {
+                            (fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) +
+                                scaleIn(spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow), initialScale = 0.96f))
+                                .togetherWith(fadeOut(spring(stiffness = Spring.StiffnessMedium)))
+                        }
+                    },
+                    label = "voletLayout",
+                ) { o ->
+                    if (o == VoletOrientation.LANDSCAPE) LandscapePanel(host, backProgress, topInset, connection)
+                    else PortraitPanel(host, backProgress, topInset, connection)
+                }
             }
         }
     }
 }
 
+/** Mouvement commun du panneau : descente avec l'ouverture et recul du retour prédictif. */
+private fun Modifier.panelMotion(host: VoletHost, backProgress: () -> Float): Modifier = graphicsLayer {
+    val e = min(host.expansion, 1f)
+    translationY = (e - 1f) * 160.dp.toPx()
+    alpha = e.coerceIn(0f, 1f)
+    // Retour prédictif : le volet recule légèrement en suivant le geste.
+    val sc = 1f - 0.08f * backProgress()
+    scaleX = sc
+    scaleY = sc
+    transformOrigin = TransformOrigin(0.5f, 0f)
+}
+
+/** Portrait : une colonne (en-tête, tuiles, média et notifications, poignée). */
+@Composable
+private fun PortraitPanel(host: VoletHost, backProgress: () -> Float, topInset: Dp, connection: NestedScrollConnection) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .panelMotion(host, backProgress)
+            // Fenêtre non redimensionnée par le clavier (fitInsetsTypes = 0) : sans cette marge,
+            // le champ de réponse directe resterait caché sous le clavier.
+            .imePadding()
+            .padding(top = topInset + 6.dp, start = 12.dp, end = 12.dp, bottom = 12.dp)
+            .nestedScroll(connection),
+    ) {
+        // En-tête et tuiles : glisser déplie ou replie.
+        Column(
+            Modifier.draggable(
+                state = rememberDraggableState { host.dragBy(it) },
+                orientation = Orientation.Vertical,
+                onDragStopped = { v -> host.settle(v) },
+            ),
+        ) {
+            VoletHeader(host)
+            QuickSettingsSection(host, Modifier.fillMaxWidth())
+        }
+        Spacer(Modifier.height(10.dp))
+        NotificationsSection(
+            host = host,
+            modifier = Modifier.weight(1f, fill = false).fillMaxWidth(),
+            header = { MediaSection(host, Modifier.fillMaxWidth()) },
+        )
+        Handle(host)
+    }
+}
+
+/**
+ * Paysage : deux colonnes défilantes. À gauche l'en-tête compact, les tuiles (plus petites,
+ * plus nombreuses par rangée) et la luminosité ; à droite le média et les notifications.
+ * Le défilement des deux colonnes est relié au volet : tirer en haut déplie, pousser en bas referme.
+ */
+@Composable
+private fun LandscapePanel(host: VoletHost, backProgress: () -> Float, topInset: Dp, connection: NestedScrollConnection) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .panelMotion(host, backProgress)
+            .imePadding()
+            // Caméra et barre de navigation latérales en paysage.
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+            .padding(top = topInset + 4.dp, start = 12.dp, end = 12.dp, bottom = 2.dp)
+            .nestedScroll(connection),
+    ) {
+        Row(
+            Modifier.weight(1f, fill = false).fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Column(
+                Modifier
+                    .weight(VoletLayout.LANDSCAPE_LEFT_FRACTION)
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                VoletHeader(host, compact = true)
+                Spacer(Modifier.height(4.dp))
+                QuickSettingsSection(host, Modifier.fillMaxWidth(), VoletOrientation.LANDSCAPE)
+                Spacer(Modifier.height(4.dp))
+            }
+            Column(Modifier.weight(1f - VoletLayout.LANDSCAPE_LEFT_FRACTION)) {
+                NotificationsSection(
+                    host = host,
+                    modifier = Modifier.weight(1f, fill = false).fillMaxWidth(),
+                    header = { MediaSection(host, Modifier.fillMaxWidth()) },
+                )
+            }
+        }
+        Handle(host, height = 22.dp)
+    }
+}
+
 /** Poignée : glisser vers le haut pour fermer, toucher pour déplier ou replier. */
 @Composable
-private fun Handle(host: VoletHost) {
+private fun Handle(host: VoletHost, height: Dp = 28.dp) {
     Box(
         Modifier
             .fillMaxWidth()
-            .height(28.dp)
+            .height(height)
             .draggable(
                 state = rememberDraggableState { host.dragBy(it) },
                 orientation = Orientation.Vertical,

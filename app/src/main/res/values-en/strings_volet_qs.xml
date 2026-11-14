@@ -26,4 +26,11 @@
     <string name="volet_qs_available_none">All tiles are shown.</string>
     <string name="volet_qs_add_tile">Add %1$s</string>
     <string name="volet_qs_remove_tile">Remove %1$s</string>
+    <!-- Third-party app tiles -->
+    <string name="volet_qs_app_tile">App tile</string>
+    <string name="volet_qs_app_hint_short">Shizuku: toggle here</string>
+    <string name="volet_qs_apps_section">Apps</string>
+    <string name="volet_qs_apps_none">No installed app provides a tile.</string>
+    <string name="volet_qs_apps_hint_shizuku">Tapping toggles the tile through Shizuku. Long press: tile settings.</string>
+    <string name="volet_qs_apps_hint_no_shizuku">Without Shizuku, tapping opens the app or the tile settings. Use Shizuku to toggle directly.</string>
 </resources>
