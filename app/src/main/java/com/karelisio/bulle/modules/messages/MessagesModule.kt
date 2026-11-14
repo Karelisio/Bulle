@@ -116,8 +116,21 @@ object MessagesModule : IslandModule {
         }
 
         val newMessage = ctx.getString(R.string.messages_new)
-        combine(entries, prefs, lockedFlow(ctx), MessageInput.state) { list, s, locked, input ->
-            list.map { build(it, s, locked, input, newMessage) }
+        val km = ctx.getSystemService(KeyguardManager::class.java)
+        var lastLogged: String? = null
+        combine(entries, prefs, lockedFlow(ctx), MessageInput.state) { list, s, _, input ->
+            // État relu à chaque fois : un déverrouillage manqué (diffusion non reçue) ne doit pas
+            // laisser les messages masqués.
+            val locked = km?.isKeyguardLocked == true
+            list.map { build(it, s, locked, input, newMessage) }.also { built ->
+                built.lastOrNull()?.takeIf { it.key != lastLogged }?.let { c ->
+                    lastLogged = c.key
+                    com.karelisio.bulle.island.IslandLog.log(
+                        "Message ${c.info.packageName} : verrouillé=$locked, contenu=${s.showContent}, " +
+                            "texte=${c.info.messages.isNotEmpty()}",
+                    )
+                }
+            }
         }
             .transformLatest { list ->
                 // Retire les contenus expirés : leur clé disparaît, un message balayé pourra revenir.

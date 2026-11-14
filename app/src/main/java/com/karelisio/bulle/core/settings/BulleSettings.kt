@@ -70,6 +70,8 @@ enum class OpenDirection { CENTER, LEFT, RIGHT }
 data class VisibilitySettings(
     val hideInFullscreen: Boolean = true,
     val hideInLandscape: Boolean = true,
+    /** Mode paysage natif : en paysage, l'île reste active (même en plein écran), en haut au centre. */
+    val landscapeNative: Boolean = true,
     val hideOnLockscreen: Boolean = false,
     val hiddenApps: Set<String> = emptySet(),
     /** Applis où le plein écran ne masque jamais l'île (les autres conditions restent valables). */

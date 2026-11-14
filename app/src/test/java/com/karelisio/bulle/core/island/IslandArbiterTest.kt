@@ -79,7 +79,8 @@ class IslandArbiterTest {
         assertTrue(VisibilityPolicy.isVisible(s, ScreenEnv(), "com.app"))
         assertFalse(VisibilityPolicy.isVisible(s.copy(islandEnabled = false), ScreenEnv(), null))
         assertFalse(VisibilityPolicy.isVisible(s, ScreenEnv(statusBarVisible = false), null))
-        assertFalse(VisibilityPolicy.isVisible(s, ScreenEnv(landscape = true), null))
+        assertTrue(VisibilityPolicy.isVisible(s, ScreenEnv(landscape = true), null)) // mode paysage natif
+        assertFalse(VisibilityPolicy.isVisible(s.copy(visibility = VisibilitySettings(landscapeNative = false)), ScreenEnv(landscape = true), null))
         assertTrue(VisibilityPolicy.isVisible(s, ScreenEnv(locked = true), null))
         val hidden = s.copy(visibility = VisibilitySettings(hiddenApps = setOf("com.game"), hideOnLockscreen = true))
         assertFalse(VisibilityPolicy.isVisible(hidden, ScreenEnv(), "com.game"))
