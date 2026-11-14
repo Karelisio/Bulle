@@ -96,8 +96,8 @@ internal fun TileEditor(host: VoletHost, modifier: Modifier = Modifier) {
     // Recherche d'une tuile de la liste (système, ou appli déjà ajoutée / découverte).
     val savedApps = remember { QsTileRegistry.current(context, host.settings.tiles).filterIsInstance<AppTile>() }
     val lookup: (String) -> QsTile? = remember(apps) {
-        val byId = (savedApps + apps.orEmpty()).associateBy { it.id }
-        { id -> QsTileRegistry.get(id) ?: byId[id] }
+        val byId: Map<String, QsTile> = (savedApps + apps.orEmpty()).associateBy { it.id };
+        { id: String -> QsTileRegistry.get(id) ?: byId[id] }
     }
     val corner = host.settings.cornerRadiusDp.dp
 

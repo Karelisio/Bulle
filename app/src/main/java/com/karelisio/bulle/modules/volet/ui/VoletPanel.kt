@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +80,11 @@ fun VoletPanel(host: VoletController) {
 
 /** Contenu du volet (hôte abstrait : rendu testable). [backProgress] : avancée du retour prédictif. */
 @Composable
-internal fun VoletPanelContent(host: VoletHost, backProgress: () -> Float) {
+internal fun VoletPanelContent(
+    host: VoletHost,
+    backProgress: () -> Float,
+    onOrientation: (VoletOrientation) -> Unit = {},
+) {
     run {
         val context = LocalContext.current
         val density = LocalDensity.current
@@ -104,6 +109,7 @@ internal fun VoletPanelContent(host: VoletHost, backProgress: () -> Float) {
             )
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val orientation = VoletLayout.orientation(maxWidth.value, maxHeight.value)
+                SideEffect { onOrientation(orientation) }
                 // Barre d'état relue à chaque rotation (sa hauteur change avec l'orientation).
                 val topInset = remember(orientation) {
                     with(density) { CutoutLocator.screenInfo(context).statusBarHeight.toDp() }
