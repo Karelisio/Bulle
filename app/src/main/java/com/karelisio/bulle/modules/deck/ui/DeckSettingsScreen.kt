@@ -254,7 +254,7 @@ internal fun DeckTabScreenContent(
     val listState = rememberLazyListState()
     val reorder = rememberDeckReorderState(listState)
     val reduceMotion = rememberReduceMotion()
-    LaunchedEffect(tab.favorites, tab.widgets) { reorder.clearPending() }
+    LaunchedEffect(tab.favorites, tab.widgets, tab.shortcuts) { reorder.clearPending() }
     fun drop(section: DeckSection, order: List<String>) = update { it.withOrder(tabId, section, order) }
 
     // Configuration du widget si nécessaire (via l'hôte), sinon ajout direct.
@@ -369,14 +369,18 @@ internal fun DeckTabScreenContent(
             }
             // Raccourcis
             item { SectionHeader(stringResource(R.string.deck_shortcuts)) { sheet = TabSheet.SHORTCUT } }
-            items(tab.shortcuts.withIndex().toList(), key = { "s${it.index}${it.value}" }) { (i, action) ->
-                SwipeRow(Modifier.animateItem(), onDelete = { edit { t -> t.copy(shortcuts = t.shortcuts.filterIndexed { j, _ -> j != i }) } }) {
-                    ListItem(
-                        headlineContent = { Text(action.label()) },
-                        leadingContent = { Icon(action.type.icon(), contentDescription = null) },
-                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-                    )
-                }
+            val shortcuts = reorder.displayed(DeckSection.SHORTCUTS, tab.shortcuts.indices.map { it.toString() })
+            itemsIndexed(shortcuts, key = { _, id -> "s$id" }) { i, key ->
+                val original = key.toInt()
+                val action = tab.shortcuts.getOrNull(original) ?: return@itemsIndexed
+                ReorderRow(
+                    reorder, DeckSection.SHORTCUTS, "s", shortcuts, key, i, haptics, reduceMotion,
+                    onMove = { from, to -> update { it.reorder(tabId, DeckSection.SHORTCUTS, from, to) } },
+                    onDrop = ::drop,
+                    onDelete = { edit { t -> t.copy(shortcuts = t.shortcuts.filterIndexed { j, _ -> j != original }) } },
+                    headline = action.label(),
+                    leading = { Icon(action.type.icon(), contentDescription = null) },
+                )
             }
             // Widgets
             item { SectionHeader(stringResource(R.string.deck_widgets)) { sheet = TabSheet.WIDGET } }

@@ -27,7 +27,7 @@ data class DeckSettings(
 )
 
 /** Listes réordonnables d'un onglet (l'ordre des identifiants est l'ordre d'affichage). */
-enum class DeckSection { FAVORITES, WIDGETS }
+enum class DeckSection { FAVORITES, WIDGETS, SHORTCUTS }
 
 /**
  * Déplace l'élément en position [from] vers la position [to] (fonction pure).
@@ -48,6 +48,7 @@ fun DeckSettings.reorder(tabId: String, section: DeckSection, from: Int, to: Int
             else when (section) {
                 DeckSection.FAVORITES -> tab.copy(favorites = tab.favorites.moved(from, to))
                 DeckSection.WIDGETS -> tab.copy(widgets = tab.widgets.moved(from, to))
+                DeckSection.SHORTCUTS -> tab.copy(shortcuts = tab.shortcuts.moved(from, to))
             }
         },
     )
@@ -66,6 +67,13 @@ fun DeckSettings.withOrder(tabId: String, section: DeckSection, order: List<Stri
                 DeckSection.WIDGETS -> {
                     val ids = order.mapNotNull { it.toIntOrNull() }
                     if (ids.size == order.size && ids.sorted() == tab.widgets.sorted()) tab.copy(widgets = ids) else tab
+                }
+                // Raccourcis : identifiés par leur position (deux raccourcis peuvent être identiques).
+                DeckSection.SHORTCUTS -> {
+                    val idx = order.mapNotNull { it.toIntOrNull() }
+                    if (idx.size == order.size && idx.sorted() == tab.shortcuts.indices.toList()) {
+                        tab.copy(shortcuts = idx.map { tab.shortcuts[it] })
+                    } else tab
                 }
             }
         },

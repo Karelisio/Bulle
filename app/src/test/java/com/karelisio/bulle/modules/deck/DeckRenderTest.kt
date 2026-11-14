@@ -150,7 +150,7 @@ class DeckRenderTest {
     @Test
     fun tabScreenReordersWithAccessibilityActions() {
         var deck = DeckSettings(
-            tabs = listOf(DeckTab(id = "main", favorites = listOf("com.a/.Main", "com.b/.Main", "com.c/.Main"))),
+            tabs = listOf(DeckTab(id = "main", favorites = listOf("com.a/.Main", "com.b/.Main", "com.c/.Main"), shortcuts = emptyList())),
         )
         val activity = launch()
         activity.setContent {

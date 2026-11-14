@@ -238,7 +238,21 @@ class IslandController(
     }
 
     /** Exécute une action (gestes, règles automatiques, Deck). */
-    override fun runAction(action: GestureAction) = executor.run(action)
+    /**
+     * Action lancée depuis le Deck ou un panneau. Celles qui ouvrent un autre écran (caméra QR,
+     * appli, réglages, enregistrement…) referment d'abord l'île pour ne pas rester devant ; une
+     * capture d'écran attend la fin de la fermeture pour ne pas photographier le Deck.
+     */
+    override fun runAction(action: GestureAction) {
+        if (!ActionExecutor.leavesIsland(action.type)) return executor.run(action)
+        closePanel()
+        collapse()
+        if (action.type == ActionType.SCREENSHOT) {
+            scope.launch { kotlinx.coroutines.delay(450); executor.run(action) }
+        } else {
+            executor.run(action)
+        }
+    }
 
     fun toggleExpand() {
         val st = state.value

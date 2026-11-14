@@ -69,4 +69,16 @@ class DeckReorderTest {
         val back = BulleJson.decodeFromString(BulleSettings.serializer(), """{"deck":{"tabs":[{"id":"main"}]}}""")
         assertTrue(back.deck.searchBar)
     }
+
+    @Test
+    fun shortcutsReorderByPosition() {
+        val a = com.karelisio.bulle.core.actions.GestureAction(com.karelisio.bulle.core.actions.ActionType.TORCH)
+        val b = com.karelisio.bulle.core.actions.GestureAction(com.karelisio.bulle.core.actions.ActionType.WIFI)
+        val deck = DeckSettings(tabs = listOf(DeckTab(id = "main", shortcuts = listOf(a, b, a))))
+        assertEquals(listOf(b, a, a), deck.reorder("main", DeckSection.SHORTCUTS, 1, 0).tabs[0].shortcuts)
+        assertEquals(listOf(a, a, b), deck.withOrder("main", DeckSection.SHORTCUTS, listOf("0", "2", "1")).tabs[0].shortcuts)
+        // Ordre incomplet : ignoré.
+        assertEquals(deck, deck.withOrder("main", DeckSection.SHORTCUTS, listOf("0", "1")))
+    }
+
 }

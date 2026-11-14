@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.4
+- Deck : les outils qui ouvrent un autre écran (scanner QR, enregistreur, mémo, applis, réglages, capture d'écran…) referment d'abord le Deck ; les réglages instantanés (lampe, volume, média…) le laissent ouvert.
+- Deck : les raccourcis se réordonnent aussi en glissant (appui long sur la poignée, ou « Monter / Descendre » avec TalkBack), comme les favoris et les widgets.
+
 ## 0.8.3
 - Volet : correction du plantage à l'ouverture (animation lancée sans horloge d'images).
 - Karaoké : après l'affichage des paroles, Bulle cherche en arrière-plan une version synchronisée mot à mot sur LRCLIB ; si elle existe, elle remplace l'estimation (aucune attente en plus, gardée en cache).
