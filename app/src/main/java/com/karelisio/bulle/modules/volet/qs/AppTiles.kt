@@ -88,6 +88,11 @@ object AppTiles {
      * Tuiles des applis installées. La visibilité des paquets est assurée par QUERY_ALL_PACKAGES
      * (déjà déclarée) : aucune balise <queries> supplémentaire n'est nécessaire.
      */
+    /** Dernière recherche : (services trouvés, tuiles retenues) — affiché si la liste est vide. */
+    @Volatile
+    var lastScan: Pair<Int, Int>? = null
+        private set
+
     fun discover(context: Context): List<AppTile> = runCatching {
         val pm = context.packageManager
         val intent = Intent(TileService.ACTION_QS_TILE)
@@ -97,9 +102,12 @@ object AppTiles {
             @Suppress("DEPRECATION")
             pm.queryIntentServices(intent, 0)
         }
-        filter(resolved.mapNotNull { it.serviceInfo }, context.packageName) { si ->
+        val kept = filter(resolved.mapNotNull { it.serviceInfo }, context.packageName) { si ->
             runCatching { si.loadLabel(pm).toString() }.getOrDefault(si.name)
-        }.map { si ->
+        }
+        lastScan = resolved.size to kept.size
+        com.karelisio.bulle.island.IslandLog.log("Tuiles d'applis : ${resolved.size} services trouvés, ${kept.size} retenus")
+        kept.map { si ->
             val appName = runCatching { si.applicationInfo.loadLabel(pm).toString() }.getOrDefault(si.packageName)
             val label = runCatching { si.loadLabel(pm).toString() }.getOrDefault(appName)
             AppTile(ComponentName(si.packageName, si.name), label.ifBlank { appName }, appName, si.icon != 0)
@@ -116,7 +124,9 @@ object AppTiles {
         services
             .asSequence()
             .filter { it.packageName != selfPackage }
-            .filter { it.enabled && it.exported && it.applicationInfo?.enabled != false }
+            // « enabled » du manifeste ignoré : queryIntentServices exclut déjà les composants
+            // désactivés, et une appli peut activer sa tuile à l'exécution.
+            .filter { it.exported && it.applicationInfo?.enabled != false }
             .filter { it.permission == BIND_PERMISSION }
             .filter { NAME.matches(it.packageName) && NAME.matches(it.name) }
             .distinctBy { it.packageName + "/" + it.name }

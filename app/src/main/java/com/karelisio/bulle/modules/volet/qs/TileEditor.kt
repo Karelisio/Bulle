@@ -182,9 +182,20 @@ private fun AppTilesSection(apps: List<AppTile>?, available: List<AppTile>, corn
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Spacer(Modifier.height(8.dp))
-    if (apps != null && available.isEmpty()) {
+    if (apps == null) {
         Text(
-            stringResource(if (apps.isEmpty()) R.string.volet_qs_apps_none else R.string.volet_qs_available_none),
+            stringResource(R.string.volet_qs_apps_searching),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    if (apps != null && available.isEmpty()) {
+        val scan = AppTiles.lastScan
+        Text(
+            if (apps.isEmpty()) {
+                stringResource(R.string.volet_qs_apps_none) +
+                    (scan?.let { " " + stringResource(R.string.volet_qs_apps_scan, it.first, it.second) } ?: "")
+            } else stringResource(R.string.volet_qs_available_none),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

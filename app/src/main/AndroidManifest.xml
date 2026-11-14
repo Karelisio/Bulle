@@ -99,6 +99,11 @@
 
     <!-- Applis lançables et raccourcis d'applis (gestes, recherche, Deck) -->
     <queries>
+        <!-- Tuiles Réglages rapides des applis (Volet) : découverte des TileService, au cas où
+             QUERY_ALL_PACKAGES serait restreinte par le système (MagicOS). -->
+        <intent>
+            <action android:name="android.service.quicksettings.action.QS_TILE" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

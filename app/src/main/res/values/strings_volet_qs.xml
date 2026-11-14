@@ -33,4 +33,6 @@
     <string name="volet_qs_apps_none">Aucune appli installée ne propose de tuile.</string>
     <string name="volet_qs_apps_hint_shizuku">Toucher bascule la tuile via Shizuku. Appui long : réglages de la tuile.</string>
     <string name="volet_qs_apps_hint_no_shizuku">Sans Shizuku, toucher ouvre l\'appli ou les réglages de la tuile. Shizuku pour activer directement.</string>
+    <string name="volet_qs_apps_searching">Recherche des tuiles des applis…</string>
+    <string name="volet_qs_apps_scan">(%1$d services trouvés, %2$d retenus)</string>
 </resources>
