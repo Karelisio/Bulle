@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.2
+- Diagnostic : en cas de plantage, la trace de l'erreur est gardée sur le téléphone (jamais envoyée) et apparaît au redémarrage dans Réglages › Fiabilité › Journal de l'île (bouton Copier).
+- Volet : test d'ouverture complet ajouté (fenêtre, demi-ouverture, ouverture complète, fermeture).
+
 ## 0.8.1
 - Mise en veille : le Deck, les panneaux et les bulles dépliées se referment quand l'écran s'éteint.
 - Paysage : nouveau mode paysage natif (activé par défaut) — la bulle reste active en haut au centre, même en plein écran (vidéo, jeu). Réglable dans Masquage.
