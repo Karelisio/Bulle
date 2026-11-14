@@ -16,6 +16,10 @@ enum class VoletZones {
 @Serializable
 enum class VoletDensity { COMFORTABLE, COMPACT }
 
+/** Taille des cartes de notification et de la carte média. */
+@Serializable
+enum class VoletCardDensity { COMPACT, NORMAL, AIRY }
+
 /** Réglages du module Volet (volet de notifications et réglages rapides). */
 @Serializable
 data class VoletSettings(
@@ -40,4 +44,17 @@ data class VoletSettings(
     val tiles: List<String> = emptyList(),
     /** Nombre de tuiles visibles volet à demi ouvert (4 – 6). */
     val collapsedTileCount: Int = 6,
-)
+    /**
+     * Densité des cartes (notifications, média, en-têtes de section). Null = suit [density]
+     * (réglages enregistrés avant l'ajout de ce choix : rendu inchangé).
+     */
+    val cardDensity: VoletCardDensity? = null,
+    /** Taille du texte des cartes (0,8 – 1,2). */
+    val cardTextScale: Float = 1f,
+    /** Lignes de texte d'une notification repliée (1 – 4). */
+    val cardCollapsedLines: Int = 2,
+) {
+    /** Densité effective des cartes. */
+    val effectiveCardDensity: VoletCardDensity
+        get() = cardDensity ?: if (density == VoletDensity.COMPACT) VoletCardDensity.COMPACT else VoletCardDensity.NORMAL
+}

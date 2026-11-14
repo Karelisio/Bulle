@@ -11,11 +11,13 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.widget.RemoteViews
+import androidx.compose.runtime.Immutable
 
 /** Section du volet, dans l'ordre d'affichage (comme Android stock). */
 enum class NotifSection { CONVERSATIONS, ALERTING, SILENT }
 
 /** Classement système réduit à ce qui sert au volet (testable sans Ranking). */
+@Immutable
 data class RankInfo(
     val rank: Int = -1,
     val importance: Int = NotificationManager.IMPORTANCE_DEFAULT,
@@ -51,6 +53,7 @@ data class NotifInput(
 )
 
 /** Message d'une conversation (MessagingStyle). */
+@Immutable
 data class NotifMessage(
     val sender: CharSequence?,
     val text: CharSequence,
@@ -60,11 +63,13 @@ data class NotifMessage(
     val fromSelf: Boolean,
 )
 
+@Immutable
 data class NotifProgress(val max: Int, val current: Int, val indeterminate: Boolean) {
     val fraction: Float get() = if (max > 0) (current.toFloat() / max).coerceIn(0f, 1f) else 0f
 }
 
 /** Bouton d'action ; [remoteInput] non nul = réponse directe. */
+@Immutable
 data class NotifAction(
     val index: Int,
     val title: CharSequence,
@@ -74,7 +79,8 @@ data class NotifAction(
     val choices: List<CharSequence>,
 )
 
-/** Notification reconstruite, immuable, prête à afficher. */
+/** Notification reconstruite, immuable, prête à afficher (@Immutable : les cartes inchangées ne se recomposent pas). */
+@Immutable
 data class NotifItem(
     val key: String,
     val packageName: String,
@@ -122,6 +128,7 @@ data class NotifItem(
 }
 
 /** Groupe affiché : une carte simple (1 élément) ou une pile repliable. */
+@Immutable
 data class NotifGroup(
     val id: String,
     val packageName: String,
@@ -134,8 +141,10 @@ data class NotifGroup(
     val clearable: Boolean get() = items.any { it.clearable }
 }
 
+@Immutable
 data class NotifSectionModel(val section: NotifSection, val groups: List<NotifGroup>)
 
+@Immutable
 data class NotifListModel(val sections: List<NotifSectionModel>) {
     val isEmpty: Boolean get() = sections.isEmpty()
     val allItems: List<NotifItem> get() = sections.flatMap { s -> s.groups.flatMap { it.items } }

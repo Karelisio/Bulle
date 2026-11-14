@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -104,6 +105,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import android.util.LruCache
 import com.karelisio.bulle.R
 import com.karelisio.bulle.modules.volet.VoletHost
 import com.karelisio.bulle.notifications.NotificationIcons
@@ -114,9 +116,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.sign
-
-/** Dimensions selon la densité du volet. */
-internal data class NotifDims(val pad: Dp, val gap: Dp, val badge: Dp, val corner: Dp, val compact: Boolean)
 
 private val Spring1 = spring<Float>(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow)
 
@@ -133,10 +132,12 @@ internal fun NotifGroupCard(
     focusKey: String?,
     clearing: Boolean,
     modifier: Modifier = Modifier,
+    clearDelayMs: Long = 0L,
+    onDismissKeys: (List<String>) -> Unit = { keys -> keys.forEach(NotifCommands::cancel) },
 ) {
     if (group.items.size == 1) {
         val item = group.lead
-        SwipeToDismiss(item.clearable, clearing && item.clearable, onDismiss = { dismissItem(group, item) }, modifier) {
+        SwipeToDismiss(item.clearable, clearing && item.clearable, onDismiss = { onDismissKeys(NotifDismiss.itemKeys(group, item)) }, modifier, clearDelayMs) {
             NotifCard(item, host, dims, focused = item.key == focusKey, initiallyExpanded = item.key == focusKey)
         }
         return
@@ -145,8 +146,9 @@ internal fun NotifGroupCard(
     SwipeToDismiss(
         enabled = !expanded && group.clearable,
         clearing = clearing && group.clearable,
-        onDismiss = { NotifDismiss.groupKeys(group).forEach(NotifCommands::cancel) },
+        onDismiss = { onDismissKeys(NotifDismiss.groupKeys(group)) },
         modifier = modifier,
+        clearDelayMs = clearDelayMs,
     ) {
         Surface(
             shape = shape,
@@ -170,7 +172,7 @@ internal fun NotifGroupCard(
                         ) {
                             group.items.forEach { item ->
                                 androidx.compose.runtime.key(item.key) {
-                                    SwipeToDismiss(item.clearable, false, onDismiss = { dismissItem(group, item) }) {
+                                    SwipeToDismiss(item.clearable, false, onDismiss = { onDismissKeys(NotifDismiss.itemKeys(group, item)) }) {
                                         NotifCard(item, host, dims, focused = item.key == focusKey, initiallyExpanded = item.key == focusKey, nested = true)
                                     }
                                 }
@@ -185,7 +187,7 @@ internal fun NotifGroupCard(
                                     stringResource(R.string.notif_more, group.items.size - 3),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(start = dims.pad + dims.badge + 12.dp, bottom = dims.pad),
+                                    modifier = Modifier.padding(start = dims.pad + dims.badge + dims.iconGap, bottom = dims.pad),
                                 )
                             } else {
                                 Spacer(Modifier.size(dims.pad / 2))
@@ -196,11 +198,6 @@ internal fun NotifGroupCard(
             }
         }
     }
-}
-
-private fun dismissItem(group: NotifGroup, item: NotifItem) {
-    // Dernier enfant effacé : le résumé part avec lui.
-    NotifDismiss.itemKeys(group, item).forEach(NotifCommands::cancel)
 }
 
 @Composable
@@ -241,7 +238,7 @@ private fun GroupHeader(group: NotifGroup, dims: NotifDims, expanded: Boolean, o
 
 @Composable
 private fun PreviewLine(item: NotifItem, dims: NotifDims) {
-    Row(Modifier.padding(start = dims.pad + dims.badge + 12.dp, end = dims.pad, bottom = 4.dp)) {
+    Row(Modifier.padding(start = dims.pad + dims.badge + dims.iconGap, end = dims.pad, bottom = if (dims.compact) 2.dp else 4.dp)) {
         Text(
             item.title?.toString() ?: item.appName,
             style = MaterialTheme.typography.bodyMedium,
@@ -369,34 +366,44 @@ private fun NotifBody(
     val muted = item.persistent
     val pad = if (muted) dims.pad * 0.75f else dims.pad
     val textAlpha = if (muted) 0.78f else 1f
-    Column(Modifier.padding(horizontal = pad, vertical = pad * 0.85f)) {
+    val title = item.title?.takeIf { it.isNotBlank() }
+    // Conversation, ou densité compacte : titre, appli et heure sur une seule ligne.
+    val inlineTitle = title != null && (item.isMessaging || dims.compact)
+    Column(Modifier.padding(horizontal = pad, vertical = pad * if (dims.compact) 0.7f else 0.85f)) {
         Row(verticalAlignment = Alignment.Top) {
             if (showApp) {
-                AppBadge(item, if (muted) dims.badge * 0.8f else dims.badge)
-                Spacer(Modifier.width(12.dp))
+                val badge = if (muted) dims.badge * 0.8f else dims.badge
+                // Conversation : un seul visuel, l'avatar de la personne avec la pastille de l'appli.
+                if (item.isMessaging) ConversationAvatar(item, badge) else AppBadge(item, badge)
+                Spacer(Modifier.width(dims.iconGap))
             }
             Column(Modifier.weight(1f).graphicsLayer { alpha = textAlpha }) {
-                MetaLine(item, showApp, expanded, onToggle)
-                item.title?.takeIf { it.isNotBlank() }?.let {
-                    Text(
-                        it.toString(),
-                        style = if (muted) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = scheme.onSurface,
-                        maxLines = if (expanded) 3 else 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                if (inlineTitle) {
+                    TitleLine(item, title!!, showApp, expanded, onToggle, dims, muted)
+                } else {
+                    MetaLine(item, showApp, expanded, onToggle)
+                    title?.let {
+                        Text(
+                            it.toString(),
+                            style = if (muted) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = scheme.onSurface,
+                            maxLines = if (expanded) 3 else 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
+                val collapsedLines = if (muted) 1 else dims.collapsedLines
                 when {
-                    item.redacted -> BodyText(stringResource(R.string.notif_hidden), 1)
-                    item.customView != null -> CustomContent(item.customView, item)
-                    item.isMessaging -> Messages(item, expanded)
+                    item.redacted -> BodyText(stringResource(R.string.notif_hidden), 1, dims)
+                    item.customView != null -> CustomContent(item.customView, item, dims)
+                    item.isMessaging -> Messages(item, expanded, dims)
                     else -> {
                         val body = if (expanded) item.bigText ?: item.text else item.text
-                        body?.takeIf { it.isNotBlank() }?.let { BodyText(it.toString(), if (expanded) 12 else if (muted) 1 else 2) }
+                        body?.takeIf { it.isNotBlank() }?.let { BodyText(it.toString(), if (expanded) 12 else collapsedLines, dims) }
                         if (expanded && item.lines.isNotEmpty()) {
                             Spacer(Modifier.size(4.dp))
-                            item.lines.take(7).forEach { BodyText(it.toString(), 1) }
+                            item.lines.take(7).forEach { BodyText(it.toString(), 1, dims) }
                         }
                     }
                 }
@@ -410,8 +417,8 @@ private fun NotifBody(
                 }
             }
             if (!item.isMessaging && item.largeIcon != null && !item.redacted) {
-                Spacer(Modifier.width(12.dp))
-                IconImage(item.largeIcon, 44.dp, Modifier.clip(RoundedCornerShape(12.dp)))
+                Spacer(Modifier.width(dims.iconGap))
+                IconImage(item.largeIcon, dims.largeIcon, Modifier.clip(RoundedCornerShape(if (dims.compact) 8.dp else 12.dp)))
             }
         }
         if (expanded && item.picture != null) {
@@ -454,32 +461,75 @@ private fun MetaLine(item: NotifItem, showApp: Boolean, expanded: Boolean, onTog
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
-        if (item.expandable && showApp) {
-            val rotation by animateFloatAsState(if (expanded) 180f else 0f, Spring1, label = "chevron")
-            Box(
-                Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .background(scheme.surfaceContainerHighest)
-                    .clickable(onClick = onToggle),
-                contentAlignment = Alignment.Center,
-            ) {
-                M3Icon(
-                    Icons.Rounded.ExpandMore,
-                    contentDescription = stringResource(if (expanded) R.string.notif_collapse else R.string.notif_expand),
-                    tint = scheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp).graphicsLayer { rotationZ = rotation },
-                )
-            }
+        if (item.expandable && showApp) Chevron(expanded, onToggle, 28.dp)
+    }
+}
+
+/** Titre (nom), puis appli et heure sur la même ligne, et le chevron. */
+@Composable
+private fun TitleLine(
+    item: NotifItem,
+    title: CharSequence,
+    showApp: Boolean,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    dims: NotifDims,
+    muted: Boolean,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val time = if (item.showTime) relativeTimeLabel(item.time) else null
+    val parts = listOfNotNull(item.appName.takeIf { showApp }, time)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            title.toString(),
+            style = if (dims.compact || muted) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = scheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+        if (parts.isNotEmpty()) {
+            Text(
+                parts.joinToString(" · ", prefix = " · "),
+                style = MaterialTheme.typography.labelMedium,
+                color = scheme.onSurfaceVariant,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
+        Spacer(Modifier.weight(0.001f))
+        if (item.expandable && showApp) Chevron(expanded, onToggle, if (dims.compact) 24.dp else 28.dp)
     }
 }
 
 @Composable
-private fun BodyText(text: String, maxLines: Int) {
+private fun Chevron(expanded: Boolean, onToggle: () -> Unit, size: Dp) {
+    val scheme = MaterialTheme.colorScheme
+    val rotation by animateFloatAsState(if (expanded) 180f else 0f, Spring1, label = "chevron")
+    Box(
+        Modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(scheme.surfaceContainerHighest)
+            .clickable(onClick = onToggle),
+        contentAlignment = Alignment.Center,
+    ) {
+        M3Icon(
+            Icons.Rounded.ExpandMore,
+            contentDescription = stringResource(if (expanded) R.string.notif_collapse else R.string.notif_expand),
+            tint = scheme.onSurfaceVariant,
+            modifier = Modifier.size(size * 0.72f).graphicsLayer { rotationZ = rotation },
+        )
+    }
+}
+
+@Composable
+private fun BodyText(text: String, maxLines: Int, dims: NotifDims) {
     Text(
         text,
-        style = MaterialTheme.typography.bodyMedium,
+        style = if (dims.compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
@@ -499,28 +549,103 @@ private fun relativeTimeLabel(time: Long): String {
 
 // --- Conversation ---
 
+/** Rendu des messages d'une conversation dans le volet (règles pures, testées). */
+internal object ConversationLayout {
+    /** Plusieurs expéditeurs (hors soi) : noms et petits avatars par message. */
+    fun showSenders(item: NotifItem): Boolean =
+        item.messages.filter { !it.fromSelf }.mapNotNull { it.sender?.toString() }.distinct().size > 1
+
+    /** Visuel de tête : avatar du groupe (grande icône) ou de la personne qui écrit, sinon initiales. */
+    fun headIcon(item: NotifItem): Icon? =
+        item.largeIcon ?: item.messages.lastOrNull { !it.fromSelf && it.avatar != null }?.avatar
+
+    fun headName(item: NotifItem): CharSequence? =
+        item.conversationTitle ?: item.title ?: item.messages.lastOrNull { !it.fromSelf }?.sender
+}
+
 @Composable
-private fun Messages(item: NotifItem, expanded: Boolean) {
+private fun Messages(item: NotifItem, expanded: Boolean, dims: NotifDims) {
     val shown = if (expanded) item.messages.takeLast(5) else item.messages.takeLast(1)
-    val showNames = item.isGroupConversation || item.messages.mapNotNull { it.sender?.toString() }.distinct().size > 1
-    Column(Modifier.padding(top = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        shown.forEach { m -> MessageBubble(m, showNames, expanded) }
+    // 1-à-1 : aucun avatar à côté des bulles (celui de la personne est en tête de carte).
+    val senders = ConversationLayout.showSenders(item)
+    Column(
+        Modifier.padding(top = if (dims.compact) 2.dp else 4.dp),
+        verticalArrangement = Arrangement.spacedBy(if (dims.compact) 2.dp else 4.dp),
+    ) {
+        shown.forEach { m ->
+            MessageBubble(
+                m,
+                showName = senders,
+                expanded = expanded,
+                showAvatar = senders,
+                avatarSize = 20.dp,
+                plain = dims.compact,
+                collapsedLines = dims.collapsedLines,
+            )
+        }
     }
 }
 
-/** Bulle d'un message (réutilisée par le module Messages de l'île). */
+/** Avatar de la personne (ou du groupe) avec la pastille de l'appli en surimpression, comme Android. */
 @Composable
-internal fun MessageBubble(m: NotifMessage, showName: Boolean, expanded: Boolean) {
+private fun ConversationAvatar(item: NotifItem, size: Dp) {
+    val scheme = MaterialTheme.colorScheme
+    Box(Modifier.size(size)) {
+        Avatar(ConversationLayout.headName(item), ConversationLayout.headIcon(item), size)
+        Box(
+            Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = 3.dp, y = 3.dp)
+                .size(size * 0.46f)
+                .clip(CircleShape)
+                .background(scheme.surfaceContainer)
+                .padding(1.5.dp),
+        ) {
+            AppBadge(item, size * 0.46f - 3.dp)
+        }
+    }
+}
+
+/**
+ * Bulle d'un message (réutilisée par le module Messages de l'île, rendu par défaut inchangé).
+ * [showAvatar] : avatar à côté des messages reçus ; [plain] : texte simple sans bulle (densité compacte).
+ */
+@Composable
+internal fun MessageBubble(
+    m: NotifMessage,
+    showName: Boolean,
+    expanded: Boolean,
+    showAvatar: Boolean = true,
+    avatarSize: Dp = 26.dp,
+    plain: Boolean = false,
+    collapsedLines: Int = 2,
+) {
     val scheme = MaterialTheme.colorScheme
     val self = m.fromSelf
+    if (plain) {
+        // Densité compacte : « Nom : message » (ou « Vous : … »), sans bulle ni avatar.
+        val prefix = when {
+            self -> stringResource(R.string.notif_you) + " : "
+            showName && m.sender != null -> "${m.sender} : "
+            else -> ""
+        }
+        Text(
+            prefix + m.text,
+            style = MaterialTheme.typography.bodySmall,
+            color = if (self) scheme.onSurfaceVariant else scheme.onSurface,
+            maxLines = if (expanded) 6 else collapsedLines,
+            overflow = TextOverflow.Ellipsis,
+        )
+        return
+    }
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = if (self) Arrangement.End else Arrangement.Start,
         verticalAlignment = Alignment.Bottom,
     ) {
-        if (!self) {
-            Avatar(m.sender, m.avatar, 26.dp)
-            Spacer(Modifier.width(8.dp))
+        if (!self && showAvatar) {
+            Avatar(m.sender, m.avatar, avatarSize)
+            Spacer(Modifier.width(if (avatarSize < 24.dp) 6.dp else 8.dp))
         }
         Column(horizontalAlignment = if (self) Alignment.End else Alignment.Start, modifier = Modifier.weight(1f, fill = false)) {
             if (showName && !self) {
@@ -539,7 +664,7 @@ internal fun MessageBubble(m: NotifMessage, showName: Boolean, expanded: Boolean
                     m.text.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (self) scheme.onPrimaryContainer else scheme.onSurface,
-                    maxLines = if (expanded) 6 else 2,
+                    maxLines = if (expanded) 6 else collapsedLines,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
                 )
@@ -735,7 +860,7 @@ private fun MenuRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label
 // --- Vues personnalisées (RemoteViews) ---
 
 @Composable
-private fun CustomContent(views: RemoteViews, item: NotifItem) {
+private fun CustomContent(views: RemoteViews, item: NotifItem, dims: NotifDims) {
     val context = LocalContext.current
     // Application de la vue de l'appli ; en cas d'échec, repli sur le texte.
     val frame = remember(views) {
@@ -746,7 +871,7 @@ private fun CustomContent(views: RemoteViews, item: NotifItem) {
     if (frame != null) {
         AndroidView(factory = { frame }, modifier = Modifier.fillMaxWidth().padding(top = 4.dp).heightIn(max = 260.dp))
     } else {
-        BodyText(item.text?.toString() ?: item.appName, 2)
+        BodyText(item.text?.toString() ?: item.appName, dims.collapsedLines, dims)
     }
 }
 
@@ -782,12 +907,38 @@ private fun IconImage(icon: Icon, size: Dp?, modifier: Modifier, scale: ContentS
     Image(bitmap, null, if (size != null) modifier.size(size) else modifier, contentScale = scale)
 }
 
+/**
+ * Icônes déjà décodées, par instance d'Icon (même notification = même instance) et taille :
+ * à la réouverture du volet elles s'affichent dès la première image, sans décodage.
+ */
+private object DecodedIcons {
+    private data class Key(val icon: Icon, val px: Int)
+
+    private val cache = object : LruCache<Key, ImageBitmap>(12 * 1024 * 1024) {
+        override fun sizeOf(key: Key, value: ImageBitmap) = (value.width * value.height * 4).coerceAtLeast(1)
+    }
+
+    fun get(icon: Icon, px: Int): ImageBitmap? = cache.get(Key(icon, px))
+    fun put(icon: Icon, px: Int, bitmap: ImageBitmap) {
+        cache.put(Key(icon, px), bitmap)
+    }
+}
+
 @Composable
 private fun rememberIconBitmap(icon: Icon?, size: Dp): ImageBitmap? {
     val context = LocalContext.current
     val px = with(LocalDensity.current) { size.roundToPx() }
-    val state = produceState<ImageBitmap?>(null, icon, px) {
-        value = if (icon == null) null else withContext(Dispatchers.IO) { NotificationIcons.load(context, icon, px) }
+    val state = produceState(icon?.let { DecodedIcons.get(it, px) }, icon, px) {
+        if (icon == null) {
+            value = null
+            return@produceState
+        }
+        DecodedIcons.get(icon, px)?.let {
+            value = it
+            return@produceState
+        }
+        // Décodage hors du fil principal (pas de travail lourd pendant l'animation d'ouverture).
+        value = withContext(Dispatchers.IO) { NotificationIcons.load(context, icon, px) }?.also { DecodedIcons.put(icon, px, it) }
     }
     return state.value
 }
@@ -801,6 +952,7 @@ internal fun SwipeToDismiss(
     clearing: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    clearDelayMs: Long = 0L,
     content: @Composable () -> Unit,
 ) {
     val offset = remember { Animatable(0f) }
@@ -811,17 +963,18 @@ internal fun SwipeToDismiss(
     var gone by remember { mutableStateOf(false) }
     val dismissLabel = stringResource(R.string.notif_dismiss)
 
-    // « Tout effacer » : la carte s'en va vers la droite.
+    // « Tout effacer » : la carte s'en va vers la droite, en cascade (la liste la retire ensuite).
     LaunchedEffect(clearing) {
         if (clearing && !gone) {
+            if (!reduce) delay(clearDelayMs)
             gone = true
-            if (!reduce) offset.animateTo(width * 1.1f, spring(stiffness = Spring.StiffnessMediumLow))
+            if (!reduce) offset.animateTo(width * 1.1f, spring(stiffness = Spring.StiffnessMedium))
         }
     }
-    // Toujours là après l'effacement (listener absent, refus) : la carte revient.
+    // Toujours affichée après le délai de restauration (refus du système) : la carte revient.
     LaunchedEffect(gone) {
         if (!gone) return@LaunchedEffect
-        delay(1500)
+        delay(NotifOptimistic.TIMEOUT_MS + 300L)
         gone = false
         offset.animateTo(0f, spring(dampingRatio = 0.7f, stiffness = Spring.StiffnessMediumLow))
     }
@@ -843,8 +996,24 @@ internal fun SwipeToDismiss(
                         gone = true
                         haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         val target = sign(offset.value).takeIf { it != 0f }?.times(width * 1.1f) ?: width
-                        if (!reduce) offset.animateTo(target, spring(stiffness = Spring.StiffnessMediumLow), initialVelocity = v)
-                        onDismiss()
+                        // La carte sort (glisse + fondu) ; dès qu'elle a quitté l'écran, elle est retirée
+                        // du modèle affiché et les cartes du dessous remontent au ressort.
+                        var fired = false
+                        val fire = {
+                            if (!fired) {
+                                fired = true
+                                onDismiss()
+                            }
+                        }
+                        try {
+                            if (!reduce) {
+                                offset.animateTo(target, spring(stiffness = Spring.StiffnessMedium), initialVelocity = v) {
+                                    if (abs(value) >= width * 0.98f) fire()
+                                }
+                            }
+                        } finally {
+                            fire()
+                        }
                     } else {
                         offset.animateTo(0f, spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessMediumLow), initialVelocity = v)
                     }
@@ -852,7 +1021,7 @@ internal fun SwipeToDismiss(
             )
             .graphicsLayer {
                 translationX = offset.value
-                alpha = 1f - (abs(offset.value) / width).coerceIn(0f, 1f) * 0.7f
+                alpha = 1f - (abs(offset.value) / width).coerceIn(0f, 1f) * 0.85f
             },
     ) { content() }
 }
