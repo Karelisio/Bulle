@@ -25,9 +25,23 @@ object NotifCommands {
 
     /** Ouvre la notification ; l'efface si elle le demande (FLAG_AUTO_CANCEL). */
     fun open(host: VoletHost, item: NotifItem): Boolean {
+        // Notification système de changement de sortie audio : ouvre directement le choix de la sortie.
+        if (isAudioOutputNotice(item)) {
+            com.karelisio.bulle.modules.volet.media.MediaOutput.openSwitcher(host.context, item.packageName, host::close, host::startActivity)
+            return true
+        }
         val ok = host.send(item.contentIntent)
         if (ok && item.autoCancel) cancel(item.key)
         return ok
+    }
+
+    private val AUDIO_OUTPUT = Regex("(p[ée]riph[ée]rique|sortie)\\s+audio|audio\\s+(device|output)", RegexOption.IGNORE_CASE)
+
+    /** « Changement de périphérique audio » (système) : texte reconnu, sans intention propre utile. */
+    internal fun isAudioOutputNotice(item: NotifItem): Boolean {
+        val text = listOfNotNull(item.title, item.text).joinToString(" ")
+        val system = item.packageName == "android" || item.packageName.contains("systemui") || item.packageName.startsWith("com.hihonor") || item.packageName.startsWith("com.huawei")
+        return (system || item.contentIntent == null) && AUDIO_OUTPUT.containsMatchIn(text)
     }
 
     /** Page de réglages du canal (ou de la conversation), sinon des notifications de l'appli. */

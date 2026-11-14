@@ -163,23 +163,31 @@ private fun PortraitPanel(host: VoletHost, backProgress: () -> Float, topInset: 
             .padding(top = topInset + 6.dp, start = 12.dp, end = 12.dp, bottom = 12.dp)
             .nestedScroll(connection),
     ) {
-        // En-tête et tuiles : glisser déplie ou replie.
+        // En-tête et tuiles : glisser déplie ou replie. Pendant l'édition des tuiles, la zone prend
+        // toute la hauteur et défile (longue liste de tuiles d'applis), les notifications s'effacent.
+        val editing = host.editingTiles
         Column(
-            Modifier.draggable(
-                state = rememberDraggableState { host.dragBy(it) },
-                orientation = Orientation.Vertical,
-                onDragStopped = { v -> host.settle(v) },
-            ),
+            if (editing) {
+                Modifier.weight(1f).verticalScroll(rememberScrollState())
+            } else {
+                Modifier.draggable(
+                    state = rememberDraggableState { host.dragBy(it) },
+                    orientation = Orientation.Vertical,
+                    onDragStopped = { v -> host.settle(v) },
+                )
+            },
         ) {
             VoletHeader(host)
             QuickSettingsSection(host, Modifier.fillMaxWidth())
         }
-        Spacer(Modifier.height(10.dp))
-        NotificationsSection(
-            host = host,
-            modifier = Modifier.weight(1f, fill = false).fillMaxWidth(),
-            header = { MediaSection(host, Modifier.fillMaxWidth()) },
-        )
+        if (!editing) {
+            Spacer(Modifier.height(10.dp))
+            NotificationsSection(
+                host = host,
+                modifier = Modifier.weight(1f, fill = false).fillMaxWidth(),
+                header = { MediaSection(host, Modifier.fillMaxWidth()) },
+            )
+        }
         Handle(host)
     }
 }
