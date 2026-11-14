@@ -22,13 +22,25 @@ object QsTileRegistry {
 
     fun get(id: String): QsTile? = byId[id]
 
-    /** Tuiles affichées, sur l'appareil donné. */
-    fun current(context: Context, saved: List<String>): List<QsTile> =
-        resolveOrder(saved, byId.keys).mapNotNull(::get).filter { runCatching { it.isSupported(context) }.getOrDefault(false) }
+    /**
+     * Tuiles affichées, sur l'appareil donné : tuiles système et tuiles d'applis ajoutées
+     * (identifiant = composant aplati). Une appli désinstallée disparaît simplement de la liste.
+     */
+    fun current(context: Context, saved: List<String>, apps: List<AppTile>? = null): List<QsTile> {
+        // Découverte des applis seulement si une tuile d'appli est enregistrée (rien ne change sinon).
+        val appTiles = apps ?: if (saved.any(AppTiles::isAppTileId)) AppTiles.discover(context) else emptyList()
+        val appById = appTiles.associateBy { it.id }
+        return resolveOrder(saved, byId.keys + appById.keys)
+            .mapNotNull { byId[it] ?: appById[it] }
+            .filter { runCatching { it.isSupported(context) }.getOrDefault(false) }
+    }
 
     /** Tuiles disponibles à l'ajout (connues, prises en charge, absentes de la liste). */
     fun available(context: Context, order: List<String>): List<QsTile> =
         all.filter { it.id !in order && runCatching { it.isSupported(context) }.getOrDefault(false) }
+
+    /** Tuiles d'applis disponibles à l'ajout (section « Applis » de l'éditeur). */
+    fun availableApps(apps: List<AppTile>, order: List<String>): List<AppTile> = apps.filter { it.id !in order }
 
     // ----- Logique pure (testée) -----
 

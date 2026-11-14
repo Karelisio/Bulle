@@ -145,7 +145,7 @@ internal fun NotifGroupCard(
     SwipeToDismiss(
         enabled = !expanded && group.clearable,
         clearing = clearing && group.clearable,
-        onDismiss = { group.items.filter { it.clearable }.forEach { NotifCommands.cancel(it.key) }; group.summaryKey?.let(NotifCommands::cancel) },
+        onDismiss = { NotifDismiss.groupKeys(group).forEach(NotifCommands::cancel) },
         modifier = modifier,
     ) {
         Surface(
@@ -199,9 +199,8 @@ internal fun NotifGroupCard(
 }
 
 private fun dismissItem(group: NotifGroup, item: NotifItem) {
-    NotifCommands.cancel(item.key)
     // Dernier enfant effacé : le résumé part avec lui.
-    if (group.items.size == 1) group.summaryKey?.let(NotifCommands::cancel)
+    NotifDismiss.itemKeys(group, item).forEach(NotifCommands::cancel)
 }
 
 @Composable

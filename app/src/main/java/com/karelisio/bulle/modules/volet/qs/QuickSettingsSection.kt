@@ -38,6 +38,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import com.karelisio.bulle.modules.volet.ui.QsGridSpec
+import com.karelisio.bulle.modules.volet.ui.VoletLayout
+import com.karelisio.bulle.modules.volet.ui.VoletOrientation
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -75,6 +83,15 @@ internal data class QsMetrics(val rowMax: Dp, val tileHeight: Dp, val gap: Dp, v
             VoletDensity.COMFORTABLE -> QsMetrics(rowMax = 58.dp, tileHeight = 72.dp, gap = 8.dp, chip = 42.dp)
             VoletDensity.COMPACT -> QsMetrics(rowMax = 50.dp, tileHeight = 62.dp, gap = 6.dp, chip = 36.dp)
         }
+
+        /** Paysage : tuiles plus petites (la hauteur est comptée). */
+        fun landscape(density: VoletDensity) = when (density) {
+            VoletDensity.COMFORTABLE -> QsMetrics(rowMax = 56.dp, tileHeight = 56.dp, gap = 6.dp, chip = 34.dp)
+            VoletDensity.COMPACT -> QsMetrics(rowMax = 48.dp, tileHeight = 50.dp, gap = 6.dp, chip = 30.dp)
+        }
+
+        fun of(density: VoletDensity, orientation: VoletOrientation) =
+            if (orientation == VoletOrientation.LANDSCAPE) landscape(density) else of(density)
     }
 }
 
@@ -83,7 +100,11 @@ internal data class QsMetrics(val rowMax: Dp, val tileHeight: Dp, val gap: Dp, v
  * host.qsExpansion tend vers 1, curseur de luminosité, édition (host.editingTiles).
  */
 @Composable
-fun QuickSettingsSection(host: VoletHost, modifier: Modifier) {
+fun QuickSettingsSection(
+    host: VoletHost,
+    modifier: Modifier,
+    orientation: VoletOrientation = VoletOrientation.PORTRAIT,
+) {
     val reduce = rememberReduceMotion()
     AnimatedContent(
         targetState = host.editingTiles,
@@ -98,8 +119,8 @@ fun QuickSettingsSection(host: VoletHost, modifier: Modifier) {
             TileEditor(host, Modifier.fillMaxWidth())
         } else {
             Column(Modifier.fillMaxWidth()) {
-                TileGrid(host)
-                Spacer(Modifier.height(10.dp))
+                TileGrid(host, orientation)
+                Spacer(Modifier.height(if (orientation == VoletOrientation.LANDSCAPE) 8.dp else 10.dp))
                 BrightnessSlider(host, Modifier.fillMaxWidth().cascade(1))
             }
         }
@@ -112,11 +133,16 @@ internal object QsPaging {
     const val PER_PAGE = 8
     const val ROWS_PER_PAGE = PER_PAGE / 2
 
-    fun pageCount(tiles: Int): Int = if (tiles <= PER_PAGE) 1 else (tiles + PER_PAGE - 1) / PER_PAGE
+    fun pageCount(tiles: Int, perPage: Int = PER_PAGE): Int {
+        val n = perPage.coerceAtLeast(1)
+        return if (tiles <= n) 1 else (tiles + n - 1) / n
+    }
 
-    /** Indices des tuiles de chaque page (une seule page jusqu'à 8 tuiles). */
-    fun pages(tiles: Int): List<IntRange> =
-        (0 until pageCount(tiles)).map { p -> (p * PER_PAGE) until min(tiles, (p + 1) * PER_PAGE) }
+    /** Indices des tuiles de chaque page (une seule page jusqu'à [perPage] tuiles). */
+    fun pages(tiles: Int, perPage: Int = PER_PAGE): List<IntRange> {
+        val n = perPage.coerceAtLeast(1)
+        return (0 until pageCount(tiles, n)).map { p -> (p * n) until min(tiles, (p + 1) * n) }
+    }
 }
 
 /**
@@ -125,17 +151,34 @@ internal object QsPaging {
  * horizontales ; la rangée repliée vit sur la première page, qui revient d'elle-même au repli.
  */
 @Composable
-private fun TileGrid(host: VoletHost) {
+private fun TileGrid(host: VoletHost, orientation: VoletOrientation) {
     val context = host.context
     val tiles = remember(context, host.settings.tiles) { QsTileRegistry.current(context, host.settings.tiles) }
+    val metrics = QsMetrics.of(host.settings.density, orientation)
+    if (orientation == VoletOrientation.PORTRAIT) {
+        val spec = VoletLayout.gridSpec(orientation, 0f, 0f, host.settings.collapsedTileCount, tiles.size)
+        TileGridContent(host, tiles, spec, metrics)
+    } else {
+        // Paysage : le nombre de tuiles par rangée dépend de la largeur de la colonne.
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val spec = VoletLayout.gridSpec(
+                orientation, maxWidth.value, metrics.gap.value, host.settings.collapsedTileCount, tiles.size,
+            )
+            TileGridContent(host, tiles, spec, metrics)
+        }
+    }
+}
+
+@Composable
+private fun TileGridContent(host: VoletHost, tiles: List<QsTile>, spec: QsGridSpec, metrics: QsMetrics) {
     val toggler = remember(host) { QsToggler(host) }
-    val metrics = QsMetrics.of(host.settings.density)
-    val collapsed = host.settings.collapsedTileCount.coerceIn(4, 6).coerceAtMost(tiles.size)
+    val collapsed = spec.rowSlots
+    val columns = spec.columns
     val q = { host.qsExpansion }
-    val pages = remember(tiles.size) { QsPaging.pages(tiles.size) }
+    val pages = remember(tiles.size, spec.perPage) { QsPaging.pages(tiles.size, spec.perPage) }
 
     if (pages.size <= 1) {
-        TilePage(host, tiles, 0, collapsed, collapsed, minRows = 0, metrics, toggler, q)
+        TilePage(host, tiles, 0, collapsed, collapsed, minRows = 0, columns, metrics, toggler, q)
         return
     }
 
@@ -166,7 +209,8 @@ private fun TileGrid(host: VoletHost) {
                 firstIndex = range.first,
                 inRow = if (page == 0) collapsed else 0,
                 rowSlots = collapsed,
-                minRows = QsPaging.ROWS_PER_PAGE,
+                minRows = spec.rowsPerPage,
+                columns = columns,
                 metrics = metrics,
                 toggler = toggler,
                 expansion = q,
@@ -191,6 +235,7 @@ private fun TilePage(
     inRow: Int,
     rowSlots: Int,
     minRows: Int,
+    columns: Int,
     metrics: QsMetrics,
     toggler: QsToggler,
     expansion: () -> Float,
@@ -222,10 +267,11 @@ private fun TilePage(
         // Rangée : n emplacements égaux, tuiles rondes centrées dans chacun.
         val slot = (w - gap * (n - 1)).toFloat() / n
         val d = min(slot, metrics.rowMax.toPx())
-        // Grille : deux colonnes.
-        val colW = (w - gap) / 2f
+        // Grille : [columns] colonnes (deux en portrait).
+        val cols = columns.coerceAtLeast(1)
+        val colW = (w - gap * (cols - 1)).toFloat() / cols
         val tileH = metrics.tileHeight.toPx()
-        val rows = max((measurables.size + 1) / 2, minRows)
+        val rows = max((measurables.size + cols - 1) / cols, minRows)
         val gridH = rows * tileH + (rows - 1).coerceAtLeast(0) * gap
         val height = lerp(d, gridH, e)
 
@@ -237,8 +283,8 @@ private fun TilePage(
         }
         layout(w, height.roundToInt()) {
             placeables.forEachIndexed { i, p ->
-                val gx = (i % 2) * (colW + gap)
-                val gy = (i / 2) * (tileH + gap)
+                val gx = (i % cols) * (colW + gap)
+                val gy = (i / cols) * (tileH + gap)
                 if (i < inRow) {
                     val rx = i * (slot + gap) + (slot - d) / 2f
                     p.place(lerp(rx, gx, e).roundToInt(), lerp(0f, gy, e).roundToInt())
@@ -310,7 +356,8 @@ private fun QsTileView(
     val haptic = LocalHapticFeedback.current
     val reduce = rememberReduceMotion()
     val scheme = MaterialTheme.colorScheme
-    val active = state.active && state.known && tile.action == null
+    val active = state.active && state.known && !tile.stateless
+    val appTile = tile as? AppTile
 
     // Morphing M3 : cercle → cookie quand la tuile s'active (au ressort).
     val morph = remember { Morph(MaterialShapes.Circle.normalized(), MaterialShapes.Cookie9Sided.normalized()) }
@@ -328,9 +375,18 @@ private fun QsTileView(
         if (reduce) pulse.snapTo(target) else pulse.animateTo(target, spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium))
     }
 
-    val label = stringResource(tile.label)
+    // Tuile d'appli : brève lueur au toucher (son état réel n'est pas lisible).
+    val flash = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val bitmap = remember(tile, context) { tile.loadIcon(context, with(density) { 44.dp.roundToPx() }) }
+    val shizuku = remember(tile) { if (appTile != null) ShizukuShell.status() else ShizukuStatus.UNAVAILABLE }
+
+    val label = tile.labelText ?: stringResource(tile.label)
     val stateText = when {
-        tile.action != null -> null
+        appTile != null -> if (shizuku != ShizukuStatus.UNAVAILABLE) appTile.appName
+        else stringResource(R.string.volet_qs_app_hint_short)
+        tile.stateless -> null
         !state.known -> stringResource(R.string.volet_qs_state_unknown)
         state.active -> stringResource(R.string.volet_qs_state_on)
         else -> stringResource(R.string.volet_qs_state_off)
@@ -355,7 +411,7 @@ private fun QsTileView(
                 val e = if (inRow) expansion() else 1f
                 if (e <= 0.01f) return@drawBehind
                 val r = lerp(size.height / 2f, min(cornerRadius.toPx(), size.height / 2f), e)
-                val c = if (active) scheme.primary else containerOff
+                val c = if (active) scheme.primary else lerp(containerOff, scheme.primaryContainer, flash.value)
                 drawRoundRect(c.copy(alpha = c.alpha * e), cornerRadius = CornerRadius(r))
             }
             .semantics {
@@ -364,7 +420,7 @@ private fun QsTileView(
             .combinedClickable(
                 interactionSource = interaction,
                 indication = null,
-                role = if (tile.action == null) Role.Switch else Role.Button,
+                role = if (!tile.stateless) Role.Switch else Role.Button,
                 onClickLabel = label,
                 onLongClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -373,6 +429,12 @@ private fun QsTileView(
                 onClick = {
                     haptic.performHapticFeedback(if (active) HapticFeedbackType.ToggleOff else HapticFeedbackType.ToggleOn)
                     toggler.tap(tile, state)
+                    if (appTile != null && !reduce) {
+                        scope.launch {
+                            flash.snapTo(1f)
+                            flash.animateTo(0f, spring(dampingRatio = 1f, stiffness = Spring.StiffnessLow))
+                        }
+                    }
                 },
             ),
         content = {
@@ -387,11 +449,22 @@ private fun QsTileView(
                     }
                     .drawBehind {
                         val e = if (inRow) expansion() else 1f
-                        val chipColor = if (active) lerp(scheme.primary, chipOnExpanded, e) else chipOff
+                        val chipColor = if (active) lerp(scheme.primary, chipOnExpanded, e)
+                        else lerp(chipOff, scheme.primary.copy(alpha = 0.35f).compositeOver(chipOff), flash.value)
                         drawRect(chipColor)
                     },
             )
-            Icon(tile.icon, contentDescription = label, tint = iconTint, modifier = Modifier.size(22.dp))
+            if (bitmap != null) {
+                // Icône du service (monochrome, teintée) ; à défaut, icône de l'appli en couleurs.
+                Icon(
+                    bitmap,
+                    contentDescription = label,
+                    tint = if (appTile?.hasOwnIcon == false) Color.Unspecified else iconTint,
+                    modifier = Modifier.size(22.dp),
+                )
+            } else {
+                Icon(tile.icon, contentDescription = label, tint = iconTint, modifier = Modifier.size(22.dp))
+            }
             Column(
                 Modifier.graphicsLayer {
                     val e = if (inRow) expansion() else 1f

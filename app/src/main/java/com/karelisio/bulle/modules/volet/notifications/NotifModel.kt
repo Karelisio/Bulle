@@ -140,16 +140,9 @@ data class NotifListModel(val sections: List<NotifSectionModel>) {
     val isEmpty: Boolean get() = sections.isEmpty()
     val allItems: List<NotifItem> get() = sections.flatMap { s -> s.groups.flatMap { it.items } }
 
-    /** Clés à effacer pour « Tout effacer » (effaçables seulement, résumés inclus). */
+    /** Clés à effacer pour « Tout effacer » (effaçables de toutes les sections, silencieuses comprises, résumés inclus). */
     val clearableKeys: List<String>
-        get() = sections.flatMap { s ->
-            s.groups.flatMap { g ->
-                val keys = g.items.filter { it.clearable }.map { it.key }
-                // Le résumé part aussi quand tous ses enfants partent (sinon il réapparaîtrait seul).
-                val summary = g.summaryKey?.takeIf { g.items.all { it.clearable } }
-                if (summary != null) keys + summary else keys
-            }
-        }
+        get() = sections.flatMap { s -> s.groups.flatMap(NotifDismiss::groupKeys) }
 
     fun groupOf(key: String): NotifGroup? =
         sections.firstNotNullOfOrNull { s -> s.groups.firstOrNull { g -> g.items.any { it.key == key } } }
@@ -260,7 +253,7 @@ object NotifParser {
             actions = if (redact) emptyList() else actions(original, smart),
             contentIntent = original.contentIntent,
             autoCancel = flags and Notification.FLAG_AUTO_CANCEL != 0,
-            clearable = !persistent,
+            clearable = NotifDismiss.isClearable(flags),
             persistent = persistent,
             isSummary = flags and Notification.FLAG_GROUP_SUMMARY != 0,
             section = section(original, input.rank, isMessaging || (template == STYLE_MESSAGING)),
@@ -396,5 +389,36 @@ fun initials(name: CharSequence?): String {
         words.isEmpty() -> "?"
         words.size == 1 -> words[0].take(1).uppercase()
         else -> (words[0].take(1) + words[1].take(1)).uppercase()
+    }
+}
+
+/**
+ * Effacement des notifications (logique pure, testée). Mêmes règles que le volet du système :
+ * effaçable = ni « en cours » (FLAG_ONGOING_EVENT) ni FLAG_NO_CLEAR, quelle que soit la section
+ * (silencieuse ou non). Une notification de service de premier plan sans ces drapeaux reste
+ * effaçable (Android 14+ laisse l'utilisateur les retirer) : elle garde seulement son style discret.
+ */
+object NotifDismiss {
+    private const val NOT_CLEARABLE = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
+
+    /** Équivalent de StatusBarNotification.isClearable(). */
+    fun isClearable(flags: Int): Boolean = flags and NOT_CLEARABLE == 0
+
+    /**
+     * Clés à annuler pour retirer tout un groupe : ses éléments effaçables, puis le résumé quand
+     * tous partent (s'il restait seul, il réapparaîtrait comme une carte).
+     */
+    fun groupKeys(group: NotifGroup): List<String> {
+        val keys = group.items.filter { it.clearable }.map { it.key }
+        val summary = group.summaryKey?.takeIf { group.items.all { it.clearable } }
+        return if (summary != null) keys + summary else keys
+    }
+
+    /** Clés à annuler pour retirer un seul élément : le résumé part avec le dernier enfant. */
+    fun itemKeys(group: NotifGroup, item: NotifItem): List<String> {
+        if (!item.clearable) return emptyList()
+        val remaining = group.items.count { it.key != item.key }
+        val summary = group.summaryKey?.takeIf { remaining == 0 }
+        return if (summary != null) listOf(item.key, summary) else listOf(item.key)
     }
 }

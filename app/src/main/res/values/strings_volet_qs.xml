@@ -26,4 +26,11 @@
     <string name="volet_qs_available_none">Toutes les tuiles sont affichées.</string>
     <string name="volet_qs_add_tile">Ajouter %1$s</string>
     <string name="volet_qs_remove_tile">Retirer %1$s</string>
+    <!-- Tuiles des applis tierces -->
+    <string name="volet_qs_app_tile">Tuile d\'appli</string>
+    <string name="volet_qs_app_hint_short">Shizuku : activer d\'ici</string>
+    <string name="volet_qs_apps_section">Applis</string>
+    <string name="volet_qs_apps_none">Aucune appli installée ne propose de tuile.</string>
+    <string name="volet_qs_apps_hint_shizuku">Toucher bascule la tuile via Shizuku. Appui long : réglages de la tuile.</string>
+    <string name="volet_qs_apps_hint_no_shizuku">Sans Shizuku, toucher ouvre l\'appli ou les réglages de la tuile. Shizuku pour activer directement.</string>
 </resources>
