@@ -37,14 +37,19 @@ class VoletLayoutTest {
         val narrow = VoletLayout.gridSpec(VoletOrientation.LANDSCAPE, 350f, 6f, 4, 13)
         assertEquals(5, narrow.rowSlots)
         assertEquals(2, narrow.columns)
-        assertEquals(2, narrow.rowsPerPage)
+        // 5 tuiles sur 2 colonnes : 3 rangées pour que la rangée repliée tienne sur la première page.
+        assertEquals(3, narrow.rowsPerPage)
+        assertTrue(narrow.perPage >= narrow.rowSlots)
         assertEquals(6, VoletLayout.gridSpec(VoletOrientation.LANDSCAPE, 350f, 6f, 6, 13).rowSlots)
         // Colonne large : jusqu'à 8 tuiles par rangée et 4 colonnes.
         val wide = VoletLayout.gridSpec(VoletOrientation.LANDSCAPE, 700f, 6f, 6, 13)
         assertEquals(8, wide.rowSlots)
         assertEquals(4, wide.columns)
         assertEquals(8, wide.perPage)
-        assertEquals(3, VoletLayout.gridSpec(VoletOrientation.LANDSCAPE, 480f, 6f, 6, 13).columns)
+        assertEquals(2, wide.rowsPerPage)
+        val mid = VoletLayout.gridSpec(VoletOrientation.LANDSCAPE, 480f, 6f, 6, 13)
+        assertEquals(3, mid.columns)
+        assertTrue(mid.perPage >= mid.rowSlots)
         // Jamais plus d'emplacements que de tuiles.
         assertEquals(2, VoletLayout.gridSpec(VoletOrientation.LANDSCAPE, 700f, 6f, 6, 2).rowSlots)
     }

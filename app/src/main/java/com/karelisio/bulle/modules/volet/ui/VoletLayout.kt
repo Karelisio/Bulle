@@ -36,7 +36,8 @@ object VoletLayout {
     /**
      * Grille des tuiles. Portrait : réglage « tuiles visibles » (4 – 6), 2 colonnes, 4 rangées
      * (comportement d'origine). Paysage : autant de tuiles de 56 dp que la largeur [widthDp] de la
-     * colonne en permet (au moins le réglage, au plus 8), 2 à 4 colonnes, 2 rangées par page.
+     * colonne en permet (au moins le réglage, au plus 8), 2 à 4 colonnes, 2 rangées par page
+     * (davantage si la rangée repliée ne tiendrait pas sur la première page).
      */
     fun gridSpec(
         orientation: VoletOrientation,
@@ -54,7 +55,9 @@ object VoletLayout {
                 val slots = max(fit, setting).coerceAtMost(LANDSCAPE_MAX_ROW_SLOTS).coerceAtMost(tileCount)
                 val cols = ((widthDp + gapDp) / (LANDSCAPE_GRID_TILE_MIN_DP + gapDp)).toInt()
                     .coerceIn(PORTRAIT_COLUMNS, LANDSCAPE_MAX_COLUMNS)
-                QsGridSpec(slots, cols, LANDSCAPE_ROWS)
+                // La première page porte toute la rangée repliée : assez de rangées pour la contenir.
+                val rows = max(LANDSCAPE_ROWS, (slots + cols - 1) / cols)
+                QsGridSpec(slots, cols, rows)
             }
         }
     }
