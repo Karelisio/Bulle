@@ -26,4 +26,5 @@
     <string name="notif_more">+%1$d</string>
     <string name="notif_dismiss">Dismiss</string>
     <string name="notif_close_reply">Close reply</string>
+    <string name="notif_you">You</string>
 </resources>

@@ -33,7 +33,7 @@ import androidx.palette.graphics.Palette
 import com.karelisio.bulle.modules.music.media.ArtworkLoader
 import com.karelisio.bulle.modules.music.media.MediaSessionSource
 import com.karelisio.bulle.modules.music.media.MediaSnapshot
-import com.karelisio.bulle.modules.volet.VoletDensity
+import com.karelisio.bulle.modules.volet.VoletCardDensity
 import com.karelisio.bulle.modules.volet.VoletHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -103,7 +103,7 @@ internal fun MediaSessionCard(host: VoletHost, snap: MediaSnapshot, modifier: Mo
         data = data,
         actions = actions,
         cornerRadius = host.settings.cornerRadiusDp.dp,
-        compact = host.settings.density == VoletDensity.COMPACT,
+        compact = host.settings.effectiveCardDensity == VoletCardDensity.COMPACT,
         modifier = modifier,
     )
 }

@@ -23,7 +23,7 @@
     <string name="vset_scrim">Opacité du voile</string>
     <string name="vset_corners">Rayon des coins</string>
     <string name="vset_tiles">Tuiles à demi-ouverture</string>
-    <string name="vset_density">Densité</string>
+    <string name="vset_density">Densité des réglages rapides</string>
     <string name="vset_density_comfortable">Confort</string>
     <string name="vset_density_compact">Compacte</string>
     <string name="vset_behaviour">Comportement</string>
@@ -67,4 +67,18 @@
     <string name="vhist_yesterday">Hier</string>
     <string name="vhist_empty">Aucune notification enregistrée.</string>
     <string name="vhist_no_result">Aucun résultat.</string>
+    <!-- Taille des cartes -->
+    <string name="vset_cards">Taille des cartes</string>
+    <string name="vset_cards_desc">Notifications, lecteur multimédia et en-têtes de section.</string>
+    <string name="vset_cards_density">Densité</string>
+    <string name="vset_cards_compact">Compacte</string>
+    <string name="vset_cards_normal">Normale</string>
+    <string name="vset_cards_airy">Aérée</string>
+    <string name="vset_cards_text">Taille du texte</string>
+    <string name="vset_cards_lines">Lignes de texte (repliée)</string>
+    <string name="vset_cards_sample_sender">Camille</string>
+    <string name="vset_cards_sample_message">On se retrouve à 19 h devant le cinéma ? J\'ai déjà pris les places.</string>
+    <string name="vset_cards_sample_app">Messages</string>
+    <string name="vset_cards_sample_title">Colis livré</string>
+    <string name="vset_cards_sample_text">Votre colis a été déposé dans votre boîte aux lettres. Merci de votre confiance et à bientôt.</string>
 </resources>
