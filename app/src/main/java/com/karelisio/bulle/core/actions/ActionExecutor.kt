@@ -72,8 +72,9 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
                 ActionType.BACK -> global(AccessibilityService.GLOBAL_ACTION_BACK)
                 ActionType.HOME -> global(AccessibilityService.GLOBAL_ACTION_HOME)
                 ActionType.RECENTS -> global(AccessibilityService.GLOBAL_ACTION_RECENTS)
-                ActionType.NOTIFICATIONS -> global(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
-                ActionType.QUICK_SETTINGS -> global(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
+                // Volet de Bulle s'il est activé, sinon volet du système.
+                ActionType.NOTIFICATIONS -> if (!openVolet(full = false)) global(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
+                ActionType.QUICK_SETTINGS -> if (!openVolet(full = true)) global(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
                 ActionType.LOCK_SCREEN -> global(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
                 ActionType.SCREENSHOT -> global(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
 
@@ -100,6 +101,14 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
         } catch (e: Exception) {
             Log.w(TAG, "Action ${action.type} impossible", e)
         }
+    }
+
+    private fun openVolet(full: Boolean): Boolean {
+        val volet = com.karelisio.bulle.modules.volet.VoletController.current.value ?: return false
+        if (!volet.settings.enabled) return false
+        volet.openFor(null)
+        if (full) volet.expandFull()
+        return true
     }
 
     private fun global(id: Int) {

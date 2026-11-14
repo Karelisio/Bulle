@@ -1,6 +1,11 @@
 # Changelog
 
 ## 0.8.5
+- Gestes « Notifications » et « Réglages rapides » : ouvrent le Volet de Bulle quand il est activé (sinon celui du système).
+- Volet en paysage : deux colonnes (en-tête compact, petites tuiles et luminosité à gauche ; média et notifications à droite).
+- Volet : tuiles Réglages rapides des applis (section « Applis » de l'éditeur) — avec Shizuku, un toucher les active vraiment ; sinon, ouvre leurs réglages ou l'appli.
+- Volet : les notifications silencieuses (et celles des services de premier plan non permanentes) se suppriment, y compris avec « Tout effacer ».
+- Volet : plus de trou entre la bulle et les zones de déclenchement (bords de l'écran couverts, hauteur minimale = barre d'état) — on ne retombe plus sur le volet système en partant près de la bulle.
 - Deck : les raccourcis bascules (Wi-Fi, Bluetooth, rotation, lampe, économie d'énergie, mode focus, silencieux) montrent s'ils sont activés (pastille colorée) ou non, mis à jour en direct.
 
 ## 0.8.4

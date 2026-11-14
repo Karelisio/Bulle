@@ -14,7 +14,13 @@ import java.net.URL
  */
 object CurrencyRates {
     private const val TIMEOUT_MS = 6_000
-    private val mutex = Mutex()
+    @Volatile
+    private var mutex = Mutex()
+
+    /** Tests : repart d'un verrou libre (un test précédent interrompu peut l'avoir laissé pris). */
+    internal fun resetForTests() {
+        mutex = Mutex()
+    }
 
     /** Source réseau remplaçable (tests). */
     @Volatile
