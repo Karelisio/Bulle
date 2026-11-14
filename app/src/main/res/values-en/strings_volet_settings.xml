@@ -23,7 +23,7 @@
     <string name="vset_scrim">Scrim opacity</string>
     <string name="vset_corners">Corner radius</string>
     <string name="vset_tiles">Tiles when half open</string>
-    <string name="vset_density">Density</string>
+    <string name="vset_density">Quick settings density</string>
     <string name="vset_density_comfortable">Comfortable</string>
     <string name="vset_density_compact">Compact</string>
     <string name="vset_behaviour">Behaviour</string>
@@ -64,4 +64,18 @@
     <string name="vhist_yesterday">Yesterday</string>
     <string name="vhist_empty">No notifications saved.</string>
     <string name="vhist_no_result">No results.</string>
+    <!-- Card size -->
+    <string name="vset_cards">Card size</string>
+    <string name="vset_cards_desc">Notifications, media player and section headers.</string>
+    <string name="vset_cards_density">Density</string>
+    <string name="vset_cards_compact">Compact</string>
+    <string name="vset_cards_normal">Normal</string>
+    <string name="vset_cards_airy">Airy</string>
+    <string name="vset_cards_text">Text size</string>
+    <string name="vset_cards_lines">Text lines (collapsed)</string>
+    <string name="vset_cards_sample_sender">Camille</string>
+    <string name="vset_cards_sample_message">Meet at 7 pm outside the cinema? I already got the tickets.</string>
+    <string name="vset_cards_sample_app">Messages</string>
+    <string name="vset_cards_sample_title">Parcel delivered</string>
+    <string name="vset_cards_sample_text">Your parcel was left in your mailbox. Thank you for your order and see you soon.</string>
 </resources>
