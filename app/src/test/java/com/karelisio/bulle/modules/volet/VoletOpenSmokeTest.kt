@@ -25,7 +25,7 @@ class VoletOpenSmokeTest {
 
     @Before
     fun setUp() {
-        Settings.Global.putFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
+        Settings.Global.putFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) // animations réelles : ressorts du Volet
         com.karelisio.bulle.testing.ComposeDispatcherReset.unstick()
     }
 

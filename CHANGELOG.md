@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.8.3
+- Volet : correction du plantage à l'ouverture (animation lancée sans horloge d'images).
 - Karaoké : après l'affichage des paroles, Bulle cherche en arrière-plan une version synchronisée mot à mot sur LRCLIB ; si elle existe, elle remplace l'estimation (aucune attente en plus, gardée en cache).
 
 ## 0.8.2

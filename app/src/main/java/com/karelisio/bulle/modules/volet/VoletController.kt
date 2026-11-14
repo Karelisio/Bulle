@@ -283,7 +283,9 @@ class VoletController(
         if (panel == null) return
         settleJob?.cancel()
         val reduce = isReduceMotion(service)
-        settleJob = scope.launch {
+        // Horloge d'images indispensable à Animatable hors composition : AndroidUiDispatcher.Main la fournit
+        // (sans elle : IllegalStateException « MonotonicFrameClock is not available », plantage à l'ouverture).
+        settleJob = scope.launch(androidx.compose.ui.platform.AndroidUiDispatcher.Main) {
             if (reduce) anim.snapTo(target)
             else anim.animateTo(target, spring(dampingRatio = 0.82f, stiffness = 380f, visibilityThreshold = 0.001f), velocity)
             if (target == 0f) closeNow()
