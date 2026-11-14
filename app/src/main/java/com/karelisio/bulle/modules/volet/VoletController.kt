@@ -113,8 +113,11 @@ class VoletController(
                     env.statusBarVisible &&
                     (!env.locked || s.showOnLockscreen) &&
                     (fg == null || fg !in s.excludedApps)
-                Triple(stripZones(s, env.geometry, islandVisible, hasContent, published), active, preview)
-            }.collect { r ->
+                // Île étendue : zones inactives ; l'estimation stable évite de replacer les fenêtres
+                // à chaque image de l'animation d'extension.
+                val envelope = if (islandExpanded) null else published
+                Triple(stripZones(s, env.geometry, islandVisible, hasContent, envelope), active, preview)
+            }.distinctUntilChanged().collect { r ->
                 if (r == null) strips.destroy()
                 else strips.update(r.first, touchable = r.second, preview = r.third, previewColor = PREVIEW_COLOR)
             }
