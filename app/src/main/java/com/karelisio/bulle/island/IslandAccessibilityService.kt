@@ -48,7 +48,11 @@ class IslandAccessibilityService : AccessibilityService() {
     }
 
     private val screenReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) = refreshLock()
+        override fun onReceive(context: Context, intent: Intent) {
+            // Mise en veille : Deck, panneaux et bulles dépliées se referment.
+            if (intent.action == Intent.ACTION_SCREEN_OFF) controller?.let { it.closePanel(); it.collapse() }
+            refreshLock()
+        }
     }
 
     override fun onServiceConnected() {

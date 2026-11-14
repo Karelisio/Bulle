@@ -29,4 +29,6 @@
     <string name="nav_sum_search">Calculs, conversions, devises, contacts, réglages</string>
     <string name="nav_title_translate">Traduction</string>
     <string name="nav_sum_translate">Presse-papiers traduit hors ligne</string>
+    <string name="visibility_landscape_native">Bulle active en paysage</string>
+    <string name="visibility_landscape_native_desc">En haut au centre, utilisable même en plein écran (vidéo, jeu).</string>
 </resources>

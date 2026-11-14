@@ -71,6 +71,13 @@ object CutoutLocator {
         var centerX: Int
         var top: Int
         val c = info.cutout
+        if (c == null && info.width > info.height) {
+            // Paysage (caméra sur le côté) : pilule en haut au centre, sans les réglages fins du portrait.
+            val sc = scale.coerceIn(0.4f, 2f)
+            val w = (dp(104f) * sc).roundToInt().coerceIn(dp(16f), info.width)
+            val h = (dp(28f) * sc).roundToInt().coerceIn(dp(12f), dp(120f))
+            return IslandGeometry(info.width / 2, dp(4f), w, h, info.width, d, tweak.openDirection)
+        }
         if (c != null) {
             width = c.width() + 2 * padH
             height = c.height() + 2 * padV

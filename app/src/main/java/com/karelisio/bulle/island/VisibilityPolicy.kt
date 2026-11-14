@@ -37,10 +37,11 @@ object VisibilityPolicy {
         if (!settings.islandEnabled) return HiddenReason.DISABLED
         screen.ruleVisibility?.let { return if (it) null else HiddenReason.RULE }
         val v = settings.visibility
-        if (v.hideInFullscreen && !screen.statusBarVisible && !screen.locked &&
+        val nativeLandscape = v.landscapeNative && screen.landscape
+        if (!nativeLandscape && v.hideInFullscreen && !screen.statusBarVisible && !screen.locked &&
             !fullscreenIgnored(v, foregroundPackage, launcherPackage)
         ) return HiddenReason.FULLSCREEN
-        if (v.hideInLandscape && screen.landscape) return HiddenReason.LANDSCAPE
+        if (!nativeLandscape && v.hideInLandscape && screen.landscape) return HiddenReason.LANDSCAPE
         if (v.hideOnLockscreen && screen.locked) return HiddenReason.LOCKSCREEN
         if (!screen.locked && foregroundPackage != null && foregroundPackage in v.hiddenApps) return HiddenReason.HIDDEN_APP
         return null

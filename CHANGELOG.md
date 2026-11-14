@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.1
+- Mise en veille : le Deck, les panneaux et les bulles dépliées se referment quand l'écran s'éteint.
+- Paysage : nouveau mode paysage natif (activé par défaut) — la bulle reste active en haut au centre, même en plein écran (vidéo, jeu). Réglable dans Masquage.
+- Messages : l'état de verrouillage est relu à chaque message (un déverrouillage manqué laissait le contenu masqué) ; chaque message est noté dans le Journal de l'île (appli, verrouillé, contenu) pour diagnostiquer.
+
 ## 0.8.0
 Outils sur l'île (V3)
 - **Recherche étendue** (panneau de recherche) : calculatrice, conversions d'unités, devises (taux BCE, utilisables hors ligne), contacts, raccourcis vers les Réglages.

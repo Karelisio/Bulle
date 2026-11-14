@@ -32,11 +32,20 @@ class VisibilityPolicyTest {
     fun ignoredAppDoesNotBypassOtherConditions() {
         val s = settings(VisibilitySettings(fullscreenIgnoredApps = setOf("com.video"), hiddenApps = setOf("com.video")))
         assertEquals(HiddenReason.HIDDEN_APP, VisibilityPolicy.hiddenReason(s, fullscreen, "com.video"))
-        val landscape = settings(VisibilitySettings(fullscreenIgnoredApps = setOf("com.video")))
+        val landscape = settings(VisibilitySettings(fullscreenIgnoredApps = setOf("com.video"), landscapeNative = false))
         assertEquals(
             HiddenReason.LANDSCAPE,
             VisibilityPolicy.hiddenReason(landscape, fullscreen.copy(landscape = true), "com.video"),
         )
+    }
+
+    @Test
+    fun nativeLandscapeKeepsIslandEvenInFullscreen() {
+        // Par défaut : mode paysage natif, ni le paysage ni le plein écran ne masquent l'île.
+        assertNull(VisibilityPolicy.hiddenReason(settings(), fullscreen.copy(landscape = true), "com.video"))
+        // Les applis masquées restent masquées.
+        val hidden = settings(VisibilitySettings(hiddenApps = setOf("com.video")))
+        assertEquals(HiddenReason.HIDDEN_APP, VisibilityPolicy.hiddenReason(hidden, fullscreen.copy(landscape = true), "com.video"))
     }
 
     @Test
