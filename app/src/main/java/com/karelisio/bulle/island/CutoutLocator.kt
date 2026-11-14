@@ -19,6 +19,10 @@ data class ScreenInfo(
     val cutout: Rect?,
     val density: Float,
     val rotation: Int,
+    /** Paysage : trou de caméra sur le bord gauche ou droit (null sinon). */
+    val sideCutout: Rect? = null,
+    /** Vrai si [sideCutout] est sur le bord gauche. */
+    val sideCutoutLeft: Boolean = true,
 )
 
 /** Géométrie de l'île au repos (taille compacte), en pixels écran. */
@@ -46,6 +50,8 @@ object CutoutLocator {
             .getInsetsIgnoringVisibility(WindowInsets.Type.statusBars()).top
         // Le cutout du haut (trou ou pilule). Display.getCutout() suit la rotation courante.
         val top = display?.cutout?.boundingRectTop?.takeIf { !it.isEmpty }
+        val left = display?.cutout?.boundingRectLeft?.takeIf { !it.isEmpty }
+        val right = display?.cutout?.boundingRectRight?.takeIf { !it.isEmpty }
         return ScreenInfo(
             width = metrics.bounds.width(),
             height = metrics.bounds.height(),
@@ -53,6 +59,8 @@ object CutoutLocator {
             cutout = top,
             density = context.resources.displayMetrics.density,
             rotation = display?.rotation ?: 0,
+            sideCutout = left ?: right,
+            sideCutoutLeft = left != null,
         )
     }
 
@@ -71,6 +79,17 @@ object CutoutLocator {
         var centerX: Int
         var top: Int
         val c = info.cutout
+        val side = info.sideCutout
+        if (c == null && info.width > info.height && side != null) {
+            // Paysage : l'île épouse la caméra sur le côté et s'ouvre vers l'intérieur de l'écran.
+            val sc = scale.coerceIn(0.4f, 2f)
+            val h = ((side.height() + 2 * padV) * sc).roundToInt().coerceIn(dp(12f), dp(120f))
+            val w = ((side.width() + 2 * padV) * sc).roundToInt().coerceIn(dp(16f), info.width)
+            val cx = side.centerX().coerceIn(w / 2, info.width - w / 2)
+            val t = (side.centerY() - h / 2).coerceAtLeast(0)
+            val dir = if (info.sideCutoutLeft) OpenDirection.RIGHT else OpenDirection.LEFT
+            return IslandGeometry(cx, t, w, h, info.width, d, dir)
+        }
         if (c == null && info.width > info.height) {
             // Paysage (caméra sur le côté) : pilule en haut au centre, sans les réglages fins du portrait.
             val sc = scale.coerceIn(0.4f, 2f)
