@@ -180,6 +180,13 @@ object Torch {
             c.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK
     }
 
+    /** Lampe allumée (null = inconnu : le rappel du système n'a pas encore donné l'état). */
+    fun isOn(context: Context): Boolean? = runCatching {
+        val cm = context.getSystemService(CameraManager::class.java)
+        ensureCallback(cm)
+        cameraWithFlash(cm)?.let { states[it] }
+    }.getOrNull()
+
     fun toggle(context: Context) {
         val cm = context.getSystemService(CameraManager::class.java)
         val fresh = ensureCallback(cm)

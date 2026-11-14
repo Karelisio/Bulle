@@ -9,4 +9,6 @@
     <string name="deck_move_down">Descendre</string>
     <string name="deck_drag_handle">Déplacer (appui long puis glisser)</string>
     <string name="deck_reorder_hint">Maintiens la poignée pour déplacer un élément, glisse-le vers la gauche pour le retirer.</string>
+    <string name="deck_state_on">Activé</string>
+    <string name="deck_state_off">Désactivé</string>
 </resources>
