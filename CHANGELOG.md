@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.6
+- Volet, tuiles des applis : découverte élargie (déclaration explicite pour MagicOS, tuiles activées à l'exécution prises en compte) ; l'éditeur indique « Recherche… » puis, si rien n'est trouvé, le nombre de services détectés (aussi noté dans le Journal de l'île).
+
 ## 0.8.5
 - Gestes « Notifications » et « Réglages rapides » : ouvrent le Volet de Bulle quand il est activé (sinon celui du système).
 - Volet en paysage : deux colonnes (en-tête compact, petites tuiles et luminosité à gauche ; média et notifications à droite).

@@ -99,12 +99,12 @@ class AppTilesTest {
             service(context.packageName, "com.karelisio.bulle.SomeTile"), // Bulle elle-même
             service("com.noperm", "com.noperm.Tile", permission = null), // ignorée par le système
             service("com.hidden", "com.hidden.Tile", exported = false),
-            service("com.off", "com.off.Tile", enabled = false),
+            service("com.off", "com.off.Tile", enabled = false), // activable à l'exécution : gardée
             service("com.zeta", "com.zeta.ZTile"), // doublon
             service("com.bad", "com.bad.Tile;rm -rf"), // nom suspect
         )
         val kept = AppTiles.filter(list, context.packageName) { it.packageName }
-        assertEquals(listOf("com.alpha", "com.zeta"), kept.map { it.packageName })
+        assertEquals(listOf("com.alpha", "com.off", "com.zeta"), kept.map { it.packageName })
     }
 
     @Test
