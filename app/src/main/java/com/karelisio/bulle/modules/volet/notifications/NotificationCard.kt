@@ -303,6 +303,8 @@ internal fun NotifCard(
                 onClick = {
                     when {
                         menu -> Unit
+                        // Changement de sortie audio : ouvre le choix de la sortie même sans action attachée.
+                        !item.redacted && NotifCommands.isAudioOutputNotice(item) -> NotifCommands.open(host, item)
                         item.contentIntent != null && !item.redacted -> NotifCommands.open(host, item)
                         item.expandable -> expanded = !expanded
                     }

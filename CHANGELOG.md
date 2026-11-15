@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.12
+- Volet : la notification « Changement de périphérique audio » (sans action propre) ouvre bien le choix de la sortie audio au toucher.
+- Journal de l'île : boutons de sortie audio / panneau du système et ouvertures de notifications notés, pour diagnostiquer.
+
 ## 0.8.11
 - Volume sur l'île : nouveau bouton « Panneau du système » dans la vue étendue — ouvre le panneau de volume de MagicOS (volume par appli).
 
