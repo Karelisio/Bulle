@@ -257,6 +257,7 @@ object VolumeKeys {
      * l'île se referme puis le flux est « ajusté » sans changement avec l'interface système.
      */
     fun showSystemPanel(context: Context, stream: VolumeStream, close: () -> Unit) {
+        com.karelisio.bulle.island.IslandLog.log("Volume : panneau du système demandé")
         close()
         _overlay.value = null
         val am = context.getSystemService(AudioManager::class.java) ?: return
@@ -265,6 +266,7 @@ object VolumeKeys {
     }
 
     fun openOutputSwitcher(context: Context, close: () -> Unit) {
+        com.karelisio.bulle.island.IslandLog.log("Sortie audio : bouton de la bulle Volume")
         val pkg = playingPackage(context) ?: context.packageName
         MediaOutput.openSwitcher(context, pkg, close) { intent ->
             close()
