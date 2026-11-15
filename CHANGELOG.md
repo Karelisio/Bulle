@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.11
+- Volume sur l'île : nouveau bouton « Panneau du système » dans la vue étendue — ouvre le panneau de volume de MagicOS (volume par appli).
+
 ## 0.8.10
 - Volet, éditeur de tuiles : la zone d'édition prend toute la hauteur et défile (longue liste de tuiles d'applis).
 - Sortie audio : le sélecteur système de sortie (MediaRouter2) est essayé en premier, puis le panneau de Paramètres, puis SystemUI — depuis la bulle Volume et la carte média ; chaque essai est noté dans le Journal de l'île.

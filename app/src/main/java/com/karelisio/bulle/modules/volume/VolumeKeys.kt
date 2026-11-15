@@ -252,6 +252,18 @@ object VolumeKeys {
      * Ouvre le choix de la sortie audio, comme la carte média du Volet : sélecteur de Paramètres
      * (Android 14+), sinon sélecteur de MediaRouter2, sinon réglages Bluetooth.
      */
+    /**
+     * Affiche le panneau de volume du système (celui de MagicOS donne le volume par appli) :
+     * l'île se referme puis le flux est « ajusté » sans changement avec l'interface système.
+     */
+    fun showSystemPanel(context: Context, stream: VolumeStream, close: () -> Unit) {
+        close()
+        _overlay.value = null
+        val am = context.getSystemService(AudioManager::class.java) ?: return
+        runCatching { am.adjustStreamVolume(stream.streamType, AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI) }
+            .onFailure { runCatching { am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI) } }
+    }
+
     fun openOutputSwitcher(context: Context, close: () -> Unit) {
         val pkg = playingPackage(context) ?: context.packageName
         MediaOutput.openSwitcher(context, pkg, close) { intent ->

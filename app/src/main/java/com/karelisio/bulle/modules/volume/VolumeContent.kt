@@ -1,5 +1,6 @@
 package com.karelisio.bulle.modules.volume
 
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.snap
@@ -109,6 +110,11 @@ data class VolumeContent(
                     color = Color.White,
                     modifier = Modifier.weight(1f),
                 )
+                // Panneau de volume du système (MagicOS : volume par appli), que l'interception masque.
+                FilledTonalIconButton(onClick = { VolumeKeys.showSystemPanel(context, overlay.stream, host::collapse) }) {
+                    Icon(Icons.Rounded.Tune, contentDescription = stringResource(R.string.volume_system_panel))
+                }
+                Spacer(Modifier.width(6.dp))
                 FilledTonalIconButton(onClick = { VolumeKeys.keepAlive(force = true); VolumeKeys.openOutputSwitcher(context, host::collapse) }) {
                     Icon(outputIcon(output.kind), contentDescription = stringResource(R.string.volume_output))
                 }
