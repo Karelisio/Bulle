@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.15
+- Paysage : seuls les appels ouvrent la carte d'eux-mêmes (plus d'alertes ni de notifications par-dessus une vidéo ou un jeu).
+- Volet : les notifications masquées dans Bulle le restent après un redémarrage du téléphone ou de l'appli.
+- Tuile « Point d'accès » : état réel affiché dès l'ouverture du Volet (lu via Shizuku).
+- Fluidité : la fenêtre d'affichage de l'île reprend sa taille une fois la carte refermée (moins de mémoire).
+- Journal de l'île : les lignes de diagnostic des touchers sont retirées.
+
 ## 0.8.14
 - Paysage : la bulle n'est plus jamais visible en compact (vidéo, jeu) ; la zone autour de la caméra reste active et un toucher ouvre la carte.
 - Sortie audio : le sélecteur du système s'ouvre aussi quand Bulle n'est pas au premier plan (relais invisible) — depuis la bulle Volume, le Volet et la notification « Changement de périphérique audio ».

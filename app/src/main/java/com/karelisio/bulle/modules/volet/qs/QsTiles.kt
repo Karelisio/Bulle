@@ -215,7 +215,19 @@ object HotspotTile : QsTile {
 
     private const val ACTION_AP_STATE = "android.net.wifi.WIFI_AP_STATE_CHANGED"
 
-    override fun observe(context: Context) = broadcastState(context, listOf(ACTION_AP_STATE)) { intent ->
+    // Diffusion du système, plus (avec Shizuku) une lecture initiale fiable : l'API cachée
+    // isWifiApEnabled est refusée aux applis récentes, la tuile restait « inconnue » au départ.
+    override fun observe(context: Context): Flow<TileState> = kotlinx.coroutines.flow.merge(
+        broadcast(context),
+        kotlinx.coroutines.flow.flow {
+            if (ShizukuShell.status() == ShizukuStatus.READY) {
+                TetherShell.parseState(ShizukuShell.run(context, TetherShell.STATE_COMMAND))
+                    ?.let { emit(TileState(active = HotspotIntents.isActive(it))) }
+            }
+        },
+    ).distinctUntilChanged()
+
+    private fun broadcast(context: Context) = broadcastState(context, listOf(ACTION_AP_STATE)) { intent ->
         if (intent != null) {
             TileState(active = HotspotIntents.isActive(intent.getIntExtra("wifi_state", 0)))
         } else {

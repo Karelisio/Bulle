@@ -88,6 +88,21 @@ class NotifRefusalTest {
     }
 
     @Test
+    fun hiddenKeysSurviveARestart() {
+        NotifLocalHide.init(context)
+        NotifLocalHide.hide(listOf("k1", "k2"))
+        NotifLocalHide.forget("k2")
+        // Redémarrage : mémoire vidée, clés relues sur le téléphone.
+        NotifLocalHide.resetForTests()
+        NotifLocalHide.init(context)
+        assertEquals(setOf("k1"), NotifLocalHide.keys.value)
+        NotifLocalHide.show(listOf("k1"))
+        NotifLocalHide.resetForTests()
+        NotifLocalHide.init(context)
+        assertTrue(NotifLocalHide.keys.value.isEmpty())
+    }
+
+    @Test
     fun audioOutputNoticeIsRecognized() {
         assertTrue(NotifCommands.isAudioOutputText("Changement de périphérique audio"))
         assertTrue(NotifCommands.isAudioOutputText("Changement de peripherique audio"))

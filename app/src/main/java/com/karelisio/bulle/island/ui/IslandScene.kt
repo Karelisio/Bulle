@@ -59,9 +59,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -524,15 +521,6 @@ private fun IslandSurface(
                         .wrapContentHeight(Alignment.Top, unbounded = true)
                         .then(if (capHeight) Modifier.heightIn(max = expandedMaxHeight) else Modifier)
                         .onSizeChanged { expandedContentHeight = it.height }
-                        // Diagnostic : le toucher atteint-il le contenu déplié (Journal de l'île) ?
-                        .pointerInput(Unit) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-                                com.karelisio.bulle.island.IslandLog.log(
-                                    "Contenu déplié : toucher reçu (${down.position.x.roundToInt()}, ${down.position.y.roundToInt()}) sur ${size.width}×${size.height}",
-                                )
-                            }
-                        }
                         .graphicsLayer {
                             val a = expandedAlpha.value
                             alpha = a

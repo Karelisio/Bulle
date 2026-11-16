@@ -90,7 +90,7 @@ object ShizukuShell {
                 reply.readException()
                 val exit = reply.readInt()
                 val out = reply.readString().orEmpty()
-                if (exit != 0 || command.startsWith(TetherShell.PREFIX)) {
+                if (exit != 0 || (command.startsWith(TetherShell.PREFIX) && command != TetherShell.STATE_COMMAND)) {
                     com.karelisio.bulle.island.IslandLog.log("Shizuku : « $command » → $exit ${out.take(200)}")
                 }
                 if (exit == 0) out else null
@@ -164,7 +164,7 @@ class ShellUserService : Binder() {
 
     private fun exec(command: String): Pair<Int, String> = try {
         // Point d'accès Wi-Fi : pas de commande shell fiable, appel direct du service de partage.
-        TetherShell.parse(command)?.let { return TetherShell.run(it) }
+        TetherShell.intercept(command)?.let { return it }
         val p = ProcessBuilder("sh", "-c", command).redirectErrorStream(true).start()
         // Lecture de la sortie dans un fil à part : une commande qui ne ferme jamais sa sortie
         // ne doit pas bloquer le service au-delà du délai maximal.
