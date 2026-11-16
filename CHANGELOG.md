@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.18
+- Bulle « Bluetooth connecté » : ne s'affiche plus en boucle. Elle n'apparaît que si la connexion tient (4 s), un même appareil n'est pas réannoncé avant 30 min (sauf vraie reconnexion après 2 min de déconnexion), et les appareils sans type connu sont ignorés. Les connexions éclair sont notées dans le Journal.
+
 ## 0.8.17
 - Paysage : changer le volume affiche une fine jauge le long de la caméra (la bulle reste invisible).
 - Journal de l'île : les 50 dernières lignes sont conservées après un redémarrage (marquées « ↩ »).
