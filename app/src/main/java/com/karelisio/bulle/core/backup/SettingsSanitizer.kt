@@ -98,6 +98,8 @@ fun BulleSettings.sanitized(): BulleSettings {
         music = music.copy(pausedHideMinutes = music.pausedHideMinutes.coerceIn(b.PAUSED_HIDE_MINUTES)),
         rules = rules.copy(rules = rules.rules.map { it.sanitized() }),
         deck = deck.sanitized(),
+        halo = halo.sanitized(),
+        edges = edges.sanitized(),
     )
 }
 

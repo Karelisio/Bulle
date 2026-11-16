@@ -296,6 +296,9 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                     com.karelisio.bulle.island.IslandLog.Category.VOLET to R.string.journal_filter_volet,
                     com.karelisio.bulle.island.IslandLog.Category.AUDIO to R.string.journal_filter_audio,
                     com.karelisio.bulle.island.IslandLog.Category.SHIZUKU to R.string.journal_filter_shizuku,
+                    com.karelisio.bulle.island.IslandLog.Category.HALO to R.string.journal_filter_halo,
+                    com.karelisio.bulle.island.IslandLog.Category.EDGES to R.string.journal_filter_edges,
+                    com.karelisio.bulle.island.IslandLog.Category.STANDBY to R.string.journal_filter_standby,
                 )
                 options.forEach { (c, label) ->
                     androidx.compose.material3.FilterChip(

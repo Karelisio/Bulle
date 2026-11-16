@@ -45,6 +45,10 @@ data class BulleSettings(
     val live: LiveSettings = LiveSettings(),
     val calls: CallSettings = CallSettings(),
     val alerts: AlertSettings = AlertSettings(),
+    /** Halo : bords lumineux à chaque notification. */
+    val halo: com.karelisio.bulle.modules.halo.HaloSettings = com.karelisio.bulle.modules.halo.HaloSettings(),
+    /** Bords : gestes sur les bords de l'écran. */
+    val edges: com.karelisio.bulle.modules.edges.EdgeSettings = com.karelisio.bulle.modules.edges.EdgeSettings(),
 )
 
 /** Réglage fin manuel, en dp, appliqué par-dessus la position calée sur le cutout. */

@@ -100,6 +100,9 @@ class IslandController(
     )
 
     private val hub = ContentHub(ModuleEnv(context, scope, settings))
+
+    /** Contenus actifs de tous les modules (Halo : pochette ; Veille : activités en cours). */
+    val contents: StateFlow<List<IslandContent>> get() = hub.contents
     private val screen = MutableStateFlow(ScreenEnv())
 
     /** État de l'écran (géométrie de l'île, plein écran, verrouillage), lu par le Volet. */
@@ -152,6 +155,8 @@ class IslandController(
                 val all = hub.contents.value.mapTo(HashSet()) { it.key }
                 seenKeys.retainAll(all)
                 if (primary == null || !seenKeys.add(primary.key)) return@collect
+                // L'île gonfle pour ce nouveau contenu : le Halo démarre au même instant.
+                if (state.value.visible) IslandPulses.emit(primary)
                 val ms = primary.autoExpandMs ?: return@collect
                 if (interaction.value.panel != null) return@collect
                 // Paysage (île verticale) : seuls les appels s'ouvrent d'eux-mêmes.

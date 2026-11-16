@@ -35,6 +35,8 @@ class IslandAccessibilityService : AccessibilityService() {
     private var window: IslandWindow? = null
     private var controller: IslandController? = null
     private var volet: com.karelisio.bulle.modules.volet.VoletController? = null
+    /** Modules hors île (Halo, Bords, Veille) démarrés pour cette connexion. */
+    private val addons = mutableListOf<AutoCloseable>()
     private val screenTick = MutableStateFlow(0)
     private var windowListWorks = false
     private var fullscreenJob: kotlinx.coroutines.Job? = null
@@ -105,6 +107,12 @@ class IslandAccessibilityService : AccessibilityService() {
         volet = VoletController(this, scope, c).also { it.start(); VoletController.register(it) }
         // Historique des notifications (si activé dans les réglages du Volet).
         com.karelisio.bulle.modules.volet.history.NotificationHistory.start(this, scope, c.storedSettings.map { it.volet })
+        // Modules hors île (Halo, Bords, Veille) : mêmes overlays, même service, aucun service en plus.
+        val env = AddonEnv(this, scope, c)
+        IslandAddons.all.forEach { addon ->
+            runCatching { addons += addon.start(env) }
+                .onFailure { IslandLog.log("Module ${addon.id} : démarrage impossible (${it.javaClass.simpleName})") }
+        }
     }
 
     /**
@@ -209,6 +217,8 @@ class IslandAccessibilityService : AccessibilityService() {
         fullscreenJob = null
         runCatching { getSystemService(DisplayManager::class.java).unregisterDisplayListener(displayListener) }
         runCatching { unregisterReceiver(screenReceiver) }
+        addons.asReversed().forEach { runCatching { it.close() } }
+        addons.clear()
         if (VoletController.current.value === volet) VoletController.register(null)
         volet?.destroy()
         volet = null

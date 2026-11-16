@@ -2,6 +2,7 @@ package com.karelisio.bulle.modules
 
 import com.karelisio.bulle.core.island.ModuleRegistry
 import com.karelisio.bulle.core.island.Panels
+import com.karelisio.bulle.island.IslandAddons
 import com.karelisio.bulle.modules.alerts.AlertsModule
 import com.karelisio.bulle.modules.call.CallModule
 import com.karelisio.bulle.modules.deck.DeckPanel
@@ -31,5 +32,8 @@ object Modules {
         ModuleRegistry.register(com.karelisio.bulle.modules.screentime.ScreenTimeModule)
         ModuleRegistry.register(com.karelisio.bulle.modules.capture.CaptureModule)
         Panels.deck = DeckPanel
+        // Modules hors île, démarrés par le service d'accessibilité de l'île.
+        IslandAddons.register(com.karelisio.bulle.modules.halo.HaloAddon)
+        IslandAddons.register(com.karelisio.bulle.modules.edges.EdgeAddon)
     }
 }

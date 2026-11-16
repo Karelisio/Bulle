@@ -47,6 +47,29 @@ object VisibilityPolicy {
         return null
     }
 
+    /**
+     * Masquage d'un overlay hors île (Halo, Bords), avec les mêmes règles que l'île : plein écran
+     * (même en paysage natif : une vidéo ou un jeu ne doit jamais être recouvert), paysage si l'île
+     * s'y masque, applis masquées, règles. L'île désactivée ou masquée sur l'écran de verrouillage
+     * ne compte pas : chaque module a son propre interrupteur.
+     */
+    fun overlayHiddenReason(
+        settings: BulleSettings,
+        screen: ScreenEnv,
+        foregroundPackage: String?,
+        launcherPackage: String? = null,
+    ): HiddenReason? = hiddenReason(
+        settings.copy(
+            islandEnabled = true,
+            visibility = settings.visibility.copy(
+                landscapeNative = false,
+                hideInLandscape = settings.visibility.hideInLandscape && !settings.visibility.landscapeNative,
+                hideOnLockscreen = false,
+            ),
+        ),
+        screen, foregroundPackage, launcherPackage,
+    )
+
     /** L'appli au premier plan est une exception au masquage plein écran. */
     private fun fullscreenIgnored(v: VisibilitySettings, fg: String?, launcher: String?): Boolean {
         fg ?: return false

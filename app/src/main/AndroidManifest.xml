@@ -161,6 +161,19 @@
             android:taskAffinity="com.karelisio.bulle.karaoke"
             android:theme="@style/Theme.Bulle" />
 
+        <!-- Halo écran éteint (modules/halo) : noir pur au-dessus de l'écran de verrouillage,
+             le temps du halo ; tâche à part, absente des applis récentes. -->
+        <activity
+            android:name=".modules.halo.HaloNightActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:taskAffinity="com.karelisio.bulle.halo"
+            android:theme="@style/Theme.Bulle.Black" />
+
         <!-- Zone capture (modules/capture) -->
         <!-- Scanner QR plein écran (tâche à part, absente des applis récentes). -->
         <activity
