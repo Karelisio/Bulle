@@ -49,6 +49,9 @@ class HaloNightActivity : ComponentActivity() {
         }
         val request = requestFrom(intent)
         val locked = getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
+        // Vérification des autorisations MagicOS : affiché depuis l'arrière-plan (et sur l'écran verrouillé).
+        com.karelisio.bulle.system.OemSettings.recordProof(this, com.karelisio.bulle.system.OemSettings.Proof.BACKGROUND_POPUP)
+        if (locked) com.karelisio.bulle.system.OemSettings.recordProof(this, com.karelisio.bulle.system.OemSettings.Proof.LOCKSCREEN)
         setContent {
             var look by remember { mutableStateOf<HaloLook?>(null) }
             var seconds by remember { mutableStateOf(4) }

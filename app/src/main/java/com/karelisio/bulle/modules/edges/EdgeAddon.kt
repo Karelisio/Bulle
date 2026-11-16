@@ -32,6 +32,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -70,11 +71,16 @@ private class EdgeRuntime(private val env: AddonEnv) : AutoCloseable {
     var layout: EdgeLayout? = null
         private set
 
-    /** Horloge d'une seconde pendant un affichage temporaire (fin du test Fiabilité). */
-    private val flashTick = flow {
-        while (true) {
-            emit(SystemClock.uptimeMillis())
-            delay(1_000L)
+    /** Affichage temporaire des zones (test Fiabilité) : vrai jusqu'à l'échéance, puis faux. */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private val flashing = EdgeBus.flashUntil.flatMapLatest { until ->
+        flow {
+            val left = until - SystemClock.uptimeMillis()
+            if (left > 0) {
+                emit(true)
+                delay(left)
+            }
+            emit(false)
         }
     }
 
@@ -85,7 +91,7 @@ private class EdgeRuntime(private val env: AddonEnv) : AutoCloseable {
                 env.controller.settings,
                 env.controller.screenEnv,
                 ForegroundApp.packageName,
-                combine(EdgeBus.preview, EdgeBus.flashUntil, flashTick) { p, until, now -> p || now < until },
+                combine(EdgeBus.preview, flashing) { p, f -> p || f },
                 StandbyState.active,
             ) { s, screen, fg, colored, standby ->
                 val e = s.edges

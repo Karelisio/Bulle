@@ -21,6 +21,8 @@ class PermissionLogicTest {
                 PermissionKey.INSTALL_PACKAGES,
                 PermissionKey.BATTERY,
                 PermissionKey.OEM_LAUNCH,
+                PermissionKey.LOCKSCREEN_DISPLAY,
+                PermissionKey.BACKGROUND_POPUP,
             ),
             PermissionLogic.onboardingSteps(35, OemSettings.Family.HONOR),
         )

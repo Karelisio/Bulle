@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 0.9.0 : autorisations MagicOS, tests de l'écran Fiabilité. -->
+<resources>
+    <string name="perm_lockscreen_title">Afficher sur l’écran de verrouillage</string>
+    <string name="perm_lockscreen_desc">Veille et le Halo écran éteint s’affichent par-dessus l’écran de verrouillage.</string>
+    <string name="perm_lockscreen_body">MagicOS bloque par défaut l’affichage au-dessus de l’écran de verrouillage. Sans cette autorisation, Veille et le Halo écran éteint restent invisibles tant que le téléphone est verrouillé.</string>
+    <string name="perm_lockscreen_step3">Activer « Afficher sur l’écran de verrouillage ».</string>
+    <string name="perm_popup_title">Fenêtres pop-up en arrière-plan</string>
+    <string name="perm_popup_desc">Veille se lance d’elle-même au branchement, sans ouvrir Bulle.</string>
+    <string name="perm_popup_body">Pour que Veille s’ouvre toute seule quand le téléphone charge à l’horizontale, MagicOS doit autoriser Bulle à afficher des fenêtres depuis l’arrière-plan.</string>
+    <string name="perm_popup_step3">Activer « Afficher des fenêtres pop-up en arrière-plan ».</string>
+    <string name="perm_special_step1">Ouvrir les autorisations de Bulle (bouton ci-dessous).</string>
+    <string name="perm_special_step2">Toucher « Autorisations » puis « Autres autorisations ».</string>
+    <string name="perm_special_open">Ouvrir les autorisations</string>
+    <string name="perm_media_standby_body">La page Photos de Veille fait défiler un album de ta galerie. Les photos sont lues sur le téléphone, jamais copiées ni envoyées.</string>
+    <string name="rel_tests_title">Tester les modules</string>
+    <string name="rel_tests_text">Déclenche un halo, montre les zones de bord en couleur pendant 5 s ou lance Veille. Chaque test est noté dans le Journal de l’île.</string>
+    <string name="rel_test_halo">Déclencher un halo</string>
+    <string name="rel_test_edges">Afficher les zones de bord</string>
+    <string name="rel_test_standby">Lancer Veille</string>
+    <string name="rel_test_service_off">Le service de l’île ne tourne pas.</string>
+    <string name="search_set_halo">Halo (bords lumineux)</string>
+    <string name="search_set_edges">Bords (gestes sur les bords)</string>
+    <string name="search_set_standby">Veille (StandBy)</string>
+</resources>

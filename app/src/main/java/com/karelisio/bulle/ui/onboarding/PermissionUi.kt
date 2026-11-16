@@ -38,6 +38,8 @@ import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DoNotDisturbOn
+import androidx.compose.material.icons.rounded.PictureInPictureAlt
+import androidx.compose.material.icons.rounded.ScreenLockPortrait
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.LockOpen
@@ -112,6 +114,8 @@ fun PermissionKey.texts(family: OemSettings.Family = OemSettings.family): Permis
     PermissionKey.WRITE_SETTINGS -> PermissionTexts(Icons.Rounded.Settings, R.string.perm_write_settings_title, R.string.perm_write_settings_desc)
     PermissionKey.SECURE_SETTINGS -> PermissionTexts(Icons.Rounded.Terminal, R.string.perm_secure_title, R.string.perm_secure_desc)
     PermissionKey.DND_ACCESS -> PermissionTexts(Icons.Rounded.DoNotDisturbOn, R.string.perm_dnd_title, R.string.perm_dnd_desc)
+    PermissionKey.LOCKSCREEN_DISPLAY -> PermissionTexts(Icons.Rounded.ScreenLockPortrait, R.string.perm_lockscreen_title, R.string.perm_lockscreen_desc)
+    PermissionKey.BACKGROUND_POPUP -> PermissionTexts(Icons.Rounded.PictureInPictureAlt, R.string.perm_popup_title, R.string.perm_popup_desc)
 }
 
 /**

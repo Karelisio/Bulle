@@ -72,14 +72,23 @@ object Routes {
     const val STYLE_PACKS = "style/packs"
     const val ENTRY_ANIMATIONS = "style/entry"
     const val VOLET_HISTORY = "volet/history"
+    const val HALO = "halo"
+    const val EDGES = "edges"
+    const val STANDBY = "standby"
     const val DECK_TAB = "deck/{id}"
     fun deckTab(id: String) = "deck/$id"
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun BulleNavHost() {
+fun BulleNavHost(pendingRoute: String? = null, onRouteOpened: () -> Unit = {}) {
     val nav = rememberNavController()
+    // Ouverture directe d'un écran (tuile : appui long, tuile du Volet).
+    androidx.compose.runtime.LaunchedEffect(pendingRoute) {
+        val route = pendingRoute ?: return@LaunchedEffect
+        runCatching { nav.navigate(route) { launchSingleTop = true } }
+        onRouteOpened()
+    }
     // Double appui sur « retour » pendant l'animation : sans garde, le second popBackStack()
     // retirait l'accueil lui-même et laissait un écran vide.
     val back: () -> Unit = { if (nav.previousBackStackEntry != null) nav.popBackStack() }
@@ -128,6 +137,9 @@ fun BulleNavHost() {
         composable(Routes.MESSAGES) { com.karelisio.bulle.modules.messages.ui.MessagesSettingsScreen(onBack = back) }
         composable(Routes.INTEGRATIONS) { com.karelisio.bulle.modules.external.ui.IntegrationsSettingsScreen(onBack = back) }
         composable(Routes.WEATHER) { com.karelisio.bulle.modules.weather.ui.WeatherSettingsScreen(onBack = back) }
+        composable(Routes.HALO) { com.karelisio.bulle.modules.halo.ui.HaloSettingsScreen(onBack = back) }
+        composable(Routes.EDGES) { com.karelisio.bulle.modules.edges.ui.EdgeSettingsScreen(onBack = back) }
+        composable(Routes.STANDBY) { com.karelisio.bulle.modules.standby.ui.StandbySettingsScreen(onBack = back) }
         composable(Routes.PERMISSIONS) { PermissionsScreen(onBack = back) }
         composable(Routes.RELIABILITY) { ReliabilityScreen(onBack = back) }
         composable(Routes.BACKUP) { BackupScreen(onBack = back) }

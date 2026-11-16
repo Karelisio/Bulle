@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="perm_lockscreen_title">Display on lock screen</string>
+    <string name="perm_lockscreen_desc">StandBy and the screen-off Halo show over the lock screen.</string>
+    <string name="perm_lockscreen_body">MagicOS blocks showing over the lock screen by default. Without this permission, StandBy and the screen-off Halo stay hidden while the phone is locked.</string>
+    <string name="perm_lockscreen_step3">Turn on “Display on lock screen”.</string>
+    <string name="perm_popup_title">Pop-up windows in the background</string>
+    <string name="perm_popup_desc">StandBy starts by itself when plugged in, without opening Bulle.</string>
+    <string name="perm_popup_body">For StandBy to open by itself when the phone charges sideways, MagicOS must allow Bulle to show windows from the background.</string>
+    <string name="perm_popup_step3">Turn on “Display pop-up windows while running in the background”.</string>
+    <string name="perm_special_step1">Open Bulle’s permissions (button below).</string>
+    <string name="perm_special_step2">Tap “Permissions”, then “Other permissions”.</string>
+    <string name="perm_special_open">Open permissions</string>
+    <string name="perm_media_standby_body">The StandBy Photos page plays an album from your gallery. Photos are read on the phone, never copied or sent.</string>
+    <string name="rel_tests_title">Test the modules</string>
+    <string name="rel_tests_text">Trigger a halo, show the edge zones in colour for 5 s or start StandBy. Each test is noted in the island log.</string>
+    <string name="rel_test_halo">Trigger a halo</string>
+    <string name="rel_test_edges">Show the edge zones</string>
+    <string name="rel_test_standby">Start StandBy</string>
+    <string name="rel_test_service_off">The island service isn’t running.</string>
+    <string name="search_set_halo">Halo (glowing edges)</string>
+    <string name="search_set_edges">Edges (edge gestures)</string>
+    <string name="search_set_standby">StandBy</string>
+</resources>

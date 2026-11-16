@@ -140,6 +140,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Appui long sur une tuile Réglages rapides de Bulle : ouvre ses réglages. -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
         </activity>
 
         <!-- Module Musique : paroles plein écran « karaoké », lancées depuis l'île (nouvelle tâche à part,
@@ -286,6 +290,49 @@
             android:exported="true"
             android:icon="@drawable/ic_stat_bulle"
             android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+
+        <!-- Tuiles Réglages rapides des modules Halo, Bords et Veille. -->
+        <service
+            android:name=".system.HaloTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_stat_bulle"
+            android:label="@string/halo_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+
+        <service
+            android:name=".system.EdgesTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_stat_bulle"
+            android:label="@string/edges_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+
+        <service
+            android:name=".system.StandbyTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_stat_bulle"
+            android:label="@string/standby_title"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

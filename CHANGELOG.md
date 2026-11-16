@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.9.0
+Trois nouveaux modules, qui vivent dans le service de l'île (aucun nouveau service).
+
+**Halo — bords lumineux**
+- À chaque notification, un halo fait le tour de l'écran en suivant ses vrais coins arrondis et en contournant la caméra.
+- Animation signature : le halo part de la caméra, se sépare en deux traits qui se rejoignent en bas dans un éclat de bulles irisées. Autres styles : trait, pulsation, vague, dégradé tournant, étincelles. Réglages : épaisseur, durée, passages, intensité, vitesse, avec aperçu en direct.
+- Couleur : icône de l'appli, pochette pour la musique (option : halo au changement de morceau), Material You, couleur fixe ou couleur par appli. Écho : rose pulsé au rythme du cœur.
+- Filtres : toutes les applis ou une liste, conversations seulement, silencieuses et en cours ignorées, coupé en Ne pas déranger, jamais en plein écran ni dans les applis masquées.
+- Synchronisé avec l'île : il démarre quand elle gonfle, sans vibration en double.
+- Écran éteint (option, coupée par défaut) : halo sur noir pur puis l'écran se rééteint, avec un nombre maximal de réveils par heure.
+- Halo de charge : un trait vert monte le long des bords jusqu'au pourcentage au branchement.
+
+**Bords — gestes sur les bords**
+- Zones invisibles sur les bords gauche et droit (et, en option, sur leur moitié basse) : position, longueur et épaisseur (8 à 24 dp) réglables, zones affichées en couleur pendant le réglage.
+- Gestes : glisser vers le haut / le bas le long du bord, double toucher, appui long, et en option glisser vers l'intérieur avec maintien (avec avertissement). Toutes les actions de geste, plus « Ouvrir le Volet », « Lancer Veille » et « Halo de test ».
+- Geste Retour d'Android préservé par défaut ; zones courtes (tiers supérieur), jamais sur la bande du Volet, la barre d'état ou la barre de navigation.
+- Mode curseur : luminosité ou volume réglé en continu, jauge Material You qui suit le doigt, crans haptiques.
+- Goutte liquide sous le doigt (même shader que la scission de l'île), vibration à la validation. Masquage comme l'île et désactivation appli par appli.
+
+**Veille — mode StandBy**
+- En charge à l'horizontale (téléphone verrouillé ou sur l'accueil) : grande horloge, widgets, musique, photos ou Écho, en plein écran. Économiseur d'écran Android quand le système le propose, sinon activité de secours qui se ferme au débranchement ou à la verticale.
+- Pages à balayer, deux panneaux qui défilent verticalement : horloges (numérique géante, analogique, en toutes lettres, à volets), météo, prochain rendez-vous, batteries du téléphone et des écouteurs, minuteur ; pochette qui respire, paroles synchronisées et sortie audio ; diaporama d'un album avec effet Ken Burns ; cœur d'Écho.
+- Mode nuit automatique (horaires ou pièce sombre) : rouge monochrome très sombre, luminosité au minimum, pixels décalés chaque minute.
+- Notifications en cartes discrètes ; une activité en cours (minuteur, navigation, livraison) prend la place d'un panneau.
+- Animation signature : l'île descend de la caméra, gonfle jusqu'à remplir l'écran et devient l'horloge ; l'inverse à la sortie.
+- Réglages : délai, pages et ordre, album, horaires du mode nuit, chargeurs (filaire, sans fil).
+
+**Autour**
+- Autorisations : « Afficher sur l'écran de verrouillage » et « Fenêtres pop-up en arrière-plan » (MagicOS), vérifiées dès que Veille ou le Halo s'affichent ; accès aux photos demandé seulement pour la page Photos.
+- Fiabilité : tests « Déclencher un halo », « Afficher les zones de bord », « Lancer Veille » ; filtres Halo, Bords et Veille dans le Journal de l'île.
+- Tuiles Halo, Bords et Veille dans le Volet et dans les Réglages rapides (appui long : leurs réglages).
+- « Réduire les animations » respecté : halo statique, pas de goutte, fondu simple pour Veille.
+
 ## 0.8.19
 - Bulle Média : file d'attente repensée.
   - Aperçu discret « Ensuite : titre — artiste » sous la barre de progression : toucher = lire ce titre, appui long = ouvrir la file.

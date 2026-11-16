@@ -18,6 +18,8 @@ data class SettingsShortcut(
     val keywords: List<String>,
     /** Ajoute « package:com.karelisio.bulle » (écrans propres à l'appli). */
     val withPackage: Boolean = false,
+    /** Écran de réglages de Bulle (route de navigation) au lieu d'un écran système. */
+    val route: String? = null,
 )
 
 /** Liste statique des raccourcis Settings.ACTION_* et leur filtrage (fonction pure). */
@@ -51,6 +53,10 @@ object SettingsShortcuts {
         SettingsShortcut("cast", Settings.ACTION_CAST_SETTINGS, R.string.search_set_cast, listOf("cast", "diffusion", "projection", "screen mirroring", "miroir")),
         SettingsShortcut("bulle", Settings.ACTION_APPLICATION_DETAILS_SETTINGS, R.string.search_set_bulle, listOf("bulle", "autorisations de bulle", "bulle permissions"), withPackage = true),
         SettingsShortcut("settings", Settings.ACTION_SETTINGS, R.string.search_set_all, listOf("parametres", "reglages", "settings", "options")),
+        // Réglages de Bulle (modules hors île).
+        SettingsShortcut("bulle_halo", Intent.ACTION_MAIN, R.string.search_set_halo, listOf("halo", "bords lumineux", "edge lighting"), route = com.karelisio.bulle.ui.Routes.HALO),
+        SettingsShortcut("bulle_edges", Intent.ACTION_MAIN, R.string.search_set_edges, listOf("bords", "gestes sur les bords", "edge gestures"), route = com.karelisio.bulle.ui.Routes.EDGES),
+        SettingsShortcut("bulle_standby", Intent.ACTION_MAIN, R.string.search_set_standby, listOf("veille", "standby", "horloge de chevet", "bedside clock"), route = com.karelisio.bulle.ui.Routes.STANDBY),
     )
 
     /**
@@ -74,8 +80,11 @@ object SettingsShortcuts {
         }.sortedBy { it.second }.take(limit).map { it.first }
     }
 
-    fun intent(context: Context, shortcut: SettingsShortcut): Intent =
-        Intent(shortcut.action).apply {
+    fun intent(context: Context, shortcut: SettingsShortcut): Intent = shortcut.route?.let { route ->
+        Intent(context, com.karelisio.bulle.ui.MainActivity::class.java)
+            .putExtra(com.karelisio.bulle.ui.MainActivity.EXTRA_ROUTE, route)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+    } ?: Intent(shortcut.action).apply {
             if (shortcut.withPackage) data = Uri.fromParts("package", context.packageName, null)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }

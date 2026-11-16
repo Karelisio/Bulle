@@ -101,7 +101,9 @@ fun OnboardingScreen(onFinished: () -> Unit) {
     // Pages propres au Volet (réglages système, Ne pas déranger) : seulement s'il est activé.
     val voletEnabled by remember { SettingsRepository.flow(context).map { it.volet.enabled } }
         .collectAsStateWithLifecycle(false)
-    val steps = remember(voletEnabled) { PermissionLogic.onboardingSteps(Build.VERSION.SDK_INT, family, voletEnabled) }
+    val photos by remember { SettingsRepository.flow(context).map { it.standby.enabled && com.karelisio.bulle.modules.standby.StandbyPage.PHOTOS in it.standby.pages } }
+        .collectAsStateWithLifecycle(false)
+    val steps = remember(voletEnabled, photos) { PermissionLogic.onboardingSteps(Build.VERSION.SDK_INT, family, voletEnabled, photos) }
     val pages = remember(steps) {
         buildList {
             repeat(INTRO_COUNT) { add(OnboardingPage.Intro(it)) }
@@ -340,6 +342,9 @@ private fun PermissionPage(page: OnboardingPage.Permission, permissions: Permiss
             PermissionKey.OEM_LAUNCH -> if (honor) R.string.perm_oem_body_honor else R.string.perm_oem_body
             PermissionKey.WRITE_SETTINGS -> R.string.perm_write_settings_volet_body
             PermissionKey.DND_ACCESS -> R.string.perm_dnd_body
+            PermissionKey.LOCKSCREEN_DISPLAY -> R.string.perm_lockscreen_body
+            PermissionKey.BACKGROUND_POPUP -> R.string.perm_popup_body
+            PermissionKey.MEDIA_IMAGES -> R.string.perm_media_standby_body
             else -> texts.desc
         }
         Text(
@@ -352,6 +357,8 @@ private fun PermissionPage(page: OnboardingPage.Permission, permissions: Permiss
         val steps = when {
             key == PermissionKey.RESTRICTED -> listOf(R.string.perm_restricted_step1, R.string.perm_restricted_step2, R.string.perm_restricted_step3)
             key == PermissionKey.OEM_LAUNCH && honor -> listOf(R.string.perm_oem_step1_honor, R.string.perm_oem_step2_honor, R.string.perm_oem_step3_honor)
+            key == PermissionKey.LOCKSCREEN_DISPLAY -> listOf(R.string.perm_special_step1, R.string.perm_special_step2, R.string.perm_lockscreen_step3)
+            key == PermissionKey.BACKGROUND_POPUP -> listOf(R.string.perm_special_step1, R.string.perm_special_step2, R.string.perm_popup_step3)
             else -> emptyList()
         }
         if (steps.isNotEmpty()) {
@@ -399,6 +406,7 @@ private fun PermissionAction(key: PermissionKey, granted: Boolean, permissions: 
     if (PermissionLogic.isManual(key)) {
         val label = when (key) {
             PermissionKey.RESTRICTED -> R.string.perm_restricted_open
+            PermissionKey.LOCKSCREEN_DISPLAY, PermissionKey.BACKGROUND_POPUP -> R.string.perm_special_open
             else -> if (honor) R.string.perm_oem_open_honor else R.string.perm_oem_open
         }
         FilledTonalButton(onClick = { permissions.request(key) }, modifier = Modifier.height(52.dp)) {

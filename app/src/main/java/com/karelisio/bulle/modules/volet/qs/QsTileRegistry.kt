@@ -10,6 +10,8 @@ object QsTileRegistry {
     val all: List<QsTile> = listOf(
         WifiTile, BluetoothTile, MobileDataTile, TorchTile, DndTile, RotationTile,
         AirplaneTile, HotspotTile, LocationTile, NfcTile, AutoBrightnessTile, ScreenshotTile, LockTile,
+        // Modules de Bulle (à ajouter depuis l'éditeur de tuiles).
+        HaloQsTile, EdgesQsTile, StandbyQsTile,
     )
 
     private val byId: Map<String, QsTile> = all.associateBy { it.id }
