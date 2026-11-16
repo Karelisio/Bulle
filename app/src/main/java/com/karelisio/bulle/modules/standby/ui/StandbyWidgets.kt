@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,10 +31,14 @@ import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.HourglassEmpty
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.Forward10
+import androidx.compose.material.icons.rounded.Replay10
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -212,7 +217,10 @@ fun LivePanel(content: IslandContent?, host: IslandHost?) {
     }
 }
 
-/** Musique : pochette qui respire, titre, commandes (module Musique). */
+/**
+ * Musique : pochette qui respire, titre, barre de lecture qu'on fait glisser, retour / avance de
+ * 10 s, morceau précédent / suivant (module Musique).
+ */
 @Composable
 fun MusicPanel(music: MusicContent?) {
     val reduce = rememberReduceMotion()
@@ -229,36 +237,129 @@ fun MusicPanel(music: MusicContent?) {
             )
         }
         val controls = music.controller.transportControls
-        Row(Modifier.fillMaxSize().padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier.fillMaxHeight(0.82f).aspectRatio(1f)
-                    .graphicsLayer { scaleX = breathe.value; scaleY = breathe.value }
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(music.accent.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                music.artwork?.image?.let { Image(it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()) }
-                    ?: Icon(Icons.Rounded.MusicNote, contentDescription = null, modifier = Modifier.size(56.dp))
+        val duration = music.track.durationMs
+        var position by remember { mutableStateOf(0L) }
+        var dragging by remember { mutableStateOf<Float?>(null) }
+        LaunchedEffect(music.playback, duration) {
+            while (true) {
+                position = music.playback.positionAt(android.os.SystemClock.elapsedRealtime(), duration)
+                delay(250)
             }
-            Spacer(Modifier.width(20.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(music.track.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(music.track.artist, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { controls.skipToPrevious() }) { Icon(Icons.Rounded.SkipPrevious, stringResource(R.string.action_previous_track), Modifier.size(36.dp)) }
-                    PlayPauseButton(
-                        playing = music.playback.isPlaying,
-                        accent = music.accent,
-                        contentDescription = stringResource(R.string.action_play_pause),
-                        onClick = { if (music.playback.isPlaying) controls.pause() else controls.play() },
-                        size = 64.dp,
-                    )
-                    IconButton(onClick = { controls.skipToNext() }) { Icon(Icons.Rounded.SkipNext, stringResource(R.string.action_next_track), Modifier.size(36.dp)) }
+        }
+        Column(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 18.dp), verticalArrangement = Arrangement.SpaceBetween) {
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.fillMaxHeight(0.92f).aspectRatio(1f)
+                        .graphicsLayer { scaleX = breathe.value; scaleY = breathe.value }
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(music.accent.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    music.artwork?.image?.let { Image(it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()) }
+                        ?: Icon(Icons.Rounded.MusicNote, contentDescription = null, modifier = Modifier.size(48.dp))
+                }
+                Spacer(Modifier.width(16.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(music.track.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(music.track.artist, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+            if (duration > 0) {
+                val shown = dragging ?: (position / duration.toFloat()).coerceIn(0f, 1f)
+                Slider(
+                    value = shown,
+                    onValueChange = { dragging = it },
+                    onValueChangeFinished = {
+                        dragging?.let { controls.seekTo((it * duration).toLong()) }
+                        dragging = null
+                    },
+                    colors = SliderDefaults.colors(thumbColor = music.accent, activeTrackColor = music.accent),
+                    modifier = Modifier.fillMaxWidth().height(28.dp),
+                )
+                Row(Modifier.fillMaxWidth()) {
+                    Text(formatTime((shown * duration).toLong()), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.weight(1f))
+                    Text(formatTime(duration), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            // Commandes sur toute la largeur (aucune n'est rognée dans un panneau étroit).
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { controls.skipToPrevious() }) { Icon(Icons.Rounded.SkipPrevious, stringResource(R.string.action_previous_track), Modifier.size(32.dp)) }
+                IconButton(onClick = { controls.seekTo((position - 10_000L).coerceAtLeast(0L)) }) {
+                    Icon(Icons.Rounded.Replay10, stringResource(R.string.standby_back10), Modifier.size(28.dp))
+                }
+                PlayPauseButton(
+                    playing = music.playback.isPlaying,
+                    accent = music.accent,
+                    contentDescription = stringResource(R.string.action_play_pause),
+                    onClick = { if (music.playback.isPlaying) controls.pause() else controls.play() },
+                    size = 56.dp,
+                )
+                IconButton(onClick = { controls.seekTo(if (duration > 0) (position + 10_000L).coerceAtMost(duration) else position + 10_000L) }) {
+                    Icon(Icons.Rounded.Forward10, stringResource(R.string.standby_forward10), Modifier.size(28.dp))
+                }
+                IconButton(onClick = { controls.skipToNext() }) { Icon(Icons.Rounded.SkipNext, stringResource(R.string.action_next_track), Modifier.size(32.dp)) }
+            }
+        }
+    }
+}
+
+/** File d'attente du lecteur : toucher un titre pour y aller (titre en cours mis en avant). */
+@Composable
+fun QueuePanel(music: MusicContent?) {
+    val queue = remember(music?.track?.identity) { runCatching { music?.controller?.queue.orEmpty() }.getOrDefault(emptyList()) }
+    val activeId = music?.controller?.playbackState?.activeQueueItemId
+    StandbyCard {
+        if (music == null || queue.isEmpty()) {
+            Placeholder(Icons.Rounded.MusicNote, stringResource(R.string.standby_queue_none))
+            return@StandbyCard
+        }
+        val state = androidx.compose.foundation.lazy.rememberLazyListState()
+        LaunchedEffect(activeId) {
+            val i = queue.indexOfFirst { it.queueId == activeId }
+            if (i > 0) state.scrollToItem((i - 1).coerceAtLeast(0))
+        }
+        Column(Modifier.fillMaxSize().padding(top = 18.dp)) {
+            Text(
+                stringResource(R.string.standby_queue_title),
+                style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.padding(horizontal = 24.dp),
+            )
+            androidx.compose.foundation.lazy.LazyColumn(state = state, modifier = Modifier.fillMaxSize().padding(vertical = 6.dp)) {
+                items(queue.size) { i ->
+                    val item = queue[i]
+                    val current = item.queueId == activeId
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { music.controller.transportControls.skipToQueueItem(item.queueId) }
+                            .background(if (current) music.accent.copy(alpha = 0.18f) else androidx.compose.ui.graphics.Color.Transparent)
+                            .padding(horizontal = 24.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("${i + 1}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(28.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                item.description.title?.toString().orEmpty(),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = if (current) FontWeight.Bold else FontWeight.Normal,
+                                color = if (current) music.accent else MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            )
+                            item.description.subtitle?.let {
+                                Text(it.toString(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+private fun formatTime(ms: Long): String {
+    val s = (ms / 1000).coerceAtLeast(0)
+    return String.format(java.util.Locale.getDefault(), "%d:%02d", s / 60, s % 60)
 }
 
 /** Paroles synchronisées (module Paroles) et sortie audio en cours. */

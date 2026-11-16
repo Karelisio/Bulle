@@ -50,7 +50,7 @@ object EdgeGeometry {
             var upperRect: EdgeRect? = null
             for (slot in listOf(upper, lower)) {
                 val z = settings.zone(slot)
-                if (!z.enabled) continue
+                if (!z.enabled || slot !in settings.slots) continue
                 val thick = (z.thicknessDp.coerceIn(EdgeZone.THICKNESS) * density).roundToInt().coerceAtLeast(1)
                 val wantTop = (z.start.coerceIn(0f, 1f) * screenHeight).roundToInt()
                 val wantLen = (z.length.coerceIn(EdgeZone.MIN_LENGTH, EdgeZone.MAX_LENGTH) * screenHeight).roundToInt()

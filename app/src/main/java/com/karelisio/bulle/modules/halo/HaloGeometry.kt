@@ -58,7 +58,14 @@ sealed interface HaloSeg {
  * Contour fermé que parcourt le halo, de longueur [length], qui commence (distance 0) sous la
  * caméra — ou au milieu du bord haut s'il n'y en a pas — et tourne dans le sens horaire.
  */
-class HaloOutline(val segments: List<HaloSeg>) {
+class HaloOutline(
+    val segments: List<HaloSeg>,
+    /**
+     * Demi-largeur de la trouée à la caméra (distance de part et d'autre du départ) : le trait s'y
+     * interrompt et en jaillit de chaque côté. 0 = contour continu.
+     */
+    val hole: Float = 0f,
+) {
     val length: Float = segments.sumOf { it.length.toDouble() }.toFloat()
 
     /** Point à la distance [d] (modulo la longueur). */
@@ -84,7 +91,11 @@ class HaloOutline(val segments: List<HaloSeg>) {
         return if (end <= length) sliceIn(start, end) else sliceIn(start, length) + sliceIn(0f, end - length)
     }
 
-    private fun sliceIn(a: Float, b: Float): List<HaloSeg> {
+    private fun sliceIn(a0: Float, b0: Float): List<HaloSeg> {
+        // Rien n'est dessiné dans la trouée de la caméra.
+        val a = if (hole > 0f) max(a0, hole) else a0
+        val b = if (hole > 0f) min(b0, length - hole) else b0
+        if (b <= a) return emptyList()
         val out = ArrayList<HaloSeg>()
         var pos = 0f
         for (s in segments) {
@@ -116,7 +127,12 @@ class HaloOutline(val segments: List<HaloSeg>) {
          * Contour de l'écran, rentré de [inset] (la moitié de l'épaisseur du trait pour qu'il colle
          * au bord), qui suit les coins arrondis réels et contourne la caméra à [gap] de distance.
          */
-        fun of(screen: HaloScreen, inset: Float, gap: Float = 4f * screen.density): HaloOutline {
+        fun of(
+            screen: HaloScreen,
+            inset: Float,
+            gap: Float = 4f * screen.density,
+            camera: HaloCamera = HaloCamera.AROUND,
+        ): HaloOutline {
             val w = screen.width
             val h = screen.height
             if (w <= 2 * inset || h <= 2 * inset) return HaloOutline(emptyList())
@@ -131,7 +147,7 @@ class HaloOutline(val segments: List<HaloSeg>) {
             val br = r(screen.bottomRight)
             val bl = r(screen.bottomLeft)
             val segs = ArrayList<HaloSeg>()
-            val detour = screen.cutout?.let { detour(it, top, gap, left + tl, right - tr) }
+            val detour = if (camera == HaloCamera.AROUND) screen.cutout?.let { detour(it, top, gap, left + tl, right - tr) } else null
             val startX = detour?.cx ?: ((left + tl + right - tr) / 2)
             // Départ : sous la caméra (milieu du contournement) ou milieu du bord haut.
             if (detour != null) {
@@ -148,7 +164,20 @@ class HaloOutline(val segments: List<HaloSeg>) {
             if (tl > 0f) segs += HaloSeg.Arc(left + tl, top + tl, tl, 180f, 90f)
             segs += HaloSeg.Line(left + tl, top, detour?.entryX ?: startX, top)
             if (detour != null) segs += detour.leftHalf
-            return HaloOutline(segs.filter { it.length > 0.01f })
+            // Caméra « jaillissante » : départ au centre de la caméra, trouée de sa largeur (+ écart).
+            val hole = if (camera == HaloCamera.EMERGE) screen.cutout?.let { it.width / 2 + gap } ?: 0f else 0f
+            val cut = screen.cutout
+            val emergeStart = if (camera == HaloCamera.EMERGE && cut != null) cut.centerX else null
+            val final = if (emergeStart != null && detour == null) {
+                // Décale le départ sous la caméra (qui n'est pas forcément au centre de l'écran).
+                val topLine = segs.first() as HaloSeg.Line
+                val lastLine = segs.last() as HaloSeg.Line
+                listOf(HaloSeg.Line(emergeStart, top, topLine.x1, topLine.y1)) + segs.drop(1).dropLast(1) +
+                    HaloSeg.Line(lastLine.x0, lastLine.y0, emergeStart, top)
+            } else {
+                segs
+            }
+            return HaloOutline(final.filter { it.length > 0.01f }, hole)
         }
 
         /** Contournement de la caméra du haut : descend à gauche, passe dessous, remonte à droite. */
@@ -159,10 +188,11 @@ class HaloOutline(val segments: List<HaloSeg>) {
             val rr = c.right + gap
             val b = c.bottom + gap
             if (b <= y0 + 1f || rr - l <= 0f) return null
-            // Petit arrondi d'entrée / sortie (raccord avec le bord haut).
-            val k = min(gap * 1.5f, (b - y0) / 3f).coerceAtLeast(0.5f)
+            // Petit arrondi d'entrée / sortie (raccord avec le bord haut), au plus près de la caméra.
+            val k = min(max(gap, 1f), (b - y0) / 3f).coerceAtLeast(0.5f)
             if (l - k <= minX || rr + k >= maxX) return null
-            val rb = min((rr - l) / 2f, b - (y0 + k)).coerceAtLeast(0f)
+            // Arrondi du bas : jamais à l'intérieur de la caméra (coin du rectangle à √2·(rb − écart) ≥ rb).
+            val rb = min(min((rr - l) / 2f, b - (y0 + k)), gap * 3.4f).coerceAtLeast(0f)
             val cx = c.centerX
             // Moitié gauche : du bord haut jusque sous la caméra.
             val leftHalf = listOf(

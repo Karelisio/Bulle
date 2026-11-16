@@ -59,6 +59,9 @@ import com.karelisio.bulle.modules.halo.HaloAppFilter
 import com.karelisio.bulle.modules.halo.HaloBus
 import com.karelisio.bulle.modules.halo.HaloCanvas
 import com.karelisio.bulle.modules.halo.HaloColorMode
+import com.karelisio.bulle.modules.halo.HaloCamera
+import com.karelisio.bulle.modules.halo.HaloDirection
+import com.karelisio.bulle.modules.halo.HaloStart
 import com.karelisio.bulle.modules.halo.HaloKind
 import com.karelisio.bulle.modules.halo.HaloLook
 import com.karelisio.bulle.modules.halo.HaloRect
@@ -168,6 +171,65 @@ fun HaloSettingsScreen(onBack: () -> Unit) {
                 ) { v -> update { it.copy(speed = v) } }
             }
         }
+        item("shape") {
+            ModuleSection(stringResource(R.string.halo_section_shape))
+            ModuleCard {
+                ModuleSlider(
+                    stringResource(R.string.halo_trail), draft.trail, HaloSettings.TRAIL, ModuleFormat::percent,
+                    onPreview = { v -> draft = draft.copy(trail = v) },
+                ) { v -> update { it.copy(trail = v) } }
+                ModuleSlider(
+                    stringResource(R.string.halo_glow), draft.glow, 0f..1f, ModuleFormat::percent,
+                    onPreview = { v -> draft = draft.copy(glow = v) },
+                ) { v -> update { it.copy(glow = v) } }
+                Text(stringResource(R.string.halo_direction), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                ModuleChoices(
+                    HaloDirection.entries, draft.direction,
+                    {
+                        stringResource(
+                            when (it) {
+                                HaloDirection.BOTH -> R.string.halo_dir_both
+                                HaloDirection.CLOCKWISE -> R.string.halo_dir_cw
+                                HaloDirection.COUNTER -> R.string.halo_dir_ccw
+                            },
+                        )
+                    },
+                ) { d -> update { it.copy(direction = d) } }
+                Text(stringResource(R.string.halo_start), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                ModuleChoices(
+                    HaloStart.entries, draft.start,
+                    { stringResource(if (it == HaloStart.CAMERA) R.string.halo_start_camera else R.string.halo_start_bottom) },
+                ) { st -> update { it.copy(start = st) } }
+                Text(stringResource(R.string.halo_camera), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+                ModuleChoices(
+                    HaloCamera.entries, draft.camera,
+                    {
+                        stringResource(
+                            when (it) {
+                                HaloCamera.EMERGE -> R.string.halo_camera_emerge
+                                HaloCamera.AROUND -> R.string.halo_camera_around
+                                HaloCamera.IGNORE -> R.string.halo_camera_ignore
+                            },
+                        )
+                    },
+                ) { c -> update { it.copy(camera = c) } }
+                if (draft.camera != HaloCamera.IGNORE) {
+                    ModuleSlider(
+                        stringResource(R.string.halo_camera_gap), draft.cameraGapDp, HaloSettings.CAMERA_GAP, ModuleFormat::dp,
+                        onPreview = { v -> draft = draft.copy(cameraGapDp = v) },
+                    ) { v -> update { it.copy(cameraGapDp = v) } }
+                }
+                if (draft.style == HaloStyle.SIGNATURE) {
+                    ModuleSwitch(stringResource(R.string.halo_burst), null, draft.burst) { on -> update { it.copy(burst = on) } }
+                    if (draft.burst) {
+                        ModuleSlider(
+                            stringResource(R.string.halo_burst_size), draft.burstSize, HaloSettings.BURST_SIZE, ModuleFormat::times,
+                            onPreview = { v -> draft = draft.copy(burstSize = v) },
+                        ) { v -> update { it.copy(burstSize = v) } }
+                    }
+                }
+            }
+        }
         item("color") {
             ModuleSection(stringResource(R.string.halo_section_color))
             ModuleCard {
@@ -186,6 +248,12 @@ fun HaloSettingsScreen(onBack: () -> Unit) {
                 ) { m -> update { it.copy(colorMode = m) } }
                 if (draft.colorMode == HaloColorMode.FIXED) {
                     Swatches(draft.fixedColor, Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) { c -> update { it.copy(fixedColor = c) } }
+                }
+                ModuleSwitch(stringResource(R.string.halo_second_color), stringResource(R.string.halo_second_color_summary), draft.secondColor != null) { on ->
+                    update { it.copy(secondColor = if (on) 0xFFFF8FB8 else null) }
+                }
+                draft.secondColor?.let { second ->
+                    Swatches(second, Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) { c -> update { it.copy(secondColor = c) } }
                 }
                 ModuleSwitch(stringResource(R.string.halo_artwork), stringResource(R.string.halo_artwork_summary), draft.artworkForMusic) { on ->
                     update { it.copy(artworkForMusic = on) }

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.9.1
+**Halo**
+- Caméra mieux intégrée : par défaut, le trait jaillit de chaque côté de la caméra au lieu de faire un grand détour dessous. Autres choix : contourner au plus près (écart réglable) ou ignorer la caméra.
+- Animation signature refaite : plus fluide (la lueur n'est plus floutée par le processeur à chaque image, ce qui faisait saccader), traînée continue, rencontre plus douce, éclat de bulles réglable (oui / non, taille).
+- Vague : un trait continu, on ne voit plus les points.
+- Nouveaux réglages : longueur de la traînée, lueur, sens (des deux côtés, horaire, antihoraire), départ (caméra ou bas de l'écran), seconde couleur pour un dégradé.
+
+**Bords**
+- Choix « Une longue barre » ou « Deux petites » par bord. En barre unique, la zone peut prendre toute la longueur (interrupteur « Toute la longueur »).
+
+**Veille**
+- Musique : barre de lecture qu'on fait glisser, reculer / avancer de 10 s, morceau précédent / suivant toujours visibles (les commandes ne sont plus rognées), et la file d'attente du lecteur avec saut direct à un titre.
+
 ## 0.9.0
 Trois nouveaux modules, qui vivent dans le service de l'île (aucun nouveau service).
 

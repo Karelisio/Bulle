@@ -49,6 +49,20 @@ class HaloGeometryTest {
     }
 
     @Test
+    fun emergeLeavesAGapAtTheCamera() {
+        val cut = HaloRect(30f, 4f, 50f, 16f)
+        val o = HaloOutline.of(HaloScreen(100f, 200f, cutout = cut, density = 1f), inset = 0f, gap = 2f, camera = HaloCamera.EMERGE)
+        assertEquals(12f, o.hole, 0.01f)
+        // Départ sous le centre de la caméra (décentrée), et rien n'est dessiné dans la trouée.
+        assertEquals(40f, o.pointAt(0f).first, 0.5f)
+        assertTrue(o.slice(-5f, 5f).isEmpty())
+        val drawn = o.slice(0f, o.length).sumOf { it.length.toDouble() }.toFloat()
+        assertEquals(o.length - 24f, drawn, 0.5f)
+        // Caméra ignorée : contour continu.
+        assertEquals(0f, HaloOutline.of(HaloScreen(100f, 200f, cutout = cut), 0f, camera = HaloCamera.IGNORE).hole, 0.01f)
+    }
+
+    @Test
     fun sliceWrapsAroundTheStart() {
         val o = HaloOutline.of(HaloScreen(100f, 200f), inset = 0f)
         val segs = o.slice(-10f, 10f)

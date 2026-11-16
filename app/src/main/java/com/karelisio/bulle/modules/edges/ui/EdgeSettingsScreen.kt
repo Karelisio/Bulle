@@ -43,6 +43,7 @@ import com.karelisio.bulle.core.apps.AppEntry
 import com.karelisio.bulle.core.apps.AppIcon
 import com.karelisio.bulle.core.settings.BulleSettings
 import com.karelisio.bulle.core.settings.SettingsRepository
+import com.karelisio.bulle.modules.edges.EdgeBars
 import com.karelisio.bulle.modules.edges.EdgeBus
 import com.karelisio.bulle.modules.edges.EdgeGesture
 import com.karelisio.bulle.modules.edges.EdgeSettings
@@ -157,7 +158,33 @@ fun EdgeSettingsScreen(onBack: () -> Unit) {
                 ModuleNote(stringResource(if (running) R.string.edges_preview_note else R.string.edges_service_off))
             }
         }
-        EdgeSlot.entries.forEach { slot ->
+        item("bars") {
+            ModuleSection(stringResource(R.string.edges_bars))
+            ModuleCard {
+                ModuleChoices(
+                    EdgeBars.entries, draft.bars,
+                    { stringResource(if (it == EdgeBars.SINGLE) R.string.edges_bars_single else R.string.edges_bars_double) },
+                    Modifier.padding(top = 8.dp),
+                ) { b ->
+                    save {
+                        if (b == EdgeBars.DOUBLE) {
+                            // Deux petites : haut (tiers supérieur) et bas activés.
+                            it.copy(
+                                bars = b,
+                                left = it.left.copy(length = it.left.length.coerceAtMost(0.3f)),
+                                right = it.right.copy(length = it.right.length.coerceAtMost(0.3f)),
+                                leftLower = it.leftLower.copy(enabled = true),
+                                rightLower = it.rightLower.copy(enabled = true),
+                            )
+                        } else {
+                            it.copy(bars = b)
+                        }
+                    }
+                }
+                ModuleNote(stringResource(if (draft.bars == EdgeBars.SINGLE) R.string.edges_bars_single_note else R.string.edges_bars_double_note))
+            }
+        }
+        draft.slots.forEach { slot ->
             item(slot.name) {
                 val z = draft.zone(slot)
                 val adjusted = placed.firstOrNull { it.slot == slot }?.adjusted == true
@@ -165,6 +192,12 @@ fun EdgeSettingsScreen(onBack: () -> Unit) {
                 ModuleCard {
                     ModuleSwitch(stringResource(R.string.edges_zone_enable), null, z.enabled) { on ->
                         save { it.with(slot, z.copy(enabled = on)) }
+                    }
+                    if (z.enabled && draft.bars == EdgeBars.SINGLE) {
+                        val full = z.start <= 0f && z.length >= 1f
+                        ModuleSwitch(stringResource(R.string.edges_full_length), stringResource(R.string.edges_full_length_summary), full) { on ->
+                            save { it.with(slot, it.zone(slot).copy(start = if (on) 0f else EdgeZone().start, length = if (on) 1f else EdgeZone().length)) }
+                        }
                     }
                     if (z.enabled) {
                         ModuleSlider(

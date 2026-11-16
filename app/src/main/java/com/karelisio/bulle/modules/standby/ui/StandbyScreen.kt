@@ -284,7 +284,7 @@ private fun panels(
     StandbyPage.MUSIC -> Triple(
         1.3f,
         items({ MusicPanel(music) }),
-        items({ LyricsPanel(music) }, { StandbyCard { DatePanel(now, showTime = true) } }),
+        items({ LyricsPanel(music) }, { QueuePanel(music) }, { StandbyCard { DatePanel(now, showTime = true) } }),
     )
     StandbyPage.PHOTOS -> Triple(
         1.7f,

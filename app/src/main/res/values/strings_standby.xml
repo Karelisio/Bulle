@@ -59,4 +59,8 @@
     <string name="standby_photos_none">Aucune photo dans cet album</string>
     <string name="standby_photos_permission">Autorise l’accès aux photos dans les réglages de Veille</string>
     <string name="standby_dream_label">Bulle — Veille</string>
+    <string name="standby_back10">Reculer de 10 secondes</string>
+    <string name="standby_forward10">Avancer de 10 secondes</string>
+    <string name="standby_queue_title">File d’attente</string>
+    <string name="standby_queue_none">Le lecteur ne partage pas sa file d’attente</string>
 </resources>
