@@ -302,7 +302,12 @@ internal fun NotifCard(
                 interactionSource = interaction,
                 indication = androidx.compose.material3.ripple(),
                 onClick = {
-                    if (!menu) com.karelisio.bulle.island.IslandLog.log("Volet : toucher sur une notification de ${item.packageName}")
+                    if (!menu) {
+                        com.karelisio.bulle.island.IslandLog.log(
+                            "Volet : toucher sur une notification de ${item.packageName} (canal ${item.channelId}, " +
+                                "action : ${item.contentIntent != null}, sortie audio : ${NotifCommands.isAudioOutputNotice(item)})",
+                        )
+                    }
                     when {
                         menu -> Unit
                         // Changement de sortie audio : ouvre le choix de la sortie même sans action attachée.

@@ -98,6 +98,24 @@ class NotifRefusalTest {
         assertFalse(NotifCommands.isAudioOutputText("Nouveau message de Léa"))
         val notice = parse(builder().setContentTitle("Système").setContentText("Changement de périphérique audio").build(), "n", "gn")
         assertTrue(NotifCommands.isAudioOutputNotice(notice))
+        // Honor : publiée par le service audio de la surcouche, texte illisible (vue personnalisée).
+        assertTrue(NotifCommands.isAudioOutputPackage("com.hihonor.imedia.sws"))
+        assertFalse(NotifCommands.isAudioOutputPackage("com.example"))
+        val honor = NotifParser.parse(
+            NotifInput("h", "com.hihonor.imedia.sws", builder().setContentTitle("Audio").setContentText("").build(), 1_000L, "gh", silentRank),
+            "Audio",
+        )
+        assertTrue(NotifCommands.isAudioOutputNotice(honor))
+    }
+
+    @Test
+    fun outputSwitchRelayClosesItself() {
+        val intent = com.karelisio.bulle.modules.volet.media.OutputSwitchActivity.intent(context, "com.example.player")
+        assertEquals("com.example.player", intent.getStringExtra(com.karelisio.bulle.modules.volet.media.OutputSwitchActivity.EXTRA_PACKAGE))
+        val controller = Robolectric.buildActivity(com.karelisio.bulle.modules.volet.media.OutputSwitchActivity::class.java, intent).setup()
+        // Sélecteur ouvert (ou repli lancé) puis fermeture immédiate : rien ne reste à l'écran.
+        assertTrue(controller.get().isFinishing)
+        controller.pause().stop().destroy()
     }
 
     @Test

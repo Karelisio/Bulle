@@ -108,29 +108,50 @@ object MediaOutput {
         return intent.takeIf { runCatching { it.resolveActivity(context.packageManager) }.getOrNull() != null }
     }
 
+    /** Sélecteur système de MediaRouter2 (Android 14+) ; vrai s'il s'est affiché. */
+    fun showRouterSwitcher(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return false
+        return runCatching { MediaRouter2.getInstance(context).showSystemOutputSwitcher() }
+            .onFailure { Log.d(TAG, "Sélecteur de sortie indisponible", it) }
+            .getOrDefault(false)
+    }
+
     /**
-     * Ouvre le choix de la sortie audio : sélecteur de Paramètres, sinon sélecteur de MediaRouter2,
-     * sinon réglages Bluetooth. [startActivity] lance une activité en fermant le volet.
+     * Ouvre le choix de la sortie audio. [startActivity] lance une activité en fermant l'île ou le volet.
+     *  1. sélecteur de MediaRouter2 (réussit si Bulle est au premier plan) ;
+     *  2. sinon (Android 14+) relais [OutputSwitchActivity], qui amène Bulle au premier plan puis réessaie ;
+     *  3. sinon panneau « Sortie audio » de Paramètres, SystemUI, réglages Bluetooth.
      */
     fun openSwitcher(context: Context, packageName: String, close: () -> Unit, startActivity: (Intent) -> Unit) {
-        // 1. Sélecteur système de MediaRouter2 (boîte de SystemUI, fonctionne depuis l'arrière-plan).
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            val shown = runCatching { MediaRouter2.getInstance(context).showSystemOutputSwitcher() }
-                .onFailure { Log.d(TAG, "Sélecteur de sortie indisponible", it) }
-                .getOrDefault(false)
-            com.karelisio.bulle.island.IslandLog.log("Sortie audio : MediaRouter2 → $shown")
-            if (shown) {
-                close()
-                return
-            }
+        val shown = showRouterSwitcher(context)
+        com.karelisio.bulle.island.IslandLog.log("Sortie audio : MediaRouter2 → $shown")
+        if (shown) {
+            close()
+            return
         }
-        // 2. Panneau « Sortie audio » de Paramètres.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            com.karelisio.bulle.island.IslandLog.log("Sortie audio : relais au premier plan")
+            startActivity(OutputSwitchActivity.intent(context, packageName))
+            return
+        }
+        openFallback(context, packageName, startActivity)
+    }
+
+    /** Depuis l'île (bulles Volume et Média) : [close] replie l'île avant d'ouvrir un écran. */
+    fun openFromIsland(context: Context, packageName: String, close: () -> Unit) =
+        openSwitcher(context, packageName, close) { intent ->
+            close()
+            runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                .onFailure { com.karelisio.bulle.island.IslandLog.log("Sortie audio : ouverture refusée (${it.javaClass.simpleName})") }
+        }
+
+    /** Replis sans MediaRouter2 : panneau de Paramètres, boîte de SystemUI, réglages Bluetooth. */
+    fun openFallback(context: Context, packageName: String, startActivity: (Intent) -> Unit) {
         switcherIntent(context, packageName)?.let {
             com.karelisio.bulle.island.IslandLog.log("Sortie audio : panneau Paramètres")
             startActivity(it)
             return
         }
-        // 3. Boîte de SystemUI (AOSP), puis réglages Bluetooth en dernier recours.
         val sent = runCatching {
             context.sendBroadcast(
                 Intent("com.android.systemui.action.LAUNCH_MEDIA_OUTPUT_DIALOG")

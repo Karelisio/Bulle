@@ -269,10 +269,7 @@ object VolumeKeys {
         com.karelisio.bulle.island.IslandLog.log("Sortie audio : bouton de la bulle Volume")
         runCatching { keepAlive(force = true) }
         val pkg = runCatching { playingPackage(context) }.getOrNull() ?: context.packageName
-        MediaOutput.openSwitcher(context, pkg, close) { intent ->
-            close()
-            runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-        }
+        MediaOutput.openFromIsland(context, pkg, close)
     }
 
     /** Appli qui joue en ce moment (via l'accès aux notifications), pour cibler son routage. */

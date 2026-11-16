@@ -144,6 +144,15 @@
 
         <!-- Module Musique : paroles plein écran « karaoké », lancées depuis l'île (nouvelle tâche à part,
              absente des applis récentes pour ne pas mêler la vue à l'appli de réglages). -->
+        <!-- Relais invisible : ouvre le sélecteur de sortie audio du système au premier plan. -->
+        <activity
+            android:name=".modules.volet.media.OutputSwitchActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity="com.karelisio.bulle.output"
+            android:theme="@style/Theme.Bulle.Capture.Transparent" />
+
         <activity
             android:name=".modules.music.karaoke.KaraokeActivity"
             android:exported="false"

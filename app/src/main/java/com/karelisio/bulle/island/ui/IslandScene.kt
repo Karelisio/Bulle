@@ -223,12 +223,11 @@ private fun IslandSurface(
     val verticalBand = if (vertical) thickness.toFloat() else 0f
     val expandedWidth = min(min(g.screenWidth - 2 * px.margin - verticalBand, px.maxW), g.screenWidth * style.maxExpandedWidth.coerceIn(0.3f, 1f)) + verticalBand
     val compactWidth = g.width + 2 * slotPx
-    val compactLength = baseLength + 2 * slotPx
     // Sens d'ouverture : le bord côté caméra reste fixe et l'île s'étend du côté choisi.
     val direction = g.openDirection
 
     val target = if (vertical) {
-        verticalTarget(mode, g, style.hideWhenIdle, compactLength, expandedWidth, expandedContentHeight, screenH, px.margin, px.corner)
+        verticalTarget(mode, g, style.hideWhenIdle, expandedWidth, expandedContentHeight, screenH, px.margin, px.corner)
     } else when (mode) {
         Mode.HIDDEN -> SurfaceTarget(mode, g.width.toFloat(), g.height.toFloat(), g.height / 2f, 0f, 0f)
         // Au repos, l'île peut être invisible (alpha 0) tout en restant touchable (mode ≠ HIDDEN).
@@ -470,7 +469,7 @@ private fun IslandSurface(
                 ),
         ) {
             // Vue compacte : emplacements de part et d'autre de la caméra.
-            if (mode == Mode.COMPACT || compactShown) {
+            if (!vertical && (mode == Mode.COMPACT || compactShown)) {
                 Box(
                     Modifier
                         .align(if (vertical) Alignment.Center else Alignment.TopCenter)
@@ -591,7 +590,6 @@ private fun verticalTarget(
     mode: Mode,
     g: com.karelisio.bulle.island.IslandGeometry,
     hideWhenIdle: Boolean,
-    compactLength: Float,
     cardWidth: Float,
     contentHeight: Int,
     screenHeight: Float,
@@ -604,10 +602,9 @@ private fun verticalTarget(
     return when (mode) {
         Mode.HIDDEN -> SurfaceTarget(mode, thick, len, thick / 2f, 0f, 0f)
         Mode.IDLE -> SurfaceTarget(mode, thick, len, thick / 2f, 0f, if (hideWhenIdle) 0f else 1f)
-        Mode.COMPACT -> SurfaceTarget(
-            mode, thick, compactLength, thick / 2f, 0f, 1f,
-            offsetY = IslandLayout.verticalOffsetY(top, len, compactLength, screenHeight, 0f),
-        )
+        // Paysage : jamais visible en compact (vidéo, jeu) ; la zone autour de la caméra reste active
+        // et un toucher ouvre la carte.
+        Mode.COMPACT -> SurfaceTarget(mode, thick, len, thick / 2f, 0f, 0f)
         Mode.EXPANDED -> {
             val maxH = IslandLayout.verticalMaxHeight(screenHeight, margin)
             val h = (if (contentHeight > 0) contentHeight.toFloat() else len * 2f).coerceIn(min(len, maxH), maxH)

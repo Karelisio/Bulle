@@ -58,9 +58,15 @@ object NotifCommands {
     )
 
     /** « Changement de périphérique audio » (système) : texte reconnu, sans intention propre utile. */
-    internal fun isAudioOutputNotice(item: NotifItem): Boolean = isAudioOutputText(
+    internal fun isAudioOutputNotice(item: NotifItem): Boolean = isAudioOutputPackage(item.packageName) || isAudioOutputText(
         listOfNotNull(item.title, item.text, item.subText, item.bigText).plus(item.lines).joinToString(" "),
     )
+
+    /**
+     * Service audio de la surcouche qui publie « Changement de périphérique audio » (Honor / Huawei :
+     * com.hihonor.imedia.sws, souvent en vue personnalisée sans texte lisible).
+     */
+    internal fun isAudioOutputPackage(packageName: String): Boolean = packageName.endsWith(".imedia.sws")
 
     /** Texte d'une notification de changement de sortie audio (logique pure, testée). */
     internal fun isAudioOutputText(text: CharSequence): Boolean =
