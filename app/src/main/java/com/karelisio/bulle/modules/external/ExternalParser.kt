@@ -81,6 +81,18 @@ fun interface ExternalExtras {
  * une valeur invalide est remplacée par la valeur par défaut. Seuls l'action et l'id sont obligatoires.
  */
 object ExternalParser {
+    /** Progression arrivée au bout : visible encore 4 s. */
+    const val DONE_PROGRESS_TIMEOUT_MS = 4_000L
+
+    /** Progression sans mise à jour depuis 5 min : retirée (chaque mise à jour repousse l'échéance). */
+    const val STALE_PROGRESS_TIMEOUT_MS = 300_000L
+
+    private fun progressDone(x: ExternalExtras): Boolean {
+        val max = x.long(Api.EXTRA_MAX) ?: 100L
+        val p = x.long(Api.EXTRA_PROGRESS) ?: return false
+        return x.bool(Api.EXTRA_INDETERMINATE) != true && max > 0 && p >= max
+    }
+
     private const val DAY = 24 * 60 * 60 * 1000L
     private val ID_REGEX = Regex("[A-Za-z0-9._:\\-]{1,${Api.MAX_ID_LENGTH}}")
 
@@ -159,6 +171,10 @@ object ExternalParser {
                 // Un compte à rebours disparaît une minute après l'échéance.
                 template == ExternalTemplate.COUNTDOWN && target != null ->
                     (target - nowWall + 60_000L).coerceIn(Api.MIN_TIMEOUT_MS, Api.MAX_TIMEOUT_MS)
+                // Progression terminée : affichée un instant puis retirée.
+                template == ExternalTemplate.PROGRESS && progressDone(x) -> DONE_PROGRESS_TIMEOUT_MS.coerceIn(Api.MIN_TIMEOUT_MS, Api.MAX_TIMEOUT_MS)
+                // Progression sans nouvelles (l'appli a fini sans envoyer 100 % ni DISMISS) : retirée.
+                template == ExternalTemplate.PROGRESS -> STALE_PROGRESS_TIMEOUT_MS.coerceIn(Api.MIN_TIMEOUT_MS, Api.MAX_TIMEOUT_MS)
                 else -> Api.MAX_TIMEOUT_MS
             }
 
