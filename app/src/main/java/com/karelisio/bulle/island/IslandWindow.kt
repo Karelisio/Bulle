@@ -150,6 +150,14 @@ class IslandWindow(private val context: Context) {
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouchEvent(event: MotionEvent): Boolean {
             val target = displayWin.view ?: return false
+            // Diagnostic (Journal de l'île) : touchers sur l'île dépliée, avec la zone tactile.
+            if (event.actionMasked == MotionEvent.ACTION_DOWN && touchWin.params.flags and LP.FLAG_WATCH_OUTSIDE_TOUCH != 0) {
+                val p = touchWin.params
+                IslandLog.log(
+                    "Toucher sur l'île dépliée (${event.x.toInt()}, ${event.y.toInt()}) — zone tactile " +
+                        "${p.width}×${p.height} à (${p.x},${p.y})",
+                )
+            }
             val e = MotionEvent.obtain(event)
             // Coordonnées de la fenêtre tactile → coordonnées de la fenêtre d'affichage.
             e.offsetLocation(

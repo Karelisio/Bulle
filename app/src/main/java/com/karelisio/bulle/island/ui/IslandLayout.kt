@@ -37,6 +37,48 @@ object IslandLayout {
         return (cameraX + raw).coerceIn(lo, hi) - cameraX
     }
 
+    /**
+     * Île verticale (paysage, caméra latérale) : décalage du haut de la surface par rapport au haut
+     * de l'île au repos ([baseTop], longueur [baseLength]) pour une surface de hauteur [targetLength],
+     * centrée sur la caméra puis gardée dans l'écran à [margin] des bords (haut prioritaire si trop
+     * grande : elle défile alors à l'intérieur).
+     */
+    fun verticalOffsetY(baseTop: Float, baseLength: Float, targetLength: Float, screenHeight: Float, margin: Float): Float {
+        val centered = baseTop + (baseLength - targetLength) / 2f
+        if (screenHeight <= 0f) return centered - baseTop
+        val lo = margin
+        val hi = screenHeight - margin - targetLength
+        val top = if (hi < lo) lo else centered.coerceIn(lo, hi)
+        return top - baseTop
+    }
+
+    /** Hauteur maximale de la carte dépliée verticale (paysage) : l'écran moins les marges. */
+    fun verticalMaxHeight(screenHeight: Float, margin: Float): Float = (screenHeight - 2 * margin).coerceAtLeast(1f)
+
+    /**
+     * Étendue verticale (haut, bas) de l'enveloppe d'une île verticale, relative au haut de l'île au
+     * repos : état courant et cible réunis, plus le dépassement du ressort ; posée, la cible seule.
+     */
+    fun verticalSpan(
+        currentOffset: Float,
+        currentLength: Float,
+        targetOffset: Float,
+        targetLength: Float,
+        overshoot: Float,
+        settled: Boolean,
+        shadow: Float = 0f,
+    ): Pair<Float, Float> {
+        if (settled) return (targetOffset - shadow) to (targetOffset + targetLength + shadow)
+        val slack = kotlin.math.abs(targetLength - currentLength) * overshoot / 2f +
+            kotlin.math.abs(targetOffset - currentOffset) * overshoot
+        val top = kotlin.math.min(currentOffset, targetOffset) - slack - shadow
+        val bottom = kotlin.math.max(currentOffset + currentLength, targetOffset + targetLength) + slack + shadow
+        return top to bottom
+    }
+
+    /** Rotation du contenu compact de l'île verticale : comme l'île du portrait, collée au bord de la caméra. */
+    fun compactRotation(cameraLeft: Boolean): Float = if (cameraLeft) -90f else 90f
+
     /** La seconde ligne compacte tient-elle dans une île de [heightPx] pixels ? */
     fun twoLineFits(heightPx: Int, density: Float, textScale: Float): Boolean =
         density > 0f && heightPx / density >= TwoLineMinHeightDp * textScale.coerceIn(0.85f, 1.25f)

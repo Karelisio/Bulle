@@ -47,4 +47,13 @@ object NotifOptimistic {
         val next = kept.values.minOrNull()?.plus(timeoutMs)
         return Reconciled(if (kept.size == hidden.size) hidden else kept, restored, next)
     }
+
+    /**
+     * Clés refusées par le système à masquer dans Bulle : seulement celles d'éléments affichés
+     * (un résumé de groupe resté actif n'est pas une carte, inutile de le signaler).
+     */
+    fun refusedItems(restored: Set<String>, model: NotifListModel): List<String> {
+        if (restored.isEmpty()) return emptyList()
+        return model.allItems.map { it.key }.filter { it in restored }
+    }
 }

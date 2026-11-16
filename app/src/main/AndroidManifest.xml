@@ -111,6 +111,14 @@
         <intent>
             <action android:name="android.intent.action.CREATE_SHORTCUT" />
         </intent>
+        <!-- Tuile « Point d'accès » du Volet : écran du point d'accès des Paramètres. -->
+        <package android:name="com.android.settings" />
+        <intent>
+            <action android:name="com.android.settings.WIFI_TETHER_SETTINGS" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.TETHER_SETTINGS" />
+        </intent>
     </queries>
 
     <application

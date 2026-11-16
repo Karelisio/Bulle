@@ -267,7 +267,8 @@ object VolumeKeys {
 
     fun openOutputSwitcher(context: Context, close: () -> Unit) {
         com.karelisio.bulle.island.IslandLog.log("Sortie audio : bouton de la bulle Volume")
-        val pkg = playingPackage(context) ?: context.packageName
+        runCatching { keepAlive(force = true) }
+        val pkg = runCatching { playingPackage(context) }.getOrNull() ?: context.packageName
         MediaOutput.openSwitcher(context, pkg, close) { intent ->
             close()
             runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }

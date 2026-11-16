@@ -64,7 +64,13 @@ private sealed interface ListRow {
     /** [clearIndex] : rang parmi les groupes effaçables (cascade de « Tout effacer »). */
     data class Group(val group: NotifGroup, val index: Int, val clearIndex: Int) : ListRow { override val key = group.id }
     data object ClearAll : ListRow { override val key = "clear" }
+
+    /** Bandeau « le système refuse d'effacer » (masquée dans Bulle, désactiver, réafficher). */
+    data object Refused : ListRow { override val key = "refused" }
 }
+
+/** Notifications que le système a refusé d'effacer, masquées dans Bulle : [item] sert aux réglages du canal. */
+internal data class RefusalNotice(val keys: List<String>, val item: NotifItem?)
 
 private fun rows(model: NotifListModel): List<ListRow> = buildList {
     add(ListRow.Header)
@@ -159,7 +165,11 @@ internal fun NotificationList(host: VoletHost, model: NotifListModel, modifier: 
 
     // Suppression optimiste : clés balayées (avec leur heure) retirées du modèle affiché tout de suite.
     var hidden by remember { mutableStateOf(emptyMap<String, Long>()) }
-    val shown = remember(model, hidden) { NotifOptimistic.apply(model, hidden.keys) }
+    // Masquées dans Bulle : celles que le système refuse d'effacer (voir NotifLocalHide).
+    val localHidden by com.karelisio.bulle.notifications.NotifLocalHide.keys.collectAsState()
+    var refusal by remember { mutableStateOf<RefusalNotice?>(null) }
+    val currentModel by androidx.compose.runtime.rememberUpdatedState(model)
+    val shown = remember(model, hidden, localHidden) { NotifOptimistic.apply(model, hidden.keys + localHidden) }
     val activeKeys = remember(model) {
         buildSet {
             model.sections.forEach { s ->
@@ -178,17 +188,33 @@ internal fun NotificationList(host: VoletHost, model: NotifListModel, modifier: 
         }
         val next = r.nextCheckAt ?: return@LaunchedEffect
         delay((next - SystemClock.uptimeMillis()).coerceAtLeast(0L))
-        // Toujours active après le délai : le système a refusé, la carte revient.
-        hidden = NotifOptimistic.reconcile(hidden, activeKeys, SystemClock.uptimeMillis()).hidden
+        // Toujours active après le délai : le système a refusé. Elle reste masquée dans Bulle
+        // (bandeau : désactiver ces notifications, ou la réafficher).
+        val late = NotifOptimistic.reconcile(hidden, activeKeys, SystemClock.uptimeMillis())
+        val refused = NotifOptimistic.refusedItems(late.restored, currentModel)
+        if (refused.isNotEmpty()) {
+            refused.forEach { com.karelisio.bulle.island.IslandLog.log("Refus du système : $it toujours active après ${NotifOptimistic.TIMEOUT_MS} ms — masquée dans Bulle") }
+            com.karelisio.bulle.notifications.NotifLocalHide.hide(refused)
+            refusal = RefusalNotice(refused, currentModel.allItems.firstOrNull { it.key in refused })
+        }
+        hidden = late.hidden
     }
-    val dismiss: (List<String>) -> Unit = remember {
-        { keys ->
-            hidden = NotifOptimistic.hide(hidden, keys, SystemClock.uptimeMillis())
-            keys.forEach(NotifCommands::cancel)
+    val dismiss: (NotifDismiss.Swipe) -> Unit = remember {
+        { swipe ->
+            if (swipe.local.isNotEmpty()) {
+                swipe.local.forEach { com.karelisio.bulle.island.IslandLog.log("Masquée dans Bulle (non effaçable) : $it") }
+                com.karelisio.bulle.notifications.NotifLocalHide.hide(swipe.local)
+                refusal = RefusalNotice(swipe.local, currentModel.allItems.firstOrNull { it.key in swipe.local })
+            }
+            hidden = NotifOptimistic.hide(hidden, swipe.cancel, SystemClock.uptimeMillis())
+            swipe.cancel.forEach(NotifCommands::cancel)
         }
     }
 
-    val rows = remember(shown) { rows(shown) }
+    val rows = remember(shown, refusal) {
+        val base = rows(shown)
+        if (refusal == null) base else base.toMutableList().apply { add(indexOf(ListRow.Header) + 1, ListRow.Refused) }
+    }
     // Clés visibles à l'ouverture : les suivantes arrivent par le haut.
     val initialKeys = remember { model.allItems.map { it.key }.toSet() }
     var expandedGroups by remember { mutableStateOf(emptySet<String>()) }
@@ -214,7 +240,7 @@ internal fun NotificationList(host: VoletHost, model: NotifListModel, modifier: 
         if (!clearing) return@LaunchedEffect
         val count = rows.count { it is ListRow.Group && it.group.clearable }
         if (!reduce) delay(ClearCascade.totalMs(count))
-        dismiss(shown.clearableKeys)
+        dismiss(NotifDismiss.Swipe(shown.clearableKeys, emptyList()))
         clearing = false
     }
 
@@ -258,6 +284,20 @@ internal fun NotificationList(host: VoletHost, model: NotifListModel, modifier: 
                             modifier = Modifier
                                 .animateItem(null, placement, fadeOut)
                                 .then(if (isNew) Modifier.dropIn() else Modifier.cascade(row.index + 1)),
+                        )
+                    }
+                    ListRow.Refused -> refusal?.let { notice ->
+                        RefusalBanner(
+                            notice,
+                            onDisable = {
+                                notice.item?.let { host.startActivity(NotifCommands.settingsIntent(it)) }
+                                refusal = null
+                            },
+                            onShow = {
+                                com.karelisio.bulle.notifications.NotifLocalHide.show(notice.keys)
+                                refusal = null
+                            },
+                            modifier = Modifier.animateItem(fade, placement, fadeOut),
                         )
                     }
                     ListRow.ClearAll -> Box(Modifier.fillMaxWidth().animateItem(fade, placement, fadeOut), contentAlignment = Alignment.CenterEnd) {
@@ -328,5 +368,33 @@ private fun Modifier.dropIn(): Modifier = composed {
         val s = 0.94f + 0.06f * v
         scaleX = s
         scaleY = s
+    }
+}
+
+/** Bandeau : notifications que le système refuse d'effacer, masquées dans Bulle. */
+@Composable
+internal fun RefusalBanner(notice: RefusalNotice, onDisable: () -> Unit, onShow: () -> Unit, modifier: Modifier = Modifier) {
+    androidx.compose.material3.Surface(
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        androidx.compose.foundation.layout.Column(Modifier.padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 4.dp)) {
+            Text(
+                if (notice.keys.size == 1) {
+                    stringResource(R.string.notif_refused_one, notice.item?.appName ?: "")
+                } else {
+                    stringResource(R.string.notif_refused_many, notice.keys.size)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            androidx.compose.foundation.layout.Row(Modifier.align(Alignment.End)) {
+                androidx.compose.material3.TextButton(onClick = onShow) { Text(stringResource(R.string.notif_refused_show)) }
+                if (notice.item != null) {
+                    androidx.compose.material3.TextButton(onClick = onDisable) { Text(stringResource(R.string.notif_refused_disable)) }
+                }
+            }
+        }
     }
 }

@@ -134,20 +134,21 @@ internal fun NotifGroupCard(
     clearing: Boolean,
     modifier: Modifier = Modifier,
     clearDelayMs: Long = 0L,
-    onDismissKeys: (List<String>) -> Unit = { keys -> keys.forEach(NotifCommands::cancel) },
+    onDismissKeys: (NotifDismiss.Swipe) -> Unit = { s -> s.cancel.forEach(NotifCommands::cancel) },
 ) {
+    // Toute carte se balaie : celles que le système n'efface pas sont masquées dans Bulle.
     if (group.items.size == 1) {
         val item = group.lead
-        SwipeToDismiss(item.clearable, clearing && item.clearable, onDismiss = { onDismissKeys(NotifDismiss.itemKeys(group, item)) }, modifier, clearDelayMs) {
+        SwipeToDismiss(true, clearing && item.clearable, onDismiss = { onDismissKeys(NotifDismiss.swipeItem(group, item)) }, modifier, clearDelayMs) {
             NotifCard(item, host, dims, focused = item.key == focusKey, initiallyExpanded = item.key == focusKey)
         }
         return
     }
     val shape = RoundedCornerShape(dims.corner)
     SwipeToDismiss(
-        enabled = !expanded && group.clearable,
+        enabled = !expanded,
         clearing = clearing && group.clearable,
-        onDismiss = { onDismissKeys(NotifDismiss.groupKeys(group)) },
+        onDismiss = { onDismissKeys(NotifDismiss.swipeGroup(group)) },
         modifier = modifier,
         clearDelayMs = clearDelayMs,
     ) {
@@ -173,7 +174,7 @@ internal fun NotifGroupCard(
                         ) {
                             group.items.forEach { item ->
                                 androidx.compose.runtime.key(item.key) {
-                                    SwipeToDismiss(item.clearable, false, onDismiss = { onDismissKeys(NotifDismiss.itemKeys(group, item)) }) {
+                                    SwipeToDismiss(true, false, onDismiss = { onDismissKeys(NotifDismiss.swipeItem(group, item)) }) {
                                         NotifCard(item, host, dims, focused = item.key == focusKey, initiallyExpanded = item.key == focusKey, nested = true)
                                     }
                                 }
@@ -301,6 +302,7 @@ internal fun NotifCard(
                 interactionSource = interaction,
                 indication = androidx.compose.material3.ripple(),
                 onClick = {
+                    if (!menu) com.karelisio.bulle.island.IslandLog.log("Volet : toucher sur une notification de ${item.packageName}")
                     when {
                         menu -> Unit
                         // Changement de sortie audio : ouvre le choix de la sortie même sans action attachée.

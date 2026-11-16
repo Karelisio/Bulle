@@ -27,4 +27,8 @@
     <string name="notif_dismiss">Ignorer</string>
     <string name="notif_close_reply">Fermer la réponse</string>
     <string name="notif_you">Vous</string>
+    <string name="notif_refused_one">« %1$s » : le système refuse de l\'effacer. Masquée dans Bulle.</string>
+    <string name="notif_refused_many">%1$d notifications que le système refuse d\'effacer sont masquées dans Bulle.</string>
+    <string name="notif_refused_disable">Désactiver ces notifications</string>
+    <string name="notif_refused_show">Réafficher</string>
 </resources>
