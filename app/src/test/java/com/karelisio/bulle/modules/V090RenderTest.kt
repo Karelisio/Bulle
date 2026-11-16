@@ -138,7 +138,13 @@ class V090RenderTest {
                 onFinished = { done = true },
             )
         }
-        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(3))
+        // Sans animations (tests), le bord statique reste affiché la durée du halo (attente réelle).
+        repeat(40) {
+            if (!done) {
+                shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(100))
+                Thread.sleep(100)
+            }
+        }
         assertTrue(done)
     }
 

@@ -33,6 +33,7 @@ import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.random.Random
+import kotlinx.coroutines.delay
 
 /** Réglages d'apparence figés pour une animation (pixels pour l'épaisseur). */
 data class HaloLook(
@@ -78,11 +79,22 @@ fun HaloCanvas(
     val total = look.totalMs(request.kind)
     val clock = remember(request.id) { Animatable(0f) }
     val finished = rememberUpdatedState(onFinished)
-    LaunchedEffect(request.id, total, loop) {
-        do {
-            clock.snapTo(0f)
-            clock.animateTo(total.toFloat(), tween(total.toInt().coerceAtLeast(1), easing = LinearEasing))
-        } while (loop)
+    LaunchedEffect(request.id, total, loop, reduce) {
+        if (reduce) {
+            // Sans animations : bord statique (milieu de l'animation, pleine opacité), jamais de boucle
+            // — une animation de durée nulle relancée en boucle tournerait à chaque image.
+            clock.snapTo(total / 2f)
+            if (loop) return@LaunchedEffect
+            delay(total)
+        } else {
+            while (true) {
+                clock.snapTo(0f)
+                clock.animateTo(total.toFloat(), tween(total.toInt().coerceAtLeast(1), easing = LinearEasing))
+                if (!loop) break
+                // Petite pause entre deux passages de l'aperçu.
+                delay(LOOP_PAUSE_MS)
+            }
+        }
         finished.value()
     }
     val inset = look.thicknessPx * 0.5f + screen.density
@@ -99,6 +111,9 @@ fun HaloCanvas(
         drawHalo(outline, request, look, clock.value.toLong(), total, reduce, painter, burst, screen.density)
     }
 }
+
+/** Pause entre deux passages en boucle (aperçu, écran éteint). */
+private const val LOOP_PAUSE_MS = 500L
 
 /** Pinceaux réutilisés d'une image à l'autre (le flou coûte cher à recréer). */
 class HaloPainter(thickness: Float) {
