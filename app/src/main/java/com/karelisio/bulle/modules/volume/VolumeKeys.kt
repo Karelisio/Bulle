@@ -64,6 +64,11 @@ object VolumeKeys {
     /** Appelé par le service d'accessibilité pour chaque touche. Retourne vrai si la touche est consommée. */
     fun onKeyEvent(context: Context, event: KeyEvent): Boolean {
         val code = event.keyCode
+        // Power : jamais consommé ; sert à reconnaître la capture d'écran (Power + volume).
+        if (code == KeyEvent.KEYCODE_POWER) {
+            if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) runCatching { onPower(context) }
+            return false
+        }
         if (!VolumeLogic.isVolumeKey(code)) return false
         return runCatching { handle(context, event, code) }
             .onFailure { Log.w(TAG, "Touche volume non gérée", it) }
@@ -73,12 +78,21 @@ object VolumeKeys {
     private fun handle(context: Context, event: KeyEvent, code: Int): Boolean = when (event.action) {
         KeyEvent.ACTION_DOWN -> {
             if (event.repeatCount == 0) {
-                if (VolumeLogic.shouldIntercept(conditions(context))) consumedDown += code else consumedDown -= code
+                // Power vient d'être pressé : combinaison du système (capture d'écran…), on n'y touche pas.
+                val chord = VolumeLogic.isChord(SystemClock.uptimeMillis(), lastPowerDown)
+                if (!chord && VolumeLogic.shouldIntercept(conditions(context))) consumedDown += code else consumedDown -= code
             }
             if (code in consumedDown) {
                 val direction = if (code == KeyEvent.KEYCODE_VOLUME_UP) AudioManager.ADJUST_RAISE else AudioManager.ADJUST_LOWER
                 if (event.repeatCount == 0) {
-                    adjust(context, direction)
+                    // Cran différé de quelques dizaines de ms : si Power suit (capture d'écran),
+                    // le volume n'est pas touché.
+                    rememberUndo(context)
+                    lastVolumeDown = SystemClock.uptimeMillis()
+                    pendingAdjust?.let(handler::removeCallbacks)
+                    val pending = Runnable { pendingAdjust = null; runCatching { adjust(context, direction) } }
+                    pendingAdjust = pending
+                    handler.postDelayed(pending, VolumeLogic.DEFER_MS)
                     startRepeat(context, code, direction)
                 } else if (repeat == null) {
                     // Répétitions système (si elles arrivent) : utilisées seulement sans la nôtre.
@@ -94,6 +108,47 @@ object VolumeKeys {
             consumedDown.remove(code)
         }
         else -> code in consumedDown
+    }
+
+    // --- Capture d'écran (Power + volume) ---
+
+    @Volatile
+    private var lastPowerDown = 0L
+
+    @Volatile
+    private var lastVolumeDown = 0L
+    private var pendingAdjust: Runnable? = null
+
+    /** Niveau avant le dernier appui (flux, niveau) : rétabli si l'appui faisait partie d'une capture. */
+    private var undo: Pair<Int, Int>? = null
+
+    private fun rememberUndo(context: Context) {
+        val am = context.getSystemService(AudioManager::class.java) ?: return
+        val stream = currentStream(context, am).streamType
+        undo = stream to am.getStreamVolume(stream)
+    }
+
+    /**
+     * Power pressé. Juste après un appui volume intercepté : c'était la combinaison de capture
+     * d'écran. Le cran de volume est annulé (ou rétabli), le curseur retiré, et la capture est
+     * prise par le service (le système n'a pas vu la touche volume, consommée par Bulle).
+     */
+    private fun onPower(context: Context) {
+        val now = SystemClock.uptimeMillis()
+        lastPowerDown = now
+        if (!VolumeLogic.isChord(now, lastVolumeDown) || consumedDown.isEmpty()) return
+        val wasPending = pendingAdjust != null
+        pendingAdjust?.let(handler::removeCallbacks)
+        pendingAdjust = null
+        stopRepeat()
+        if (!wasPending) {
+            val am = context.getSystemService(AudioManager::class.java)
+            undo?.let { (stream, level) -> runCatching { am?.setStreamVolume(stream, level, 0) } }
+        }
+        hide()
+        com.karelisio.bulle.island.IslandLog.log("Volume : Power + volume → capture d'écran (volume inchangé)")
+        val service = context as? android.accessibilityservice.AccessibilityService ?: return
+        handler.postDelayed({ service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT) }, 250L)
     }
 
     private fun startRepeat(context: Context, code: Int, direction: Int) {

@@ -41,24 +41,36 @@ object LiveModule : IslandModule {
         val density = context.resources.displayMetrics.density
         val iconPx = (32 * density).toInt()
 
+        val staleness = LiveStaleness()
+        // Revérifie régulièrement : une progression figée doit disparaître même sans nouvelle notification.
+        val tick = kotlinx.coroutines.flow.flow {
+            while (true) {
+                emit(Unit)
+                kotlinx.coroutines.delay(LiveStaleness.CHECK_MS)
+            }
+        }
         return combine(
             NotificationRepository.active,
             env.settings.map { it.live }.distinctUntilChanged(),
-        ) { active, settings ->
+            tick,
+        ) { active, settings, _ ->
+            val now = SystemClock.elapsedRealtime()
             val activities = active.values
                 .asSequence()
                 .filter { it.packageName != context.packageName && it.packageName !in settings.excludedPackages }
                 .mapNotNull { sbn -> LiveParser.parse(sbn, context)?.let { sbn to it } }
                 .filter { (_, a) -> settings.showGenericProgress || !a.genericProgress }
                 .toList()
-            firstSeen.keys.retainAll(activities.mapTo(HashSet()) { it.second.key })
+            staleness.retain(activities.mapTo(HashSet()) { it.second.key })
+            val fresh = activities.filterNot { (_, a) -> staleness.isStale(a, now) }
+            firstSeen.keys.retainAll(fresh.mapTo(HashSet()) { it.second.key })
             visuals.keys.retainAll(firstSeen.keys)
-            val contents = activities.map { (sbn, a) ->
+            val contents = fresh.map { (sbn, a) ->
                 LiveContent(
                     activity = a,
                     visuals = visuals[sbn.key]?.takeIf { it.first == sbn.postTime }?.second
                         ?: visualsOf(context, sbn, labels, iconPx).also { visuals[sbn.key] = sbn.postTime to it },
-                    postedAt = firstSeen.getOrPut(a.key) { SystemClock.elapsedRealtime() },
+                    postedAt = firstSeen.getOrPut(a.key) { now },
                 )
             }
             // Tous les téléchargements dans un seul contenu de clé stable (l'île étendue ne se

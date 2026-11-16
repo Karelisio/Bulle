@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.2
+- Île : une barre de progression figée (appli qui a fini sans retirer sa notification ni envoyer 100 %, comme une mise à jour lancée depuis Vigie) disparaît au bout de 3 minutes sans avancer ; elle revient si elle repart. Via l'API d'intégration, une progression terminée part au bout de 4 s, et une progression sans nouvelles au bout de 5 min.
+- Volume sur l'île : la capture d'écran (Power + volume) ne change plus le volume. Power pressé juste avant le volume : la touche est laissée au système ; juste après : le cran est annulé et la capture est prise. Noté dans le Journal (« Volume : Power + volume »).
+
 ## 0.9.1
 **Halo**
 - Caméra mieux intégrée : par défaut, le trait jaillit de chaque côté de la caméra au lieu de faire un grand détour dessous. Autres choix : contourner au plus près (écart réglable) ou ignorer la caméra.

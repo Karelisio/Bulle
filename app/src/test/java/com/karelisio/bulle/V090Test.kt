@@ -102,6 +102,32 @@ class V090Test {
     }
 
     @Test
+    fun frozenProgressLeavesTheIsland() {
+        val a = com.karelisio.bulle.modules.live.LiveActivity(
+            key = "k", packageName = "com.karelisio.vigie", kind = com.karelisio.bulle.modules.live.LiveKind.PROGRESS,
+            title = "Mise à jour", text = null, subText = null, shortText = null,
+            progress = com.karelisio.bulle.modules.live.LiveProgress(88, 100, false), chrono = null, color = 0,
+            promoted = false, genericProgress = true, actions = emptyList(), contentIntent = null,
+        )
+        val st = com.karelisio.bulle.modules.live.LiveStaleness(staleMs = 1000)
+        assertFalse(st.isStale(a, 0))
+        assertFalse(st.isStale(a, 500))
+        assertTrue("88 % figé", st.isStale(a, 1000))
+        // Elle avance : de nouveau affichée.
+        assertFalse(st.isStale(a.copy(progress = com.karelisio.bulle.modules.live.LiveProgress(90, 100, false)), 1200))
+        // Minuteur : jamais concerné.
+        assertFalse(st.isStale(a.copy(kind = com.karelisio.bulle.modules.live.LiveKind.TIMER), 99_999))
+    }
+
+    @Test
+    fun powerAndVolumeChordWindow() {
+        val v = com.karelisio.bulle.modules.volume.VolumeLogic
+        assertTrue(v.isChord(1_000, 800))
+        assertFalse(v.isChord(1_000, 0))
+        assertFalse(v.isChord(5_000, 1_000))
+    }
+
+    @Test
     fun overlaysFollowTheIslandRules() {
         val s = BulleSettings()
         assertEquals(HiddenReason.FULLSCREEN, VisibilityPolicy.overlayHiddenReason(s, ScreenEnv(landscape = true, statusBarVisible = false), "v"))

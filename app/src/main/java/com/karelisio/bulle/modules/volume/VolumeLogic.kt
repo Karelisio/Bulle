@@ -17,6 +17,15 @@ data class KeyConditions(
 
 /** Décisions pures du volume sur l'île. */
 object VolumeLogic {
+    /** Fenêtre de la combinaison Power + volume (ms). */
+    const val CHORD_MS = 400L
+
+    /** Délai du premier cran : laisse le temps de voir arriver Power (ms). */
+    const val DEFER_MS = 90L
+
+    /** Les deux touches pressées à moins de [CHORD_MS] d'intervalle. */
+    fun isChord(now: Long, other: Long): Boolean = other > 0 && now - other in 0..CHORD_MS
+
 
     fun isVolumeKey(keyCode: Int): Boolean =
         keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
