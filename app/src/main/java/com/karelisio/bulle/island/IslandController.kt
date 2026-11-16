@@ -154,6 +154,8 @@ class IslandController(
                 if (primary == null || !seenKeys.add(primary.key)) return@collect
                 val ms = primary.autoExpandMs ?: return@collect
                 if (interaction.value.panel != null) return@collect
+                // Paysage (île verticale) : seuls les appels s'ouvrent d'eux-mêmes.
+                if (!IslandAutoExpand.allowed(screen.value.geometry.vertical, primary.moduleId)) return@collect
                 interaction.update { it.copy(expandedKey = primary.key) }
                 autoCollapseJob?.cancel()
                 autoCollapseJob = scope.launch {

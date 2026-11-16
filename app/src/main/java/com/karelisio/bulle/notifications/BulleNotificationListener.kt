@@ -10,6 +10,7 @@ class BulleNotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         NotificationRepository.listener = this
+        NotifLocalHide.init(this)
         val all = runCatching { activeNotifications?.toList() }.getOrNull().orEmpty()
         NotificationRepository.onConnected(all, packageName)
         Reliability.ensureRunning(this)

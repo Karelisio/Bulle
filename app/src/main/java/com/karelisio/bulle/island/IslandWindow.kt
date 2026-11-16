@@ -83,11 +83,13 @@ class IslandWindow(private val context: Context) {
             // Fenêtre d'affichage : pleine largeur, ne grandit que si l'île en a besoin (rare).
             val needed = maxOf(top + h + (48 * density).toInt(), (screenHeight * 0.5f).toInt())
             val dp = displayWin.params
-            if (dp.width != screenWidth || dp.height < needed || dp.x != 0 || dp.y != 0) {
+            // Elle ne rétrécit qu'une fois l'île repliée (aucune relayout pendant les animations).
+            val shrink = !watchOutside && dp.height > needed
+            if (dp.width != screenWidth || dp.height < needed || shrink || dp.x != 0 || dp.y != 0) {
                 dp.x = 0
                 dp.y = 0
                 dp.width = screenWidth.coerceAtLeast(1)
-                dp.height = maxOf(dp.height, needed)
+                dp.height = if (shrink) needed else maxOf(dp.height, needed)
                 IslandLog.log("Fenêtre d'affichage ${dp.width}×${dp.height}")
                 displayWin.commit()
             }
@@ -150,14 +152,6 @@ class IslandWindow(private val context: Context) {
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouchEvent(event: MotionEvent): Boolean {
             val target = displayWin.view ?: return false
-            // Diagnostic (Journal de l'île) : touchers sur l'île dépliée, avec la zone tactile.
-            if (event.actionMasked == MotionEvent.ACTION_DOWN && touchWin.params.flags and LP.FLAG_WATCH_OUTSIDE_TOUCH != 0) {
-                val p = touchWin.params
-                IslandLog.log(
-                    "Toucher sur l'île dépliée (${event.x.toInt()}, ${event.y.toInt()}) — zone tactile " +
-                        "${p.width}×${p.height} à (${p.x},${p.y})",
-                )
-            }
             val e = MotionEvent.obtain(event)
             // Coordonnées de la fenêtre tactile → coordonnées de la fenêtre d'affichage.
             e.offsetLocation(

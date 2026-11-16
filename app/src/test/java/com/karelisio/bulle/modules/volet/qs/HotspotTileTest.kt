@@ -76,6 +76,15 @@ class HotspotTileTest {
     }
 
     @Test
+    fun apStateIsReadThroughShizuku() {
+        assertEquals("bulle-tether wifi state", TetherShell.STATE_COMMAND)
+        assertNull(TetherShell.parse(TetherShell.STATE_COMMAND))
+        assertEquals(13, TetherShell.parseState("state 13\n"))
+        assertNull(TetherShell.parseState("SecurityException: refus"))
+        assertNull(TetherShell.parseState(null))
+    }
+
+    @Test
     fun apStateIsReadFromTheBroadcast() {
         assertTrue(HotspotIntents.isActive(13))
         assertTrue(HotspotIntents.isActive(12))

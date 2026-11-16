@@ -36,6 +36,35 @@ object TetherShell {
         }
     }
 
+    /** Commandes « bulle-tether » exécutées dans le processus shell ; null : commande shell ordinaire. */
+    fun intercept(command: String): Pair<Int, String>? = when {
+        command.trim() == STATE_COMMAND -> state()
+        else -> parse(command)?.let(::run)
+    }
+
+    /** Lecture de l'état du point d'accès (état WIFI_AP_STATE_* renvoyé par « state N »). */
+    const val STATE_COMMAND = "$PREFIX wifi state"
+
+    /** Sortie « state N » → N ; null sinon. */
+    fun parseState(output: String?): Int? =
+        output?.trim()?.removePrefix("state ")?.trim()?.toIntOrNull()
+
+    /** État du point d'accès lu dans le service Wi-Fi (processus shell) ; (0, « state N ») ou (-1, raison). */
+    fun state(): Pair<Int, String> = try {
+        val binder = Class.forName("android.os.ServiceManager")
+            .getMethod("getService", String::class.java)
+            .invoke(null, "wifi") as? IBinder
+            ?: return -1 to "service wifi introuvable"
+        val wifi = Class.forName("android.net.wifi.IWifiManager\$Stub")
+            .getMethod("asInterface", IBinder::class.java)
+            .invoke(null, binder)!!
+        val s = wifi.javaClass.getMethod("getWifiApEnabledState").invoke(wifi) as Int
+        0 to "state $s"
+    } catch (t: Throwable) {
+        val cause = (t as? java.lang.reflect.InvocationTargetException)?.targetException ?: t
+        -1 to "${cause.javaClass.simpleName}: ${cause.message}"
+    }
+
     /** Rôle de chaque paramètre de startTethering / stopTethering (signatures selon la version d'Android). */
     enum class Arg { REQUEST, TYPE, PACKAGE, TAG, LISTENER, UNKNOWN }
 
