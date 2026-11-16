@@ -36,6 +36,12 @@ enum class PermissionKey {
 
     /** Accès « Ne pas déranger » (tuile du Volet). */
     DND_ACCESS,
+
+    /** MagicOS : « Afficher sur l'écran de verrouillage » (Veille, Halo écran éteint). Vérifié à l'usage. */
+    LOCKSCREEN_DISPLAY,
+
+    /** MagicOS : « Afficher des fenêtres pop-up en arrière-plan » (lancement de Veille). Vérifié à l'usage. */
+    BACKGROUND_POPUP,
 }
 
 /** Commande adb qui accorde WRITE_SECURE_SETTINGS (réactivation automatique de l'accessibilité). */
@@ -57,7 +63,13 @@ enum class ServiceHealth {
 object PermissionLogic {
 
     /** Autorisations présentées pendant la prise en main, dans l'ordre. */
-    fun onboardingSteps(sdk: Int, family: OemSettings.Family, volet: Boolean = false): List<PermissionKey> = buildList {
+    fun onboardingSteps(
+        sdk: Int,
+        family: OemSettings.Family,
+        volet: Boolean = false,
+        /** Page Photos de Veille activée : accès aux photos (diaporama). */
+        standbyPhotos: Boolean = false,
+    ): List<PermissionKey> = buildList {
         if (sdk >= 33) add(PermissionKey.RESTRICTED)
         add(PermissionKey.ACCESSIBILITY)
         add(PermissionKey.NOTIFICATION_ACCESS)
@@ -65,9 +77,15 @@ object PermissionLogic {
         add(PermissionKey.INSTALL_PACKAGES)
         add(PermissionKey.BATTERY)
         if (family != OemSettings.Family.STOCK) add(PermissionKey.OEM_LAUNCH)
+        // Autorisations propres à MagicOS (Veille, Halo écran éteint).
+        if (family == OemSettings.Family.HONOR) addAll(magicOsSteps)
         // Réglages rapides du Volet (luminosité, Ne pas déranger) : seulement s'il est activé.
         if (volet) addAll(voletSteps)
+        if (standbyPhotos) add(PermissionKey.MEDIA_IMAGES)
     }
+
+    /** Autorisations spécifiques à MagicOS : écran de verrouillage et fenêtres pop-up en arrière-plan. */
+    val magicOsSteps: List<PermissionKey> = listOf(PermissionKey.LOCKSCREEN_DISPLAY, PermissionKey.BACKGROUND_POPUP)
 
     /** Autorisations propres au Volet (en plus de l'accessibilité et de l'accès aux notifications). */
     val voletSteps: List<PermissionKey> = listOf(PermissionKey.WRITE_SETTINGS, PermissionKey.DND_ACCESS)
@@ -96,7 +114,8 @@ object PermissionLogic {
     }
 
     /** Autorisation qu'on ne peut que déclarer faite (« C'est fait »). */
-    fun isManual(key: PermissionKey) = key == PermissionKey.RESTRICTED || key == PermissionKey.OEM_LAUNCH
+    fun isManual(key: PermissionKey) = key == PermissionKey.RESTRICTED || key == PermissionKey.OEM_LAUNCH ||
+        key in magicOsSteps
 
     /**
      * Les paramètres restreints sont forcément levés si l'accessibilité ou l'accès aux
@@ -151,6 +170,11 @@ object PermissionChecks {
             PermissionKey.WRITE_SETTINGS -> Settings.System.canWrite(context)
             PermissionKey.SECURE_SETTINGS -> Reliability.canWriteSecureSettings(context)
             PermissionKey.DND_ACCESS -> isDndAccessGranted(context)
+            // Non détectable par l'API : « C'est fait », ou vérifié quand Veille s'est affichée.
+            PermissionKey.LOCKSCREEN_DISPLAY ->
+                isConfirmed(context, key) || OemSettings.proven(context, OemSettings.Proof.LOCKSCREEN)
+            PermissionKey.BACKGROUND_POPUP ->
+                isConfirmed(context, key) || OemSettings.proven(context, OemSettings.Proof.BACKGROUND_POPUP)
             else -> false
         }
     }
@@ -199,6 +223,10 @@ object PermissionChecks {
     fun openSettings(context: Context, key: PermissionKey) {
         if (key == PermissionKey.OEM_LAUNCH) {
             OemSettings.openLaunchManager(context)
+            return
+        }
+        if (key in PermissionLogic.magicOsSteps) {
+            OemSettings.openSpecialPermissions(context)
             return
         }
         val intent = settingsIntent(context, key) ?: return

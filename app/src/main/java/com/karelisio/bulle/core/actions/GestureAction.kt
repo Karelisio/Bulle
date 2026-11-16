@@ -18,6 +18,12 @@ enum class ActionType(val needsWriteSettings: Boolean = false) {
     ECHO_THOUGHT, EXIT_CRAVING, RESERVE_FUEL,
     SCAN_QR, MEMO, SCREEN_RECORD,
     FOCUS_MODE, TRANSLATE,
+    /** Ouvre le Volet de Bulle (sinon le volet du système). */
+    OPEN_VOLET,
+    /** Lance Veille (mode StandBy) tout de suite. */
+    STANDBY,
+    /** Fait passer un halo de test autour de l'écran. */
+    HALO_TEST,
 }
 
 /**

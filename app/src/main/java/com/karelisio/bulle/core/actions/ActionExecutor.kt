@@ -30,7 +30,7 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
             ActionType.PLAY_PAUSE, ActionType.NEXT_TRACK, ActionType.PREVIOUS_TRACK,
             ActionType.VOLUME_UP, ActionType.VOLUME_DOWN, ActionType.MUTE,
             ActionType.BRIGHTNESS_UP, ActionType.BRIGHTNESS_DOWN, ActionType.TORCH, ActionType.ROTATION,
-            ActionType.BATTERY_SAVER, ActionType.FOCUS_MODE,
+            ActionType.BATTERY_SAVER, ActionType.FOCUS_MODE, ActionType.HALO_TEST,
         )
 
         /** L'action ouvre un autre écran (ou montre un résultat dans l'île) : l'île doit se refermer avant. */
@@ -68,6 +68,9 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
                 ActionType.TRANSLATE -> island.openTranslate()
                 ActionType.FOCUS_MODE -> com.karelisio.bulle.modules.focusmode.FocusMode.toggle()
                 ActionType.SCREEN_RECORD -> com.karelisio.bulle.modules.capture.CaptureActions.toggleScreenRecord(context)
+                ActionType.OPEN_VOLET -> if (!openVolet(full = false)) global(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
+                ActionType.STANDBY -> com.karelisio.bulle.modules.standby.StandbyLauncher.launchNow(context, reason = "geste")
+                ActionType.HALO_TEST -> com.karelisio.bulle.modules.halo.HaloBus.test()
 
                 ActionType.BACK -> global(AccessibilityService.GLOBAL_ACTION_BACK)
                 ActionType.HOME -> global(AccessibilityService.GLOBAL_ACTION_HOME)

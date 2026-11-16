@@ -140,6 +140,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Appui long sur une tuile Réglages rapides de Bulle : ouvre ses réglages. -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
         </activity>
 
         <!-- Module Musique : paroles plein écran « karaoké », lancées depuis l'île (nouvelle tâche à part,
@@ -160,6 +164,48 @@
             android:launchMode="singleTask"
             android:taskAffinity="com.karelisio.bulle.karaoke"
             android:theme="@style/Theme.Bulle" />
+
+        <!-- Halo écran éteint (modules/halo) : noir pur au-dessus de l'écran de verrouillage,
+             le temps du halo ; tâche à part, absente des applis récentes. -->
+        <activity
+            android:name=".modules.halo.HaloNightActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:taskAffinity="com.karelisio.bulle.halo"
+            android:theme="@style/Theme.Bulle.Black" />
+
+        <!-- Veille (modules/standby) : activité de secours plein écran à l'horizontale, au-dessus
+             de l'écran de verrouillage ; lancée par le service de l'île (branché + horizontale). -->
+        <activity
+            android:name=".modules.standby.StandbyActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:screenOrientation="sensorLandscape"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:taskAffinity="com.karelisio.bulle.standby"
+            android:theme="@style/Theme.Bulle.Black"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
+
+        <!-- Veille comme économiseur d'écran, quand le système le propose. -->
+        <service
+            android:name=".modules.standby.StandbyDreamService"
+            android:exported="true"
+            android:label="@string/standby_dream_label"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.dream"
+                android:resource="@xml/standby_dream" />
+        </service>
 
         <!-- Zone capture (modules/capture) -->
         <!-- Scanner QR plein écran (tâche à part, absente des applis récentes). -->
@@ -244,6 +290,49 @@
             android:exported="true"
             android:icon="@drawable/ic_stat_bulle"
             android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+
+        <!-- Tuiles Réglages rapides des modules Halo, Bords et Veille. -->
+        <service
+            android:name=".system.HaloTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_stat_bulle"
+            android:label="@string/halo_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+
+        <service
+            android:name=".system.EdgesTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_stat_bulle"
+            android:label="@string/edges_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+
+        <service
+            android:name=".system.StandbyTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_stat_bulle"
+            android:label="@string/standby_title"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

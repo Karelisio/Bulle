@@ -47,16 +47,19 @@ fun ActionType.labelRes(): Int = when (this) {
     SCREEN_RECORD -> R.string.action_screen_record
     FOCUS_MODE -> R.string.action_focus_mode
     TRANSLATE -> R.string.action_translate
+    OPEN_VOLET -> R.string.action_open_volet
+    STANDBY -> R.string.action_standby
+    HALO_TEST -> R.string.action_halo_test
 }
 
 /** Groupes d'actions pour le sélecteur. */
 val ActionGroups: List<Pair<Int, List<ActionType>>> = listOf(
-    R.string.action_group_island to listOf(NONE, TOGGLE_EXPAND, OPEN_DECK, APP_SEARCH, TIMER, FOCUS_MODE, SWAP_BUBBLES),
+    R.string.action_group_island to listOf(NONE, TOGGLE_EXPAND, OPEN_DECK, OPEN_VOLET, APP_SEARCH, TIMER, FOCUS_MODE, SWAP_BUBBLES),
     R.string.action_group_system to listOf(BACK, HOME, RECENTS, NOTIFICATIONS, QUICK_SETTINGS, LOCK_SCREEN, SCREENSHOT),
     R.string.action_group_media to listOf(PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, VOLUME_UP, VOLUME_DOWN, MUTE),
     R.string.action_group_toggles to listOf(BRIGHTNESS_UP, BRIGHTNESS_DOWN, TORCH, ROTATION, WIFI, BLUETOOTH, BATTERY_SAVER),
     R.string.action_group_apps to listOf(OPEN_APP, LAUNCH_SHORTCUT),
-    R.string.action_group_tools to listOf(SCAN_QR, TRANSLATE, MEMO, SCREEN_RECORD),
+    R.string.action_group_tools to listOf(SCAN_QR, TRANSLATE, MEMO, SCREEN_RECORD, STANDBY, HALO_TEST),
     R.string.action_group_ecosystem to listOf(ECHO_THOUGHT, EXIT_CRAVING, RESERVE_FUEL),
 )
 

@@ -103,7 +103,9 @@ fun PermissionsScreen(onBack: () -> Unit) {
     val family = remember { OemSettings.family }
     val voletEnabled by remember { SettingsRepository.flow(context).map { it.volet.enabled } }
         .collectAsStateWithLifecycle(false)
-    val essential = remember(voletEnabled) { PermissionLogic.onboardingSteps(Build.VERSION.SDK_INT, family, voletEnabled) }
+    val photos by remember { SettingsRepository.flow(context).map { it.standby.enabled && com.karelisio.bulle.modules.standby.StandbyPage.PHOTOS in it.standby.pages } }
+        .collectAsStateWithLifecycle(false)
+    val essential = remember(voletEnabled, photos) { PermissionLogic.onboardingSteps(Build.VERSION.SDK_INT, family, voletEnabled, photos) }
     val onDemand = remember(essential) { PermissionLogic.onDemand - essential.toSet() }
     val scroll = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val copied = stringResource(R.string.rel_copied)

@@ -246,7 +246,7 @@ internal fun AppList(onPick: (AppEntry) -> Unit) {
 }
 
 @Composable
-private fun ShortcutList(onPick: (ComponentName) -> Unit) {
+internal fun ShortcutList(onPick: (ComponentName) -> Unit) {
     val context = LocalContext.current
     val pm = context.packageManager
     val entries = remember {

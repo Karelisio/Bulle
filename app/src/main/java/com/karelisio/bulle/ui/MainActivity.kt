@@ -32,9 +32,35 @@ class MainActivity : AppCompatActivity() {
     /** null tant que les réglages ne sont pas lus (le splash reste affiché). */
     private var onboardingDone by mutableStateOf<Boolean?>(null)
 
+    /** Écran à ouvrir directement (tuile : appui long, tuile du Volet). */
+    private var pendingRoute by mutableStateOf<String?>(null)
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        routeOf(intent)?.let { pendingRoute = it }
+    }
+
+    private fun routeOf(intent: android.content.Intent?): String? {
+        intent ?: return null
+        intent.getStringExtra(EXTRA_ROUTE)?.let { return it }
+        // Préférences d'une tuile Réglages rapides (appui long sur la tuile).
+        if (intent.action == android.service.quicksettings.TileService.ACTION_QS_TILE_PREFERENCES) {
+            val component = androidx.core.content.IntentCompat.getParcelableExtra(
+                intent, android.content.Intent.EXTRA_COMPONENT_NAME, android.content.ComponentName::class.java,
+            )
+            return com.karelisio.bulle.system.ModuleSwitch.ofTileClass(component?.className)?.route
+        }
+        return null
+    }
+
+    companion object {
+        const val EXTRA_ROUTE = "com.karelisio.bulle.extra.ROUTE"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) pendingRoute = routeOf(intent)
         enableEdgeToEdge()
         Reliability.ensureRunning(this)
         lifecycleScope.launch { onboardingDone = SettingsRepository.current(this@MainActivity).onboardingDone }
@@ -75,7 +101,7 @@ class MainActivity : AppCompatActivity() {
                     label = "onboarding",
                 ) { finished ->
                     if (finished) {
-                        BulleNavHost()
+                        BulleNavHost(pendingRoute = pendingRoute, onRouteOpened = { pendingRoute = null })
                         UpdateHost()
                     } else {
                         OnboardingScreen(onFinished = { onboardingDone = true })

@@ -98,7 +98,7 @@ object IslandLog {
     fun dump(): String = entries.value.joinToString("\n") { it.format() }
 
     /** Catégorie d'une ligne (filtres de l'écran Fiabilité). */
-    enum class Category { ISLAND, VOLET, AUDIO, SHIZUKU }
+    enum class Category { ISLAND, VOLET, AUDIO, SHIZUKU, HALO, EDGES, STANDBY }
 
     /** Catégorie déduite du début du message (logique pure, testée). */
     fun category(message: String): Category {
@@ -106,6 +106,9 @@ object IslandLog {
         return when {
             m.startsWith("Sortie audio") || m.startsWith("Volume :") -> Category.AUDIO
             m.startsWith("Shizuku") || m.startsWith("Tuile") -> Category.SHIZUKU
+            m.startsWith("Halo") -> Category.HALO
+            m.startsWith("Bords") -> Category.EDGES
+            m.startsWith("Veille") -> Category.STANDBY
             VOLET_PREFIXES.any { m.startsWith(it) } -> Category.VOLET
             else -> Category.ISLAND
         }

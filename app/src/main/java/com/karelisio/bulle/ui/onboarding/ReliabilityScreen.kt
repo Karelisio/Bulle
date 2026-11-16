@@ -216,11 +216,14 @@ fun ReliabilityScreen(onBack: () -> Unit) {
                     }
                 }
             }
+            item("tests") {
+                FeatureTestsCard(snackbar, Modifier.cascade(2))
+            }
             item("adb") {
                 Card(
                     shape = MaterialTheme.shapes.extraLarge,
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-                    modifier = Modifier.fillMaxWidth().cascade(2),
+                    modifier = Modifier.fillMaxWidth().cascade(3),
                 ) {
                     Column(Modifier.padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -248,11 +251,11 @@ fun ReliabilityScreen(onBack: () -> Unit) {
             }
             if (family != OemSettings.Family.STOCK) {
                 item("oem") {
-                    OemCard(family, Modifier.cascade(3))
+                    OemCard(family, Modifier.cascade(4))
                 }
             }
             item("journal") {
-                IslandJournalCard(snackbar, Modifier.cascade(4))
+                IslandJournalCard(snackbar, Modifier.cascade(5))
             }
         }
     }
@@ -296,6 +299,9 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                     com.karelisio.bulle.island.IslandLog.Category.VOLET to R.string.journal_filter_volet,
                     com.karelisio.bulle.island.IslandLog.Category.AUDIO to R.string.journal_filter_audio,
                     com.karelisio.bulle.island.IslandLog.Category.SHIZUKU to R.string.journal_filter_shizuku,
+                    com.karelisio.bulle.island.IslandLog.Category.HALO to R.string.journal_filter_halo,
+                    com.karelisio.bulle.island.IslandLog.Category.EDGES to R.string.journal_filter_edges,
+                    com.karelisio.bulle.island.IslandLog.Category.STANDBY to R.string.journal_filter_standby,
                 )
                 options.forEach { (c, label) ->
                     androidx.compose.material3.FilterChip(
@@ -342,6 +348,51 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                 androidx.compose.material3.TextButton(onClick = { com.karelisio.bulle.island.IslandLog.clear() }) {
                     Text(stringResource(R.string.journal_clear))
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Tests des modules hors île : déclencher un halo, afficher les zones de bord en couleur
+ * (5 s), lancer Veille. Chaque test est noté dans le Journal de l'île.
+ */
+@Composable
+private fun FeatureTestsCard(snackbar: SnackbarHostState, modifier: Modifier) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val haloRunning by com.karelisio.bulle.modules.halo.HaloBus.running.collectAsStateWithLifecycle()
+    val edgesRunning by com.karelisio.bulle.modules.edges.EdgeBus.running.collectAsStateWithLifecycle()
+    val serviceOff = stringResource(R.string.rel_test_service_off)
+    Card(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            Text(stringResource(R.string.rel_tests_title), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(R.string.rel_tests_text),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(12.dp))
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilledTonalButton(onClick = {
+                    if (haloRunning) com.karelisio.bulle.modules.halo.HaloBus.test() else scope.launch { snackbar.showSnackbar(serviceOff) }
+                }) { Text(stringResource(R.string.rel_test_halo)) }
+                FilledTonalButton(onClick = {
+                    if (edgesRunning) {
+                        com.karelisio.bulle.island.IslandLog.log("Bords : test d'affichage des zones")
+                        com.karelisio.bulle.modules.edges.EdgeBus.flash()
+                    } else {
+                        scope.launch { snackbar.showSnackbar(serviceOff) }
+                    }
+                }) { Text(stringResource(R.string.rel_test_edges)) }
+                FilledTonalButton(onClick = {
+                    com.karelisio.bulle.modules.standby.StandbyLauncher.launchNow(context, reason = "test Fiabilité")
+                }) { Text(stringResource(R.string.rel_test_standby)) }
             }
         }
     }

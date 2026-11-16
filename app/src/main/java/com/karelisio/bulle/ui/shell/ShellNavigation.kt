@@ -35,6 +35,9 @@ import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.Widgets
+import androidx.compose.material.icons.rounded.BlurOn
+import androidx.compose.material.icons.rounded.Nightlight
+import androidx.compose.material.icons.rounded.VerticalSplit
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.karelisio.bulle.R
 import com.karelisio.bulle.ui.Routes
@@ -123,6 +126,9 @@ object ShellCatalog {
                 R.string.nav_group_around, GroupTint.TERTIARY,
                 listOf(
                     ShellEntry(Routes.VOLET, R.string.home_entry_volet, R.string.nav_sum_volet, Icons.Rounded.Notifications),
+                    ShellEntry(Routes.HALO, R.string.halo_title, R.string.halo_nav_summary, Icons.Rounded.BlurOn),
+                    ShellEntry(Routes.EDGES, R.string.edges_title, R.string.edges_nav_summary, Icons.Rounded.VerticalSplit),
+                    ShellEntry(Routes.STANDBY, R.string.standby_title, R.string.standby_nav_summary, Icons.Rounded.Nightlight),
                     ShellEntry(Routes.DECK, R.string.deck_title, R.string.nav_sum_deck, Icons.Rounded.Dashboard),
                     ShellEntry(Routes.FOCUS_MODE, R.string.nav_title_focus_mode, R.string.nav_sum_focus_mode, Icons.Rounded.Bedtime),
                     ShellEntry(Routes.RULES, R.string.rules_title, R.string.nav_sum_rules, Icons.Rounded.AutoAwesome),

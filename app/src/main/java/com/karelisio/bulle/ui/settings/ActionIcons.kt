@@ -8,6 +8,9 @@ import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Air
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Translate
+import androidx.compose.material.icons.rounded.VerticalSplit
+import androidx.compose.material.icons.rounded.Nightlight
+import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material.icons.rounded.Mic
@@ -79,4 +82,7 @@ fun ActionType.icon(): ImageVector = when (this) {
     SCREEN_RECORD -> Icons.Rounded.Videocam
     FOCUS_MODE -> Icons.Rounded.Bedtime
     TRANSLATE -> Icons.Rounded.Translate
+    OPEN_VOLET -> Icons.Rounded.VerticalSplit
+    STANDBY -> Icons.Rounded.Nightlight
+    HALO_TEST -> Icons.Rounded.BlurOn
 }

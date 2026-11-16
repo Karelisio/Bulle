@@ -40,7 +40,8 @@ val LiquidSupported: Boolean by lazy {
     Build.VERSION.SDK_INT >= 33 && runCatching { RuntimeShader(LIQUID_AGSL) }.isSuccess
 }
 
-private const val LIQUID_AGSL = """
+/** Shader de la scission liquide (réutilisé par la goutte des Bords). */
+internal const val LIQUID_AGSL = """
 uniform float2 mainCenter;
 uniform float2 mainHalf;
 uniform float mainCorner;

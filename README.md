@@ -8,7 +8,7 @@ Une « Dynamic Island » pour Android : une bulle animée posée autour du trou 
 - Kotlin + Jetpack Compose, Material 3 Expressive
 - minSdk 31 · targetSdk 36
 
-## Fonctionnalités (V1)
+## Fonctionnalités
 
 - **L'île** : bulle noire calée automatiquement sur le trou de caméra (pilule du Honor Magic7 Pro comprise), réglage fin au demi-dp, taille, forme (pilule, goutte, arrondie), couleur, contour, ombre.
 - **Gonflement** au ressort, contenu en fondu décalé, rebond au repli ; **scission liquide** (shader AGSL) de la bulle secondaire ; **éclat** de bulles irisées à chaque alerte ; reflet irisé au changement de contenu.
@@ -21,7 +21,10 @@ Une « Dynamic Island » pour Android : une bulle animée posée autour du trou 
 - **Règles** : « Quand <déclencheur>, <action> » (appli, casque, charge, heure, Wi-Fi).
 - **Masquage auto** : plein écran, paysage, écran verrouillé, applis choisies.
 - **Volet** (0.2.0) : volet de notifications et de réglages rapides Material You à la place de celui de MagicOS, sans root (glisser depuis le haut, à gauche ou à droite de l'île). Shizuku facultatif pour basculer Wi-Fi, données, NFC et mode avion.
-- **Fiabilité** : service au premier plan discret, surveillance WorkManager, redémarrage au boot, tuile Réglages rapides.
+- **Halo** (0.9.0) : à chaque notification, un halo lumineux fait le tour de l'écran (coins arrondis réels, caméra contournée), synchronisé avec l'île ; styles signature, trait, pulsation, vague, dégradé, étincelles ; couleur de l'icône, de la pochette, Material You ou fixe ; rose pulsé pour Écho ; option écran éteint et halo de charge.
+- **Bords** (0.9.0) : zones invisibles le long des bords (glisser le long du bord, double toucher, appui long, glisser vers l'intérieur en option) vers les actions de geste ; curseur luminosité / volume avec jauge ; goutte liquide ; geste Retour préservé.
+- **Veille** (0.9.0) : mode StandBy en charge à l'horizontale (économiseur d'écran ou activité de secours) : horloges, widgets, musique et paroles, diaporama, Écho ; mode nuit rouge, anti-marquage OLED.
+- **Fiabilité** : service au premier plan discret, surveillance WorkManager, redémarrage au boot, tuiles Réglages rapides (île, Halo, Bords, Veille), tests des modules et Journal de l'île.
 
 ## Architecture
 
@@ -30,12 +33,15 @@ core/island    IslandContent, IslandModule + ModuleRegistry, Priority, ContentHu
 core/settings  BulleSettings (JSON, DataStore) — un sous-objet par fonctionnalité
 core/actions   Gestes → actions (ActionExecutor)
 island/        Service d'accessibilité, fenêtre d'overlay, contrôleur d'état, rendu Compose
-modules/       Un dossier par contenu : music, live, call, alerts, echo, deck, rules, push, search
+modules/       Un dossier par fonctionnalité : music, live, call, alerts, echo, deck, rules, search, volet,
+               halo, edges, standby…
 notifications/ NotificationListenerService partagé
-system/        Maintien en vie, surveillance, boot, tuile
+system/        Maintien en vie, surveillance, boot, tuiles
 ```
 
 Chaque contenu de l'île est un **module indépendant** (source + priorité + vue compacte + vue étendue) enregistré dans `modules/Modules.kt` : ajouter un module ne touche pas au cœur.
+
+Les modules **hors île** (Halo, Bords, Veille) implémentent `IslandAddon` et sont enregistrés au même endroit : le service d'accessibilité de l'île les démarre à sa connexion et leur prête ses overlays — aucun autre service n'est créé.
 
 ## Installation
 
@@ -71,8 +77,6 @@ Toujours le même keystore, sinon les mises à jour ne s'installent pas par-dess
 
 ## Feuille de route
 
-- **V1** (en cours) : île sur le cutout, musique + paroles, live updates, appels, alertes système, Écho, gestes, Deck, règles, bulle secondaire, styles, sauvegarde.
-- **V2 — Contenus utiles** : messages + réponse rapide, volume, indicateurs caméra/micro, calendrier, météo, Pomodoro, vitesse réseau, batterie détaillée, visualiseur audio, paroles karaoké.
-- **V3 — Outils sur l'île** : recherche étendue, traduction hors ligne, scanner QR, mémo vocal, enregistreur d'écran, compte à rebours, temps d'écran, mode focus.
-- **V4 — Écosystème Karelisio** : API publique (permission de signature), Écho, Somna, Exit, Mago, Orbit, Miroir, Réserve, Vigie, Trame.
-- **V5 — Personnalisation avancée** : packs de styles, haptique, animations d'entrée, règles combinées, accessibilité complète.
+Les versions V1 à V5 sont livrées (île, contenus utiles, outils sur l'île, API d'intégration, personnalisation avancée), ainsi que Halo, Bords et Veille (0.9.0). Reste à venir :
+
+- **Écosystème Karelisio** : intégrations dédiées de Somna, Mago, Orbit, Miroir, Vigie et Trame (au-delà des préréglages et de l'API publique).

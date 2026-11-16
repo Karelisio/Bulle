@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Module Bords (modules/edges) : gestes sur les bords de l'écran. -->
+<resources>
+    <string name="edges_title">Bords</string>
+    <string name="edges_nav_summary">Gestes le long des bords de l’écran</string>
+    <string name="edges_enable">Activer les Bords</string>
+    <string name="edges_enable_summary">Des zones invisibles le long des bords lancent une action par geste.</string>
+    <string name="edges_preview_note">Tant que cet écran est ouvert, les zones apparaissent en couleur sur les bords.</string>
+    <string name="edges_service_off">Le service de l’île ne tourne pas : les zones ne peuvent pas s’afficher.</string>
+    <string name="edges_slot_left">Bord gauche</string>
+    <string name="edges_slot_right">Bord droit</string>
+    <string name="edges_slot_left_lower">Bord gauche, moitié basse</string>
+    <string name="edges_slot_right_lower">Bord droit, moitié basse</string>
+    <string name="edges_zone_enable">Zone active</string>
+    <string name="edges_position">Position (depuis le haut)</string>
+    <string name="edges_length">Longueur</string>
+    <string name="edges_thickness">Épaisseur</string>
+    <string name="edges_adjusted">Zone décalée pour ne pas toucher la barre d’état, les zones du Volet ou la barre de navigation.</string>
+    <string name="edges_slider_mode">Glissement vertical</string>
+    <string name="edges_slider_off">Gestes</string>
+    <string name="edges_slider_brightness">Curseur luminosité</string>
+    <string name="edges_slider_volume">Curseur volume</string>
+    <string name="edges_slider_note">En mode curseur, glisser le long du bord règle la valeur en continu (jauge sous le doigt, crans haptiques).</string>
+    <string name="edges_g_swipe_up">Glisser vers le haut</string>
+    <string name="edges_g_swipe_down">Glisser vers le bas</string>
+    <string name="edges_g_double_tap">Double toucher</string>
+    <string name="edges_g_long_press">Appui long</string>
+    <string name="edges_g_swipe_in">Glisser vers l’intérieur et maintenir</string>
+    <string name="edges_section_options">Options</string>
+    <string name="edges_liquid">Goutte liquide</string>
+    <string name="edges_liquid_summary">Une goutte se forme sous le doigt et s’étire avec le geste.</string>
+    <string name="edges_swipe_in">Glissement vers l’intérieur</string>
+    <string name="edges_swipe_in_summary">Ajoute « glisser vers l’intérieur et maintenir » aux zones.</string>
+    <string name="edges_swipe_in_warning">Dans une zone qui utilise ce geste, le geste Retour d’Android ne marche plus : garde des zones courtes.</string>
+    <string name="edges_back_note">Par défaut, les zones ne reconnaissent que les glissements le long du bord et les touchers : le geste Retour (glisser vers l’intérieur) reste au système.</string>
+    <string name="edges_section_apps">Applis</string>
+    <string name="edges_disabled_apps">Désactivées dans ces applis</string>
+    <string name="edges_disabled_apps_summary">Jeux, dessin, cartes…</string>
+    <string name="edges_visibility_note">Comme l’île, les zones se masquent en plein écran, dans les applis masquées et sur l’écran de verrouillage.</string>
+</resources>

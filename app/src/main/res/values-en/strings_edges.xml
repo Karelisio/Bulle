@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="edges_title">Edges</string>
+    <string name="edges_nav_summary">Gestures along the screen edges</string>
+    <string name="edges_enable">Turn on Edges</string>
+    <string name="edges_enable_summary">Invisible zones along the edges launch an action for each gesture.</string>
+    <string name="edges_preview_note">While this screen is open, the zones are shown in colour on the edges.</string>
+    <string name="edges_service_off">The island service isn’t running: the zones can’t be shown.</string>
+    <string name="edges_slot_left">Left edge</string>
+    <string name="edges_slot_right">Right edge</string>
+    <string name="edges_slot_left_lower">Left edge, lower half</string>
+    <string name="edges_slot_right_lower">Right edge, lower half</string>
+    <string name="edges_zone_enable">Zone on</string>
+    <string name="edges_position">Position (from the top)</string>
+    <string name="edges_length">Length</string>
+    <string name="edges_thickness">Thickness</string>
+    <string name="edges_adjusted">Zone moved so it doesn’t touch the status bar, the Panel zones or the navigation bar.</string>
+    <string name="edges_slider_mode">Vertical swipe</string>
+    <string name="edges_slider_off">Gestures</string>
+    <string name="edges_slider_brightness">Brightness slider</string>
+    <string name="edges_slider_volume">Volume slider</string>
+    <string name="edges_slider_note">In slider mode, swiping along the edge adjusts the value continuously (gauge under the finger, haptic notches).</string>
+    <string name="edges_g_swipe_up">Swipe up</string>
+    <string name="edges_g_swipe_down">Swipe down</string>
+    <string name="edges_g_double_tap">Double tap</string>
+    <string name="edges_g_long_press">Long press</string>
+    <string name="edges_g_swipe_in">Swipe inwards and hold</string>
+    <string name="edges_section_options">Options</string>
+    <string name="edges_liquid">Liquid drop</string>
+    <string name="edges_liquid_summary">A drop forms under the finger and stretches with the gesture.</string>
+    <string name="edges_swipe_in">Inward swipe</string>
+    <string name="edges_swipe_in_summary">Adds “swipe inwards and hold” to the zones.</string>
+    <string name="edges_swipe_in_warning">In a zone that uses this gesture, Android’s Back gesture no longer works: keep zones short.</string>
+    <string name="edges_back_note">By default, zones only recognise swipes along the edge and taps: the Back gesture (swiping inwards) stays with the system.</string>
+    <string name="edges_section_apps">Apps</string>
+    <string name="edges_disabled_apps">Off in these apps</string>
+    <string name="edges_disabled_apps_summary">Games, drawing, maps…</string>
+    <string name="edges_visibility_note">Like the island, the zones hide in full screen, in hidden apps and on the lock screen.</string>
+</resources>
