@@ -138,6 +138,9 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
     // Mode paroles : appliqué tout de suite au toucher, puis mémorisé dans les réglages.
     var focus by remember(prefs.focusMode) { mutableStateOf(prefs.focusMode) }
     val focused = focus && content.lyrics is LyricsState.Found
+    // File d'attente du lecteur et onglet choisi (Paroles par défaut).
+    val queue = rememberQueueState(content.controller)
+    var queueTab by remember(content.track.packageName) { mutableStateOf(false) }
 
     fun now() = SystemClock.elapsedRealtime()
     fun setPlaying(play: Boolean) {
@@ -214,6 +217,17 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
                     elapsed = { scrub?.let { (it * duration).toLong() } ?: position.longValue },
                     duration = duration,
                 )
+                // Aperçu du titre suivant (si le lecteur fournit sa file d'attente).
+                queue.upNext.firstOrNull()?.let { next ->
+                    NextUpLine(
+                        next, accent,
+                        onPlay = { runCatching { controls.skipToQueueItem(next.id) } },
+                        onShowQueue = {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            queueTab = true
+                        },
+                    )
+                }
                 Spacer(Modifier.height(6.dp))
 
                 Row(
@@ -240,12 +254,16 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
                         enabled = base.can(PlaybackState.ACTION_SKIP_TO_NEXT) || base.actions == 0L,
                     ) { controls.skipToNext() }
                 }
-                // File d'attente (repliée), seulement hors mode paroles.
-                MusicQueue(content.controller, accent)
             }
         }
 
-        LyricsSection(
+        // Onglets « Paroles | File » : la file prend la place des paroles seulement quand on la
+        // choisit ; en mode paroles, pas d'onglets (les paroles gardent toute la place).
+        val hasQueue = queue.upNext.isNotEmpty()
+        if (hasQueue && !focused) QueueTabs(queueTab, accent) { queueTab = it }
+        if (hasQueue && queueTab && !focused) {
+            QueueList(queue.upNext, accent) { e -> runCatching { controls.skipToQueueItem(e.id) } }
+        } else LyricsSection(
             state = content.lyrics,
             position = position,
             prefs = prefs,
