@@ -81,6 +81,20 @@ class V090Test {
     }
 
     @Test
+    fun voletZonesHaveTheirOwnHeightInLandscape() {
+        val strips = com.karelisio.bulle.modules.volet.VoletStrips
+        assertNull("portrait : règle habituelle", strips.landscapeHeightPx(false, 10f, 3f))
+        assertEquals(0, strips.landscapeHeightPx(true, 0f, 3f))
+        assertEquals(30, strips.landscapeHeightPx(true, 10f, 3f))
+        // Paysage : bande fine, plus basse que la barre d'état (les commandes de la vidéo restent libres).
+        val zones = strips.zones(2400, statusBarHeight = 90, triggerHeightPx = 0, edgeInsetPx = 0, centerX = 1200, envelope = null, fixedHeightPx = 30)
+        assertTrue(zones.isNotEmpty())
+        assertTrue(zones.all { it.rect.y + it.rect.height <= 30 })
+        val restored = BulleSettings(volet = BulleSettings().volet.copy(landscapeTriggerHeightDp = 500f)).sanitized()
+        assertEquals(48f, restored.volet.landscapeTriggerHeightDp)
+    }
+
+    @Test
     fun settingsSearchFindsTheNewModules() {
         assertEquals("bulle_halo", com.karelisio.bulle.modules.search.SettingsShortcuts.filter("halo").first().id)
         assertEquals("bulle_edges", com.karelisio.bulle.modules.search.SettingsShortcuts.filter("bords").first().id)

@@ -39,9 +39,11 @@ object VoletStrips {
         edgeInsetPx: Int,
         centerX: Int,
         envelope: IslandEnvelope?,
+        /** Hauteur imposée (paysage), à la place de « au moins la barre d'état ». */
+        fixedHeightPx: Int? = null,
     ): List<Zone> {
         if (screenWidth <= 0) return emptyList()
-        val h = max(statusBarHeight, triggerHeightPx).coerceAtLeast(1)
+        val h = (fixedHeightPx ?: max(statusBarHeight, triggerHeightPx)).coerceAtLeast(1)
         val inset = edgeInsetPx.coerceIn(0, screenWidth / 4)
         val minX = inset
         val maxX = screenWidth - inset
@@ -73,6 +75,16 @@ object VoletStrips {
         add(0, l, env.bottom, mid, h)
         add(1, mid, env.bottom, r, h)
         return zones
+    }
+
+    /**
+     * Hauteur des zones en paysage (pixels) : null en portrait (règle habituelle), 0 si les zones
+     * sont coupées en paysage, sinon la hauteur réglée.
+     */
+    fun landscapeHeightPx(landscape: Boolean, landscapeDp: Float, density: Float): Int? = when {
+        !landscape -> null
+        landscapeDp.isNaN() || landscapeDp <= 0f -> 0
+        else -> (landscapeDp * density).toInt().coerceAtLeast(1)
     }
 
     /**

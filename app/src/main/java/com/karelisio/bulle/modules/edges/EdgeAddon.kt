@@ -96,7 +96,10 @@ private class EdgeRuntime(private val env: AddonEnv) : AutoCloseable {
             ) { s, screen, fg, colored, standby ->
                 val e = s.edges
                 val info = CutoutLocator.screenInfo(service)
-                val voletPx = if (s.volet.enabled) (s.volet.triggerHeightDp * density).roundToInt() else 0
+                val landscapePx = com.karelisio.bulle.modules.volet.VoletStrips.landscapeHeightPx(
+                    info.width > info.height, s.volet.landscapeTriggerHeightDp, density,
+                )
+                val voletPx = if (s.volet.enabled) landscapePx ?: (s.volet.triggerHeightDp * density).roundToInt() else 0
                 val navBottom = runCatching {
                     service.getSystemService(WindowManager::class.java).maximumWindowMetrics.windowInsets
                         .getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars()).bottom

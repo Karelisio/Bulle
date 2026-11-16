@@ -21,4 +21,7 @@
     <string name="search_set_halo">Halo (glowing edges)</string>
     <string name="search_set_edges">Edges (edge gestures)</string>
     <string name="search_set_standby">StandBy</string>
+    <string name="vset_landscape_height">Height in landscape</string>
+    <string name="vset_landscape_off">Off</string>
+    <string name="vset_landscape_height_desc">In landscape, the zones stay thin so they don’t cover the top controls of a video (YouTube…). At 0, the Panel no longer opens in landscape.</string>
 </resources>

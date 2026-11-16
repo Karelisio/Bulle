@@ -145,6 +145,9 @@ class VoletController(
     ): List<VoletStrips.Zone> {
         val info = CutoutLocator.screenInfo(service)
         val w = info.width
+        // Paysage : hauteur réglée à part (fine, ou aucune zone) pour ne pas couvrir les commandes d'une vidéo.
+        val landscapePx = VoletStrips.landscapeHeightPx(info.width > info.height, s.landscapeTriggerHeightDp, density)
+        if (landscapePx == 0) return emptyList()
         val trigger = if (s.triggerHeightDp > 0f) (s.triggerHeightDp * density).roundToInt() else 0
         val statusBar = info.statusBarHeight.coerceAtLeast((24 * density).roundToInt())
         val centerX = if (g.width > 0) g.centerX else w / 2
@@ -158,7 +161,7 @@ class VoletController(
                 contentMarginPx = if (hasContent) (52 * density).roundToInt() else 0,
             )
         }
-        return VoletStrips.zones(w, statusBar, trigger, (s.edgeInsetDp * density).roundToInt(), centerX, envelope)
+        return VoletStrips.zones(w, statusBar, trigger, (s.edgeInsetDp * density).roundToInt(), centerX, envelope, fixedHeightPx = landscapePx)
     }
 
     private fun zoneForSide(side: Int): VoletZone = when (settings.zones) {

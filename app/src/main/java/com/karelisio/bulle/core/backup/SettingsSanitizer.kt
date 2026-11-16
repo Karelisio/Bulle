@@ -28,6 +28,8 @@ object SettingsBounds {
     const val VOLET_TRIGGER_MIN = 12f
     const val VOLET_TRIGGER_MAX = 64f
     val VOLET_EDGE_DP = 0f..64f
+    /** Hauteur des zones du Volet en paysage : 0 (coupées) à 48 dp. */
+    val VOLET_LANDSCAPE_DP = 0f..48f
     val VOLET_BLUR_DP = 0f..80f
     val VOLET_SCRIM = 0.2f..0.95f
     val VOLET_CORNER_DP = 8f..40f
@@ -79,6 +81,7 @@ fun BulleSettings.sanitized(): BulleSettings {
                 }
             },
             edgeInsetDp = volet.edgeInsetDp.clamp(b.VOLET_EDGE_DP, d.volet.edgeInsetDp),
+            landscapeTriggerHeightDp = volet.landscapeTriggerHeightDp.clamp(b.VOLET_LANDSCAPE_DP, d.volet.landscapeTriggerHeightDp),
             blurRadiusDp = volet.blurRadiusDp.clamp(b.VOLET_BLUR_DP, d.volet.blurRadiusDp),
             scrimOpacity = volet.scrimOpacity.clamp(b.VOLET_SCRIM, d.volet.scrimOpacity),
             cornerRadiusDp = volet.cornerRadiusDp.clamp(b.VOLET_CORNER_DP, d.volet.cornerRadiusDp),

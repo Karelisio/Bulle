@@ -111,6 +111,11 @@ object VoletSettingsBounds {
     /** Taille du texte des cartes : pas de 5 %, bornée à 80 – 120 %. */
     fun textScale(raw: Float): Float = ((raw * 20).roundToInt() / 20f).coerceIn(TEXT_SCALE_MIN, TEXT_SCALE_MAX)
 
+    /** Hauteur des zones en paysage : 0 (coupées) à 48 dp. */
+    const val LANDSCAPE_MAX = 48f
+
+    fun landscapeHeight(raw: Float): Float = raw.roundToInt().toFloat().coerceIn(0f, LANDSCAPE_MAX)
+
     /** Hauteur de zone : sous le minimum, on revient à « auto » (0). */
     fun triggerHeight(raw: Float): Float = if (raw < TRIGGER_MIN) 0f else raw.roundToInt().toFloat().coerceAtMost(TRIGGER_MAX)
 }
@@ -258,6 +263,19 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
                         range = 0f..VoletSettingsBounds.TRIGGER_MAX,
                         onChange = { v -> live { it.copy(triggerHeightDp = VoletSettingsBounds.triggerHeight(v)) } },
                         onDone = { commit { it.copy(triggerHeightDp = draft.triggerHeightDp) } },
+                    )
+                    SliderRow(
+                        label = stringResource(R.string.vset_landscape_height),
+                        value = s.landscapeTriggerHeightDp,
+                        valueText = if (s.landscapeTriggerHeightDp <= 0f) stringResource(R.string.vset_landscape_off) else stringResource(R.string.vset_dp, s.landscapeTriggerHeightDp.roundToInt()),
+                        range = 0f..VoletSettingsBounds.LANDSCAPE_MAX,
+                        onChange = { v -> live { it.copy(landscapeTriggerHeightDp = VoletSettingsBounds.landscapeHeight(v)) } },
+                        onDone = { commit { it.copy(landscapeTriggerHeightDp = draft.landscapeTriggerHeightDp) } },
+                    )
+                    Text(
+                        stringResource(R.string.vset_landscape_height_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     SliderRow(
                         label = stringResource(R.string.vset_edge_inset),

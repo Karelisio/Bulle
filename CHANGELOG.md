@@ -32,6 +32,7 @@ Trois nouveaux modules, qui vivent dans le service de l'île (aucun nouveau serv
 - Fiabilité : tests « Déclencher un halo », « Afficher les zones de bord », « Lancer Veille » ; filtres Halo, Bords et Veille dans le Journal de l'île.
 - Tuiles Halo, Bords et Veille dans le Volet et dans les Réglages rapides (appui long : leurs réglages).
 - « Réduire les animations » respecté : halo statique, pas de goutte, fondu simple pour Veille.
+- Volet : hauteur des zones de déclenchement réglable à part en paysage (fine par défaut, ou coupée) — les commandes du haut d'une vidéo (YouTube…) restent accessibles.
 
 ## 0.8.19
 - Bulle Média : file d'attente repensée.

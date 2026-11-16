@@ -28,6 +28,11 @@ data class VoletSettings(
     val zones: VoletZones = VoletZones.SPLIT,
     /** Hauteur des zones de déclenchement en dp (0 = hauteur de la barre d'état). */
     val triggerHeightDp: Float = 0f,
+    /**
+     * Paysage : hauteur des zones en dp, à part (0 = aucune zone en paysage). Plus fine que la
+     * barre d'état par défaut, pour laisser accessibles les commandes du haut d'une vidéo.
+     */
+    val landscapeTriggerHeightDp: Float = 10f,
     /** Marge laissée libre aux bords gauche et droit, en dp. */
     val edgeInsetDp: Float = 0f,
     val blurRadiusDp: Float = 36f,

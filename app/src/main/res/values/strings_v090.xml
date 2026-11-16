@@ -22,4 +22,7 @@
     <string name="search_set_halo">Halo (bords lumineux)</string>
     <string name="search_set_edges">Bords (gestes sur les bords)</string>
     <string name="search_set_standby">Veille (StandBy)</string>
+    <string name="vset_landscape_height">Hauteur en paysage</string>
+    <string name="vset_landscape_off">Coupé</string>
+    <string name="vset_landscape_height_desc">En paysage, les zones restent fines pour ne pas couvrir les commandes du haut d’une vidéo (YouTube…). À 0, le Volet ne s’ouvre plus en paysage.</string>
 </resources>
