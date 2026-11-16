@@ -101,6 +101,14 @@ fun VisibilityScreen(onBack: () -> Unit) {
                 Toggle(stringResource(R.string.visibility_landscape_native), stringResource(R.string.visibility_landscape_native_desc), v.landscapeNative, 3) { on -> edit { it.copy(landscapeNative = on) } }
                 if (!v.landscapeNative) {
                     Toggle(stringResource(R.string.visibility_landscape), null, v.hideInLandscape, 3) { on -> edit { it.copy(hideInLandscape = on) } }
+                } else {
+                    LandscapeZoneSetting(v.landscapeTouchMarginDp) { m -> edit { it.copy(landscapeTouchMarginDp = m) } }
+                    Toggle(
+                        stringResource(R.string.visibility_landscape_calls),
+                        stringResource(R.string.visibility_landscape_calls_desc),
+                        v.landscapeCalls,
+                        3,
+                    ) { on -> edit { it.copy(landscapeCalls = on) } }
                 }
                 Toggle(stringResource(R.string.visibility_lockscreen), null, v.hideOnLockscreen, 4) { on -> edit { it.copy(hideOnLockscreen = on) } }
                 AppsHeader(stringResource(R.string.visibility_apps), stringResource(R.string.visibility_apps_desc), index = 5) {

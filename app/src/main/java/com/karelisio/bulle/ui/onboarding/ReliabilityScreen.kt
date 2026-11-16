@@ -48,6 +48,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -281,7 +282,30 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(10.dp))
-            val last = entries.takeLast(12).asReversed()
+            // Filtres par catégorie (Île, Volet, Sortie audio, Shizuku).
+            var category by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<com.karelisio.bulle.island.IslandLog.Category?>(null) }
+            val filtered = remember(entries, category) { com.karelisio.bulle.island.IslandLog.filter(entries, category) }
+            Row(
+                Modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+            ) {
+                val options = listOf(
+                    null to R.string.journal_filter_all,
+                    com.karelisio.bulle.island.IslandLog.Category.ISLAND to R.string.journal_filter_island,
+                    com.karelisio.bulle.island.IslandLog.Category.VOLET to R.string.journal_filter_volet,
+                    com.karelisio.bulle.island.IslandLog.Category.AUDIO to R.string.journal_filter_audio,
+                    com.karelisio.bulle.island.IslandLog.Category.SHIZUKU to R.string.journal_filter_shizuku,
+                )
+                options.forEach { (c, label) ->
+                    androidx.compose.material3.FilterChip(
+                        selected = category == c,
+                        onClick = { category = c },
+                        label = { Text(stringResource(label)) },
+                    )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            val last = filtered.takeLast(12).asReversed()
             if (last.isEmpty()) {
                 Text(stringResource(R.string.journal_empty), style = MaterialTheme.typography.bodySmall)
             } else {
@@ -301,6 +325,16 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                     scope.launch { snackbar.showSnackbar(copied) }
                 }) { Text(stringResource(R.string.journal_copy)) }
                 Spacer(Modifier.width(8.dp))
+                val shareTitle = stringResource(R.string.journal_share)
+                androidx.compose.material3.TextButton(onClick = {
+                    // Partage (texte brut) des lignes filtrées : rien n'est envoyé sans choix de l'utilisateur.
+                    val text = filtered.joinToString("\n") { it.format() }
+                    val send = android.content.Intent(android.content.Intent.ACTION_SEND)
+                        .setType("text/plain")
+                        .putExtra(android.content.Intent.EXTRA_SUBJECT, "Journal Bulle")
+                        .putExtra(android.content.Intent.EXTRA_TEXT, text)
+                    runCatching { context.startActivity(android.content.Intent.createChooser(send, shareTitle)) }
+                }) { Text(shareTitle) }
                 androidx.compose.material3.TextButton(onClick = { com.karelisio.bulle.island.IslandLog.clear() }) {
                     Text(stringResource(R.string.journal_clear))
                 }

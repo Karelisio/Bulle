@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.16
+- Masquage › paysage : aperçu de la zone tactile invisible autour de la caméra, avec un curseur pour l'agrandir (0 à 24 dp) ; interrupteur « Ouvrir les appels en paysage ».
+- Fiabilité › Journal de l'île : filtres Île / Volet / Sortie audio / Shizuku et bouton Partager.
+- Volet : « Masquer dans Bulle » dans le menu d'une notification (appui long) ; réglages du Volet : « Notifications masquées dans Bulle » avec « Tout réafficher ».
+- Bulle Volume : nom de la sortie audio courante affiché, mis à jour en direct.
+- Bulles Volume et Média : appui long sur le bouton de sortie → réglages Bluetooth.
+
 ## 0.8.15
 - Paysage : seuls les appels ouvrent la carte d'eux-mêmes (plus d'alertes ni de notifications par-dessus une vidéo ou un jeu).
 - Volet : les notifications masquées dans Bulle le restent après un redémarrage du téléphone ou de l'appli.

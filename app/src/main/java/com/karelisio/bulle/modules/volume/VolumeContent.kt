@@ -36,6 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -98,7 +100,8 @@ data class VolumeContent(
             VolumeKeys.setExpanded(true)
             onDispose { VolumeKeys.setExpanded(false) }
         }
-        val output = remember { MediaOutput.current(context) }
+        // Sortie courante, suivie en direct (casque branché, enceinte connectée…).
+        val output by remember(context) { MediaOutput.observe(context) }.collectAsState(remember { MediaOutput.current(context) })
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
@@ -115,10 +118,23 @@ data class VolumeContent(
                     Icon(Icons.Rounded.Tune, contentDescription = stringResource(R.string.volume_system_panel))
                 }
                 Spacer(Modifier.width(6.dp))
-                FilledTonalIconButton(onClick = { VolumeKeys.openOutputSwitcher(context, host::collapse) }) {
-                    Icon(outputIcon(output.kind), contentDescription = stringResource(R.string.volume_output))
-                }
+                com.karelisio.bulle.modules.volet.media.OutputButton(
+                    icon = outputIcon(output.kind),
+                    container = MaterialTheme.colorScheme.secondaryContainer,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    onClick = { VolumeKeys.openOutputSwitcher(context, host::collapse) },
+                    onLongClick = { com.karelisio.bulle.modules.volet.media.openBluetoothSettings(context, host::collapse) },
+                )
             }
+            // Nom de la sortie audio courante (« Casque Sony… », « Téléphone »).
+            Text(
+                com.karelisio.bulle.modules.volet.media.outputLabel(output),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White.copy(alpha = 0.7f),
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.align(Alignment.End),
+            )
             // Toutes les sources ; la ligne du flux des touches est mise en évidence.
             VolumeMixerList(
                 context = context,

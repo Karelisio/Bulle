@@ -43,4 +43,23 @@ object IslandLog {
 
     /** Texte complet, pour copier-coller. */
     fun dump(): String = entries.value.joinToString("\n") { it.format() }
+
+    /** Catégorie d'une ligne (filtres de l'écran Fiabilité). */
+    enum class Category { ISLAND, VOLET, AUDIO, SHIZUKU }
+
+    /** Catégorie déduite du début du message (logique pure, testée). */
+    fun category(message: String): Category = when {
+        message.startsWith("Sortie audio") || message.startsWith("Volume :") -> Category.AUDIO
+        message.startsWith("Shizuku") || message.startsWith("Tuile") -> Category.SHIZUKU
+        VOLET_PREFIXES.any { message.startsWith(it) } -> Category.VOLET
+        else -> Category.ISLAND
+    }
+
+    private val VOLET_PREFIXES = listOf(
+        "Volet", "Effacement", "Notification retirée", "Refus du système", "Masquée dans Bulle",
+    )
+
+    /** Lignes de la catégorie [category] (toutes si null). */
+    fun filter(entries: List<Entry>, category: Category?): List<Entry> =
+        if (category == null) entries else entries.filter { category(it.message) == category }
 }

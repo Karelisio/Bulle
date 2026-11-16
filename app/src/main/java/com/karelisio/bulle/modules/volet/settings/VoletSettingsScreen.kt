@@ -53,6 +53,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -412,6 +413,24 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
                         TextButton(onClick = { picking = true }) {
                             Icon(Icons.Rounded.Add, contentDescription = null)
                             Text(stringResource(R.string.vset_add))
+                        }
+                    }
+                    // Notifications masquées dans Bulle (refusées par le système ou masquées depuis le menu).
+                    val hiddenNotifs by com.karelisio.bulle.notifications.NotifLocalHide.keys.collectAsState()
+                    androidx.compose.runtime.LaunchedEffect(Unit) { com.karelisio.bulle.notifications.NotifLocalHide.init(context) }
+                    if (hiddenNotifs.isNotEmpty()) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
+                            Column(Modifier.weight(1f)) {
+                                Text(stringResource(R.string.vset_hidden_notifs), style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    stringResource(R.string.vset_hidden_notifs_desc, hiddenNotifs.size),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            TextButton(onClick = { com.karelisio.bulle.notifications.NotifLocalHide.show(hiddenNotifs) }) {
+                                Text(stringResource(R.string.vset_hidden_notifs_show))
+                            }
                         }
                     }
                     s.excludedApps.sorted().forEach { pkg ->

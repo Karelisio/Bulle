@@ -81,6 +81,10 @@ data class VisibilitySettings(
      * de MagicOS) masquent la barre d'état ou trompent la détection.
      */
     val ignoreFullscreenOnLauncher: Boolean = true,
+    /** Paysage (île verticale invisible) : marge ajoutée autour de la caméra pour la zone tactile, en dp. */
+    val landscapeTouchMarginDp: Float = 0f,
+    /** Paysage : un appel ouvre la carte de lui-même. */
+    val landscapeCalls: Boolean = true,
 )
 
 @Serializable
