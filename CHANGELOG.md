@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.14
+- Paysage : la bulle n'est plus jamais visible en compact (vidéo, jeu) ; la zone autour de la caméra reste active et un toucher ouvre la carte.
+- Sortie audio : le sélecteur du système s'ouvre aussi quand Bulle n'est pas au premier plan (relais invisible) — depuis la bulle Volume, le Volet et la notification « Changement de périphérique audio ».
+- Bulle Média dépliée : nouveau bouton de choix de la sortie audio (casque, enceinte Bluetooth…).
+- Notification « Changement de périphérique audio » de Honor (service audio com.hihonor.imedia.sws) reconnue.
+
 ## 0.8.13
 - Paysage (caméra sur le côté) : la bulle devient verticale et épouse la caméra — compacte allongée le long du bord, contenu tourné comme en portrait ; la carte dépliée est centrée verticalement sur la caméra, s'ouvre vers l'intérieur, ne sort jamais de l'écran (elle défile si besoin) et sa zone tactile la couvre entièrement. Portrait inchangé.
 - Volet, tuile « Point d'accès Wi-Fi » : avec Shizuku, bascule réellement le point d'accès (service de partage du système, nom et mot de passe enregistrés conservés) ; sans Shizuku, ouvre l'écran du point d'accès au lieu des Paramètres généraux.
