@@ -57,4 +57,25 @@
     <string name="standby_photos_none">No photos in this album</string>
     <string name="standby_photos_permission">Allow photo access in the StandBy settings</string>
     <string name="standby_dream_label">Bulle — StandBy</string>
+    <string name="standby_back10">Back 10 seconds</string>
+    <string name="standby_forward10">Forward 10 seconds</string>
+    <string name="standby_queue_title">Queue</string>
+    <string name="standby_queue_none">The player doesn’t share its queue</string>
+    <string name="standby_w_clock">Clock</string>
+    <string name="standby_w_date">Date and time</string>
+    <string name="standby_w_weather">Weather</string>
+    <string name="standby_w_event">Next event</string>
+    <string name="standby_w_battery">Batteries</string>
+    <string name="standby_w_live">Timer / ongoing activity</string>
+    <string name="standby_w_music">Music</string>
+    <string name="standby_w_lyrics">Lyrics</string>
+    <string name="standby_w_queue">Queue</string>
+    <string name="standby_w_photos">Photos</string>
+    <string name="standby_w_echo">Echo</string>
+    <string name="standby_panel_left">Left panel</string>
+    <string name="standby_panel_right">Right panel</string>
+    <string name="standby_left_width">Width left : right</string>
+    <string name="standby_layout_reset">Back to the original layout</string>
+    <string name="standby_page_edit">Compose the %1$s page</string>
+    <string name="standby_widget_remove">Remove %1$s</string>
 </resources>

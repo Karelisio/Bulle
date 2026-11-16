@@ -25,7 +25,9 @@ import com.karelisio.bulle.modules.halo.HaloCanvas
 import com.karelisio.bulle.modules.halo.HaloKind
 import com.karelisio.bulle.modules.halo.HaloLook
 import com.karelisio.bulle.modules.halo.HaloOutline
-import com.karelisio.bulle.modules.halo.HaloPainter
+import com.karelisio.bulle.modules.halo.HaloCamera
+import com.karelisio.bulle.modules.halo.HaloDirection
+import com.karelisio.bulle.modules.halo.HaloStart
 import com.karelisio.bulle.modules.halo.HaloRect
 import com.karelisio.bulle.modules.halo.HaloRequest
 import com.karelisio.bulle.modules.halo.HaloScreen
@@ -107,18 +109,20 @@ class V090RenderTest {
             1080f, 2400f, 90f, 90f, 90f, 90f,
             cutout = HaloRect(500f, 30f, 580f, 110f), density = 3f,
         )
-        val look = HaloLook.of(HaloSettings(), 3f)
         render {
             Box(Modifier.size(360.dp, 800.dp)) {
-                val outline = remember { HaloOutline.of(screen, look.thicknessPx) }
-                val painter = remember { HaloPainter(look.thicknessPx) }
                 Canvas(Modifier.size(360.dp, 800.dp)) {
-                    for (kind in HaloKind.entries) for (style in HaloStyle.entries) {
-                        val req = HaloRequest(kind, 0xFF7FD3FF.toInt(), style, level = 0.6f, id = 7)
-                        val total = look.totalMs(kind)
-                        for (step in 0..10) {
-                            for (reduce in listOf(false, true)) {
-                                drawHalo(outline, req, look, total * step / 10, total, reduce, painter, Burst(1, Color.Cyan), 3f)
+                    for (camera in HaloCamera.entries) for (dir in HaloDirection.entries) for (start in HaloStart.entries) {
+                        val look = HaloLook.of(
+                            HaloSettings(camera = camera, direction = dir, start = start, secondColor = 0xFFFF8FB8, glow = if (dir == HaloDirection.BOTH) 1f else 0f),
+                            3f,
+                        )
+                        val outline = HaloOutline.of(screen, look.thicknessPx, 6f, camera)
+                        for (kind in HaloKind.entries) for (style in HaloStyle.entries) {
+                            val req = HaloRequest(kind, 0xFF7FD3FF.toInt(), style, level = 0.6f, id = 7)
+                            val total = look.totalMs(kind)
+                            for (step in 0..6) for (reduce in listOf(false, true)) {
+                                drawHalo(outline, req, look, total * step / 6, total, reduce, Burst(1, Color.Cyan), 3f)
                             }
                         }
                     }
@@ -172,6 +176,21 @@ class V090RenderTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun standbyPageEditorAndCustomLayoutRender() {
+        val custom = StandbySettings(
+            layouts = mapOf(
+                StandbyPage.CLOCKS to com.karelisio.bulle.modules.standby.StandbyLayout(
+                    listOf(com.karelisio.bulle.modules.standby.StandbyWidget.MUSIC),
+                    com.karelisio.bulle.modules.standby.StandbyWidget.entries.take(6),
+                    1.5f,
+                ),
+            ),
+        )
+        render { com.karelisio.bulle.modules.standby.ui.StandbyPageEditor(StandbyPage.CLOCKS, custom) {} }
+        render { StandbyScreen(StandbyInputs(custom, night = false), exiting = false, onExited = {}) }
     }
 
     @Test

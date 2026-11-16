@@ -9,8 +9,8 @@
     <string name="edges_service_off">Le service de l’île ne tourne pas : les zones ne peuvent pas s’afficher.</string>
     <string name="edges_slot_left">Bord gauche</string>
     <string name="edges_slot_right">Bord droit</string>
-    <string name="edges_slot_left_lower">Bord gauche, moitié basse</string>
-    <string name="edges_slot_right_lower">Bord droit, moitié basse</string>
+    <string name="edges_slot_left_lower">Bord gauche, bas</string>
+    <string name="edges_slot_right_lower">Bord droit, bas</string>
     <string name="edges_zone_enable">Zone active</string>
     <string name="edges_position">Position (depuis le haut)</string>
     <string name="edges_length">Longueur</string>
@@ -37,4 +37,11 @@
     <string name="edges_disabled_apps">Désactivées dans ces applis</string>
     <string name="edges_disabled_apps_summary">Jeux, dessin, cartes…</string>
     <string name="edges_visibility_note">Comme l’île, les zones se masquent en plein écran, dans les applis masquées et sur l’écran de verrouillage.</string>
+    <string name="edges_bars">Zones par bord</string>
+    <string name="edges_bars_single">Une longue barre</string>
+    <string name="edges_bars_double">Deux petites</string>
+    <string name="edges_bars_single_note">Une seule zone par bord, aussi longue que tu veux (jusqu’à toute la hauteur).</string>
+    <string name="edges_bars_double_note">Deux zones par bord : une en haut, une en bas, chacune avec ses gestes.</string>
+    <string name="edges_full_length">Toute la longueur</string>
+    <string name="edges_full_length_summary">Du haut au bas de l’écran (barre d’état, zones du Volet et barre de navigation épargnées).</string>
 </resources>

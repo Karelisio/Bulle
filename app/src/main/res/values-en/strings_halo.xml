@@ -59,4 +59,23 @@
     <string name="journal_filter_halo">Halo</string>
     <string name="journal_filter_edges">Edges</string>
     <string name="journal_filter_standby">StandBy</string>
+    <string name="halo_section_shape">Shape</string>
+    <string name="halo_trail">Trail length</string>
+    <string name="halo_glow">Glow</string>
+    <string name="halo_direction">Direction</string>
+    <string name="halo_dir_both">Both ways</string>
+    <string name="halo_dir_cw">Clockwise</string>
+    <string name="halo_dir_ccw">Counter-clockwise</string>
+    <string name="halo_start">Start</string>
+    <string name="halo_start_camera">Camera</string>
+    <string name="halo_start_bottom">Bottom of the screen</string>
+    <string name="halo_camera">Camera</string>
+    <string name="halo_camera_emerge">Springs from the camera</string>
+    <string name="halo_camera_around">Hugs the camera</string>
+    <string name="halo_camera_ignore">Ignore</string>
+    <string name="halo_camera_gap">Gap around the camera</string>
+    <string name="halo_burst">Bubble burst where they meet</string>
+    <string name="halo_burst_size">Burst size</string>
+    <string name="halo_second_color">Second colour</string>
+    <string name="halo_second_color_summary">Gradient along the trail and the rotating gradient.</string>
 </resources>

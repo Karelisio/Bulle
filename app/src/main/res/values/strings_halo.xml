@@ -60,4 +60,23 @@
     <string name="journal_filter_halo">Halo</string>
     <string name="journal_filter_edges">Bords</string>
     <string name="journal_filter_standby">Veille</string>
+    <string name="halo_section_shape">Forme</string>
+    <string name="halo_trail">Longueur de la traînée</string>
+    <string name="halo_glow">Lueur</string>
+    <string name="halo_direction">Sens</string>
+    <string name="halo_dir_both">Des deux côtés</string>
+    <string name="halo_dir_cw">Horaire</string>
+    <string name="halo_dir_ccw">Antihoraire</string>
+    <string name="halo_start">Départ</string>
+    <string name="halo_start_camera">Caméra</string>
+    <string name="halo_start_bottom">Bas de l’écran</string>
+    <string name="halo_camera">Caméra</string>
+    <string name="halo_camera_emerge">Jaillit de la caméra</string>
+    <string name="halo_camera_around">Contourne au plus près</string>
+    <string name="halo_camera_ignore">Ignorer</string>
+    <string name="halo_camera_gap">Écart avec la caméra</string>
+    <string name="halo_burst">Éclat de bulles à la rencontre</string>
+    <string name="halo_burst_size">Taille de l’éclat</string>
+    <string name="halo_second_color">Seconde couleur</string>
+    <string name="halo_second_color_summary">Dégradé de la traînée et du dégradé tournant.</string>
 </resources>

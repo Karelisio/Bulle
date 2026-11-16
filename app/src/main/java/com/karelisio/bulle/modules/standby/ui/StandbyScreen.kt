@@ -87,6 +87,7 @@ import com.karelisio.bulle.modules.standby.StandbyClock
 import com.karelisio.bulle.modules.standby.StandbyLogic
 import com.karelisio.bulle.modules.standby.StandbyPage
 import com.karelisio.bulle.modules.standby.StandbySettings
+import com.karelisio.bulle.modules.standby.StandbyWidget
 import com.karelisio.bulle.notifications.NotificationEvent
 import com.karelisio.bulle.notifications.NotificationRepository
 import com.karelisio.bulle.ui.components.rememberReduceMotion
@@ -235,11 +236,18 @@ private fun Pages(inputs: StandbyInputs, now: Long, onClockChange: (StandbyClock
     Box(Modifier.fillMaxSize()) {
         HorizontalPager(pager, Modifier.fillMaxSize(), key = { pages[it].name }) { i ->
             val page = pages[i]
+            val layout = StandbyLogic.layoutFor(page, inputs.settings)
             Row(Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                val (leftWeight, left, right) = panels(page, inputs, now, music, onClockChange)
-                Box(Modifier.weight(leftWeight).fillMaxHeight()) { Panel(left) }
+                Box(Modifier.weight(layout.leftWeight).fillMaxHeight()) {
+                    Panel(layout.left.map { w -> @Composable { WidgetView(w, inputs, now, music, live, onClockChange) } })
+                }
                 Box(Modifier.weight(1f).fillMaxHeight()) {
-                    if (live != null) LivePanel(live, inputs.host) else Panel(right)
+                    // Activité en cours : prend la place du panneau de droite (s'il ne la montre pas déjà).
+                    if (live != null && StandbyWidget.LIVE !in layout.right && StandbyWidget.LIVE !in layout.left) {
+                        LivePanel(live, inputs.host)
+                    } else {
+                        Panel(layout.right.map { w -> @Composable { WidgetView(w, inputs, now, music, live, onClockChange) } })
+                    }
                 }
             }
         }
@@ -261,41 +269,22 @@ private fun Pages(inputs: StandbyInputs, now: Long, onClockChange: (StandbyClock
 
 private typealias PanelItems = List<@Composable () -> Unit>
 
-private fun items(vararg i: @Composable () -> Unit): PanelItems = i.toList()
-
-/** Panneaux d'une page : poids du panneau gauche, éléments gauche et droite (défilement vertical). */
-private fun panels(
-    page: StandbyPage,
-    inputs: StandbyInputs,
-    now: Long,
-    music: MusicContent?,
-    onClockChange: (StandbyClock) -> Unit,
-): Triple<Float, PanelItems, PanelItems> = when (page) {
-    StandbyPage.CLOCKS -> Triple(
-        1.7f,
-        items({ ClockStack(inputs.settings.clock, now, onClockChange) }),
-        items({ StandbyCard { DatePanel(now) } }, { WeatherPanel() }),
-    )
-    StandbyPage.WIDGETS -> Triple(
-        1f,
-        items({ WeatherPanel() }, { NextEventPanel(now) }),
-        items({ BatteryPanel(now) }, { LivePanel(null, null) }),
-    )
-    StandbyPage.MUSIC -> Triple(
-        1.3f,
-        items({ MusicPanel(music) }),
-        items({ LyricsPanel(music) }, { StandbyCard { DatePanel(now, showTime = true) } }),
-    )
-    StandbyPage.PHOTOS -> Triple(
-        1.7f,
-        items({ PhotosPanel(inputs.settings.albumId) }),
-        items({ StandbyCard { DatePanel(now, showTime = true) } }, { WeatherPanel() }),
-    )
-    StandbyPage.ECHO -> Triple(
-        1.2f,
-        items({ EchoPanel(inputs.echo) }),
-        items({ StandbyCard { DatePanel(now, showTime = true) } }),
-    )
+/** Rendu d'un widget de panneau. */
+@Composable
+private fun WidgetView(w: StandbyWidget, inputs: StandbyInputs, now: Long, music: MusicContent?, live: IslandContent?, onClockChange: (StandbyClock) -> Unit) {
+    when (w) {
+        StandbyWidget.CLOCK -> ClockStack(inputs.settings.clock, now, onClockChange)
+        StandbyWidget.DATE -> StandbyCard { DatePanel(now, showTime = true) }
+        StandbyWidget.WEATHER -> WeatherPanel()
+        StandbyWidget.EVENT -> NextEventPanel(now)
+        StandbyWidget.BATTERY -> BatteryPanel(now)
+        StandbyWidget.LIVE -> LivePanel(live, inputs.host)
+        StandbyWidget.MUSIC -> MusicPanel(music)
+        StandbyWidget.LYRICS -> LyricsPanel(music)
+        StandbyWidget.QUEUE -> QueuePanel(music)
+        StandbyWidget.PHOTOS -> PhotosPanel(inputs.settings.albumId)
+        StandbyWidget.ECHO -> EchoPanel(inputs.echo)
+    }
 }
 
 /** Un panneau : ses éléments défilent verticalement (un seul : affiché tel quel). */

@@ -38,6 +38,7 @@ class EdgeLogicTest {
     @Test
     fun lowerZoneStaysBelowTheUpperOneAndAboveNavigation() {
         val s = EdgeSettings(
+            bars = EdgeBars.DOUBLE,
             left = EdgeZone(start = 0.1f, length = 0.5f),
             leftLower = EdgeZone(enabled = true, start = 0.3f, length = 0.6f),
         )
@@ -46,6 +47,16 @@ class EdgeLogicTest {
         val lower = zones.first { it.slot == EdgeSlot.LEFT_LOWER }.rect
         assertFalse(upper.overlapsVertically(lower))
         assertTrue(lower.bottom <= 2400 - 100 - 24)
+    }
+
+    @Test
+    fun singleBarCanTakeTheFullLengthAndIgnoresLowerZones() {
+        val s = EdgeSettings(left = EdgeZone(start = 0f, length = 1f), leftLower = EdgeZone(enabled = true))
+        val zones = place(s, top = 120, bottom = 100)
+        assertTrue(zones.none { it.slot == EdgeSlot.LEFT_LOWER })
+        val left = zones.first { it.slot == EdgeSlot.LEFT }.rect
+        assertEquals(120, left.y)
+        assertEquals(2400 - 100 - 24, left.bottom)
     }
 
     @Test

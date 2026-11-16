@@ -30,6 +30,25 @@ enum class HaloColorMode {
     FIXED,
 }
 
+/** Intégration de la caméra dans le contour. */
+@Serializable
+enum class HaloCamera {
+    /** Le trait s'interrompt à la caméra et en jaillit de chaque côté (le plus discret). */
+    EMERGE,
+    /** Le trait contourne la caméra au plus près. */
+    AROUND,
+    /** La caméra est ignorée (trait droit). */
+    IGNORE,
+}
+
+/** Sens de parcours (styles Signature et Trait). */
+@Serializable
+enum class HaloDirection { BOTH, CLOCKWISE, COUNTER }
+
+/** Point de départ du halo. */
+@Serializable
+enum class HaloStart { CAMERA, BOTTOM }
+
 /** Applis qui déclenchent un halo. */
 @Serializable
 enum class HaloAppFilter { ALL, SELECTED }
@@ -79,6 +98,21 @@ data class HaloSettings(
     val screenOffMaxPerHour: Int = 6,
     /** Au branchement : halo vert qui monte le long des bords selon le pourcentage. */
     val chargingHalo: Boolean = false,
+    /** Longueur de la traînée (fraction du tour). */
+    val trail: Float = 0.22f,
+    /** Force de la lueur autour du trait (0 = trait seul). */
+    val glow: Float = 0.6f,
+    val direction: HaloDirection = HaloDirection.BOTH,
+    val start: HaloStart = HaloStart.CAMERA,
+    val camera: HaloCamera = HaloCamera.EMERGE,
+    /** Écart entre le trait et la caméra (dp). */
+    val cameraGapDp: Float = 2f,
+    /** Seconde couleur (dégradé le long du trait), ARGB ; null = une seule couleur. */
+    val secondColor: Long? = null,
+    /** Éclat de bulles quand les traits se rejoignent (Signature). */
+    val burst: Boolean = true,
+    /** Taille de l'éclat. */
+    val burstSize: Float = 1f,
 ) {
     /** Valeurs ramenées dans leurs plages (sauvegarde modifiée à la main, version plus ancienne). */
     fun sanitized(): HaloSettings {
@@ -93,6 +127,11 @@ data class HaloSettings(
             appColors = appColors.filterValues { it in 0L..0xFFFFFFFFL },
             screenOffSeconds = screenOffSeconds.coerceIn(SCREEN_OFF_SECONDS),
             screenOffMaxPerHour = screenOffMaxPerHour.coerceIn(SCREEN_OFF_PER_HOUR),
+            trail = trail.orDefault(d.trail).coerceIn(TRAIL),
+            glow = glow.orDefault(d.glow).coerceIn(0f, 1f),
+            cameraGapDp = cameraGapDp.orDefault(d.cameraGapDp).coerceIn(CAMERA_GAP),
+            secondColor = secondColor?.takeIf { it in 0L..0xFFFFFFFFL },
+            burstSize = burstSize.orDefault(d.burstSize).coerceIn(BURST_SIZE),
         )
     }
 
@@ -104,6 +143,9 @@ data class HaloSettings(
         val SPEED = 0.5f..2f
         val SCREEN_OFF_SECONDS = 2..8
         val SCREEN_OFF_PER_HOUR = 1..20
+        val TRAIL = 0.06f..0.6f
+        val CAMERA_GAP = 0f..12f
+        val BURST_SIZE = 0.5f..2f
     }
 }
 

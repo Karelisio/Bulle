@@ -8,8 +8,8 @@
     <string name="edges_service_off">The island service isn’t running: the zones can’t be shown.</string>
     <string name="edges_slot_left">Left edge</string>
     <string name="edges_slot_right">Right edge</string>
-    <string name="edges_slot_left_lower">Left edge, lower half</string>
-    <string name="edges_slot_right_lower">Right edge, lower half</string>
+    <string name="edges_slot_left_lower">Left edge, bottom</string>
+    <string name="edges_slot_right_lower">Right edge, bottom</string>
     <string name="edges_zone_enable">Zone on</string>
     <string name="edges_position">Position (from the top)</string>
     <string name="edges_length">Length</string>
@@ -36,4 +36,11 @@
     <string name="edges_disabled_apps">Off in these apps</string>
     <string name="edges_disabled_apps_summary">Games, drawing, maps…</string>
     <string name="edges_visibility_note">Like the island, the zones hide in full screen, in hidden apps and on the lock screen.</string>
+    <string name="edges_bars">Zones per edge</string>
+    <string name="edges_bars_single">One long bar</string>
+    <string name="edges_bars_double">Two short ones</string>
+    <string name="edges_bars_single_note">One zone per edge, as long as you like (up to the full height).</string>
+    <string name="edges_bars_double_note">Two zones per edge: one at the top, one at the bottom, each with its own gestures.</string>
+    <string name="edges_full_length">Full length</string>
+    <string name="edges_full_length_summary">From top to bottom (status bar, Panel zones and navigation bar are left free).</string>
 </resources>

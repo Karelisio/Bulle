@@ -12,6 +12,10 @@ enum class EdgeSide { LEFT, RIGHT }
 @Serializable
 enum class EdgeSlider { OFF, BRIGHTNESS, VOLUME }
 
+/** Une longue barre par bord, ou deux petites (haut et bas). */
+@Serializable
+enum class EdgeBars { SINGLE, DOUBLE }
+
 /** Gestes reconnus sur une zone de bord. */
 enum class EdgeGesture { SWIPE_UP, SWIPE_DOWN, DOUBLE_TAP, LONG_PRESS, SWIPE_IN }
 
@@ -60,7 +64,8 @@ data class EdgeZone(
     companion object {
         val THICKNESS = 8f..24f
         const val MIN_LENGTH = 0.08f
-        const val MAX_LENGTH = 0.6f
+        /** Une zone peut couvrir toute la hauteur (les bandes réservées restent épargnées). */
+        const val MAX_LENGTH = 1f
     }
 }
 
@@ -76,6 +81,8 @@ enum class EdgeSlot(val side: EdgeSide, val lower: Boolean) {
 @Serializable
 data class EdgeSettings(
     val enabled: Boolean = false,
+    /** Une longue barre par bord (zones hautes seules) ou deux petites (haut + bas). */
+    val bars: EdgeBars = EdgeBars.SINGLE,
     val left: EdgeZone = EdgeZone(
         swipeDown = GestureAction(ActionType.NOTIFICATIONS),
         swipeUp = GestureAction(ActionType.OPEN_DECK),
@@ -93,6 +100,10 @@ data class EdgeSettings(
     /** Applis où les zones sont désactivées (jeux, dessin, cartes). */
     val disabledApps: Set<String> = emptySet(),
 ) {
+    /** Emplacements utilisés selon [bars]. */
+    val slots: List<EdgeSlot>
+        get() = if (bars == EdgeBars.SINGLE) listOf(EdgeSlot.LEFT, EdgeSlot.RIGHT) else EdgeSlot.entries
+
     fun zone(slot: EdgeSlot): EdgeZone = when (slot) {
         EdgeSlot.LEFT -> left
         EdgeSlot.RIGHT -> right
