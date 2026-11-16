@@ -560,6 +560,12 @@ private fun IslandSurface(
             fullRadius = secR,
             onTap = controller::swapBubbles,
         )
+        // Paysage : la bulle compacte est invisible ; un niveau (volume) s'affiche en fine jauge
+        // le long de la caméra, côté intérieur de l'écran.
+        if (vertical && stable) {
+            val level = state.primary?.landscapeLevel.takeIf { mode == Mode.COMPACT }
+            LandscapeGauge(level, g, accent)
+        }
         // Éclat : bulles irisées autour de l'île.
         Canvas(Modifier.fillMaxSize()) {
             val b = burstState.burst ?: return@Canvas
@@ -601,6 +607,30 @@ private fun verticalTarget(
                 margin = 0f, clampToScreen = true,
             )
             SurfaceTarget(mode, cardWidth, h, cardCorner, dx, 1f, offsetY = IslandLayout.verticalOffsetY(top, len, h, screenHeight, margin))
+        }
+    }
+}
+
+/** Fine jauge verticale le long de la caméra (paysage) ; apparaît et disparaît en fondu. */
+@Composable
+private fun LandscapeGauge(level: Float?, g: com.karelisio.bulle.island.IslandGeometry, accent: Color) {
+    var last by remember { mutableStateOf(0f) }
+    if (level != null) last = level
+    val alpha by animateFloatAsState(if (level != null) 1f else 0f, tween(if (level != null) 120 else 400), label = "gauge")
+    val fill by animateFloatAsState(last.coerceIn(0f, 1f), spring(dampingRatio = 0.8f), label = "gaugeFill")
+    if (alpha <= 0.01f) return
+    val density = LocalDensity.current
+    Canvas(Modifier.fillMaxSize().clearAndSetSemantics { }) {
+        val geo = IslandLayout.landscapeGauge(
+            cameraCenterX = g.centerX.toFloat(), cameraHalfThickness = g.width / 2f, cameraCenterY = g.centerY.toFloat(),
+            cameraLeft = g.cameraLeft, density = density.density, screenHeight = size.height,
+        )
+        val r = androidx.compose.ui.geometry.CornerRadius(geo.width / 2f)
+        drawRoundRect(Color.Black.copy(alpha = 0.55f * alpha), Offset(geo.left - 2f, geo.top - 2f), androidx.compose.ui.geometry.Size(geo.width + 4f, geo.height + 4f), androidx.compose.ui.geometry.CornerRadius(geo.width / 2f + 2f))
+        drawRoundRect(accent.copy(alpha = 0.3f * alpha), Offset(geo.left, geo.top), androidx.compose.ui.geometry.Size(geo.width, geo.height), r)
+        val h = geo.height * fill
+        if (h > 0f) {
+            drawRoundRect(accent.copy(alpha = alpha), Offset(geo.left, geo.top + geo.height - h), androidx.compose.ui.geometry.Size(geo.width, h.coerceAtLeast(geo.width)), r)
         }
     }
 }

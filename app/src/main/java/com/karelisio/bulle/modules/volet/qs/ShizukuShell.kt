@@ -90,7 +90,7 @@ object ShizukuShell {
                 reply.readException()
                 val exit = reply.readInt()
                 val out = reply.readString().orEmpty()
-                if (exit != 0 || (command.startsWith(TetherShell.PREFIX) && command != TetherShell.STATE_COMMAND)) {
+                if (exit != 0 || (command.startsWith(TetherShell.PREFIX) && command != TetherShell.STATE_COMMAND && command != TetherShell.INFO_COMMAND)) {
                     com.karelisio.bulle.island.IslandLog.log("Shizuku : « $command » → $exit ${out.take(200)}")
                 }
                 if (exit == 0) out else null

@@ -39,6 +39,7 @@ object TetherShell {
     /** Commandes « bulle-tether » exécutées dans le processus shell ; null : commande shell ordinaire. */
     fun intercept(command: String): Pair<Int, String>? = when {
         command.trim() == STATE_COMMAND -> state()
+        command.trim() == INFO_COMMAND -> info()
         else -> parse(command)?.let(::run)
     }
 
@@ -63,6 +64,65 @@ object TetherShell {
     } catch (t: Throwable) {
         val cause = (t as? java.lang.reflect.InvocationTargetException)?.targetException ?: t
         -1 to "${cause.javaClass.simpleName}: ${cause.message}"
+    }
+
+    /** Nom du réseau et appareils connectés (mini-panneau de la tuile). */
+    const val INFO_COMMAND = "$PREFIX wifi info"
+
+    /** Informations lues dans le processus shell : « ssid=… », « clients=N », « state=N ». */
+    fun info(): Pair<Int, String> {
+        val lines = mutableListOf<String>()
+        runCatching {
+            val binder = Class.forName("android.os.ServiceManager")
+                .getMethod("getService", String::class.java)
+                .invoke(null, "wifi") as IBinder
+            val wifi = Class.forName("android.net.wifi.IWifiManager\$Stub")
+                .getMethod("asInterface", IBinder::class.java)
+                .invoke(null, binder)!!
+            runCatching { lines += "state=" + wifi.javaClass.getMethod("getWifiApEnabledState").invoke(wifi) }
+            runCatching {
+                val config = wifi.javaClass.getMethod("getSoftApConfiguration").invoke(wifi)!!
+                val ssid = runCatching { config.javaClass.getMethod("getSsid").invoke(config) as String? }.getOrNull()
+                    ?: config.javaClass.getMethod("getWifiSsid").invoke(config)?.toString()
+                ssid?.let { lines += "ssid=" + it.trim('"') }
+            }
+        }
+        runCatching {
+            val p = ProcessBuilder("ip", "neigh").redirectErrorStream(true).start()
+            val out = p.inputStream.bufferedReader().use { it.readText() }
+            p.waitFor(3, TimeUnit.SECONDS)
+            lines += "clients=" + countClients(out)
+        }
+        return if (lines.isEmpty()) -1 to "aucune information" else 0 to lines.joinToString("\n")
+    }
+
+    /**
+     * Appareils connectés au point d'accès d'après la table de voisinage (`ip neigh`) : entrées
+     * joignables des interfaces du point d'accès (ap*, swlan*, softap*, wlan1+), sans doublon d'adresse MAC.
+     */
+    fun countClients(ipNeigh: String): Int = ipNeigh.lineSequence()
+        .map { it.trim() }
+        .filter { line ->
+            val dev = Regex("\\bdev\\s+(\\S+)").find(line)?.groupValues?.get(1) ?: return@filter false
+            val apIface = dev.startsWith("ap") || dev.startsWith("swlan") || dev.startsWith("softap") ||
+                Regex("wlan[1-9]\\d*").matches(dev)
+            apIface && "lladdr" in line && !line.endsWith("FAILED") && !line.endsWith("INCOMPLETE")
+        }
+        .mapNotNull { Regex("lladdr\\s+(\\S+)").find(it)?.groupValues?.get(1)?.lowercase() }
+        .toSet().size
+
+    /** Informations du point d'accès (logique pure, testée). */
+    data class Info(val ssid: String?, val clients: Int?, val active: Boolean?)
+
+    fun parseInfo(output: String?): Info? {
+        if (output.isNullOrBlank()) return null
+        val map = output.lineSequence().mapNotNull { l -> l.indexOf('=').takeIf { it > 0 }?.let { l.substring(0, it) to l.substring(it + 1) } }.toMap()
+        if (map.isEmpty()) return null
+        return Info(
+            ssid = map["ssid"]?.takeIf { it.isNotBlank() },
+            clients = map["clients"]?.toIntOrNull(),
+            active = map["state"]?.toIntOrNull()?.let(HotspotIntents::isActive),
+        )
     }
 
     /** Rôle de chaque paramètre de startTethering / stopTethering (signatures selon la version d'Android). */

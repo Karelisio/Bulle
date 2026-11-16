@@ -284,6 +284,7 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
             Spacer(Modifier.height(10.dp))
             // Filtres par catégorie (Île, Volet, Sortie audio, Shizuku).
             var category by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<com.karelisio.bulle.island.IslandLog.Category?>(null) }
+            val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
             val filtered = remember(entries, category) { com.karelisio.bulle.island.IslandLog.filter(entries, category) }
             Row(
                 Modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()),
@@ -299,7 +300,10 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                 options.forEach { (c, label) ->
                     androidx.compose.material3.FilterChip(
                         selected = category == c,
-                        onClick = { category = c },
+                        onClick = {
+                            if (category != c) haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentTick)
+                            category = c
+                        },
                         label = { Text(stringResource(label)) },
                     )
                 }

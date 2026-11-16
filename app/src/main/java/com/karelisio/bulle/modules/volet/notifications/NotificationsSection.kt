@@ -175,7 +175,7 @@ internal fun NotificationList(host: VoletHost, model: NotifListModel, modifier: 
             model.sections.forEach { s ->
                 s.groups.forEach { g ->
                     g.items.forEach { add(it.key) }
-                    g.summaryKey?.let(::add)
+                    g.summaryKeys.forEach(::add)
                 }
             }
         }

@@ -78,6 +78,7 @@ data class VolumeContent(
     override val canBeSecondary: Boolean = false
     override val accent: Color = Color(0xFF8AB4FF)
     override val compactSlotWidth: Dp = 72.dp
+    override val landscapeLevel: Float = if (overlay.muted) 0f else overlay.fraction
 
     @Composable
     override fun Leading() {

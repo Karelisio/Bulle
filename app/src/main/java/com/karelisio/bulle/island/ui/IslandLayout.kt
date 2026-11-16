@@ -76,6 +76,29 @@ object IslandLayout {
         return top to bottom
     }
 
+    /** Rectangle de la jauge de paysage (pixels de la fenêtre d'affichage). */
+    data class GaugeRect(val left: Float, val top: Float, val width: Float, val height: Float)
+
+    /**
+     * Jauge de paysage : 6 dp d'épaisseur, 160 dp de long, centrée sur la caméra et posée 8 dp
+     * à côté d'elle, vers l'intérieur de l'écran ; gardée dans l'écran.
+     */
+    fun landscapeGauge(
+        cameraCenterX: Float,
+        cameraHalfThickness: Float,
+        cameraCenterY: Float,
+        cameraLeft: Boolean,
+        density: Float,
+        screenHeight: Float,
+    ): GaugeRect {
+        val w = 6f * density
+        val h = (160f * density).coerceAtMost((screenHeight - 16f * density).coerceAtLeast(w))
+        val gap = 8f * density
+        val left = if (cameraLeft) cameraCenterX + cameraHalfThickness + gap else cameraCenterX - cameraHalfThickness - gap - w
+        val top = (cameraCenterY - h / 2f).coerceIn(8f * density, (screenHeight - 8f * density - h).coerceAtLeast(8f * density))
+        return GaugeRect(left, top, w, h)
+    }
+
     /** Rotation du contenu compact de l'île verticale : comme l'île du portrait, collée au bord de la caméra. */
     fun compactRotation(cameraLeft: Boolean): Float = if (cameraLeft) -90f else 90f
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hotspot_on">Activé</string>
+    <string name="hotspot_off">Désactivé</string>
+    <string name="hotspot_close">Fermer</string>
+    <string name="hotspot_settings">Réglages</string>
+    <plurals name="hotspot_clients">
+        <item quantity="one">Activé · %1$d appareil connecté</item>
+        <item quantity="many">Activé · %1$d d\'appareils connectés</item>
+        <item quantity="other">Activé · %1$d appareils connectés</item>
+    </plurals>
+    <string name="music_queue">À suivre (%1$d)</string>
+    <string name="music_queue_hide">Masquer la file</string>
+</resources>

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.17
+- Paysage : changer le volume affiche une fine jauge le long de la caméra (la bulle reste invisible).
+- Journal de l'île : les 50 dernières lignes sont conservées après un redémarrage (marquées « ↩ »).
+- Tuile « Point d'accès » : appui long (avec Shizuku) → mini-panneau avec le nom du réseau et le nombre d'appareils connectés.
+- Bulle Média dépliée : file d'attente « À suivre » repliée sous les commandes (masquée en mode paroles), toucher = lire ce titre.
+- Volet : les notifications silencieuses d'une même appli sont réunies en une seule pile.
+- Retour haptique sur le curseur de la zone paysage et sur les filtres du journal.
+
 ## 0.8.16
 - Masquage › paysage : aperçu de la zone tactile invisible autour de la caméra, avec un curseur pour l'agrandir (0 à 24 dp) ; interrupteur « Ouvrir les appels en paysage ».
 - Fiabilité › Journal de l'île : filtres Île / Volet / Sortie audio / Shizuku et bouton Partager.

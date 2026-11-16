@@ -34,6 +34,7 @@ import kotlin.math.roundToInt
 @Composable
 internal fun LandscapeZoneSetting(marginDp: Float, onChange: (Float) -> Unit) {
     val context = LocalContext.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     val info = remember(context) { runCatching { CutoutLocator.screenInfo(context) }.getOrNull() }
     // Écran en paysage : largeur = côté long, hauteur = côté court.
     val portraitW = info?.let { minOf(it.width, it.height) } ?: 1280
@@ -79,7 +80,11 @@ internal fun LandscapeZoneSetting(marginDp: Float, onChange: (Float) -> Unit) {
         }
         Slider(
             value = live,
-            onValueChange = { live = it },
+            onValueChange = {
+                // Petit cran haptique à chaque palier franchi.
+                if (it.roundToInt() != live.roundToInt()) haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentFrequentTick)
+                live = it
+            },
             onValueChangeFinished = { onChange(live.roundToInt().toFloat()) },
             valueRange = 0f..CutoutLocator.MAX_LANDSCAPE_MARGIN_DP,
             steps = CutoutLocator.MAX_LANDSCAPE_MARGIN_DP.toInt() / 2 - 1,

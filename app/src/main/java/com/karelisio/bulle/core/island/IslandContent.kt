@@ -68,6 +68,12 @@ abstract class IslandContent {
     open val compactSubtitle: String? = null
 
     /**
+     * Niveau (0 à 1) affiché en paysage, où la bulle compacte est invisible : fine jauge le long
+     * de la caméra (volume). null = rien.
+     */
+    open val landscapeLevel: Float? = null
+
+    /**
      * Résumé lu par TalkBack (ex. « Musique : Titre, Artiste, en lecture »). null = repli sur
      * [describe], puis sur [compactSubtitle] et un libellé générique.
      */

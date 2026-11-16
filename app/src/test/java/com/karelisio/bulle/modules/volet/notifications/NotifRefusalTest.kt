@@ -51,7 +51,8 @@ class NotifRefusalTest {
         val g2 = model.groupOf("s2")!!
         assertEquals(NotifDismiss.Swipe(listOf("s1"), emptyList()), NotifDismiss.swipeItem(g1, silent))
         assertEquals(NotifDismiss.Swipe(emptyList(), listOf("s2")), NotifDismiss.swipeItem(g2, ongoing))
-        assertEquals(NotifDismiss.Swipe(emptyList(), listOf("s2")), NotifDismiss.swipeGroup(g2))
+        // Silencieuses d'une même appli réunies en une pile : balayer la pile annule s1 et masque s2.
+        assertEquals(NotifDismiss.Swipe(listOf("s1"), listOf("s2")), NotifDismiss.swipeGroup(g2))
     }
 
     @Test
