@@ -15,6 +15,7 @@ class BulleApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         com.karelisio.bulle.system.CrashLog.install(this)
+        com.karelisio.bulle.island.IslandLog.attach(this)
         Modules.registerAll()
         Reliability.scheduleWatchdog(this)
         BackupScheduler.schedule(this)

@@ -13,7 +13,6 @@ import com.karelisio.bulle.core.island.Priority
 import com.karelisio.bulle.island.ui.IslandScene
 import com.karelisio.bulle.modules.Modules
 import com.karelisio.bulle.modules.push.PushModule
-import com.karelisio.bulle.modules.volet.VoletStrips
 import com.karelisio.bulle.testing.ComposeDispatcherReset
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -54,68 +53,68 @@ class LandscapeIslandRenderTest {
     @Before
     fun setUp() = ComposeDispatcherReset.unstick()
 
-    @Test
-    fun verticalIslandExpandsAroundTheCamera() {
+    /** Zone tactile de CETTE île (pas l'enveloppe globale, que d'autres îles de test peuvent publier). */
+    private fun envelopeOf(window: IslandWindow): com.karelisio.bulle.modules.volet.IslandEnvelope {
+        val p = window.islandParams
+        return com.karelisio.bulle.modules.volet.IslandEnvelope(p.x, p.y, p.width, p.height)
+    }
+
+    private fun withIsland(g: IslandGeometry, block: (IslandController, IslandWindow) -> Unit) {
         Modules.registerAll()
         val built = Robolectric.buildActivity(ComponentActivity::class.java).setup()
         val activity = built.get()
         val scope = MainScope()
         val window = IslandWindow(activity)
         val controller = IslandController(activity, scope, window)
+        try {
+            controller.updateScreen { it.copy(geometry = g) }
+            activity.setContent { IslandScene(controller) }
+            idle()
+            PushModule.push(LandscapeContent())
+            idle()
+            block(controller, window)
+        } finally {
+            // Toujours nettoyer : un contenu laissé dans PushModule fausserait les tests suivants.
+            PushModule.remove("push:landscape")
+            idle()
+            window.destroy()
+            scope.cancel()
+            built.pause().stop().destroy()
+        }
+    }
+
+    @Test
+    fun verticalIslandExpandsAroundTheCamera() {
         val g = CutoutLocator.sideGeometry(24, 475, 134, 805, 2800, 1280, 3f, cameraLeft = true)
-        controller.updateScreen { it.copy(geometry = g) }
-        activity.setContent { IslandScene(controller) }
-        idle()
+        withIsland(g) { controller, window ->
+            val compact = envelopeOf(window)
+            // Compacte (invisible) : zone tactile autour de la caméra.
+            assertTrue("compacte au-dessus de la caméra (${compact.y})", compact.y <= g.top)
+            assertTrue("compacte sous la caméra (${compact.bottom})", compact.bottom >= g.top + g.height)
 
-        PushModule.push(LandscapeContent())
-        idle()
-        val compact = VoletStrips.islandEnvelope.value!!
-        // Compacte : allongée le long du bord, autour de la caméra.
-        assertTrue("compacte au-dessus de la caméra", compact.y <= g.top)
-        assertTrue("compacte sous la caméra", compact.bottom >= g.top + g.height)
-
-        controller.onGesture(IslandGesture.TAP)
-        idle()
-        assertTrue(controller.state.value.expanded)
-        val expanded = VoletStrips.islandEnvelope.value!!
-        // Carte : dans l'écran, centrée verticalement sur la caméra, ouverte vers la droite.
-        assertTrue("carte dans l'écran (haut)", expanded.y >= 0)
-        assertTrue("carte dans l'écran (bas) : ${expanded.bottom}", expanded.bottom <= 1280 + 4)
-        val center = (expanded.y + expanded.bottom) / 2
-        assertTrue("carte centrée sur la caméra ($center)", kotlin.math.abs(center - g.centerY) <= 40 || expanded.y == 0)
-        assertTrue("carte vers l'intérieur", expanded.right > g.centerX + 300)
-        assertEquals(true, expanded.touchable)
-
-        controller.onOutsideTouch()
-        idle()
-        PushModule.remove("push:landscape")
-        idle()
-        window.destroy()
-        scope.cancel()
-        built.pause().stop().destroy()
+            controller.onGesture(IslandGesture.TAP)
+            idle()
+            assertTrue(controller.state.value.expanded)
+            val expanded = envelopeOf(window)
+            // Carte : dans l'écran, centrée verticalement sur la caméra, ouverte vers la droite.
+            assertTrue("carte dans l'écran (haut)", expanded.y >= 0)
+            assertTrue("carte dans l'écran (bas) : ${expanded.bottom}", expanded.bottom <= 1280 + 4)
+            val center = (expanded.y + expanded.bottom) / 2
+            assertTrue("carte centrée sur la caméra ($center)", kotlin.math.abs(center - g.centerY) <= 40 || expanded.y == 0)
+            assertTrue("carte vers l'intérieur", expanded.right > g.centerX + 300)
+            controller.onOutsideTouch()
+            idle()
+        }
     }
 
     @Test
     fun portraitEnvelopeIsUnchanged() {
-        Modules.registerAll()
-        val built = Robolectric.buildActivity(ComponentActivity::class.java).setup()
-        val activity = built.get()
-        val scope = MainScope()
-        val window = IslandWindow(activity)
-        val controller = IslandController(activity, scope, window)
         val g = IslandGeometry(centerX = 540, top = 10, width = 180, height = 90, screenWidth = 1080, density = 3f)
-        controller.updateScreen { it.copy(geometry = g) }
-        activity.setContent { IslandScene(controller) }
-        PushModule.push(LandscapeContent())
-        idle()
-        controller.onGesture(IslandGesture.TAP)
-        idle()
-        // Portrait : la zone tactile part toujours du haut de l'île.
-        assertEquals(10, VoletStrips.islandEnvelope.value!!.y)
-        PushModule.remove("push:landscape")
-        idle()
-        window.destroy()
-        scope.cancel()
-        built.pause().stop().destroy()
+        withIsland(g) { controller, window ->
+            controller.onGesture(IslandGesture.TAP)
+            idle()
+            // Portrait : la zone tactile part toujours du haut de l'île.
+            assertEquals(10, envelopeOf(window).y)
+        }
     }
 }

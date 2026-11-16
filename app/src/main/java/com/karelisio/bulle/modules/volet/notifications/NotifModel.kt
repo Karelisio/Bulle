@@ -136,8 +136,16 @@ data class NotifGroup(
     val items: List<NotifItem>,
     /** Résumé du groupe (non affiché comme carte, mais effacé avec le groupe). */
     val summaryKey: String?,
+    /**
+     * Pile silencieuse réunissant plusieurs groupes d'une même appli : résumé de chaque groupe
+     * d'origine (clé de groupe → clé du résumé). Vide sinon.
+     */
+    val mergedSummaries: Map<String, String> = emptyMap(),
 ) {
     val lead: NotifItem get() = items.first()
+
+    /** Tous les résumés rattachés au groupe. */
+    val summaryKeys: List<String> get() = (listOfNotNull(summaryKey) + mergedSummaries.values).distinct()
     val clearable: Boolean get() = items.any { it.clearable }
 }
 
@@ -361,11 +369,31 @@ object NotifListBuilder {
                     // ceux de l'autre section, il n'est donc rattaché à aucune.
                     summaryKey = summaries[gk]?.takeIf { childSections[gk]?.size == 1 },
                 )
-            }.sortedWith(compareBy<NotifGroup> { order(it.lead) }.thenByDescending { it.lead.time })
+            }.let { if (section == NotifSection.SILENT) mergeByApp(it) else it }
+                .sortedWith(compareBy<NotifGroup> { order(it.lead) }.thenByDescending { it.lead.time })
             NotifSectionModel(section, groups)
         }
         return NotifListModel(sections)
     }
+
+    /**
+     * Silencieuses : une seule pile par appli (ses différents groupes réunis), repliée comme un
+     * groupe ; les résumés de chaque groupe partent avec elle.
+     */
+    fun mergeByApp(groups: List<NotifGroup>): List<NotifGroup> =
+        groups.groupBy { it.packageName }.map { (pkg, same) ->
+            if (same.size == 1) return@map same.first()
+            val summaries = same.mapNotNull { g -> g.summaryKey?.let { g.items.first().groupKey to it } }.toMap() +
+                same.flatMap { it.mergedSummaries.entries }.associate { it.key to it.value }
+            NotifGroup(
+                id = "${NotifSection.SILENT.name}|app:$pkg",
+                packageName = pkg,
+                appName = same.first().appName,
+                items = sorted(same.flatMap { it.items }),
+                summaryKey = null,
+                mergedSummaries = summaries,
+            )
+        }
 
     /** Rang du système si connu, sinon heure décroissante. */
     fun sorted(items: List<NotifItem>): List<NotifItem> =
@@ -444,15 +472,19 @@ object NotifDismiss {
      */
     fun groupKeys(group: NotifGroup): List<String> {
         val keys = group.items.filter { it.clearable }.map { it.key }
-        val summary = group.summaryKey?.takeIf { group.items.all { it.clearable } }
-        return if (summary != null) keys + summary else keys
+        return if (group.items.all { it.clearable }) keys + group.summaryKeys else keys
     }
 
     /** Clés à annuler pour retirer un seul élément : le résumé part avec le dernier enfant. */
     fun itemKeys(group: NotifGroup, item: NotifItem): List<String> {
         if (!item.clearable) return emptyList()
         val remaining = group.items.count { it.key != item.key }
-        val summary = group.summaryKey?.takeIf { remaining == 0 }
-        return if (summary != null) listOf(item.key, summary) else listOf(item.key)
+        if (group.mergedSummaries.isNotEmpty()) {
+            // Pile réunie : le résumé du groupe d'origine part avec son dernier enfant.
+            val lastOfItsGroup = group.items.none { it.key != item.key && it.groupKey == item.groupKey }
+            val summary = group.mergedSummaries[item.groupKey]?.takeIf { lastOfItsGroup }
+            return if (summary != null) listOf(item.key, summary) else listOf(item.key)
+        }
+        return if (remaining == 0) listOf(item.key) + group.summaryKeys else listOf(item.key)
     }
 }

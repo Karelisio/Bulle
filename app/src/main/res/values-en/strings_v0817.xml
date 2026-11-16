@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hotspot_on">On</string>
+    <string name="hotspot_off">Off</string>
+    <string name="hotspot_close">Close</string>
+    <string name="hotspot_settings">Settings</string>
+    <plurals name="hotspot_clients">
+        <item quantity="one">On · %1$d device connected</item>
+        <item quantity="other">On · %1$d devices connected</item>
+    </plurals>
+    <string name="music_queue">Up next (%1$d)</string>
+    <string name="music_queue_hide">Hide queue</string>
+</resources>

@@ -41,6 +41,14 @@ internal class QsToggler(private val host: VoletHost) {
     }
 
     fun longPress(tile: QsTile) {
+        // Point d'accès avec Shizuku : mini-panneau (nom du réseau, appareils connectés).
+        if (tile === HotspotTile && ShizukuShell.status() == ShizukuStatus.READY) {
+            scope.launch {
+                val info = TetherShell.parseInfo(ShizukuShell.run(context, TetherShell.INFO_COMMAND))
+                if (info != null) HotspotPanel.info.value = info else tile.longPressIntent(context)?.let(::start)
+            }
+            return
+        }
         tile.longPressIntent(context)?.let(::start)
     }
 

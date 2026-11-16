@@ -155,16 +155,24 @@ private fun TileGrid(host: VoletHost, orientation: VoletOrientation) {
     val context = host.context
     val tiles = remember(context, host.settings.tiles) { QsTileRegistry.current(context, host.settings.tiles) }
     val metrics = QsMetrics.of(host.settings.density, orientation)
+    // Mini-panneau du point d'accès (appui long sur la tuile) sous la grille.
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { HotspotPanel.dismiss() } }
     if (orientation == VoletOrientation.PORTRAIT) {
         val spec = VoletLayout.gridSpec(orientation, 0f, 0f, host.settings.collapsedTileCount, tiles.size)
-        TileGridContent(host, tiles, spec, metrics)
+        androidx.compose.foundation.layout.Column {
+            TileGridContent(host, tiles, spec, metrics)
+            HotspotPanelCard(host)
+        }
     } else {
         // Paysage : le nombre de tuiles par rangée dépend de la largeur de la colonne.
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val spec = VoletLayout.gridSpec(
                 orientation, maxWidth.value, metrics.gap.value, host.settings.collapsedTileCount, tiles.size,
             )
-            TileGridContent(host, tiles, spec, metrics)
+            androidx.compose.foundation.layout.Column {
+                TileGridContent(host, tiles, spec, metrics)
+                HotspotPanelCard(host)
+            }
         }
     }
 }

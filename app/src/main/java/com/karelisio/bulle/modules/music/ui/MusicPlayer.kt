@@ -240,6 +240,8 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
                         enabled = base.can(PlaybackState.ACTION_SKIP_TO_NEXT) || base.actions == 0L,
                     ) { controls.skipToNext() }
                 }
+                // File d'attente (repliée), seulement hors mode paroles.
+                MusicQueue(content.controller, accent)
             }
         }
 
