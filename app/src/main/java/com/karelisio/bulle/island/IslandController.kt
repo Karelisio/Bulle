@@ -59,6 +59,8 @@ data class WindowRequest(
     val height: Int,
     val touchable: Boolean,
     val watchOutside: Boolean,
+    /** Haut de l'enveloppe par rapport au haut de l'île au repos (île verticale du paysage ; 0 sinon). */
+    val offsetY: Int = 0,
 )
 
 /**
@@ -181,14 +183,15 @@ class IslandController(
         // TalkBack : rendu classique (voir IslandScene), la fenêtre d'affichage stable n'étant pas touchable.
         window.stable = settings.value.style.stableWindow &&
             !com.karelisio.bulle.core.a11y.SystemAccessibility.isTouchExplorationEnabled(context)
+        val top = (g.top + request.offsetY).coerceAtLeast(0)
         window.update(
-            g.centerX, g.top, request.width, request.height, request.touchable, request.watchOutside,
+            g.centerX, top, request.width, request.height, request.touchable, request.watchOutside,
             screenWidth = g.screenWidth.takeIf { it > 0 } ?: context.resources.displayMetrics.widthPixels,
             screenHeight = context.resources.displayMetrics.heightPixels,
         )
         // Enveloppe tactile réelle de l'île : les zones du Volet s'y collent sans trou.
         com.karelisio.bulle.modules.volet.VoletStrips.islandEnvelope.value = com.karelisio.bulle.modules.volet.IslandEnvelope(
-            g.centerX - request.width.coerceAtLeast(1) / 2, g.top,
+            g.centerX - request.width.coerceAtLeast(1) / 2, top,
             request.width.coerceAtLeast(1), request.height.coerceAtLeast(1), request.touchable,
         )
     }

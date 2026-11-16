@@ -204,22 +204,20 @@ object HotspotTile : QsTile {
     override val label = R.string.volet_qs_hotspot
     override val icon: ImageVector = Icons.Rounded.WifiTethering
 
-    // Pas de bascule publique ni de commande fiable : page « Point d'accès ».
-    override fun settingsIntent(context: Context) = firstResolvable(
-        context,
-        Intent("android.settings.TETHER_SETTINGS"),
-        Intent(Settings.ACTION_WIRELESS_SETTINGS),
-    )
+    // Avec Shizuku : bascule réelle par le service de partage du système (voir TetherShell).
+    override fun shizukuCommand(enable: Boolean) = TetherShell.command(enable)
+
+    // Sans Shizuku (ou en cas d'échec) : écran du point d'accès, jamais les Paramètres généraux.
+    override fun settingsIntent(context: Context) = HotspotIntents.resolve(context)
 
     override fun isSupported(context: Context) =
         context.packageManager.hasSystemFeature(PackageManager.FEATURE_WIFI)
 
     private const val ACTION_AP_STATE = "android.net.wifi.WIFI_AP_STATE_CHANGED"
-    private const val AP_STATE_ENABLED = 13
 
     override fun observe(context: Context) = broadcastState(context, listOf(ACTION_AP_STATE)) { intent ->
         if (intent != null) {
-            TileState(active = intent.getIntExtra("wifi_state", 0) == AP_STATE_ENABLED)
+            TileState(active = HotspotIntents.isActive(intent.getIntExtra("wifi_state", 0)))
         } else {
             // Lecture initiale par l'API cachée quand elle est accessible, sinon inconnu.
             val wm = context.getSystemService(WifiManager::class.java)

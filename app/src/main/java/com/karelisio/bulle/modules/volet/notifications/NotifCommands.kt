@@ -15,8 +15,20 @@ import java.util.concurrent.ConcurrentHashMap
 /** Actions sur les notifications des autres applis (via le listener) et intents de réglages. */
 object NotifCommands {
 
+    /**
+     * Demande au système d'effacer [key]. Chaque demande est notée dans le Journal de l'île
+     * (drapeaux, listener relié ou non, exception) ; le retrait effectif l'est par le dépôt.
+     */
     fun cancel(key: String) {
-        runCatching { NotificationRepository.listener?.cancelNotification(key) }
+        val listener = NotificationRepository.listener
+        val flags = NotificationRepository.active.value[key]?.notification?.flags
+        com.karelisio.bulle.island.IslandLog.log(
+            "Effacement demandé : $key — " + NotifDismiss.describeFlags(flags) + (if (listener == null) ", listener absent" else ""),
+        )
+        if (listener == null) return
+        NotificationRepository.expectRemoval(key)
+        runCatching { listener.cancelNotification(key) }
+            .onFailure { com.karelisio.bulle.island.IslandLog.log("Effacement refusé : $key (${it.javaClass.simpleName}: ${it.message})") }
     }
 
     fun snooze(key: String, durationMs: Long) {
@@ -25,7 +37,9 @@ object NotifCommands {
 
     /** Ouvre la notification ; l'efface si elle le demande (FLAG_AUTO_CANCEL). */
     fun open(host: VoletHost, item: NotifItem): Boolean {
-        com.karelisio.bulle.island.IslandLog.log("Volet : ouverture d'une notification de ${item.packageName}")
+        com.karelisio.bulle.island.IslandLog.log(
+            "Volet : ouverture d'une notification de ${item.packageName} (canal ${item.channelId}, sortie audio : ${isAudioOutputNotice(item)})",
+        )
         // Notification système de changement de sortie audio : ouvre directement le choix de la sortie.
         if (isAudioOutputNotice(item)) {
             com.karelisio.bulle.modules.volet.media.MediaOutput.openSwitcher(host.context, item.packageName, host::close, host::startActivity)
@@ -36,14 +50,22 @@ object NotifCommands {
         return ok
     }
 
-    private val AUDIO_OUTPUT = Regex("(p[ée]riph[ée]rique|sortie)\\s+audio|audio\\s+(device|output)", RegexOption.IGNORE_CASE)
+    // Espaces quelconques (y compris insécables), accents facultatifs, singulier ou pluriel.
+    private val AUDIO_OUTPUT = Regex(
+        "(p[ée]riph[ée]riques?|sorties?|appareils?)[\\s\\u00A0\\u202F]+(audio|de\\s+sortie\\s+audio)" +
+            "|audio[\\s\\u00A0\\u202F]+(devices?|outputs?)|output[\\s\\u00A0\\u202F]+devices?",
+        RegexOption.IGNORE_CASE,
+    )
 
     /** « Changement de périphérique audio » (système) : texte reconnu, sans intention propre utile. */
-    internal fun isAudioOutputNotice(item: NotifItem): Boolean {
-        val text = listOfNotNull(item.title, item.text).joinToString(" ")
+    internal fun isAudioOutputNotice(item: NotifItem): Boolean = isAudioOutputText(
+        listOfNotNull(item.title, item.text, item.subText, item.bigText).plus(item.lines).joinToString(" "),
+    )
+
+    /** Texte d'une notification de changement de sortie audio (logique pure, testée). */
+    internal fun isAudioOutputText(text: CharSequence): Boolean =
         // Le texte suffit : le paquet qui publie cette notification varie selon les surcouches.
-        return AUDIO_OUTPUT.containsMatchIn(text)
-    }
+        AUDIO_OUTPUT.containsMatchIn(text)
 
     /** Page de réglages du canal (ou de la conversation), sinon des notifications de l'appli. */
     fun settingsIntent(item: NotifItem): Intent {

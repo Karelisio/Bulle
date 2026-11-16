@@ -413,6 +413,31 @@ object NotifDismiss {
     /** Équivalent de StatusBarNotification.isClearable(). */
     fun isClearable(flags: Int): Boolean = flags and NOT_CLEARABLE == 0
 
+    /** Drapeaux utiles au diagnostic d'un effacement (Journal de l'île). */
+    fun describeFlags(flags: Int?): String {
+        if (flags == null) return "inconnue du listener"
+        val names = buildList {
+            if (flags and Notification.FLAG_ONGOING_EVENT != 0) add("ONGOING_EVENT")
+            if (flags and Notification.FLAG_NO_CLEAR != 0) add("NO_CLEAR")
+            if (flags and Notification.FLAG_FOREGROUND_SERVICE != 0) add("FOREGROUND_SERVICE")
+            if (flags and Notification.FLAG_GROUP_SUMMARY != 0) add("GROUP_SUMMARY")
+        }
+        val shown = if (names.isEmpty()) "aucun drapeau bloquant" else names.joinToString("|")
+        return "drapeaux 0x" + Integer.toHexString(flags) + " ($shown), effaçable : " + (if (isClearable(flags)) "oui" else "non")
+    }
+
+    /**
+     * Balayage d'une carte : clés à annuler auprès du système et clés à masquer seulement dans
+     * Bulle (notifications que le système n'efface pas : « en cours », FLAG_NO_CLEAR).
+     */
+    data class Swipe(val cancel: List<String>, val local: List<String>)
+
+    fun swipeItem(group: NotifGroup, item: NotifItem): Swipe =
+        if (item.clearable) Swipe(itemKeys(group, item), emptyList()) else Swipe(emptyList(), listOf(item.key))
+
+    fun swipeGroup(group: NotifGroup): Swipe =
+        Swipe(groupKeys(group), group.items.filterNot { it.clearable }.map { it.key })
+
     /**
      * Clés à annuler pour retirer tout un groupe : ses éléments effaçables, puis le résumé quand
      * tous partent (s'il restait seul, il réapparaîtrait comme une carte).

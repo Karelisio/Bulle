@@ -69,8 +69,17 @@ object NotificationRepository {
     fun isAccessGranted(context: Context): Boolean =
         context.getSystemService(NotificationManager::class.java).isNotificationListenerAccessGranted(component(context))
 
+    /** Clés dont Bulle a demandé l'effacement : leur retrait est noté dans le Journal de l'île. */
+    private val awaitingRemoval = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+    /** Bulle vient de demander l'effacement de [key] (diagnostic). */
+    fun expectRemoval(key: String) {
+        awaitingRemoval += key
+    }
+
     internal fun onConnected(all: List<StatusBarNotification>, ownPackage: String) {
         _active.value = all.filter { it.packageName != ownPackage }.associateBy { it.key }
+        NotifLocalHide.retain(_active.value.keys)
         _connected.value = true
     }
 
@@ -86,6 +95,10 @@ object NotificationRepository {
 
     internal fun onRemoved(sbn: StatusBarNotification, reason: Int) {
         _active.update { it - sbn.key }
+        NotifLocalHide.forget(sbn.key)
+        if (awaitingRemoval.remove(sbn.key)) {
+            com.karelisio.bulle.island.IslandLog.log("Notification retirée : ${sbn.key} (raison $reason)")
+        }
         _events.tryEmit(NotificationEvent.Removed(sbn, reason))
     }
 }

@@ -105,7 +105,8 @@ class QsLogicTest {
         assertEquals("svc wifi enable", WifiTile.shizukuCommand(true))
         assertEquals("svc data disable", MobileDataTile.shizukuCommand(false))
         assertEquals("cmd connectivity airplane-mode enable", AirplaneTile.shizukuCommand(true))
-        assertEquals(null, HotspotTile.shizukuCommand(true))
+        // Point d'accès : bascule réelle via le service de partage (voir TetherShell).
+        assertEquals("bulle-tether wifi on", HotspotTile.shizukuCommand(true))
         assertTrue(ScreenshotTile.action != null && LockTile.action != null)
     }
 }

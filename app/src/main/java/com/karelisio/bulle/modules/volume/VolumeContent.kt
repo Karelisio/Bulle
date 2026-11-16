@@ -115,7 +115,7 @@ data class VolumeContent(
                     Icon(Icons.Rounded.Tune, contentDescription = stringResource(R.string.volume_system_panel))
                 }
                 Spacer(Modifier.width(6.dp))
-                FilledTonalIconButton(onClick = { VolumeKeys.keepAlive(force = true); VolumeKeys.openOutputSwitcher(context, host::collapse) }) {
+                FilledTonalIconButton(onClick = { VolumeKeys.openOutputSwitcher(context, host::collapse) }) {
                     Icon(outputIcon(output.kind), contentDescription = stringResource(R.string.volume_output))
                 }
             }

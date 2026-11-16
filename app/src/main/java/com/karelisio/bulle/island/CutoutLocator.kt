@@ -35,7 +35,20 @@ data class IslandGeometry(
     val density: Float,
     /** Sens d'ouverture choisi (voir [OpenDirection]). */
     val openDirection: OpenDirection = OpenDirection.CENTER,
+    /**
+     * Paysage, caméra sur le bord gauche ou droit : île VERTICALE collée à la caméra.
+     * [width] est alors l'épaisseur (perpendiculaire au bord) et [height] la longueur le long du bord ;
+     * [top] est le haut de l'île au repos, centrée sur la caméra.
+     */
+    val vertical: Boolean = false,
+    /** Hauteur de l'écran (pixels) ; 0 = inconnue. */
+    val screenHeight: Int = 0,
+    /** Île verticale : caméra sur le bord gauche (sinon droit). */
+    val cameraLeft: Boolean = true,
 ) {
+    /** Centre vertical de la caméra (île au repos). */
+    val centerY: Int get() = top + height / 2
+
     companion object {
         val Empty = IslandGeometry(0, 0, 0, 0, 0, 1f)
     }
@@ -81,21 +94,18 @@ object CutoutLocator {
         val c = info.cutout
         val side = info.sideCutout
         if (c == null && info.width > info.height && side != null) {
-            // Paysage : l'île épouse la caméra sur le côté et s'ouvre vers l'intérieur de l'écran.
-            val sc = scale.coerceIn(0.4f, 2f)
-            val h = ((side.height() + 2 * padV) * sc).roundToInt().coerceIn(dp(12f), dp(120f))
-            val w = ((side.width() + 2 * padV) * sc).roundToInt().coerceIn(dp(16f), info.width)
-            val cx = side.centerX().coerceIn(w / 2, info.width - w / 2)
-            val t = (side.centerY() - h / 2).coerceAtLeast(0)
-            val dir = if (info.sideCutoutLeft) OpenDirection.RIGHT else OpenDirection.LEFT
-            return IslandGeometry(cx, t, w, h, info.width, d, dir)
+            // Paysage : île verticale autour de la caméra (bord gauche ou droit), ouverte vers l'intérieur.
+            return sideGeometry(
+                side.left, side.top, side.right, side.bottom,
+                info.width, info.height, d, scale, info.sideCutoutLeft,
+            )
         }
         if (c == null && info.width > info.height) {
             // Paysage (caméra sur le côté) : pilule en haut au centre, sans les réglages fins du portrait.
             val sc = scale.coerceIn(0.4f, 2f)
             val w = (dp(104f) * sc).roundToInt().coerceIn(dp(16f), info.width)
             val h = (dp(28f) * sc).roundToInt().coerceIn(dp(12f), dp(120f))
-            return IslandGeometry(info.width / 2, dp(4f), w, h, info.width, d, tweak.openDirection)
+            return IslandGeometry(info.width / 2, dp(4f), w, h, info.width, d, tweak.openDirection, screenHeight = info.height)
         }
         if (c != null) {
             width = c.width() + 2 * padH
@@ -122,6 +132,37 @@ object CutoutLocator {
         height = height.coerceIn(dp(12f), dp(120f))
         top = top.coerceAtLeast(0)
         centerX = centerX.coerceIn(width / 2, info.width - width / 2)
-        return IslandGeometry(centerX, top, width, height, info.width, d, tweak.openDirection)
+        return IslandGeometry(centerX, top, width, height, info.width, d, tweak.openDirection, screenHeight = info.height)
+    }
+
+    /**
+     * Île verticale épousant un trou de caméra latéral ([left], [top], [right], [bottom], pixels écran) :
+     * épaisseur = largeur du trou + marge, longueur = hauteur du trou + marge, centrée sur lui.
+     */
+    fun sideGeometry(
+        left: Int,
+        top: Int,
+        right: Int,
+        bottom: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+        density: Float,
+        scale: Float = 1f,
+        cameraLeft: Boolean = true,
+    ): IslandGeometry {
+        fun dp(v: Float) = (v * density).roundToInt()
+        val pad = dp(4f)
+        val sc = scale.coerceIn(0.4f, 2f)
+        val camW = (right - left).coerceAtLeast(0)
+        val camH = (bottom - top).coerceAtLeast(0)
+        val thick = ((camW + 2 * pad) * sc).roundToInt().coerceIn(dp(16f), dp(120f)).coerceAtMost(screenWidth)
+        val length = ((camH + 2 * pad) * sc).roundToInt().coerceIn(dp(24f), screenHeight.coerceAtLeast(dp(24f)))
+        val cx = ((left + right) / 2).coerceIn(thick / 2, (screenWidth - thick / 2).coerceAtLeast(thick / 2))
+        val t = ((top + bottom) / 2 - length / 2).coerceIn(0, (screenHeight - length).coerceAtLeast(0))
+        val dir = if (cameraLeft) OpenDirection.RIGHT else OpenDirection.LEFT
+        return IslandGeometry(
+            cx, t, thick, length, screenWidth, density, dir,
+            vertical = true, screenHeight = screenHeight, cameraLeft = cameraLeft,
+        )
     }
 }

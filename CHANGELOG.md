@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.13
+- Paysage (caméra sur le côté) : la bulle devient verticale et épouse la caméra — compacte allongée le long du bord, contenu tourné comme en portrait ; la carte dépliée est centrée verticalement sur la caméra, s'ouvre vers l'intérieur, ne sort jamais de l'écran (elle défile si besoin) et sa zone tactile la couvre entièrement. Portrait inchangé.
+- Volet, tuile « Point d'accès Wi-Fi » : avec Shizuku, bascule réellement le point d'accès (service de partage du système, nom et mot de passe enregistrés conservés) ; sans Shizuku, ouvre l'écran du point d'accès au lieu des Paramètres généraux.
+- Volet, notifications que le système refuse d'effacer (services de premier plan, « en cours ») : elles se balaient et restent masquées dans Bulle, avec un bandeau « Désactiver ces notifications » / « Réafficher ».
+- Notification « Changement de périphérique audio » mieux reconnue (espaces insécables, pluriels, texte développé).
+- Journal de l'île : effacements de notifications (clé, drapeaux, listener, retrait reçu ou refus), touchers sur l'île dépliée (zone tactile, contenu atteint), tuiles basculées via Shizuku.
+
 ## 0.8.12
 - Volet : la notification « Changement de périphérique audio » (sans action propre) ouvre bien le choix de la sortie audio au toucher.
 - Journal de l'île : boutons de sortie audio / panneau du système et ouvertures de notifications notés, pour diagnostiquer.

@@ -81,6 +81,8 @@ android {
         unitTests.isIncludeAndroidResources = true
         unitTests.isReturnDefaultValues = true
         unitTests.all { test ->
+            // Robolectric : les nombreux tests de rendu dépassent le tas par défaut (512 Mo).
+            test.maxHeapSize = "1536m"
             // Miroir optionnel pour les jars Android de Robolectric (-Probolectric.repo=…).
             (project.findProperty("robolectric.repo") as String?)?.let {
                 test.systemProperty("robolectric.dependency.repo.url", it)

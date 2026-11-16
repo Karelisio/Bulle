@@ -27,4 +27,8 @@
     <string name="notif_dismiss">Dismiss</string>
     <string name="notif_close_reply">Close reply</string>
     <string name="notif_you">You</string>
+    <string name="notif_refused_one">“%1$s”: the system won\'t clear it. Hidden in Bulle.</string>
+    <string name="notif_refused_many">%1$d notifications the system won\'t clear are hidden in Bulle.</string>
+    <string name="notif_refused_disable">Turn off these notifications</string>
+    <string name="notif_refused_show">Show again</string>
 </resources>

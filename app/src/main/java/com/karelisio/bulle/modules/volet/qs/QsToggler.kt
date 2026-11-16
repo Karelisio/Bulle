@@ -31,6 +31,7 @@ internal class QsToggler(private val host: VoletHost) {
                 scope.launch {
                     // Échec (refus, Shizuku arrêté…) : repli sur le panneau ou la page système.
                     if (ShizukuShell.run(context, command) == null) {
+                        com.karelisio.bulle.island.IslandLog.log("Tuile ${tile.id} : échec via Shizuku, repli sur la page système")
                         open(tile, ToggleChooser.fallback(tile.direct != null, tile.panelIntent() != null))
                     }
                 }
