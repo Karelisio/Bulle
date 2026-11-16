@@ -35,5 +35,6 @@ object Modules {
         // Modules hors île, démarrés par le service d'accessibilité de l'île.
         IslandAddons.register(com.karelisio.bulle.modules.halo.HaloAddon)
         IslandAddons.register(com.karelisio.bulle.modules.edges.EdgeAddon)
+        IslandAddons.register(com.karelisio.bulle.modules.standby.StandbyAddon)
     }
 }

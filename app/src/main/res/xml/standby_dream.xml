@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Veille comme économiseur d'écran (modules/standby) : réglages ouverts dans l'appli. -->
+<dream xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="com.karelisio.bulle/.ui.MainActivity" />

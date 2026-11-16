@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Module Veille (modules/standby) : mode StandBy. -->
+<resources>
+    <string name="standby_title">Veille</string>
+    <string name="standby_nav_summary">Horloge et widgets en charge, à l’horizontale</string>
+    <string name="standby_enable">Activer Veille</string>
+    <string name="standby_enable_summary">En charge et posé à l’horizontale, le téléphone affiche une grande horloge, des widgets, la musique ou vos photos.</string>
+    <string name="standby_launch_now">Lancer Veille maintenant</string>
+    <string name="standby_preview_desc">Aperçu de l’écran Veille</string>
+    <string name="standby_section_trigger">Déclenchement</string>
+    <string name="standby_auto">Lancement automatique</string>
+    <string name="standby_auto_summary">Au branchement à l’horizontale, téléphone verrouillé ou sur l’écran d’accueil. Veille se ferme au débranchement ou en revenant à la verticale.</string>
+    <string name="standby_delay">Délai avant activation</string>
+    <string name="standby_charger">Chargeurs</string>
+    <string name="standby_charger_any">Tous</string>
+    <string name="standby_charger_wired">Filaire</string>
+    <string name="standby_charger_wireless">Sans fil</string>
+    <string name="standby_trigger_note">Si le système le propose, tu peux aussi choisir Bulle comme économiseur d’écran (Paramètres › Affichage). Sur MagicOS, ce réglage peut être masqué : l’activité de secours prend alors le relais.</string>
+    <string name="standby_dream_open">Ouvrir l’économiseur d’écran</string>
+    <string name="standby_section_pages">Pages</string>
+    <string name="standby_pages_note">Balayer de côté pour changer de page ; chaque panneau défile vers le haut ou le bas. Une activité en cours (minuteur, navigation, livraison) prend la place du panneau de droite.</string>
+    <string name="standby_page_clocks">Horloges</string>
+    <string name="standby_page_widgets">Widgets</string>
+    <string name="standby_page_music">Musique</string>
+    <string name="standby_page_photos">Photos</string>
+    <string name="standby_page_echo">Écho</string>
+    <string name="standby_move_up">Monter</string>
+    <string name="standby_move_down">Descendre</string>
+    <string name="standby_album_none">Aucun album choisi</string>
+    <string name="standby_album_pick">Album du diaporama</string>
+    <plurals name="standby_album_count">
+        <item quantity="one">%1$d photo</item>
+        <item quantity="many">%1$d de photos</item>
+        <item quantity="other">%1$d photos</item>
+    </plurals>
+    <string name="standby_section_night">Mode nuit</string>
+    <string name="standby_night_auto">Horaires ou noir</string>
+    <string name="standby_night_schedule">Horaires</string>
+    <string name="standby_night_light">Dans le noir</string>
+    <string name="standby_night_off">Jamais</string>
+    <string name="standby_night_start">Début</string>
+    <string name="standby_night_end">Fin</string>
+    <string name="standby_dark_lux">Seuil « dans le noir »</string>
+    <string name="standby_night_note">La nuit, tout passe en rouge monochrome très sombre, luminosité au minimum. Le contenu se décale de quelques pixels chaque minute pour protéger l’écran OLED.</string>
+    <string name="standby_section_misc">Notifications</string>
+    <string name="standby_notifications">Cartes de notification</string>
+    <string name="standby_notifications_summary">Petites cartes discrètes en haut de l’écran (contenu masqué si le téléphone est verrouillé).</string>
+    <string name="standby_permissions_note">Sur MagicOS, autorise « Afficher sur l’écran de verrouillage » et « Afficher des fenêtres pop-up en arrière-plan » (Réglages › Autorisations).</string>
+    <string name="standby_weather_none">Météo indisponible (active le module Météo)</string>
+    <string name="standby_event_none">Rien de prévu dans les 24 h</string>
+    <string name="standby_event_permission">Active le module Agenda pour voir ton prochain rendez-vous</string>
+    <string name="standby_event_next">Ensuite</string>
+    <string name="standby_battery_phone">Téléphone</string>
+    <string name="standby_battery_accessory">Accessoire</string>
+    <string name="standby_live_none">Aucun minuteur ni activité en cours</string>
+    <string name="standby_music_none">Rien en lecture</string>
+    <string name="standby_lyrics_none">Pas de paroles synchronisées</string>
+    <string name="standby_echo_none">Pas encore de « pense à toi »</string>
+    <string name="standby_photos_none">Aucune photo dans cet album</string>
+    <string name="standby_photos_permission">Autorise l’accès aux photos dans les réglages de Veille</string>
+    <string name="standby_dream_label">Bulle — Veille</string>
+</resources>

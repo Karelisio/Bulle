@@ -100,6 +100,7 @@ fun BulleSettings.sanitized(): BulleSettings {
         deck = deck.sanitized(),
         halo = halo.sanitized(),
         edges = edges.sanitized(),
+        standby = standby.sanitized(),
     )
 }
 

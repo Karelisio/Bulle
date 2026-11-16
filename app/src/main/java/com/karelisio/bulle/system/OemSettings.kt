@@ -87,6 +87,57 @@ object OemSettings {
         return false
     }
 
+    // --- Autorisations propres à MagicOS : écran de verrouillage et fenêtres pop-up en arrière-plan ---
+
+    /** Gestionnaire d'autorisations de MagicOS / EMUI (fiche de l'appli), par ordre de préférence. */
+    val honorPermissionComponents: List<ComponentName> = listOf(
+        ComponentName("com.hihonor.systemmanager", "com.hihonor.permissionmanager.ui.MainActivity"),
+        ComponentName("com.hihonor.securitycenter", "com.hihonor.permissionmanager.ui.MainActivity"),
+        ComponentName("com.huawei.systemmanager", "com.huawei.permissionmanager.ui.MainActivity"),
+        ComponentName("com.hihonor.systemmanager", "com.hihonor.systemmanager.permissionmanager.ui.SinglePermissionAppListActivity"),
+    )
+
+    /**
+     * Ouvre l'écran où se règlent « Afficher sur l'écran de verrouillage » et « Afficher des
+     * fenêtres pop-up en arrière-plan » (MagicOS), sinon la fiche de l'appli. Vrai si un écran du
+     * fabricant a pu être ouvert.
+     */
+    fun openSpecialPermissions(context: Context): Boolean {
+        val candidates = if (family == Family.HONOR) honorPermissionComponents else emptyList()
+        for (component in candidates) {
+            val intent = Intent().setComponent(component)
+                .putExtra("packageName", context.packageName)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            try {
+                context.startActivity(intent)
+                return true
+            } catch (_: ActivityNotFoundException) {
+                // Absent sur cette version : on essaie le suivant.
+            } catch (e: SecurityException) {
+                Log.d(TAG, "Activité protégée : $component", e)
+            }
+        }
+        openSafely(context, appDetailsIntent(context))
+        return false
+    }
+
+    private const val PROOF_PREFS = "bulle_oem_proof"
+
+    /** Preuve observée qu'une autorisation spéciale est accordée (non détectable autrement). */
+    enum class Proof { BACKGROUND_POPUP, LOCKSCREEN }
+
+    /**
+     * Note qu'une autorisation a été vérifiée en pratique : Veille ou le Halo écran éteint s'est
+     * affiché depuis l'arrière-plan, ou par-dessus l'écran de verrouillage.
+     */
+    fun recordProof(context: Context, proof: Proof) {
+        context.applicationContext.getSharedPreferences(PROOF_PREFS, Context.MODE_PRIVATE)
+            .edit().putBoolean(proof.name, true).apply()
+    }
+
+    fun proven(context: Context, proof: Proof): Boolean =
+        context.applicationContext.getSharedPreferences(PROOF_PREFS, Context.MODE_PRIVATE).getBoolean(proof.name, false)
+
     /** Lance un écran système sans planter s'il n'existe pas ; replie sur la fiche de l'appli. */
     fun openSafely(context: Context, intent: Intent, fallbackToDetails: Boolean = true): Boolean = try {
         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
