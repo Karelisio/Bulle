@@ -20,6 +20,7 @@ object QsTileRegistry {
     val defaultOrder: List<String> = listOf(
         "wifi", "bluetooth", "data", "torch", "dnd", "rotation",
         "airplane", "hotspot", "location", "nfc", "auto_brightness", "screenshot", "lock",
+        "halo", "edges", "standby",
     )
 
     fun get(id: String): QsTile? = byId[id]
