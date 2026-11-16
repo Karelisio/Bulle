@@ -88,12 +88,12 @@ class IslandAccessibilityService : AccessibilityService() {
         // Géométrie : recalculée à chaque rotation / changement d'écran / réglage fin.
         scope.launch {
             combine(
-                c.settings.map { it.position to it.style.size }.distinctUntilChanged(),
+                c.settings.map { Triple(it.position, it.style.size, it.visibility.landscapeTouchMarginDp) }.distinctUntilChanged(),
                 screenTick,
             ) { p, _ -> p }
-                .collect { (tweak, size) ->
+                .collect { (tweak, size, margin) ->
                     val info = CutoutLocator.screenInfo(this@IslandAccessibilityService)
-                    val g = CutoutLocator.geometry(info, tweak, size)
+                    val g = CutoutLocator.geometry(info, tweak, size, margin)
                     c.updateScreen { it.copy(geometry = g, landscape = info.width > info.height) }
                 }
         }

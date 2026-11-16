@@ -48,6 +48,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.NotificationsOff
@@ -829,6 +830,12 @@ private fun NotifMenu(item: NotifItem, host: VoletHost, dims: NotifDims, onDone:
         }
         MenuRow(Icons.Rounded.NotificationsOff, stringResource(R.string.notif_mute)) {
             host.startActivity(NotifCommands.settingsIntent(item))
+        }
+        // Masquer seulement dans Bulle (la notification reste dans le système).
+        MenuRow(Icons.Rounded.VisibilityOff, stringResource(R.string.notif_hide_in_bulle)) {
+            com.karelisio.bulle.island.IslandLog.log("Masquée dans Bulle (menu) : ${item.key}")
+            com.karelisio.bulle.notifications.NotifLocalHide.hide(listOf(item.key))
+            onDone()
         }
         if (item.clearable) {
             Text(

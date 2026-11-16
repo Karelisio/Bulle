@@ -30,6 +30,6 @@
     <string name="nav_title_translate">Traduction</string>
     <string name="nav_sum_translate">Presse-papiers traduit hors ligne</string>
     <string name="visibility_landscape_native">Bulle active en paysage</string>
-    <string name="visibility_landscape_native_desc">En haut au centre, utilisable même en plein écran (vidéo, jeu).</string>
+    <string name="visibility_landscape_native_desc">Invisible autour de la caméra mais active, même en plein écran (vidéo, jeu).</string>
     <string name="volume_system_panel">Panneau du système (volume par appli)</string>
 </resources>

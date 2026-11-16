@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Masquage : paysage -->
+    <string name="visibility_landscape_zone">Zone tactile autour de la caméra</string>
+    <string name="visibility_landscape_zone_desc">En paysage, la bulle est invisible : touche cette zone pour l\'ouvrir. Marge : %1$d dp.</string>
+    <string name="visibility_landscape_calls">Ouvrir les appels en paysage</string>
+    <string name="visibility_landscape_calls_desc">Un appel entrant ouvre la carte, même pendant une vidéo ou un jeu.</string>
+    <!-- Journal -->
+    <string name="journal_filter_all">Tout</string>
+    <string name="journal_filter_island">Île</string>
+    <string name="journal_filter_volet">Volet</string>
+    <string name="journal_filter_audio">Sortie audio</string>
+    <string name="journal_filter_shizuku">Shizuku</string>
+    <string name="journal_share">Partager</string>
+    <!-- Volet -->
+    <string name="notif_hide_in_bulle">Masquer dans Bulle</string>
+    <string name="vset_hidden_notifs">Notifications masquées dans Bulle</string>
+    <string name="vset_hidden_notifs_desc">%1$d masquée(s), réaffichées automatiquement quand elles disparaissent.</string>
+    <string name="vset_hidden_notifs_show">Tout réafficher</string>
+    <!-- Sortie audio -->
+    <string name="output_long_press_hint">Appui long : réglages Bluetooth</string>
+</resources>

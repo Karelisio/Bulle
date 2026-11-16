@@ -81,7 +81,7 @@ object CutoutLocator {
      * Calcule l'île compacte : elle épouse le cutout avec une petite marge,
      * puis applique le réglage fin manuel.
      */
-    fun geometry(info: ScreenInfo, tweak: PositionTweak, scale: Float = 1f): IslandGeometry {
+    fun geometry(info: ScreenInfo, tweak: PositionTweak, scale: Float = 1f, landscapeMarginDp: Float = 0f): IslandGeometry {
         val d = info.density
         fun dp(v: Float) = (v * d).roundToInt()
         val padH = dp(8f)
@@ -97,7 +97,7 @@ object CutoutLocator {
             // Paysage : île verticale autour de la caméra (bord gauche ou droit), ouverte vers l'intérieur.
             return sideGeometry(
                 side.left, side.top, side.right, side.bottom,
-                info.width, info.height, d, scale, info.sideCutoutLeft,
+                info.width, info.height, d, scale, info.sideCutoutLeft, landscapeMarginDp,
             )
         }
         if (c == null && info.width > info.height) {
@@ -139,6 +139,16 @@ object CutoutLocator {
      * Île verticale épousant un trou de caméra latéral ([left], [top], [right], [bottom], pixels écran) :
      * épaisseur = largeur du trou + marge, longueur = hauteur du trou + marge, centrée sur lui.
      */
+    /** Marge maximale réglable autour de la caméra en paysage (dp). */
+    const val MAX_LANDSCAPE_MARGIN_DP = 24f
+
+    /**
+     * Trou de caméra du portrait (bord haut) vu en paysage, caméra à gauche (rotation de 90°) :
+     * sert à l'aperçu des réglages, pris en portrait.
+     */
+    fun portraitTopToLandscapeLeft(left: Int, top: Int, right: Int, bottom: Int, portraitWidth: Int): IntArray =
+        intArrayOf(top, portraitWidth - right, bottom, portraitWidth - left)
+
     fun sideGeometry(
         left: Int,
         top: Int,
@@ -149,9 +159,10 @@ object CutoutLocator {
         density: Float,
         scale: Float = 1f,
         cameraLeft: Boolean = true,
+        marginDp: Float = 0f,
     ): IslandGeometry {
         fun dp(v: Float) = (v * density).roundToInt()
-        val pad = dp(4f)
+        val pad = dp(4f + marginDp.coerceIn(0f, MAX_LANDSCAPE_MARGIN_DP))
         val sc = scale.coerceIn(0.4f, 2f)
         val camW = (right - left).coerceAtLeast(0)
         val camH = (bottom - top).coerceAtLeast(0)

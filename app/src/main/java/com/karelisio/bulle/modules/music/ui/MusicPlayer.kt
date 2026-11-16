@@ -181,6 +181,7 @@ internal fun MusicPlayer(content: MusicContent, host: IslandHost) {
                 com.karelisio.bulle.island.IslandLog.log("Sortie audio : bouton de la bulle Média")
                 com.karelisio.bulle.modules.volet.media.MediaOutput.openFromIsland(host.context, content.track.packageName, host::collapse)
             },
+            onOutputLongPress = { com.karelisio.bulle.modules.volet.media.openBluetoothSettings(host.context, host::collapse) },
         ) {
             content.openPlayer(host.context)
             host.collapse()
@@ -276,6 +277,7 @@ private fun Header(
     onTogglePlay: () -> Unit = {},
     outputIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     onOutput: (() -> Unit)? = null,
+    onOutputLongPress: () -> Unit = {},
     onOpen: () -> Unit,
 ) {
     val sizeSpec = if (reduceMotion) snap() else spring<Dp>(stiffness = Spring.StiffnessMediumLow)
@@ -336,9 +338,13 @@ private fun Header(
         // Choix de la sortie audio (casque, enceinte Bluetooth…), comme dans la bulle Volume.
         if (onOutput != null && outputIcon != null) {
             Spacer(Modifier.width(4.dp))
-            IconButton(onClick = onOutput, modifier = Modifier.size(44.dp)) {
-                Icon(outputIcon, contentDescription = stringResource(R.string.volume_output), tint = accent, modifier = Modifier.size(22.dp))
-            }
+            com.karelisio.bulle.modules.volet.media.OutputButton(
+                icon = outputIcon,
+                container = accent.copy(alpha = 0.18f),
+                tint = accent,
+                onClick = onOutput,
+                onLongClick = onOutputLongPress,
+            )
         }
     }
 }
