@@ -179,6 +179,21 @@ class V090RenderTest {
     }
 
     @Test
+    fun standbyPageEditorAndCustomLayoutRender() {
+        val custom = StandbySettings(
+            layouts = mapOf(
+                StandbyPage.CLOCKS to com.karelisio.bulle.modules.standby.StandbyLayout(
+                    listOf(com.karelisio.bulle.modules.standby.StandbyWidget.MUSIC),
+                    com.karelisio.bulle.modules.standby.StandbyWidget.entries.take(6),
+                    1.5f,
+                ),
+            ),
+        )
+        render { com.karelisio.bulle.modules.standby.ui.StandbyPageEditor(StandbyPage.CLOCKS, custom) {} }
+        render { StandbyScreen(StandbyInputs(custom, night = false), exiting = false, onExited = {}) }
+    }
+
+    @Test
     fun standbyExitPlaysTheReverseAnimation() {
         var exited = false
         render { StandbyScreen(StandbyInputs(StandbySettings(), night = false), exiting = true, onExited = { exited = true }) }

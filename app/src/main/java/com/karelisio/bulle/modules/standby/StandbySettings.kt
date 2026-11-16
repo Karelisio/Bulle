@@ -6,6 +6,21 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class StandbyPage { CLOCKS, WIDGETS, MUSIC, PHOTOS, ECHO }
 
+/** Widgets qu'un panneau de Veille peut afficher. */
+@Serializable
+enum class StandbyWidget { CLOCK, DATE, WEATHER, EVENT, BATTERY, LIVE, MUSIC, LYRICS, QUEUE, PHOTOS, ECHO }
+
+/**
+ * Composition d'une page : deux panneaux (gauche, droite), chacun une pile de widgets qu'on fait
+ * défiler verticalement ; [leftWeight] = largeur du panneau gauche par rapport au droit.
+ */
+@Serializable
+data class StandbyLayout(
+    val left: List<StandbyWidget>,
+    val right: List<StandbyWidget>,
+    val leftWeight: Float = 1f,
+)
+
 /** Styles d'horloge. */
 @Serializable
 enum class StandbyClock { DIGITAL, ANALOG, WORDS, FLIP }
@@ -52,6 +67,8 @@ data class StandbySettings(
      * que par l'économiseur d'écran du système, un geste ou la tuile.
      */
     val autoLaunch: Boolean = true,
+    /** Compositions personnalisées des pages (absente = préréglage de la page). */
+    val layouts: Map<StandbyPage, StandbyLayout> = emptyMap(),
 ) {
     fun sanitized(): StandbySettings = copy(
         delaySeconds = delaySeconds.coerceIn(DELAY),
@@ -59,10 +76,19 @@ data class StandbySettings(
         nightStart = nightStart.coerceIn(0, 1439),
         nightEnd = nightEnd.coerceIn(0, 1439),
         darkLux = if (darkLux.isNaN()) 4f else darkLux.coerceIn(LUX),
+        layouts = layouts.mapValues { (_, l) ->
+            l.copy(
+                left = l.left.distinct().take(MAX_STACK),
+                right = l.right.distinct().take(MAX_STACK),
+                leftWeight = if (l.leftWeight.isNaN()) 1f else l.leftWeight.coerceIn(WEIGHT),
+            )
+        },
     )
 
     companion object {
         val DELAY = 0..60
         val LUX = 0f..50f
+        val WEIGHT = 0.5f..2.5f
+        const val MAX_STACK = 6
     }
 }

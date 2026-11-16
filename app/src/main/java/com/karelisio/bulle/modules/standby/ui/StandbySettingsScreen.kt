@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Nightlight
 import androidx.compose.material3.Checkbox
@@ -98,6 +99,7 @@ fun StandbySettingsScreen(onBack: () -> Unit) {
     val s = settings.standby
     var albums by remember { mutableStateOf<List<PhotoAlbum>?>(null) }
     var pickingAlbum by remember { mutableStateOf(false) }
+    var editing by remember { mutableStateOf<StandbyPage?>(null) }
 
     fun update(t: (StandbySettings) -> StandbySettings) {
         scope.launch { SettingsRepository.update(context) { it.copy(standby = t(it.standby)) } }
@@ -182,6 +184,9 @@ fun StandbySettingsScreen(onBack: () -> Unit) {
                         trailingContent = {
                             if (on) {
                                 Row {
+                                    IconButton(onClick = { editing = p }) {
+                                        Icon(Icons.Rounded.Edit, stringResource(R.string.standby_page_edit, standbyPageLabel(p)))
+                                    }
                                     IconButton(onClick = { update { it.copy(pages = StandbyLogic.move(it.pages, p, -1)) } }) {
                                         Icon(Icons.Rounded.KeyboardArrowUp, stringResource(R.string.standby_move_up))
                                     }
@@ -236,6 +241,14 @@ fun StandbySettingsScreen(onBack: () -> Unit) {
                     update { it.copy(notifications = on) }
                 }
                 ModuleNote(stringResource(R.string.standby_permissions_note))
+            }
+        }
+    }
+
+    editing?.let { page ->
+        ModalBottomSheet(onDismissRequest = { editing = null }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+            StandbyPageEditor(page, s) { layout ->
+                update { it.copy(layouts = if (layout == null) it.layouts - page else it.layouts + (page to layout)) }
             }
         }
     }

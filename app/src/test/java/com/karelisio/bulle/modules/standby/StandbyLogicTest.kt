@@ -93,6 +93,24 @@ class StandbyLogicTest {
     }
 
     @Test
+    fun customLayoutsOverridePresets() {
+        val s = StandbySettings()
+        assertEquals(StandbyLogic.preset(StandbyPage.MUSIC), StandbyLogic.layoutFor(StandbyPage.MUSIC, s))
+        val custom = StandbyLayout(listOf(StandbyWidget.MUSIC), listOf(StandbyWidget.CLOCK, StandbyWidget.LIVE), 1.4f)
+        val withCustom = s.copy(layouts = mapOf(StandbyPage.MUSIC to custom))
+        assertEquals(custom, StandbyLogic.layoutFor(StandbyPage.MUSIC, withCustom))
+        // Panneau vide : repris du préréglage.
+        val empty = s.copy(layouts = mapOf(StandbyPage.CLOCKS to StandbyLayout(emptyList(), listOf(StandbyWidget.MUSIC))))
+        assertEquals(listOf(StandbyWidget.CLOCK), StandbyLogic.layoutFor(StandbyPage.CLOCKS, empty).left)
+        assertEquals(listOf(StandbyWidget.LIVE, StandbyWidget.CLOCK), StandbyLogic.moveItem(listOf(StandbyWidget.CLOCK, StandbyWidget.LIVE), StandbyWidget.LIVE, -1))
+        val clean = s.copy(layouts = mapOf(StandbyPage.ECHO to StandbyLayout(List(9) { StandbyWidget.DATE }, StandbyWidget.entries, 9f))).sanitized()
+        val l = clean.layouts.getValue(StandbyPage.ECHO)
+        assertEquals(listOf(StandbyWidget.DATE), l.left)
+        assertEquals(StandbySettings.MAX_STACK, l.right.size)
+        assertEquals(2.5f, l.leftWeight)
+    }
+
+    @Test
     fun sanitize() {
         val s = StandbySettings(delaySeconds = 999, pages = emptyList(), nightStart = -5, darkLux = Float.NaN).sanitized()
         assertEquals(60, s.delaySeconds)

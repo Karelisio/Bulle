@@ -83,6 +83,31 @@ object StandbyLogic {
     fun effectivePages(s: StandbySettings): List<StandbyPage> =
         s.pages.distinct().filter { it != StandbyPage.PHOTOS || s.albumId != null }.ifEmpty { listOf(StandbyPage.CLOCKS) }
 
+    /** Préréglage d'une page (composition d'origine). */
+    fun preset(page: StandbyPage): StandbyLayout = when (page) {
+        StandbyPage.CLOCKS -> StandbyLayout(listOf(StandbyWidget.CLOCK), listOf(StandbyWidget.DATE, StandbyWidget.WEATHER), 1.7f)
+        StandbyPage.WIDGETS -> StandbyLayout(listOf(StandbyWidget.WEATHER, StandbyWidget.EVENT), listOf(StandbyWidget.BATTERY, StandbyWidget.LIVE), 1f)
+        StandbyPage.MUSIC -> StandbyLayout(listOf(StandbyWidget.MUSIC), listOf(StandbyWidget.LYRICS, StandbyWidget.QUEUE, StandbyWidget.DATE), 1.3f)
+        StandbyPage.PHOTOS -> StandbyLayout(listOf(StandbyWidget.PHOTOS), listOf(StandbyWidget.DATE, StandbyWidget.WEATHER), 1.7f)
+        StandbyPage.ECHO -> StandbyLayout(listOf(StandbyWidget.ECHO), listOf(StandbyWidget.DATE), 1.2f)
+    }
+
+    /** Composition effective : personnalisée, sinon préréglage ; un panneau vide reprend celui du préréglage. */
+    fun layoutFor(page: StandbyPage, s: StandbySettings): StandbyLayout {
+        val p = preset(page)
+        val c = s.layouts[page] ?: return p
+        return c.copy(left = c.left.ifEmpty { p.left }, right = c.right.ifEmpty { p.right })
+    }
+
+    /** Déplace un élément d'une liste de [by] places (bornes respectées). */
+    fun <T> moveItem(list: List<T>, item: T, by: Int): List<T> {
+        val i = list.indexOf(item)
+        if (i < 0) return list
+        val j = (i + by).coerceIn(0, list.lastIndex)
+        if (i == j) return list
+        return list.toMutableList().apply { removeAt(i); add(j, item) }
+    }
+
     /** Déplace une page dans la liste (réordonnancement des réglages). */
     fun move(pages: List<StandbyPage>, page: StandbyPage, by: Int): List<StandbyPage> {
         val i = pages.indexOf(page)

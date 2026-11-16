@@ -63,4 +63,21 @@
     <string name="standby_forward10">Avancer de 10 secondes</string>
     <string name="standby_queue_title">File d’attente</string>
     <string name="standby_queue_none">Le lecteur ne partage pas sa file d’attente</string>
+    <string name="standby_w_clock">Horloge</string>
+    <string name="standby_w_date">Date et heure</string>
+    <string name="standby_w_weather">Météo</string>
+    <string name="standby_w_event">Prochain rendez-vous</string>
+    <string name="standby_w_battery">Batteries</string>
+    <string name="standby_w_live">Minuteur / activité en cours</string>
+    <string name="standby_w_music">Musique</string>
+    <string name="standby_w_lyrics">Paroles</string>
+    <string name="standby_w_queue">File d’attente</string>
+    <string name="standby_w_photos">Photos</string>
+    <string name="standby_w_echo">Écho</string>
+    <string name="standby_panel_left">Panneau de gauche</string>
+    <string name="standby_panel_right">Panneau de droite</string>
+    <string name="standby_left_width">Largeur gauche : droite</string>
+    <string name="standby_layout_reset">Revenir à la composition d’origine</string>
+    <string name="standby_page_edit">Composer la page %1$s</string>
+    <string name="standby_widget_remove">Retirer %1$s</string>
 </resources>
