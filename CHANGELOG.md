@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.19
+- Bulle Média : file d'attente repensée.
+  - Aperçu discret « Ensuite : titre — artiste » sous la barre de progression : toucher = lire ce titre, appui long = ouvrir la file.
+  - Onglets « Paroles | File » : la file (20 titres, numérotés, défilante) prend la place des paroles seulement quand on la choisit. En mode paroles, pas d'onglets : les paroles gardent toute la place.
+
 ## 0.8.18
 - Bulle « Bluetooth connecté » : ne s'affiche plus en boucle. Elle n'apparaît que si la connexion tient (4 s), un même appareil n'est pas réannoncé avant 30 min (sauf vraie reconnexion après 2 min de déconnexion), et les appareils sans type connu sont ignorés. Les connexions éclair sont notées dans le Journal.
 

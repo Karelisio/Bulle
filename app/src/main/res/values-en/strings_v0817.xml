@@ -8,6 +8,8 @@
         <item quantity="one">On · %1$d device connected</item>
         <item quantity="other">On · %1$d devices connected</item>
     </plurals>
-    <string name="music_queue">Up next (%1$d)</string>
-    <string name="music_queue_hide">Hide queue</string>
+    <string name="music_next_up">Next: %1$s</string>
+    <string name="music_next_up_play">Play next track</string>
+    <string name="music_tab_lyrics">Lyrics</string>
+    <string name="music_tab_queue">Queue</string>
 </resources>

@@ -9,6 +9,8 @@
         <item quantity="many">Activé · %1$d d\'appareils connectés</item>
         <item quantity="other">Activé · %1$d appareils connectés</item>
     </plurals>
-    <string name="music_queue">À suivre (%1$d)</string>
-    <string name="music_queue_hide">Masquer la file</string>
+    <string name="music_next_up">Ensuite : %1$s</string>
+    <string name="music_next_up_play">Lire le titre suivant</string>
+    <string name="music_tab_lyrics">Paroles</string>
+    <string name="music_tab_queue">File</string>
 </resources>
