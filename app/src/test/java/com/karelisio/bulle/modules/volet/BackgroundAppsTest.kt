@@ -21,4 +21,16 @@ class BackgroundAppsTest {
         assertEquals(listOf("Lecture", "Artiste", "Téléchargement"), apps[1].details)
         assertEquals(200L, apps[1].since)
     }
+
+    @Test
+    fun parsesRunningServicesFromDumpsys() {
+        val dump = """
+            ACTIVITY MANAGER SERVICES (dumpsys activity services)
+              * ServiceRecord{8a1f2c u0 com.whatsapp/.messaging.MessageService}
+                intent={cmp=com.whatsapp/.messaging.MessageService}
+              * ServiceRecord{77b0e1 u0 com.spotify.music/.SpotifyService}
+              * ServiceRecord{12ab u10 com.work.app/.Sync}
+        """.trimIndent()
+        assertEquals(setOf("com.whatsapp", "com.spotify.music", "com.work.app"), BackgroundApps.parseServices(dump))
+    }
 }
