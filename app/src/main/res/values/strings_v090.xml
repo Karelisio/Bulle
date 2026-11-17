@@ -25,4 +25,18 @@
     <string name="vset_landscape_height">Hauteur en paysage</string>
     <string name="vset_landscape_off">Coupé</string>
     <string name="vset_landscape_height_desc">En paysage, les zones restent fines pour ne pas couvrir les commandes du haut d’une vidéo (YouTube…). À 0, le Volet ne s’ouvre plus en paysage.</string>
+    <string name="rel_shizuku_grant">Accorder via Shizuku</string>
+    <string name="rel_shizuku_ok">Autorisation accordée via Shizuku</string>
+    <string name="rel_shizuku_fail">Échec : Shizuku est-il lancé et Bulle autorisée ?</string>
+    <plurals name="volet_bg_count">
+        <item quantity="one">%1$d active</item>
+        <item quantity="many">%1$d d’actives</item>
+        <item quantity="other">%1$d actives</item>
+    </plurals>
+    <string name="volet_bg_title">Applis en fond</string>
+    <string name="volet_bg_open">Ouvrir</string>
+    <string name="volet_bg_stop">Arrêter</string>
+    <string name="volet_bg_details">Gérer</string>
+    <string name="volet_bg_note">Applis avec un service actif. « Gérer » ouvre leur fiche (Forcer l’arrêt). Avec Shizuku, « Arrêter » les ferme directement.</string>
+    <string name="volet_bg_note_shizuku">Applis avec un service actif. « Arrêter » force leur arrêt via Shizuku.</string>
 </resources>

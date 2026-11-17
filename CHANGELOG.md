@@ -1,7 +1,12 @@
 # Changelog
 
+## 0.9.3
+- Volet : pastille « n actives » dans l'en-tête, comme celle de MagicOS. Au toucher, la liste des applis qui tournent en fond (service actif) : Ouvrir, et Gérer (fiche système, « Forcer l'arrêt ») ou, avec Shizuku, Arrêter directement.
+- Alerte « Volume multimédia » dépliée : toutes les sources de volume (média, sonnerie, notifications, alarme…) avec leurs curseurs, comme la bulle Volume, au lieu d'une seule barre. Elle reste ouverte tant qu'on règle, puis se referme quelques secondes après.
+
 ## 0.9.2
 - Île : une barre de progression figée (appli qui a fini sans retirer sa notification ni envoyer 100 %, comme une mise à jour lancée depuis Vigie) disparaît au bout de 3 minutes sans avancer ; elle revient si elle repart. Via l'API d'intégration, une progression terminée part au bout de 4 s, et une progression sans nouvelles au bout de 5 min.
+- Fiabilité : bouton « Accorder via Shizuku » pour la réactivation automatique de l'accessibilité (sans PC ni adb).
 - Volume sur l'île : la capture d'écran (Power + volume) ne change plus le volume. Power pressé juste avant le volume : la touche est laissée au système ; juste après : le cran est annulé et la capture est prise. Noté dans le Journal (« Volume : Power + volume »).
 
 ## 0.9.1

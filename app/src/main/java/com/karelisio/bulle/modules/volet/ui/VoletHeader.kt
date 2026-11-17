@@ -77,10 +77,14 @@ fun VoletHeader(host: VoletHost, compact: Boolean = false) {
         onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
 
+    val bgApps = com.karelisio.bulle.modules.volet.background.rememberBackgroundApps()
+    var bgOpen by remember { mutableStateOf(false) }
     if (compact) {
-        CompactHeader(host, now, battery)
+        CompactHeader(host, now, battery, bgApps.size, bgOpen) { bgOpen = !bgOpen }
+        com.karelisio.bulle.modules.volet.background.BackgroundAppsPanel(host, bgApps, bgOpen)
         return
     }
+    Column {
     Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             val time = DateFormat.getTimeFormat(context).format(Date(now))
@@ -104,6 +108,9 @@ fun VoletHeader(host: VoletHost, compact: Boolean = false) {
                     )
                     Text("${battery.first} %", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+                // Applis en fond (comme la pastille du volet de MagicOS).
+                Spacer(Modifier.width(10.dp))
+                com.karelisio.bulle.modules.volet.background.BackgroundAppsChip(bgApps.size, bgOpen, { bgOpen = !bgOpen })
             }
         }
         FilledTonalIconButton(onClick = { host.editingTiles = !host.editingTiles }) {
@@ -116,11 +123,13 @@ fun VoletHeader(host: VoletHost, compact: Boolean = false) {
             Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.volet_open_settings))
         }
     }
+    com.karelisio.bulle.modules.volet.background.BackgroundAppsPanel(host, bgApps, bgOpen)
+    }
 }
 
 /** En-tête paysage : une ligne (heure, date, batterie) et des boutons plus petits. */
 @Composable
-private fun CompactHeader(host: VoletHost, now: Long, battery: Pair<Int, Boolean>) {
+private fun CompactHeader(host: VoletHost, now: Long, battery: Pair<Int, Boolean>, bgCount: Int, bgOpen: Boolean, onBg: () -> Unit) {
     val context = LocalContext.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
@@ -149,6 +158,8 @@ private fun CompactHeader(host: VoletHost, now: Long, battery: Pair<Int, Boolean
                 )
                 Text("${battery.first} %", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
             }
+            Spacer(Modifier.width(8.dp))
+            com.karelisio.bulle.modules.volet.background.BackgroundAppsChip(bgCount, bgOpen, onBg)
         }
         FilledTonalIconButton(onClick = { host.editingTiles = !host.editingTiles }, modifier = Modifier.size(36.dp)) {
             Icon(

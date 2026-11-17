@@ -24,4 +24,17 @@
     <string name="vset_landscape_height">Height in landscape</string>
     <string name="vset_landscape_off">Off</string>
     <string name="vset_landscape_height_desc">In landscape, the zones stay thin so they don’t cover the top controls of a video (YouTube…). At 0, the Panel no longer opens in landscape.</string>
+    <string name="rel_shizuku_grant">Grant with Shizuku</string>
+    <string name="rel_shizuku_ok">Permission granted with Shizuku</string>
+    <string name="rel_shizuku_fail">Failed: is Shizuku running and Bulle allowed?</string>
+    <plurals name="volet_bg_count">
+        <item quantity="one">%1$d active</item>
+        <item quantity="other">%1$d active</item>
+    </plurals>
+    <string name="volet_bg_title">Apps in the background</string>
+    <string name="volet_bg_open">Open</string>
+    <string name="volet_bg_stop">Stop</string>
+    <string name="volet_bg_details">Manage</string>
+    <string name="volet_bg_note">Apps with an active service. “Manage” opens their info page (Force stop). With Shizuku, “Stop” closes them directly.</string>
+    <string name="volet_bg_note_shizuku">Apps with an active service. “Stop” force-stops them via Shizuku.</string>
 </resources>

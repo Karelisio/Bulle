@@ -148,7 +148,9 @@ data class VolumeContent(
 ) : AlertContent() {
     override val key = "alerts:volume:$burstId"
     override val alertId = "mediaVolume"
-    override val baseTimeoutMs: Long? = BASE_TIMEOUT_MS
+    /** Dépliée : reste affichée tant qu'on règle les sources (prolongée par la vue étendue). */
+    override val baseTimeoutMs: Long?
+        get() = maxOf(BASE_TIMEOUT_MS, heldUntil - postedAt)
     override val compactSlotWidth = 64.dp
     override val accent = VolumeBlue
 
@@ -176,15 +178,33 @@ data class VolumeContent(
             subtitle = stringResource(R.string.alerts_percent, percent),
             glyph = { PopIcon(icon, VolumeBlue, size = 26.dp) },
             extra = {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    LevelBar(fraction, VolumeBlue, width = 240.dp, height = 8.dp)
+                // Toutes les sources (comme la bulle Volume), réglables directement.
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    while (true) {
+                        heldUntil = android.os.SystemClock.elapsedRealtime() + HOLD_MS
+                        kotlinx.coroutines.delay(1_000L)
+                    }
                 }
+                com.karelisio.bulle.modules.volume.ui.VolumeMixerList(
+                    context = host.context,
+                    keyStream = com.karelisio.bulle.modules.volume.VolumeStream.MEDIA,
+                    keyTick = level,
+                    accent = VolumeBlue,
+                    onBlockedClick = { com.karelisio.bulle.modules.volume.VolumeMixer.openDndAccess(host.context, host::collapse) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
             },
         )
     }
 
     companion object {
         const val BASE_TIMEOUT_MS = 2_500L
+        /** Délai après la fermeture de la vue étendue. */
+        private const val HOLD_MS = 5_000L
+
+        /** Échéance prolongée par la vue étendue ouverte (elapsedRealtime). */
+        @Volatile
+        var heldUntil = 0L
         private val VolumeBlue = Color(0xFF6AB0FF)
     }
 }
