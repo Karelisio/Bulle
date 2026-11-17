@@ -1,7 +1,11 @@
 # Changelog
 
+## 0.9.4
+- Volet : la pastille des applis en fond devient un petit Android suivi du nombre (le texte « n actives » se superposait).
+- Volet : avec Shizuku, la liste montre toutes les applis qui ont un service en cours, même sans notification ; sans Shizuku, une note explique qu'Android n'en montre qu'une partie.
+
 ## 0.9.3
-- Volet : pastille (petit Android + nombre) dans l'en-tête, comme celle de MagicOS. Au toucher, la liste des applis qui tournent en fond : Ouvrir, et Gérer (fiche système, « Forcer l'arrêt ») ou, avec Shizuku, Arrêter directement. Avec Shizuku, tous les services en cours sont listés (sans, seulement ceux qui ont une notification).
+- Volet : pastille « n actives » dans l'en-tête, comme celle de MagicOS ; au toucher, la liste des applis qui tournent en fond (Ouvrir, Gérer, ou Arrêter avec Shizuku).
 - Alerte « Volume multimédia » dépliée : toutes les sources de volume (média, sonnerie, notifications, alarme…) avec leurs curseurs, comme la bulle Volume, au lieu d'une seule barre. Elle reste ouverte tant qu'on règle, puis se referme quelques secondes après.
 
 ## 0.9.2
