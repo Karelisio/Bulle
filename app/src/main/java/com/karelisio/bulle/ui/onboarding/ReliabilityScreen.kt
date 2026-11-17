@@ -240,6 +240,23 @@ fun ReliabilityScreen(onBack: () -> Unit) {
                         Text(stringResource(R.string.rel_adb_text), style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(12.dp))
                         AdbCommandBlock(onCopy = { copyAdbCommand(context, snackbar, scope, copied) })
+                        if (!canSecure) {
+                            Spacer(Modifier.height(8.dp))
+                            val viaShizukuOk = stringResource(R.string.rel_shizuku_ok)
+                            val viaShizukuFail = stringResource(R.string.rel_shizuku_fail)
+                            FilledTonalButton(onClick = {
+                                scope.launch {
+                                    val sh = com.karelisio.bulle.modules.volet.qs.ShizukuShell
+                                    val ok = sh.ensurePermission() &&
+                                        sh.run(context, "pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS") != null
+                                    delay(300)
+                                    tick++
+                                    val granted = Reliability.canWriteSecureSettings(context)
+                                    com.karelisio.bulle.island.IslandLog.log("Shizuku : WRITE_SECURE_SETTINGS " + if (granted) "accordée" else "refusée")
+                                    snackbar.showSnackbar(if (ok && granted) viaShizukuOk else viaShizukuFail)
+                                }
+                            }) { Text(stringResource(R.string.rel_shizuku_grant)) }
+                        }
                         Spacer(Modifier.height(8.dp))
                         Text(
                             stringResource(R.string.rel_adb_note),
