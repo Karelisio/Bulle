@@ -95,4 +95,20 @@
     <string name="perf_cpu">Processeur : %1$s min sur %2$s h</string>
     <string name="perf_drain">Batterie du téléphone hors charge : −%1$s %%/h (tout le téléphone)</string>
     <string name="perf_note">%1$d mesures de Bulle, gardées sur le téléphone. Inclus dans « Envoyer un rapport ».</string>
+    <string name="dash_title">Tableau de bord</string>
+    <string name="dash_on">Actif</string>
+    <string name="dash_off">Coupé</string>
+    <string name="dash_stopped">Activé mais arrêté</string>
+    <string name="usage_open">Configurer selon mes usages…</string>
+    <string name="usage_title">Je veux…</string>
+    <string name="usage_intro">Coche ce qui te sert : Bulle active et règle les bons modules d’un coup. Rien n’est coupé.</string>
+    <string name="usage_music">La musique</string>
+    <string name="usage_music_desc">Pochette, paroles, volume sur l’île, halo aux couleurs de la pochette.</string>
+    <string name="usage_notifications">Mes notifications</string>
+    <string name="usage_notifications_desc">Volet Material You, messages avec réponse rapide, halo, alertes.</string>
+    <string name="usage_bedside">Une horloge de chevet</string>
+    <string name="usage_bedside_desc">Veille en charge à l’horizontale, mode nuit, météo et agenda.</string>
+    <string name="usage_gestures">Des gestes</string>
+    <string name="usage_gestures_desc">Zones des Bords pour ouvrir le Volet, le Deck, la recherche…</string>
+    <string name="usage_apply">Activer</string>
 </resources>

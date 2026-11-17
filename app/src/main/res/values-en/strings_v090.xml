@@ -93,4 +93,20 @@
     <string name="perf_cpu">CPU: %1$s min over %2$s h</string>
     <string name="perf_drain">Phone battery off charge: −%1$s %%/h (whole phone)</string>
     <string name="perf_note">%1$d measurements of Bulle, kept on the phone. Included in “Send a report”.</string>
+    <string name="dash_title">Dashboard</string>
+    <string name="dash_on">On</string>
+    <string name="dash_off">Off</string>
+    <string name="dash_stopped">On but stopped</string>
+    <string name="usage_open">Set up for how I use it…</string>
+    <string name="usage_title">I want…</string>
+    <string name="usage_intro">Tick what you use: Bulle turns on and sets up the right modules at once. Nothing is turned off.</string>
+    <string name="usage_music">Music</string>
+    <string name="usage_music_desc">Artwork, lyrics, volume on the island, halo in the artwork colours.</string>
+    <string name="usage_notifications">My notifications</string>
+    <string name="usage_notifications_desc">Material You Panel, messages with quick reply, halo, alerts.</string>
+    <string name="usage_bedside">A bedside clock</string>
+    <string name="usage_bedside_desc">StandBy while charging sideways, night mode, weather and calendar.</string>
+    <string name="usage_gestures">Gestures</string>
+    <string name="usage_gestures_desc">Edge zones to open the Panel, the Deck, search…</string>
+    <string name="usage_apply">Turn on</string>
 </resources>

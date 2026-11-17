@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -152,7 +153,15 @@ fun HomeScreen(onOpen: (String) -> Unit = {}, contentPadding: PaddingValues = Pa
             onAction = { onOpen(if (SelfTestIssue.HALO_STOPPED in issues || SelfTestIssue.EDGES_STOPPED in issues) Routes.RELIABILITY else Routes.PERMISSIONS) },
             modifier = Modifier.cascade(3),
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
+        // Tableau de bord : modules principaux et profils en un toucher.
+        Dashboard(settings, running, onOpen, Modifier.cascade(3))
+        var usageOpen by remember { mutableStateOf(false) }
+        TextButton(onClick = { usageOpen = true }, modifier = Modifier.align(Alignment.Start)) {
+            Text(stringResource(R.string.usage_open))
+        }
+        if (usageOpen) UsageSheet(onDismiss = { usageOpen = false })
+        Spacer(Modifier.height(16.dp))
         Card(Modifier.fillMaxWidth().cascade(3), shape = MaterialTheme.shapes.extraLarge) {
             Row(
                 Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
