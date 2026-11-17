@@ -87,4 +87,12 @@
     <string name="profile_on">Activé</string>
     <string name="profile_off">Coupé</string>
     <string name="profile_save">Enregistrer</string>
+    <string name="settings_search_hint">Rechercher un réglage</string>
+    <string name="settings_search_none">Aucun réglage trouvé.</string>
+    <string name="perf_title">Performance (24 h)</string>
+    <string name="perf_waiting">Première mesure en cours : les chiffres apparaissent après 30 min environ (une mesure toutes les 15 min).</string>
+    <string name="perf_memory">Mémoire : %1$s Mo en moyenne, %2$s Mo au plus</string>
+    <string name="perf_cpu">Processeur : %1$s min sur %2$s h</string>
+    <string name="perf_drain">Batterie du téléphone hors charge : −%1$s %%/h (tout le téléphone)</string>
+    <string name="perf_note">%1$d mesures de Bulle, gardées sur le téléphone. Inclus dans « Envoyer un rapport ».</string>
 </resources>

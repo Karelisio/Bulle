@@ -85,4 +85,12 @@
     <string name="profile_on">On</string>
     <string name="profile_off">Off</string>
     <string name="profile_save">Save</string>
+    <string name="settings_search_hint">Search settings</string>
+    <string name="settings_search_none">No setting found.</string>
+    <string name="perf_title">Performance (24 h)</string>
+    <string name="perf_waiting">First measurement in progress: figures appear after about 30 min (one measurement every 15 min).</string>
+    <string name="perf_memory">Memory: %1$s MB on average, %2$s MB at most</string>
+    <string name="perf_cpu">CPU: %1$s min over %2$s h</string>
+    <string name="perf_drain">Phone battery off charge: −%1$s %%/h (whole phone)</string>
+    <string name="perf_note">%1$d measurements of Bulle, kept on the phone. Included in “Send a report”.</string>
 </resources>

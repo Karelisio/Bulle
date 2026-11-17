@@ -52,7 +52,15 @@ object DiagnosticReport {
             Build.VERSION.SDK_INT,
             OemSettings.family.name,
             lines,
-        ) + "\n--- Journal de l'île ---\n" + IslandLog.dump()
+        ) + perfLine() + "\n--- Journal de l'île ---\n" + IslandLog.dump()
+    }
+
+    private fun perfLine(): String {
+        val p = PerfSummary.of(PerfMonitor.samples.value, System.currentTimeMillis()) ?: return ""
+        return String.format(
+            java.util.Locale.ROOT, "Performance 24 h : mémoire moy. %.1f Mo / max %.1f Mo, processeur %.1f min sur %.1f h\n",
+            p.memAvgMb, p.memMaxMb, p.cpuMinutes, p.hours,
+        )
     }
 
     fun share(context: Context, s: BulleSettings, title: String) {

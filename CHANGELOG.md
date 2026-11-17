@@ -22,6 +22,12 @@
 - Nouveau widget « Compte à rebours » (J-12, emoji et couleur de l'événement).
 - Activation par horaire : en charge dans la plage choisie, Veille s'active même si le téléphone n'est pas à l'horizontale.
 
+**Nouveautés**
+- Île : plusieurs contenus à la fois (musique, minuteur, navigation…) — île dépliée, balayer de côté pour passer de l'un à l'autre, avec des points de pagination. Nouvelles actions de geste « Contenu suivant / précédent » pour l'île repliée. Un appel ou une alerte plus importante passe toujours devant.
+- Profils (Réglages › Profils) : Travail, Nuit, Jeu, ou les tiens ; chacun active / coupe d'un coup l'île, le Halo, les Bords, le Volet, Veille, les alertes et les vibrations. « Depuis l'état actuel » crée un profil de la configuration du moment. Applicable par un geste, les Bords ou une règle (« Quand… appliquer le profil »).
+- Recherche dans les réglages : champ en haut de l'onglet Réglages, qui trouve n'importe quel écran (« hauteur paysage » → Volet, « goutte » → Bords, « adb » → Fiabilité…).
+- Fiabilité › Performance (24 h) : mémoire moyenne et maximale de Bulle (courbe), temps processeur, baisse de batterie du téléphone hors charge ; une mesure toutes les 15 min, aussi dans « Envoyer un rapport ».
+
 **Qualité**
 - Tests de rendu sur petit écran, grande police et paysage pour l'en-tête du Volet, l'accueil, Fiabilité et Sauvegarde.
 
