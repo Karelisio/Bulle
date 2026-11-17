@@ -72,6 +72,7 @@ object Routes {
     const val STYLE_PACKS = "style/packs"
     const val ENTRY_ANIMATIONS = "style/entry"
     const val VOLET_HISTORY = "volet/history"
+    const val PROFILES = "profiles"
     const val HALO = "halo"
     const val EDGES = "edges"
     const val STANDBY = "standby"
@@ -137,6 +138,7 @@ fun BulleNavHost(pendingRoute: String? = null, onRouteOpened: () -> Unit = {}) {
         composable(Routes.MESSAGES) { com.karelisio.bulle.modules.messages.ui.MessagesSettingsScreen(onBack = back) }
         composable(Routes.INTEGRATIONS) { com.karelisio.bulle.modules.external.ui.IntegrationsSettingsScreen(onBack = back) }
         composable(Routes.WEATHER) { com.karelisio.bulle.modules.weather.ui.WeatherSettingsScreen(onBack = back) }
+        composable(Routes.PROFILES) { com.karelisio.bulle.modules.profiles.ui.ProfilesScreen(onBack = back) }
         composable(Routes.HALO) { com.karelisio.bulle.modules.halo.ui.HaloSettingsScreen(onBack = back) }
         composable(Routes.EDGES) { com.karelisio.bulle.modules.edges.ui.EdgeSettingsScreen(onBack = back) }
         composable(Routes.STANDBY) { com.karelisio.bulle.modules.standby.ui.StandbySettingsScreen(onBack = back) }

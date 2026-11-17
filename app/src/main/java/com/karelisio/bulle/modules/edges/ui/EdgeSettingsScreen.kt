@@ -306,7 +306,7 @@ fun EdgeSettingsScreen(onBack: () -> Unit) {
         when (p) {
             EdgePicker.ACTION -> {
                 val current = editingSlot?.let { s -> editingGesture?.let { g -> draft.zone(s).actionFor(g).type } }
-                ActionList(current) { type ->
+                ActionList(current, onPickAction = { assign(it) }) { type ->
                     when (type) {
                         ActionType.OPEN_APP -> picker = EdgePicker.APP
                         ActionType.LAUNCH_SHORTCUT -> picker = EdgePicker.SHORTCUT

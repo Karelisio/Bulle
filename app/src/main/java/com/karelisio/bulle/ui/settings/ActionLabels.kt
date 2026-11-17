@@ -50,11 +50,14 @@ fun ActionType.labelRes(): Int = when (this) {
     OPEN_VOLET -> R.string.action_open_volet
     STANDBY -> R.string.action_standby
     HALO_TEST -> R.string.action_halo_test
+    NEXT_CONTENT -> R.string.action_next_content
+    PREVIOUS_CONTENT -> R.string.action_previous_content
+    APPLY_PROFILE -> R.string.action_apply_profile
 }
 
 /** Groupes d'actions pour le sélecteur. */
 val ActionGroups: List<Pair<Int, List<ActionType>>> = listOf(
-    R.string.action_group_island to listOf(NONE, TOGGLE_EXPAND, OPEN_DECK, OPEN_VOLET, APP_SEARCH, TIMER, FOCUS_MODE, SWAP_BUBBLES),
+    R.string.action_group_island to listOf(NONE, TOGGLE_EXPAND, NEXT_CONTENT, PREVIOUS_CONTENT, OPEN_DECK, OPEN_VOLET, APP_SEARCH, TIMER, FOCUS_MODE, SWAP_BUBBLES),
     R.string.action_group_system to listOf(BACK, HOME, RECENTS, NOTIFICATIONS, QUICK_SETTINGS, LOCK_SCREEN, SCREENSHOT),
     R.string.action_group_media to listOf(PLAY_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, VOLUME_UP, VOLUME_DOWN, MUTE),
     R.string.action_group_toggles to listOf(BRIGHTNESS_UP, BRIGHTNESS_DOWN, TORCH, ROTATION, WIFI, BLUETOOTH, BATTERY_SAVER),
@@ -67,6 +70,7 @@ val ActionGroups: List<Pair<Int, List<ActionType>>> = listOf(
 fun GestureAction.label(): String = when {
     type == OPEN_APP && label != null -> stringResource(R.string.action_open_app_named, label)
     type == LAUNCH_SHORTCUT && label != null -> stringResource(R.string.action_shortcut_named, label)
+    type == APPLY_PROFILE && label != null -> stringResource(R.string.action_apply_profile_named, label)
     else -> stringResource(type.labelRes())
 }
 

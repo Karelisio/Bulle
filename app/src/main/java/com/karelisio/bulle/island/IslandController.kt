@@ -44,6 +44,8 @@ data class IslandUiState(
     /** Le double toucher n'est détecté que s'il a une action (sinon le toucher simple serait retardé). */
     val doubleTapEnabled: Boolean = false,
     val style: StyleSettings = StyleSettings(),
+    /** Plusieurs contenus : position du contenu affiché et nombre total (points de pagination). */
+    val page: Pair<Int, Int> = 0 to 1,
 )
 
 /** Ce que l'utilisateur a fait de l'île (étendue, échange des bulles, panneau ouvert). */
@@ -51,6 +53,8 @@ private data class Interaction(
     val expandedKey: String? = null,
     val panel: IslandPanel? = null,
     val swappedPair: Pair<String, String>? = null,
+    /** Contenu choisi en balayant l'île (clé, instant). */
+    val preferred: Pair<String, Long>? = null,
 )
 
 /** Demande de dimensionnement de la fenêtre de l'île (pixels). */
@@ -110,7 +114,7 @@ class IslandController(
     private val interaction = MutableStateFlow(Interaction())
 
     private val arrangement: StateFlow<Arrangement> =
-        combine(hub.contents, interaction) { list, i -> IslandArbiter.arrange(list, i.swappedPair) }
+        combine(hub.contents, interaction) { list, i -> IslandArbiter.arrange(list, i.swappedPair, preferred = i.preferred) }
             .stateIn(scope, SharingStarted.Eagerly, Arrangement.Empty)
 
     private val foreground = combine(ForegroundApp.packageName, IslandOcclusion.active) { fg, occ -> fg to occ.isNotEmpty() }
@@ -141,6 +145,7 @@ class IslandController(
             doubleTapEnabled = s.gestures.doubleTap.type != ActionType.NONE,
             // Paysage natif : île invisible au repos autour de la caméra, mais active.
             style = if (scr.landscape && s.visibility.landscapeNative) s.style.copy(hideWhenIdle = true) else s.style,
+            page = IslandArbiter.position(hub.contents.value, primary?.key),
         )
     }.stateIn(scope, SharingStarted.Eagerly, IslandUiState())
 
@@ -217,6 +222,7 @@ class IslandController(
             }
             override fun openTimer() = openPanel(com.karelisio.bulle.modules.focus.FocusPanel)
             override fun openTranslate() = openPanel(com.karelisio.bulle.modules.translate.TranslatePanel)
+            override fun cycleContent(direction: Int): Boolean = this@IslandController.cycleContent(direction)
             override fun openCraving() {
                 com.karelisio.bulle.modules.ecosystem.Ecosystem.openCraving(context) { openPanel(it) }
             }
@@ -226,6 +232,10 @@ class IslandController(
     fun onGesture(gesture: IslandGesture) {
         autoCollapseJob?.cancel()
         val st = state.value
+        // Île étendue, plusieurs contenus : balayer de côté passe au suivant / précédent.
+        if (st.expanded && st.panel == null && (gesture == IslandGesture.SWIPE_LEFT || gesture == IslandGesture.SWIPE_RIGHT) &&
+            cycleContent(if (gesture == IslandGesture.SWIPE_LEFT) 1 else -1, keepExpanded = true)
+        ) return
         // Gestes contextuels quand l'île est étendue.
         if (gesture == IslandGesture.SWIPE_UP) {
             if (st.expanded) { closePanel(); collapse() }
@@ -329,6 +339,26 @@ class IslandController(
 
     /** À appeler quand l'île s'arrête. */
     fun release() = rules.stop()
+
+    /**
+     * Passe au contenu suivant (+1) ou précédent (-1). [keepExpanded] : la vue étendue suit.
+     * Retourne faux s'il n'y a qu'un contenu.
+     */
+    fun cycleContent(direction: Int, keepExpanded: Boolean = state.value.expanded): Boolean {
+        val current = arrangement.value.primary ?: return false
+        val next = IslandArbiter.cycle(hub.contents.value, current.key, direction) ?: return false
+        autoCollapseJob?.cancel()
+        val now = android.os.SystemClock.elapsedRealtime()
+        interaction.update {
+            it.copy(
+                preferred = next.key to now,
+                swappedPair = null,
+                expandedKey = if (keepExpanded && next.expandable) next.key else null,
+            )
+        }
+        IslandLog.log("Île : contenu ${next.moduleId} (balayage)")
+        return true
+    }
 
     /** Échange la bulle principale et la secondaire. */
     fun swapBubbles() {

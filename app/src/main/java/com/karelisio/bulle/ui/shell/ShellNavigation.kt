@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.Widgets
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.Nightlight
 import androidx.compose.material.icons.rounded.VerticalSplit
@@ -146,6 +147,7 @@ object ShellCatalog {
                     ShellEntry(Routes.RELIABILITY, R.string.home_entry_reliability, R.string.nav_sum_reliability, Icons.Rounded.HealthAndSafety),
                     ShellEntry(Routes.PERMISSIONS, R.string.home_entry_permissions, R.string.nav_sum_permissions, Icons.Rounded.VerifiedUser),
                     ShellEntry(Routes.ACCESSIBILITY, R.string.a11y_settings_title, R.string.a11y_settings_entry_summary, Icons.Rounded.Accessibility),
+                    ShellEntry(Routes.PROFILES, R.string.profiles_title, R.string.profiles_nav_summary, Icons.Rounded.Tune),
                 ),
             ),
             ShellGroup(

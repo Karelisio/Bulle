@@ -31,6 +31,7 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
             ActionType.VOLUME_UP, ActionType.VOLUME_DOWN, ActionType.MUTE,
             ActionType.BRIGHTNESS_UP, ActionType.BRIGHTNESS_DOWN, ActionType.TORCH, ActionType.ROTATION,
             ActionType.BATTERY_SAVER, ActionType.FOCUS_MODE, ActionType.HALO_TEST,
+            ActionType.NEXT_CONTENT, ActionType.PREVIOUS_CONTENT, ActionType.APPLY_PROFILE,
         )
 
         /** L'action ouvre un autre écran (ou montre un résultat dans l'île) : l'île doit se refermer avant. */
@@ -46,6 +47,8 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
         fun openTimer()
         fun openCraving()
         fun openTranslate()
+        /** Contenu suivant (+1) / précédent (-1) ; faux s'il n'y en a qu'un. */
+        fun cycleContent(direction: Int): Boolean = false
     }
 
     private val audio get() = context.getSystemService(AudioManager::class.java)
@@ -71,6 +74,9 @@ class ActionExecutor(private val context: Context, private val island: IslandAct
                 ActionType.OPEN_VOLET -> if (!openVolet(full = false)) global(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
                 ActionType.STANDBY -> com.karelisio.bulle.modules.standby.StandbyLauncher.launchNow(context, reason = "geste")
                 ActionType.HALO_TEST -> com.karelisio.bulle.modules.halo.HaloBus.test()
+                ActionType.NEXT_CONTENT -> island.cycleContent(1)
+                ActionType.PREVIOUS_CONTENT -> island.cycleContent(-1)
+                ActionType.APPLY_PROFILE -> action.intentUri?.let { com.karelisio.bulle.modules.profiles.Profiles.apply(context, it) }
 
                 ActionType.BACK -> global(AccessibilityService.GLOBAL_ACTION_BACK)
                 ActionType.HOME -> global(AccessibilityService.GLOBAL_ACTION_HOME)
