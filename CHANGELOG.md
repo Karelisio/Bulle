@@ -30,7 +30,15 @@
 - Recherche dans les réglages : champ en haut de l'onglet Réglages, qui trouve n'importe quel écran (« hauteur paysage » → Volet, « goutte » → Bords, « adb » → Fiabilité…).
 - Fiabilité › Performance (24 h) : mémoire moyenne et maximale de Bulle (courbe), temps processeur, baisse de batterie du téléphone hors charge ; une mesure toutes les 15 min, aussi dans « Envoyer un rapport ».
 
+**Accueil**
+- Tableau de bord : Halo, Bords, Veille et Volet en tuiles (actif, coupé, ou activé mais arrêté), avec interrupteur et accès aux réglages ; profils en un toucher.
+- Assistant « Je veux… » (musique, notifications, horloge de chevet, gestes) : active et règle les bons modules d'un coup, sans rien couper.
+- Un module activé mais inutilisé depuis 7 jours est proposé à la désactivation (« Garder » repousse la question d'un mois).
+
 **Qualité**
+- Moins de travail en fond : la vérification des barres de progression figées ne tourne que lorsqu'il y en a.
+- Code de l'île, des réglages du Volet et des widgets de Veille découpé en fichiers plus petits.
+- CI plus rapide : un seul run par commit (pull request, ou main pour la release) au lieu de deux, tests répartis sur plusieurs processus, compilation en parallèle.
 - Tests de rendu sur petit écran, grande police et paysage pour l'en-tête du Volet, l'accueil, Fiabilité et Sauvegarde.
 
 ## 0.9.5

@@ -95,31 +95,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-/** Bornes des réglages (partagées avec les tests). */
-object VoletSettingsBounds {
-    const val TRIGGER_MIN = 12f
-    const val TRIGGER_MAX = 64f
-    const val EDGE_MAX = 64f
-    const val BLUR_MAX = 80f
-    const val SCRIM_MIN = 0.2f
-    const val SCRIM_MAX = 0.95f
-    const val CORNER_MIN = 8f
-    const val CORNER_MAX = 40f
-    const val TEXT_SCALE_MIN = 0.8f
-    const val TEXT_SCALE_MAX = 1.2f
-
-    /** Taille du texte des cartes : pas de 5 %, bornée à 80 – 120 %. */
-    fun textScale(raw: Float): Float = ((raw * 20).roundToInt() / 20f).coerceIn(TEXT_SCALE_MIN, TEXT_SCALE_MAX)
-
-    /** Hauteur des zones en paysage : 0 (coupées) à 48 dp. */
-    const val LANDSCAPE_MAX = 48f
-
-    fun landscapeHeight(raw: Float): Float = raw.roundToInt().toFloat().coerceIn(0f, LANDSCAPE_MAX)
-
-    /** Hauteur de zone : sous le minimum, on revient à « auto » (0). */
-    fun triggerHeight(raw: Float): Float = if (raw < TRIGGER_MIN) 0f else raw.roundToInt().toFloat().coerceAtMost(TRIGGER_MAX)
-}
-
 /**
  * Réglages du module Volet. [onOpenHistory] : navigation vers l'historique ; si null,
  * l'historique s'ouvre au sein de cet écran.
@@ -520,94 +495,5 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
                 picking = false
             }
         }
-    }
-}
-
-/** Autorisations nécessaires au Volet, avec leur état en direct. */
-@Composable
-private fun VoletPermissions() {
-    val permissions = rememberPermissionController()
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        PermissionLogic.voletRequired.forEach { key ->
-            val granted = permissions[key]
-            val texts = key.texts()
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                PermissionGlyph(texts.icon, granted, size = 40.dp, animated = false)
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(texts.title), style = MaterialTheme.typography.bodyLarge)
-                    StatusPill(if (granted) PillState.GRANTED else PillState.DENIED, Modifier.padding(top = 4.dp))
-                }
-                if (granted) {
-                    TextButton(onClick = { permissions.request(key) }) { Text(stringResource(R.string.vset_manage)) }
-                } else {
-                    FilledTonalButton(onClick = { permissions.request(key) }) { Text(stringResource(R.string.vset_allow)) }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SectionCard(icon: ImageVector, title: String, index: Int, content: @Composable () -> Unit) {
-    Card(
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        modifier = Modifier.fillMaxWidth().cascade(index),
-    ) {
-        Column(Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
-                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(10.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-            }
-            content()
-        }
-    }
-}
-
-@Composable
-private fun SwitchRow(title: String, desc: String?, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .clickable { onChange(!checked) }
-            .padding(vertical = 6.dp, horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            if (desc != null) {
-                Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        Spacer(Modifier.width(12.dp))
-        Switch(checked = checked, onCheckedChange = onChange)
-    }
-}
-
-@Composable
-private fun SliderRow(
-    label: String,
-    value: Float,
-    valueText: String,
-    range: ClosedFloatingPointRange<Float>,
-    onChange: (Float) -> Unit,
-    onDone: () -> Unit,
-    steps: Int = 0,
-) {
-    Column(Modifier.padding(top = 10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            Text(valueText, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        }
-        Slider(
-            value = value.coerceIn(range.start, range.endInclusive),
-            onValueChange = onChange,
-            onValueChangeFinished = onDone,
-            valueRange = range,
-            steps = steps,
-        )
     }
 }

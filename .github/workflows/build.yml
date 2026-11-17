@@ -1,8 +1,10 @@
 name: Build & Release
 
 on:
+  # Push : seulement main (release). Les branches sont vérifiées par leur pull request,
+  # ce qui évite deux runs identiques (push + pull_request) à chaque commit.
   push:
-    branches: ["**"]
+    branches: ["main"]
   pull_request:
   workflow_dispatch:
 

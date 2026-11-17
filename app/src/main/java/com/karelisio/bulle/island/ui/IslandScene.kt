@@ -629,30 +629,6 @@ private fun verticalTarget(
     }
 }
 
-/** Fine jauge verticale le long de la caméra (paysage) ; apparaît et disparaît en fondu. */
-@Composable
-private fun LandscapeGauge(level: Float?, g: com.karelisio.bulle.island.IslandGeometry, accent: Color) {
-    var last by remember { mutableStateOf(0f) }
-    if (level != null) last = level
-    val alpha by animateFloatAsState(if (level != null) 1f else 0f, tween(if (level != null) 120 else 400), label = "gauge")
-    val fill by animateFloatAsState(last.coerceIn(0f, 1f), spring(dampingRatio = 0.8f), label = "gaugeFill")
-    if (alpha <= 0.01f) return
-    val density = LocalDensity.current
-    Canvas(Modifier.fillMaxSize().clearAndSetSemantics { }) {
-        val geo = IslandLayout.landscapeGauge(
-            cameraCenterX = g.centerX.toFloat(), cameraHalfThickness = g.width / 2f, cameraCenterY = g.centerY.toFloat(),
-            cameraLeft = g.cameraLeft, density = density.density, screenHeight = size.height,
-        )
-        val r = androidx.compose.ui.geometry.CornerRadius(geo.width / 2f)
-        drawRoundRect(Color.Black.copy(alpha = 0.55f * alpha), Offset(geo.left - 2f, geo.top - 2f), androidx.compose.ui.geometry.Size(geo.width + 4f, geo.height + 4f), androidx.compose.ui.geometry.CornerRadius(geo.width / 2f + 2f))
-        drawRoundRect(accent.copy(alpha = 0.3f * alpha), Offset(geo.left, geo.top), androidx.compose.ui.geometry.Size(geo.width, geo.height), r)
-        val h = geo.height * fill
-        if (h > 0f) {
-            drawRoundRect(accent.copy(alpha = alpha), Offset(geo.left, geo.top + geo.height - h), androidx.compose.ui.geometry.Size(geo.width, h.coerceAtLeast(geo.width)), r)
-        }
-    }
-}
-
 /** État de l'éclat en cours (lu hors composition). */
 private class BurstState {
     var active = false
@@ -660,141 +636,11 @@ private class BurstState {
     var lastRequest: WindowRequest? = null
 }
 
-@Composable
-private fun SecondaryBubble(
-    content: IslandContent?,
-    fill: Color,
-    offsetX: () -> Float,
-    radius: () -> Float,
-    fullRadius: Float,
-    onTap: () -> Unit,
-) {
-    if (content == null) return
-    val density = LocalDensity.current
-    val d = with(density) { (fullRadius * 2).toDp() }
-    Box(
-        Modifier
-            .size(d)
-            .graphicsLayer {
-                translationX = offsetX()
-                val p = (radius() / fullRadius).coerceIn(0f, 1.2f)
-                scaleX = p
-                scaleY = p
-                // Le contenu n'apparaît qu'une fois la goutte détachée.
-                alpha = ((p - 0.6f) / 0.4f).coerceIn(0f, 1f)
-                shape = CircleShape
-                clip = true
-            }
-            .then(if (LiquidSupported) Modifier else Modifier.background(fill))
-            .pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) }
-            .secondarySemantics(content, onTap),
-        contentAlignment = Alignment.Center,
-    ) {
-        content.Minimal()
-    }
-}
-
 /** Couleur de fond de l'île selon le style (noir pur par défaut pour se fondre avec la caméra). */
 fun islandFill(style: StyleSettings, darkScheme: androidx.compose.material3.ColorScheme): Color = when (style.colorMode) {
     IslandColorMode.BLACK -> Color.Black
     IslandColorMode.DYNAMIC -> androidx.compose.ui.graphics.lerp(darkScheme.primaryContainer, Color.Black, 0.55f)
     IslandColorMode.CUSTOM -> Color(style.customColor.toInt()).copy(alpha = 1f)
-}
-
-/**
- * Ligne compacte. Centrée : [Leading] | caméra | [Trailing]. Vers la gauche : [Leading][Trailing] | caméra.
- * Vers la droite : caméra | [Leading][Trailing]. [subtitle] : petite seconde ligne sous [Trailing].
- */
-@Composable
-private fun CompactRow(
-    content: IslandContent,
-    baseWidthPx: Int,
-    heightPx: Int,
-    density: androidx.compose.ui.unit.Density,
-    scale: Float,
-    direction: OpenDirection = OpenDirection.CENTER,
-    marquee: Boolean = false,
-    subtitle: String? = null,
-) {
-    with(density) {
-        // Défilement des textes trop longs : l'enfant est mesuré sans limite puis défile dans l'emplacement.
-        val scroll = if (marquee) Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 1_200) else Modifier
-        val camera = @Composable { Spacer(Modifier.width(baseWidthPx.toDp())) }
-        val leading = @Composable {
-            // Les emplacements suivent la taille choisie : le contenu est dessiné à l'échelle.
-            Box(Modifier.width(content.compactSlotWidth * scale), contentAlignment = Alignment.Center) {
-                Box(
-                    Modifier
-                        .requiredWidth(content.compactSlotWidth)
-                        .graphicsLayer { scaleX = scale; scaleY = scale }
-                        .padding(start = 8.dp),
-                    contentAlignment = Alignment.CenterStart,
-                ) { MarqueeSlot(scroll, marquee) { content.Leading() } }
-            }
-        }
-        val trailing = @Composable {
-            Box(Modifier.width(content.compactSlotWidth * scale), contentAlignment = Alignment.Center) {
-                Box(
-                    Modifier
-                        .requiredWidth(content.compactSlotWidth)
-                        .graphicsLayer { scaleX = scale; scaleY = scale }
-                        .padding(end = 8.dp),
-                    contentAlignment = Alignment.CenterEnd,
-                ) {
-                    if (subtitle == null) {
-                        MarqueeSlot(scroll, marquee) { content.Trailing() }
-                    } else {
-                        Column(horizontalAlignment = Alignment.End) {
-                            MarqueeSlot(scroll, marquee) { content.Trailing() }
-                            Text(
-                                subtitle,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = LocalContentColor.current.copy(alpha = 0.7f),
-                                maxLines = 1,
-                                softWrap = false,
-                                overflow = if (marquee) TextOverflow.Clip else TextOverflow.Ellipsis,
-                                modifier = scroll,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-        Row(Modifier.height(heightPx.toDp()), verticalAlignment = Alignment.CenterVertically) {
-            when (direction) {
-                OpenDirection.CENTER -> { leading(); camera(); trailing() }
-                OpenDirection.LEFT -> { leading(); trailing(); camera() }
-                OpenDirection.RIGHT -> { camera(); leading(); trailing() }
-            }
-        }
-    }
-}
-
-/**
- * Échelle de police appliquée au contenu compact : celle du système, plafonnée pour qu'une ligne
- * tienne dans la hauteur de l'île (au-delà, défilement ou points de suspension sur la largeur).
- * Échelle ≤ 1,3 sur une île de hauteur courante : inchangée.
- */
-internal fun compactFontScale(heightPx: Int, density: androidx.compose.ui.unit.Density): Float {
-    val heightDp = heightPx / density.density.coerceAtLeast(0.1f)
-    val max = (heightDp / 26f).coerceAtLeast(1f)
-    return density.fontScale.coerceIn(0.5f, max)
-}
-
-@Composable
-private fun CompactFontScale(heightPx: Int, density: androidx.compose.ui.unit.Density, content: @Composable () -> Unit) {
-    val scale = compactFontScale(heightPx, density)
-    if (scale == density.fontScale) {
-        content()
-    } else {
-        CompositionLocalProvider(LocalDensity provides androidx.compose.ui.unit.Density(density.density, scale), content = content)
-    }
-}
-
-/** Enveloppe de défilement : sans défilement, le contenu est émis tel quel (mise en page inchangée). */
-@Composable
-private fun MarqueeSlot(scroll: Modifier, enabled: Boolean, content: @Composable () -> Unit) {
-    if (enabled) Box(scroll) { content() } else content()
 }
 
 /** Taille de fenêtre qui contient l'île courante et sa cible, symétrique autour de la caméra. */
@@ -834,40 +680,4 @@ private fun envelope(anim: SurfaceAnim, t: SurfaceTarget, overshoot: Float, shad
         touchable = t.mode != Mode.HIDDEN,
         watchOutside = t.mode == Mode.EXPANDED,
     )
-}
-
-/** Reconnaissance des gestes sur l'île : toucher, appui long et glissements. */
-private fun Modifier.islandGestures(enabled: Boolean, doubleTap: Boolean, onGesture: (IslandGesture) -> Unit): Modifier {
-    if (!enabled) return this
-    return this
-        .pointerInput(doubleTap) {
-            detectTapGestures(
-                onTap = { onGesture(IslandGesture.TAP) },
-                onDoubleTap = if (doubleTap) ({ onGesture(IslandGesture.DOUBLE_TAP) }) else null,
-                onLongPress = { onGesture(IslandGesture.LONG_PRESS) },
-            )
-        }
-        .pointerInput(Unit) {
-            var total = Offset.Zero
-            val threshold = 24.dp.toPx()
-            detectDragGestures(
-                onDragStart = { total = Offset.Zero },
-                onDrag = { change, amount -> change.consume(); total += amount },
-                onDragEnd = {
-                    val g = when {
-                        abs(total.x) > abs(total.y) && total.x > threshold -> IslandGesture.SWIPE_RIGHT
-                        abs(total.x) > abs(total.y) && total.x < -threshold -> IslandGesture.SWIPE_LEFT
-                        total.y > threshold -> IslandGesture.SWIPE_DOWN
-                        total.y < -threshold -> IslandGesture.SWIPE_UP
-                        else -> null
-                    }
-                    g?.let(onGesture)
-                },
-            )
-        }
-}
-
-/** Retour haptique neutre (interrupteur « Retour haptique » coupé). */
-private object NoHaptics : androidx.compose.ui.hapticfeedback.HapticFeedback {
-    override fun performHapticFeedback(hapticFeedbackType: androidx.compose.ui.hapticfeedback.HapticFeedbackType) = Unit
 }
