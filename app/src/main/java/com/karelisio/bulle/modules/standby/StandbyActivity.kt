@@ -35,7 +35,7 @@ import com.karelisio.bulle.modules.standby.ui.rememberNow
 import com.karelisio.bulle.system.OemSettings
 import com.karelisio.bulle.ui.theme.BulleTheme
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -86,9 +86,17 @@ class StandbyActivity : ComponentActivity() {
             override fun handleOnBackPressed() = exit()
         })
         if (auto) {
-            // Débranché ou revenu à la verticale : Veille se referme.
+            // Débranché ou revenu à la verticale (stable 2 s) : Veille se referme. Une notification,
+            // le verrouillage ou l'appli au premier plan ne la ferment jamais.
             lifecycleScope.launch {
-                StandbyState.conditions.drop(1).collect { ok -> if (!ok) exit() }
+                StandbyState.keep.collectLatest { keep ->
+                    if (keep) return@collectLatest
+                    kotlinx.coroutines.delay(2_000L)
+                    if (!StandbyState.keep.value) {
+                        IslandLog.log("Veille : fermée (débranchée ou verticale)")
+                        exit()
+                    }
+                }
             }
         }
         sensors = getSystemService(SensorManager::class.java)

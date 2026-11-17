@@ -105,6 +105,12 @@ private class StandbyRuntime(private val env: AddonEnv) : AutoCloseable {
                 StandbyLauncher.launchAuto(service)
             }
         }
+        // Maintien de Veille : débranchement ou verticale seulement.
+        jobs += scope.launch {
+            combine(env.controller.settings.map { it.standby.charger }, source, posture) { c, src, p -> StandbyLogic.keep(src, c, p) }
+                .distinctUntilChanged()
+                .collect { StandbyState.setKeep(it) }
+        }
         // Dernier « pense à toi » d'Écho (page Écho).
         jobs += scope.launch {
             NotificationRepository.events.filterIsInstance<NotificationEvent.Posted>()

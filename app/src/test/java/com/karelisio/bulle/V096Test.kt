@@ -83,4 +83,14 @@ class V096Test {
         assertTrue(StandbyLogic.conditions(true, PowerSource.AC, StandbyCharger.ANY, Posture.FLAT, idle = true, scheduled = true))
         assertFalse(StandbyLogic.conditions(true, PowerSource.NONE, StandbyCharger.ANY, Posture.FLAT, idle = true, scheduled = true))
     }
+
+    @Test
+    fun standbyStaysUntilUnpluggedOrUpright() {
+        assertTrue(StandbyLogic.keep(PowerSource.AC, StandbyCharger.ANY, Posture.LANDSCAPE))
+        // Posé à plat ou posture inconnue (vibration d'une notification) : on reste.
+        assertTrue(StandbyLogic.keep(PowerSource.AC, StandbyCharger.ANY, Posture.FLAT))
+        assertTrue(StandbyLogic.keep(PowerSource.AC, StandbyCharger.ANY, Posture.UNKNOWN))
+        assertFalse(StandbyLogic.keep(PowerSource.AC, StandbyCharger.ANY, Posture.PORTRAIT))
+        assertFalse(StandbyLogic.keep(PowerSource.NONE, StandbyCharger.ANY, Posture.LANDSCAPE))
+    }
 }

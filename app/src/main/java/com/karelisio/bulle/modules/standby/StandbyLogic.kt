@@ -52,6 +52,13 @@ object StandbyLogic {
         scheduled: Boolean = false,
     ): Boolean = enabled && chargerMatches(source, charger) && (posture == Posture.LANDSCAPE || scheduled) && idle
 
+    /**
+     * Veille déjà affichée peut-elle rester ? Seuls le débranchement et le retour à la verticale la
+     * ferment (pas une notification, ni un changement d'appli au premier plan).
+     */
+    fun keep(source: PowerSource, charger: StandbyCharger, posture: Posture): Boolean =
+        chargerMatches(source, charger) && posture != Posture.PORTRAIT
+
     /** Dans la plage horaire [start, end[ (minutes), y compris à cheval sur minuit. */
     fun inWindow(minute: Int, start: Int, end: Int): Boolean = when {
         start == end -> false

@@ -19,6 +19,7 @@
 - Chaque sauvegarde automatique peut aussi être copiée dans un dossier choisi (Drive, carte SD…), un fichier par jour.
 
 **Veille**
+- Une notification (message…) ne referme plus Veille ni ne la remet en portrait : seuls le débranchement ou le retour à la verticale (stable 2 s) la ferment. Si une notification interrompt l'économiseur d'écran, l'activité Veille reprend le relais.
 - Nouveau widget « Compte à rebours » (J-12, emoji et couleur de l'événement).
 - Activation par horaire : en charge dans la plage choisie, Veille s'active même si le téléphone n'est pas à l'horizontale.
 
