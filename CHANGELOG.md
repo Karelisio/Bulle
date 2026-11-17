@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.5
+- Volet : pastille des applis en fond à l'échelle des boutons ronds de l'en-tête (même hauteur, à côté du crayon), icône Android et nombre bien lisibles.
+
 ## 0.9.4
 - Volet : la pastille des applis en fond devient un petit Android suivi du nombre (le texte « n actives » se superposait).
 - Volet : avec Shizuku, la liste montre toutes les applis qui ont un service en cours, même sans notification ; sans Shizuku, une note explique qu'Android n'en montre qu'une partie.
