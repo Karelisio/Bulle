@@ -37,6 +37,6 @@
     <string name="volet_bg_open">Ouvrir</string>
     <string name="volet_bg_stop">Arrêter</string>
     <string name="volet_bg_details">Gérer</string>
-    <string name="volet_bg_note">Applis avec un service actif. « Gérer » ouvre leur fiche (Forcer l’arrêt). Avec Shizuku, « Arrêter » les ferme directement.</string>
-    <string name="volet_bg_note_shizuku">Applis avec un service actif. « Arrêter » force leur arrêt via Shizuku.</string>
+    <string name="volet_bg_note">Sans Shizuku, Android ne montre que les applis dont le service a une notification : d’autres peuvent tourner. Active Shizuku pour toutes les voir et les arrêter directement.</string>
+    <string name="volet_bg_note_shizuku">Toutes les applis avec un service en cours (via Shizuku). « Arrêter » force leur arrêt.</string>
 </resources>

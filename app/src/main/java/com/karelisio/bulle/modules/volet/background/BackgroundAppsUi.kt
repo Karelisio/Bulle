@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +29,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -53,7 +57,16 @@ import kotlinx.coroutines.launch
 fun rememberBackgroundApps(): List<BackgroundApp> {
     val context = LocalContext.current
     val active by NotificationRepository.active.collectAsState()
-    return remember(active) { BackgroundApps.fromActive(active.values, context.packageName) }
+    val fromNotifs = remember(active) { BackgroundApps.fromActive(active.values, context.packageName) }
+    var all by remember { mutableStateOf(fromNotifs) }
+    // Avec Shizuku : liste complète des services (relue régulièrement tant que le Volet est ouvert).
+    LaunchedEffect(fromNotifs) {
+        while (true) {
+            all = runCatching { BackgroundApps.withServices(context, fromNotifs) }.getOrDefault(fromNotifs)
+            delay(10_000L)
+        }
+    }
+    return all
 }
 
 /** Pastille « n actives » de l'en-tête du Volet (rien si aucune appli en fond). */
@@ -69,12 +82,20 @@ fun BackgroundAppsChip(count: Int, open: Boolean, onClick: () -> Unit, modifier:
             .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Rounded.Memory, contentDescription = null, tint = if (open) scheme.onPrimary else scheme.onSecondaryContainer, modifier = Modifier.size(16.dp))
-        Spacer(Modifier.width(4.dp))
+        Icon(
+            Icons.Rounded.Android,
+            contentDescription = pluralStringResource(R.plurals.volet_bg_count, count, count),
+            tint = if (open) scheme.onPrimary else scheme.onSecondaryContainer,
+            modifier = Modifier.size(16.dp),
+        )
+        Spacer(Modifier.width(3.dp))
         Text(
-            pluralStringResource(R.plurals.volet_bg_count, count, count),
-            style = MaterialTheme.typography.labelMedium,
+            "$count",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
             color = if (open) scheme.onPrimary else scheme.onSecondaryContainer,
+            maxLines = 1,
+            softWrap = false,
         )
     }
 }
@@ -85,6 +106,7 @@ fun BackgroundAppsPanel(host: VoletHost, apps: List<BackgroundApp>, visible: Boo
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val canForce = remember(visible) { BackgroundApps.canForceStop() }
+    val full = remember(visible) { BackgroundApps.fullListAvailable() }
     AnimatedVisibility(visible && apps.isNotEmpty(), enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
         Column(
             Modifier
@@ -130,7 +152,7 @@ fun BackgroundAppsPanel(host: VoletHost, apps: List<BackgroundApp>, visible: Boo
                 }
             }
             Text(
-                stringResource(if (canForce) R.string.volet_bg_note_shizuku else R.string.volet_bg_note),
+                stringResource(if (full) R.string.volet_bg_note_shizuku else R.string.volet_bg_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),

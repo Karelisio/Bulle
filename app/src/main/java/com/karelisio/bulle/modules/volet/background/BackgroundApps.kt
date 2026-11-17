@@ -68,6 +68,36 @@ object BackgroundApps {
         own,
     )
 
+    /**
+     * Paquets qui ont au moins un service en cours d'exécution, lus dans `dumpsys activity services`
+     * (logique pure, testée). Exemple de ligne : `* ServiceRecord{1a2b u0 com.app/.SyncService}`.
+     */
+    fun parseServices(dump: String): Set<String> =
+        Regex("""ServiceRecord\{\S+ u\d+ ([A-Za-z0-9_.]+)/""").findAll(dump).map { it.groupValues[1] }.toSet()
+
+    /**
+     * Toutes les applis avec un service en cours (Shizuku prêt, sans demande de permission) :
+     * notifications de service au premier plan + services sans notification. Applis système exclues.
+     */
+    suspend fun withServices(context: Context, fromNotifications: List<BackgroundApp>): List<BackgroundApp> {
+        if (ShizukuShell.status() != ShizukuStatus.READY) return fromNotifications
+        val dump = ShizukuShell.run(context, "dumpsys activity services") ?: return fromNotifications
+        val known = fromNotifications.mapTo(HashSet()) { it.packageName }
+        val pm = context.packageManager
+        val extra = parseServices(dump)
+            .filter { it != context.packageName && it !in known }
+            .filter { pkg ->
+                val info = runCatching { pm.getApplicationInfo(pkg, 0) }.getOrNull() ?: return@filter false
+                info.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM == 0 ||
+                    info.flags and android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
+            }
+            .map { BackgroundApp(it, emptyList(), Long.MAX_VALUE, null) }
+        return fromNotifications + extra.sortedBy { it.packageName }
+    }
+
+    /** Shizuku prêt : la liste complète est disponible. */
+    fun fullListAvailable(): Boolean = ShizukuShell.status() == ShizukuStatus.READY
+
     fun canForceStop(): Boolean = ShizukuShell.status() != ShizukuStatus.UNAVAILABLE
 
     /** Arrête l'appli : forçage via Shizuku si possible, sinon fiche système (bouton « Forcer l'arrêt »). */
