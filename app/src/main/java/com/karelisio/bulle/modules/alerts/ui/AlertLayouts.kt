@@ -16,6 +16,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,6 +76,23 @@ fun AlertExpanded(
         if (extra != null) {
             Spacer(Modifier.height(12.dp))
             extra()
+        }
+        // « Ne plus montrer ce type » : coupe cette alerte (réactivable dans Contenus › Alertes).
+        LocalAlertId.current?.let { id ->
+            val def = remember(id) { runCatching { com.karelisio.bulle.modules.alerts.AlertCatalog.def(id) }.getOrNull() }
+            if (def != null) {
+                val context = androidx.compose.ui.platform.LocalContext.current
+                val scope = androidx.compose.runtime.rememberCoroutineScope()
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        scope.launch {
+                            com.karelisio.bulle.core.settings.SettingsRepository.update(context) { it.copy(alerts = def.set(it.alerts, false)) }
+                            com.karelisio.bulle.island.IslandLog.log("Alerte « $id » coupée depuis l'île")
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.End),
+                ) { Text(androidx.compose.ui.res.stringResource(com.karelisio.bulle.R.string.alerts_never_show), color = Color.White.copy(alpha = 0.6f)) }
+            }
         }
         if (actions != null) {
             Spacer(Modifier.height(14.dp))

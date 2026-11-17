@@ -36,5 +36,6 @@ object Modules {
         IslandAddons.register(com.karelisio.bulle.modules.halo.HaloAddon)
         IslandAddons.register(com.karelisio.bulle.modules.edges.EdgeAddon)
         IslandAddons.register(com.karelisio.bulle.modules.standby.StandbyAddon)
+        IslandAddons.register(com.karelisio.bulle.system.PerfMonitor)
     }
 }

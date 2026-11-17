@@ -113,6 +113,8 @@ data class HaloSettings(
     val burst: Boolean = true,
     /** Taille de l'éclat. */
     val burstSize: Float = 1f,
+    /** Mode éco : aucun halo pendant l'économie d'énergie. */
+    val powerSaveOff: Boolean = true,
 ) {
     /** Valeurs ramenées dans leurs plages (sauvegarde modifiée à la main, version plus ancienne). */
     fun sanitized(): HaloSettings {

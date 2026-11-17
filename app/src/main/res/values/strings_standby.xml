@@ -80,4 +80,10 @@
     <string name="standby_layout_reset">Revenir à la composition d’origine</string>
     <string name="standby_page_edit">Composer la page %1$s</string>
     <string name="standby_widget_remove">Retirer %1$s</string>
+    <string name="standby_w_countdown">Compte à rebours</string>
+    <string name="standby_countdown_none">Aucun compte à rebours (Contenus › Compte à rebours)</string>
+    <string name="standby_countdown_today">Aujourd’hui !</string>
+    <string name="standby_countdown_days">J-%1$d</string>
+    <string name="standby_schedule">Par horaire</string>
+    <string name="standby_schedule_summary">En charge dans cette plage, Veille s’active même si le téléphone n’est pas à l’horizontale.</string>
 </resources>

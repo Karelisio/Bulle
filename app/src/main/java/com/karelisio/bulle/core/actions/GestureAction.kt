@@ -24,6 +24,10 @@ enum class ActionType(val needsWriteSettings: Boolean = false) {
     STANDBY,
     /** Fait passer un halo de test autour de l'écran. */
     HALO_TEST,
+    /** Île : contenu suivant / précédent (plusieurs contenus à la fois). */
+    NEXT_CONTENT, PREVIOUS_CONTENT,
+    /** Applique un profil (identifiant dans [GestureAction.intentUri]). */
+    APPLY_PROFILE,
 }
 
 /**

@@ -315,7 +315,10 @@ internal fun RuleEditorSheet(
             }
         }
         is Picker.Run -> ModalBottomSheet(onDismissRequest = { picker = null }) {
-            ActionList(current = (actions.getOrNull(p.index ?: -1) as? RuleAction.Run)?.action?.type) { type ->
+            ActionList(
+                current = (actions.getOrNull(p.index ?: -1) as? RuleAction.Run)?.action?.type,
+                onPickAction = { setAction(p.index, RuleAction.Run(it)); picker = null },
+            ) { type ->
                 if (type != ActionType.OPEN_APP && type != ActionType.LAUNCH_SHORTCUT) setAction(p.index, RuleAction.Run(GestureAction(type)))
                 picker = null
             }

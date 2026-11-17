@@ -85,14 +85,17 @@ private class StandbyRuntime(private val env: AddonEnv) : AutoCloseable {
                 source,
                 posture,
                 env.controller.screenEnv.map { it.locked },
-                ForegroundApp.packageName,
+                // Revérifié chaque minute : l'entrée dans la plage horaire suffit à déclencher.
+                combine(ForegroundApp.packageName, kotlinx.coroutines.flow.flow { while (true) { emit(Unit); delay(60_000L) } }) { fg, _ -> fg },
             ) { s, src, p, locked, fg ->
                 val interactive = service.getSystemService(PowerManager::class.java)?.isInteractive != false
                 // Veille elle-même au premier plan compte comme « au repos » (sinon elle se fermerait).
                 val idle = locked || !interactive || (fg != null && fg == HomeApp.packageName(service)) ||
                     StandbyState.active.value ||
                     service.getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
-                Triple(StandbyLogic.conditions(s.enabled, src, s.charger, p, idle), s.delaySeconds, s.autoLaunch)
+                val minute = java.util.Calendar.getInstance().let { it.get(java.util.Calendar.HOUR_OF_DAY) * 60 + it.get(java.util.Calendar.MINUTE) }
+                val scheduled = s.scheduleEnabled && StandbyLogic.inWindow(minute, s.scheduleStart, s.scheduleEnd)
+                Triple(StandbyLogic.conditions(s.enabled, src, s.charger, p, idle, scheduled), s.delaySeconds, s.autoLaunch)
             }.distinctUntilChanged().collectLatest { (ok, delaySec, auto) ->
                 StandbyState.setConditions(ok)
                 if (!ok || !auto) return@collectLatest
@@ -101,6 +104,12 @@ private class StandbyRuntime(private val env: AddonEnv) : AutoCloseable {
                 IslandLog.log("Veille : conditions réunies (charge + horizontale)")
                 StandbyLauncher.launchAuto(service)
             }
+        }
+        // Maintien de Veille : débranchement ou verticale seulement.
+        jobs += scope.launch {
+            combine(env.controller.settings.map { it.standby.charger }, source, posture) { c, src, p -> StandbyLogic.keep(src, c, p) }
+                .distinctUntilChanged()
+                .collect { StandbyState.setKeep(it) }
         }
         // Dernier « pense à toi » d'Écho (page Écho).
         jobs += scope.launch {

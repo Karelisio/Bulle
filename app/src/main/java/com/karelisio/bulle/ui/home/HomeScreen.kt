@@ -122,6 +122,37 @@ fun HomeScreen(onOpen: (String) -> Unit = {}, contentPadding: PaddingValues = Pa
             modifier = Modifier.cascade(2),
         )
         Spacer(Modifier.height(12.dp))
+        // Auto-test : modules activés qui ne tournent pas, autorisations manquantes.
+        val haloRunning by com.karelisio.bulle.modules.halo.HaloBus.running.collectAsStateWithLifecycle()
+        val edgesRunning by com.karelisio.bulle.modules.edges.EdgeBus.running.collectAsStateWithLifecycle()
+        var permTick by remember { mutableStateOf(0) }
+        LifecycleResumeEffect(Unit) { permTick++; onPauseOrDispose { } }
+        val issues = remember(settings, running, haloRunning, edgesRunning, permTick) {
+            val honor = com.karelisio.bulle.system.OemSettings.family == com.karelisio.bulle.system.OemSettings.Family.HONOR
+            fun granted(k: PermissionKey) = com.karelisio.bulle.ui.onboarding.PermissionChecks.isGranted(context, k)
+            SelfTest.issues(
+                SelfTestInputs(
+                    serviceRunning = running,
+                    haloEnabled = settings.halo.enabled, haloRunning = haloRunning,
+                    edgesEnabled = settings.edges.enabled, edgesRunning = edgesRunning,
+                    standbyEnabled = settings.standby.enabled,
+                    standbyPermissions = !honor || (granted(PermissionKey.LOCKSCREEN_DISPLAY) && granted(PermissionKey.BACKGROUND_POPUP)),
+                    standbyPhotosNeeded = com.karelisio.bulle.modules.standby.StandbyPage.PHOTOS in settings.standby.pages,
+                    photosGranted = granted(PermissionKey.MEDIA_IMAGES),
+                    voletEnabled = settings.volet.enabled,
+                    voletPermissions = granted(PermissionKey.WRITE_SETTINGS) && granted(PermissionKey.DND_ACCESS),
+                ),
+            )
+        }
+        StatusCard(
+            ok = issues.isEmpty(),
+            title = stringResource(R.string.home_selftest_title),
+            text = if (issues.isEmpty()) stringResource(R.string.home_selftest_ok) else issues.map { stringResource(it.labelRes()) }.joinToString("\n") { "• $it" },
+            action = stringResource(R.string.home_selftest_fix),
+            onAction = { onOpen(if (SelfTestIssue.HALO_STOPPED in issues || SelfTestIssue.EDGES_STOPPED in issues) Routes.RELIABILITY else Routes.PERMISSIONS) },
+            modifier = Modifier.cascade(3),
+        )
+        Spacer(Modifier.height(12.dp))
         Card(Modifier.fillMaxWidth().cascade(3), shape = MaterialTheme.shapes.extraLarge) {
             Row(
                 Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -180,6 +211,14 @@ private fun ServiceCard(
         onAction = onOpenAccessibility,
         modifier = modifier,
     )
+}
+
+private fun SelfTestIssue.labelRes(): Int = when (this) {
+    SelfTestIssue.HALO_STOPPED -> R.string.home_selftest_halo
+    SelfTestIssue.EDGES_STOPPED -> R.string.home_selftest_edges
+    SelfTestIssue.STANDBY_PERMISSIONS -> R.string.home_selftest_standby
+    SelfTestIssue.STANDBY_PHOTOS -> R.string.home_selftest_photos
+    SelfTestIssue.VOLET_PERMISSIONS -> R.string.home_selftest_volet
 }
 
 @Composable

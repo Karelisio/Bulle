@@ -90,6 +90,9 @@ import kotlin.math.sin
 /** Couleur d'accent imposée par le style de l'alerte (null = couleur propre au glyphe). */
 val LocalAlertTint = staticCompositionLocalOf<Color?> { null }
 
+/** Identifiant de l'alerte affichée (bouton « Ne plus montrer » de la vue étendue). */
+val LocalAlertId = staticCompositionLocalOf<String?> { null }
+
 /** Vrai si l'utilisateur a choisi « aucune animation » pour l'alerte : glyphes immobiles. */
 val LocalAlertStill = staticCompositionLocalOf { false }
 
@@ -119,8 +122,9 @@ fun alertIdOf(content: IslandContent): String? = when (content) {
 /** Emballe [content] avec son style s'il en a un ; sinon le rend tel quel (aucun changement). */
 fun styled(content: IslandContent, styles: Map<String, AlertStyle>): IslandContent {
     if (content is StyledAlert) return content
-    val style = alertIdOf(content)?.let { styles[it] } ?: return content
-    return if (style.isDefault) content else StyledAlert(content, style)
+    // Toujours habillée (même sans style) : la vue étendue propose « Ne plus montrer ».
+    val id = alertIdOf(content) ?: return content
+    return StyledAlert(content, styles[id] ?: AlertStyle())
 }
 
 /**
@@ -153,6 +157,7 @@ data class StyledAlert(val inner: IslandContent, val style: AlertStyle) : Island
             LocalAlertStill provides (style.entrance == AlertEntrance.NONE),
             LocalAlertIcon provides icon,
             LocalAlertEntrance provides style.entrance,
+            LocalAlertId provides alertIdOf(inner),
             content = content,
         )
     }

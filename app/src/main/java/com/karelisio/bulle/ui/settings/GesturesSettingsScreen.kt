@@ -157,7 +157,7 @@ fun GesturesSettingsScreen(onBack: () -> Unit) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = picker != Picker.ACTION)
     ModalBottomSheet(onDismissRequest = { editing = null }, sheetState = sheet) {
         when (picker) {
-            Picker.ACTION -> ActionList(current = settings.gestures.actionFor(gesture)?.type) { type ->
+            Picker.ACTION -> ActionList(current = settings.gestures.actionFor(gesture)?.type, onPickAction = { save(gesture, it) }) { type ->
                 when (type) {
                     ActionType.OPEN_APP -> picker = Picker.APP
                     ActionType.LAUNCH_SHORTCUT -> picker = Picker.SHORTCUT
@@ -190,7 +190,14 @@ private fun IslandGesture.icon(): ImageVector = when (this) {
 }
 
 @Composable
-internal fun ActionList(current: ActionType?, onPick: (ActionType) -> Unit) {
+internal fun ActionList(
+    current: ActionType?,
+    /** Choix d'un profil (« Appliquer le profil… ») ; null = profils non proposés. */
+    onPickAction: ((GestureAction) -> Unit)? = null,
+    onPick: (ActionType) -> Unit,
+) {
+    val profileContext = LocalContext.current
+    val profiles by remember { SettingsRepository.flow(profileContext) }.collectAsStateWithLifecycle(BulleSettings())
     LazyColumn(contentPadding = PaddingValues(bottom = 32.dp)) {
         item {
             Text(
@@ -217,6 +224,25 @@ internal fun ActionList(current: ActionType?, onPick: (ActionType) -> Unit) {
                 )
             }
             item { HorizontalDivider(Modifier.padding(horizontal = 24.dp, vertical = 4.dp)) }
+        }
+        if (onPickAction != null) {
+            item {
+                Text(
+                    stringResource(R.string.action_group_profiles),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 24.dp, top = 16.dp, bottom = 4.dp),
+                )
+            }
+            items(profiles.profiles.list, key = { "profile:" + it.id }) { p ->
+                val action = GestureAction(ActionType.APPLY_PROFILE, intentUri = p.id, label = p.name)
+                ListItem(
+                    headlineContent = { Text("${p.emoji}  ${p.name}") },
+                    leadingContent = { RadioButton(selected = false, onClick = { onPickAction(action) }) },
+                    modifier = Modifier.clickable { onPickAction(action) },
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                )
+            }
         }
     }
 }

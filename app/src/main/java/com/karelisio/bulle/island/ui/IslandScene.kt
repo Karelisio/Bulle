@@ -546,7 +546,25 @@ private fun IslandSurface(
                     val panel = state.panel
                     when {
                         panel != null -> panel.Content(controller)
-                        else -> state.primary?.Expanded(controller)
+                        else -> androidx.compose.foundation.layout.Column {
+                            state.primary?.Expanded(controller)
+                            // Plusieurs contenus : points de pagination (balayer de côté pour changer).
+                            val (index, count) = state.page
+                            if (count > 1) {
+                                androidx.compose.foundation.layout.Row(
+                                    Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp),
+                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(5.dp),
+                                ) {
+                                    repeat(count.coerceAtMost(8)) { i ->
+                                        Box(
+                                            Modifier
+                                                .size(if (i == index) 7.dp else 5.dp)
+                                                .background(Color.White.copy(alpha = if (i == index) 0.9f else 0.35f), androidx.compose.foundation.shape.CircleShape),
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

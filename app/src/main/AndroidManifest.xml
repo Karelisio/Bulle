@@ -342,6 +342,11 @@
                 android:value="true" />
         </service>
 
+        <!-- Bouton « Réactiver » de l'alerte « service coupé ». -->
+        <receiver
+            android:name=".system.ReenableReceiver"
+            android:exported="false" />
+
         <receiver
             android:name=".system.BootReceiver"
             android:directBootAware="false"

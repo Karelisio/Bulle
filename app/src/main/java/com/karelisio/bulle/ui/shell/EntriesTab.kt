@@ -31,6 +31,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,6 +78,47 @@ fun EntriesTab(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 8.dp).cascade(index++),
         )
+        // Onglet Réglages : recherche dans tous les écrans de l'appli.
+        var query by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf("") }
+        if (tab == ShellTab.SETTINGS) {
+            Spacer(Modifier.height(16.dp))
+            androidx.compose.material3.OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                placeholder = { Text(stringResource(com.karelisio.bulle.R.string.settings_search_hint)) },
+                leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                singleLine = true,
+                shape = RoundedCornerShape(28.dp),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        if (tab == ShellTab.SETTINGS && query.isNotBlank()) {
+            val items = ShellTab.entries.flatMap { t ->
+                ShellCatalog.groups(t).flatMap { g ->
+                    g.entries.map { e ->
+                        SearchItem(e.route, stringResource(e.titleRes), stringResource(e.summaryRes), SettingsSearch.keywords[e.route].orEmpty()) to (e to g.tint)
+                    }
+                }
+            }
+            val found = SettingsSearch.match(items.map { it.first }, query)
+            Spacer(Modifier.height(16.dp))
+            if (found.isEmpty()) {
+                Text(
+                    stringResource(com.karelisio.bulle.R.string.settings_search_none),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                )
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                found.forEachIndexed { i, item ->
+                    val (entry, tint) = items.first { it.first.route == item.route }.second
+                    EntryCard(entry = entry, tint = tint, shape = segmentShape(i, found.size), onClick = { onOpen(entry.route) })
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            return@Column
+        }
         ShellCatalog.groups(tab).forEach { group ->
             Spacer(Modifier.height(24.dp))
             Text(

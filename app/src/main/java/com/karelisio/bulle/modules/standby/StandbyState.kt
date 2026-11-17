@@ -21,6 +21,13 @@ object StandbyState {
     /** En charge et à l'horizontale (calculé par le module qui tourne dans le service). */
     val conditions: StateFlow<Boolean> = _conditions.asStateFlow()
 
+    private val _keep = MutableStateFlow(true)
+    /**
+     * Veille peut rester affichée : toujours branchée (bon chargeur) et pas revenue à la verticale.
+     * Une notification, l'écran de verrouillage ou l'appli au premier plan n'y changent rien.
+     */
+    val keep: StateFlow<Boolean> = _keep.asStateFlow()
+
     private val _echo = MutableStateFlow<EchoThought?>(null)
     /** Dernier « pense à toi » d'Écho. */
     val echo: StateFlow<EchoThought?> = _echo.asStateFlow()
@@ -35,6 +42,20 @@ object StandbyState {
 
     internal fun setConditions(on: Boolean) {
         _conditions.value = on
+    }
+
+    /** Dernier toucher sur les commandes de lecture de Veille (elapsedRealtime). */
+    @Volatile
+    var lastMediaTouch: Long = 0L
+        private set
+
+    /** Les commandes de lecture de Veille ont été touchées (pause voulue, pas à relancer). */
+    fun markMediaTouch() {
+        lastMediaTouch = android.os.SystemClock.elapsedRealtime()
+    }
+
+    internal fun setKeep(on: Boolean) {
+        _keep.value = on
     }
 
     internal fun setEcho(e: EchoThought) {

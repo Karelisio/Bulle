@@ -451,6 +451,22 @@ private fun VoletSettingsContent(onBack: () -> Unit, onOpenHistory: () -> Unit) 
                             }
                         }
                     }
+                    // Applis masquées dans « Applis en fond ».
+                    if (s.bgHiddenApps.isNotEmpty()) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
+                            Column(Modifier.weight(1f)) {
+                                Text(stringResource(R.string.volet_bg_hidden_title), style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    stringResource(R.string.volet_bg_hidden_desc, s.bgHiddenApps.size),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            TextButton(onClick = { commit { it.copy(bgHiddenApps = emptySet()) } }) {
+                                Text(stringResource(R.string.volet_bg_hidden_reset))
+                            }
+                        }
+                    }
                     s.excludedApps.sorted().forEach { pkg ->
                         val app = apps.firstOrNull { it.packageName == pkg }
                         ListItem(

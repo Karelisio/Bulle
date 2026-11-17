@@ -48,7 +48,25 @@ object StandbyLogic {
         charger: StandbyCharger,
         posture: Posture,
         idle: Boolean,
-    ): Boolean = enabled && chargerMatches(source, charger) && posture == Posture.LANDSCAPE && idle
+        /** Dans la plage horaire réglée : l'horizontale n'est plus exigée. */
+        scheduled: Boolean = false,
+    ): Boolean = enabled && chargerMatches(source, charger) && (posture == Posture.LANDSCAPE || scheduled) && idle
+
+    /**
+     * Veille déjà affichée peut-elle rester ? Seuls le débranchement et le retour à la verticale la
+     * ferment (pas une notification, ni un changement d'appli au premier plan).
+     */
+    fun keep(source: PowerSource, charger: StandbyCharger, posture: Posture): Boolean =
+        chargerMatches(source, charger) && posture != Posture.PORTRAIT
+
+    /**
+     * Relancer la lecture ? Elle jouait à l'ouverture de Veille, s'est arrêtée dans les [windowMs]
+     * suivantes, et personne n'a touché les commandes de Veille entre-temps.
+     */
+    fun shouldResume(wasPlaying: Boolean, playingNow: Boolean, startedAt: Long, now: Long, lastTouch: Long, windowMs: Long = RESUME_WINDOW_MS): Boolean =
+        wasPlaying && !playingNow && now - startedAt in 0..windowMs && lastTouch < startedAt
+
+    const val RESUME_WINDOW_MS = 8_000L
 
     /** Dans la plage horaire [start, end[ (minutes), y compris à cheval sur minuit. */
     fun inWindow(minute: Int, start: Int, end: Int): Boolean = when {

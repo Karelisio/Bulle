@@ -271,6 +271,9 @@ fun ReliabilityScreen(onBack: () -> Unit) {
                     OemCard(family, Modifier.cascade(4))
                 }
             }
+            item("perf") {
+                PerfCard(Modifier.cascade(5))
+            }
             item("journal") {
                 IslandJournalCard(snackbar, Modifier.cascade(5))
             }
@@ -345,7 +348,7 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                 }
             }
             Spacer(Modifier.height(10.dp))
-            Row {
+            FlowRow(verticalArrangement = Arrangement.Center) {
                 androidx.compose.material3.FilledTonalButton(onClick = {
                     val cm = context.getSystemService(android.content.ClipboardManager::class.java)
                     cm.setPrimaryClip(android.content.ClipData.newPlainText("Journal Bulle", com.karelisio.bulle.island.IslandLog.dump()))
@@ -362,6 +365,13 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                         .putExtra(android.content.Intent.EXTRA_TEXT, text)
                     runCatching { context.startActivity(android.content.Intent.createChooser(send, shareTitle)) }
                 }) { Text(shareTitle) }
+                val reportTitle = stringResource(R.string.rel_report)
+                androidx.compose.material3.TextButton(onClick = {
+                    scope.launch {
+                        val s = com.karelisio.bulle.core.settings.SettingsRepository.current(context)
+                        com.karelisio.bulle.system.DiagnosticReport.share(context, s, reportTitle)
+                    }
+                }) { Text(reportTitle) }
                 androidx.compose.material3.TextButton(onClick = { com.karelisio.bulle.island.IslandLog.clear() }) {
                     Text(stringResource(R.string.journal_clear))
                 }
@@ -411,6 +421,52 @@ private fun FeatureTestsCard(snackbar: SnackbarHostState, modifier: Modifier) {
                     com.karelisio.bulle.modules.standby.StandbyLauncher.launchNow(context, reason = "test Fiabilité")
                 }) { Text(stringResource(R.string.rel_test_standby)) }
             }
+        }
+    }
+}
+
+/** Performance de Bulle sur 24 h : mémoire (courbe), temps processeur, batterie du téléphone. */
+@Composable
+private fun PerfCard(modifier: Modifier) {
+    val context = LocalContext.current
+    val samples by com.karelisio.bulle.system.PerfMonitor.samples.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) { com.karelisio.bulle.system.PerfMonitor.load(context) }
+    val summary = remember(samples) { com.karelisio.bulle.system.PerfSummary.of(samples, System.currentTimeMillis()) }
+    val scheme = MaterialTheme.colorScheme
+    Card(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainer),
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            Text(stringResource(R.string.perf_title), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(6.dp))
+            if (summary == null) {
+                Text(stringResource(R.string.perf_waiting), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+                return@Column
+            }
+            val fmt = { v: Float -> String.format(java.util.Locale.getDefault(), "%.1f", v) }
+            Text(stringResource(R.string.perf_memory, fmt(summary.memAvgMb), fmt(summary.memMaxMb)), style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.perf_cpu, fmt(summary.cpuMinutes), fmt(summary.hours)), style = MaterialTheme.typography.bodyMedium)
+            summary.drainPerHour?.let {
+                Text(stringResource(R.string.perf_drain, fmt(it)), style = MaterialTheme.typography.bodyMedium)
+            }
+            Spacer(Modifier.height(10.dp))
+            // Courbe de la mémoire.
+            androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(48.dp)) {
+                val pts = summary.memSeries
+                val max = (pts.maxOrNull() ?: 1f).coerceAtLeast(1f)
+                val step = size.width / (pts.size - 1).coerceAtLeast(1)
+                val path = androidx.compose.ui.graphics.Path()
+                pts.forEachIndexed { i, v ->
+                    val x = i * step
+                    val y = size.height * (1f - v / max)
+                    if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                }
+                drawPath(path, scheme.primary, style = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()))
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(stringResource(R.string.perf_note, summary.samples), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
         }
     }
 }

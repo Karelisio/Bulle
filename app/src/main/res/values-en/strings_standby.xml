@@ -78,4 +78,10 @@
     <string name="standby_layout_reset">Back to the original layout</string>
     <string name="standby_page_edit">Compose the %1$s page</string>
     <string name="standby_widget_remove">Remove %1$s</string>
+    <string name="standby_w_countdown">Countdown</string>
+    <string name="standby_countdown_none">No countdown (Contents › Countdown)</string>
+    <string name="standby_countdown_today">Today!</string>
+    <string name="standby_countdown_days">%1$d days</string>
+    <string name="standby_schedule">On a schedule</string>
+    <string name="standby_schedule_summary">While charging in this window, StandBy starts even if the phone isn’t sideways.</string>
 </resources>

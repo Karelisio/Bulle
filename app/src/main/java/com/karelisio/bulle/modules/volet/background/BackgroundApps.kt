@@ -18,6 +18,8 @@ data class ServiceNotif(
     val text: String?,
     val postTime: Long,
     val contentIntent: PendingIntent? = null,
+    /** Lecture multimédia ou appel : jamais arrêtée par « Tout arrêter ». */
+    val protected: Boolean = false,
 )
 
 /** Une appli qui tourne en fond (au moins un service au premier plan). */
@@ -28,6 +30,8 @@ data class BackgroundApp(
     /** Depuis quand (plus ancienne notification, ms). */
     val since: Long,
     val contentIntent: PendingIntent?,
+    /** Lecture multimédia ou appel en cours : épargnée par « Tout arrêter ». */
+    val protected: Boolean = false,
 )
 
 /**
@@ -38,8 +42,8 @@ data class BackgroundApp(
 object BackgroundApps {
 
     /** Regroupe par appli (logique pure, testée), les plus anciennes d'abord ; [own] exclu. */
-    fun group(notifs: List<ServiceNotif>, own: String): List<BackgroundApp> =
-        notifs.filter { it.packageName != own }
+    fun group(notifs: List<ServiceNotif>, own: String, hidden: Set<String> = emptySet()): List<BackgroundApp> =
+        notifs.filter { it.packageName != own && it.packageName !in hidden }
             .groupBy { it.packageName }
             .map { (pkg, list) ->
                 BackgroundApp(
@@ -47,6 +51,7 @@ object BackgroundApps {
                     details = list.flatMap { listOfNotNull(it.title, it.text) }.map { it.trim() }.filter { it.isNotEmpty() }.distinct().take(3),
                     since = list.minOf { it.postTime },
                     contentIntent = list.firstNotNullOfOrNull { it.contentIntent },
+                    protected = list.any { it.protected },
                 )
             }
             .sortedBy { it.since }
@@ -54,7 +59,7 @@ object BackgroundApps {
     fun isForegroundService(sbn: StatusBarNotification): Boolean =
         sbn.notification.flags and Notification.FLAG_FOREGROUND_SERVICE != 0
 
-    fun fromActive(active: Collection<StatusBarNotification>, own: String): List<BackgroundApp> = group(
+    fun fromActive(active: Collection<StatusBarNotification>, own: String, hidden: Set<String> = emptySet()): List<BackgroundApp> = group(
         active.filter(::isForegroundService).map { sbn ->
             val x = sbn.notification.extras
             ServiceNotif(
@@ -63,10 +68,20 @@ object BackgroundApps {
                 x?.getCharSequence(Notification.EXTRA_TEXT)?.toString(),
                 sbn.postTime,
                 sbn.notification.contentIntent,
+                protected = x?.containsKey(Notification.EXTRA_MEDIA_SESSION) == true ||
+                    sbn.notification.category == Notification.CATEGORY_CALL,
             )
         },
         own,
+        hidden,
     )
+
+    /** Applis visées par « Tout arrêter » : toutes sauf les protégées (logique pure). */
+    fun stoppable(apps: List<BackgroundApp>): List<BackgroundApp> = apps.filterNot { it.protected }
+
+    /** « depuis 2 h », « depuis 5 min » ; null si inconnu (logique pure). */
+    fun sinceMinutes(since: Long, now: Long): Long? =
+        if (since <= 0L || since == Long.MAX_VALUE || since > now) null else (now - since) / 60_000L
 
     /**
      * Paquets qui ont au moins un service en cours d'exécution, lus dans `dumpsys activity services`
@@ -79,13 +94,13 @@ object BackgroundApps {
      * Toutes les applis avec un service en cours (Shizuku prêt, sans demande de permission) :
      * notifications de service au premier plan + services sans notification. Applis système exclues.
      */
-    suspend fun withServices(context: Context, fromNotifications: List<BackgroundApp>): List<BackgroundApp> {
+    suspend fun withServices(context: Context, fromNotifications: List<BackgroundApp>, hidden: Set<String> = emptySet()): List<BackgroundApp> {
         if (ShizukuShell.status() != ShizukuStatus.READY) return fromNotifications
         val dump = ShizukuShell.run(context, "dumpsys activity services") ?: return fromNotifications
         val known = fromNotifications.mapTo(HashSet()) { it.packageName }
         val pm = context.packageManager
         val extra = parseServices(dump)
-            .filter { it != context.packageName && it !in known }
+            .filter { it != context.packageName && it !in known && it !in hidden }
             .filter { pkg ->
                 val info = runCatching { pm.getApplicationInfo(pkg, 0) }.getOrNull() ?: return@filter false
                 info.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM == 0 ||

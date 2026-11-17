@@ -290,6 +290,7 @@ fun HaloSettingsScreen(onBack: () -> Unit) {
                 ModuleSwitch(stringResource(R.string.halo_ignore_silent), null, draft.ignoreSilent) { on -> update { it.copy(ignoreSilent = on) } }
                 ModuleSwitch(stringResource(R.string.halo_ignore_ongoing), null, draft.ignoreOngoing) { on -> update { it.copy(ignoreOngoing = on) } }
                 ModuleSwitch(stringResource(R.string.halo_dnd), stringResource(R.string.halo_dnd_summary), draft.muteInDnd) { on -> update { it.copy(muteInDnd = on) } }
+                ModuleSwitch(stringResource(R.string.halo_power_save), stringResource(R.string.halo_power_save_summary), draft.powerSaveOff) { on -> update { it.copy(powerSaveOff = on) } }
                 ModuleNote(stringResource(R.string.halo_visibility_note))
             }
         }

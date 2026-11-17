@@ -69,6 +69,16 @@ class StandbyDreamService : DreamService() {
         StandbyState.setDreaming(false)
         StandbyState.setActive(false)
         IslandOcclusion.set(StandbyActivity.OCCLUSION_TAG, false)
+        // Économiseur interrompu (notification qui réveille l'écran…) alors que le téléphone est
+        // toujours branché à l'horizontale et verrouillé : l'activité Veille reprend le relais.
+        val app = applicationContext
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            val locked = app.getSystemService(android.app.KeyguardManager::class.java)?.isKeyguardLocked == true
+            if (locked && StandbyState.keep.value && StandbyState.conditions.value && !StandbyState.active.value) {
+                IslandLog.log("Veille : économiseur interrompu, reprise par l'activité")
+                StandbyLauncher.launchAuto(app)
+            }
+        }, 1_200L)
         super.onDreamingStopped()
     }
 

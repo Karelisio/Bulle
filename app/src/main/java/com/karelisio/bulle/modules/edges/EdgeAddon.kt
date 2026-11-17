@@ -167,7 +167,9 @@ private class EdgeRuntime(private val env: AddonEnv) : AutoCloseable {
             }
             if (!win.isShown) {
                 win.showCompose {
-                    BulleTheme(dark = true) { EdgeFeedback(state, side, layout?.settings?.liquidFeedback != false) }
+                    // Mode éco : pas de goutte pendant l'économie d'énergie.
+                    val powerSave = service.getSystemService(android.os.PowerManager::class.java)?.isPowerSaveMode == true
+                    BulleTheme(dark = true) { EdgeFeedback(state, side, layout?.settings?.liquidFeedback != false && !powerSave) }
                 }
             }
         }

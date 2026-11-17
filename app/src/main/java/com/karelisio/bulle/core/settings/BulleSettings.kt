@@ -51,6 +51,8 @@ data class BulleSettings(
     val edges: com.karelisio.bulle.modules.edges.EdgeSettings = com.karelisio.bulle.modules.edges.EdgeSettings(),
     /** Veille : mode StandBy en charge à l'horizontale. */
     val standby: com.karelisio.bulle.modules.standby.StandbySettings = com.karelisio.bulle.modules.standby.StandbySettings(),
+    /** Profils (Travail, Nuit, Jeu…) qui changent plusieurs réglages d'un coup. */
+    val profiles: com.karelisio.bulle.modules.profiles.ProfilesSettings = com.karelisio.bulle.modules.profiles.ProfilesSettings(),
 )
 
 /** Réglage fin manuel, en dp, appliqué par-dessus la position calée sur le cutout. */

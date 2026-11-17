@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.9.6
+**Volet**
+- En-tête : l'heure et les boutons sur une ligne, la date et la batterie sur toute la largeur en dessous — plus rien ne passe à la ligne (« 71 % » se coupait). Heure réduite avec une grande police système.
+- Batterie : icône qui suit le niveau réel ; un appui ouvre l'utilisation de la batterie. Date : un appui ouvre l'agenda du jour. Heure : appui long pour les réveils.
+- Applis en fond : point rouge sur la pastille quand une nouvelle appli démarre ; « depuis 2 h » sous chaque appli ; bouton pour ne plus afficher une appli (liste réglable dans les réglages du Volet, « Tout réafficher ») ; « Tout arrêter » avec Shizuku (musique et appel épargnés) ; appui long sur une appli pour ouvrir sa fiche (batterie, forcer l'arrêt).
+
+**Île et alertes**
+- Alertes dépliées : bouton « Ne plus montrer » qui coupe ce type d'alerte (réactivable dans Contenus › Alertes).
+- Mode éco : pendant l'économie d'énergie, aucun halo (réglable) et pas de goutte sur les Bords.
+
+**Fiabilité**
+- Accueil : carte « Modules » d'auto-test (Halo ou Bords activés mais arrêtés, autorisations manquantes de Veille ou du Volet), avec un bouton pour corriger.
+- « Envoyer un rapport » (Journal de l'île) : version, appareil, état des services et modules, journal — sans données personnelles.
+- Alerte « service coupé » : bouton « Réactiver » en un toucher quand la réactivation automatique (adb) ou Shizuku est disponible.
+
+**Sauvegarde**
+- Chaque sauvegarde automatique peut aussi être copiée dans un dossier choisi (Drive, carte SD…), un fichier par jour.
+
+**Veille**
+- Une notification (message…) ne referme plus Veille ni ne la remet en portrait : seuls le débranchement ou le retour à la verticale (stable 2 s) la ferment. Si une notification interrompt l'économiseur d'écran, l'activité Veille reprend le relais.
+- Musique coupée à l'ouverture de Veille (lecteur qui se met en pause quand Veille passe devant) : relancée automatiquement, une fois, si tu n'as pas touché les commandes (noté dans le Journal avec le lecteur concerné).
+- Nouveau widget « Compte à rebours » (J-12, emoji et couleur de l'événement).
+- Activation par horaire : en charge dans la plage choisie, Veille s'active même si le téléphone n'est pas à l'horizontale.
+
+**Nouveautés**
+- Île : plusieurs contenus à la fois (musique, minuteur, navigation…) — île dépliée, balayer de côté pour passer de l'un à l'autre, avec des points de pagination. Nouvelles actions de geste « Contenu suivant / précédent » pour l'île repliée. Un appel ou une alerte plus importante passe toujours devant.
+- Profils (Réglages › Profils) : Travail, Nuit, Jeu, ou les tiens ; chacun active / coupe d'un coup l'île, le Halo, les Bords, le Volet, Veille, les alertes et les vibrations. « Depuis l'état actuel » crée un profil de la configuration du moment. Applicable par un geste, les Bords ou une règle (« Quand… appliquer le profil »).
+- Recherche dans les réglages : champ en haut de l'onglet Réglages, qui trouve n'importe quel écran (« hauteur paysage » → Volet, « goutte » → Bords, « adb » → Fiabilité…).
+- Fiabilité › Performance (24 h) : mémoire moyenne et maximale de Bulle (courbe), temps processeur, baisse de batterie du téléphone hors charge ; une mesure toutes les 15 min, aussi dans « Envoyer un rapport ».
+
+**Qualité**
+- Tests de rendu sur petit écran, grande police et paysage pour l'en-tête du Volet, l'accueil, Fiabilité et Sauvegarde.
+
 ## 0.9.5
 - Volet : pastille des applis en fond à l'échelle des boutons ronds de l'en-tête (même hauteur, à côté du crayon), icône Android et nombre bien lisibles.
 

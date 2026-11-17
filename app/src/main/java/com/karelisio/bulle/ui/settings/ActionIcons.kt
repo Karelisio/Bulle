@@ -11,6 +11,8 @@ import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.VerticalSplit
 import androidx.compose.material.icons.rounded.Nightlight
 import androidx.compose.material.icons.rounded.BlurOn
+import androidx.compose.material.icons.rounded.ChevronLeft
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material.icons.rounded.Mic
@@ -85,4 +87,7 @@ fun ActionType.icon(): ImageVector = when (this) {
     OPEN_VOLET -> Icons.Rounded.VerticalSplit
     STANDBY -> Icons.Rounded.Nightlight
     HALO_TEST -> Icons.Rounded.BlurOn
+    NEXT_CONTENT -> Icons.Rounded.ChevronRight
+    PREVIOUS_CONTENT -> Icons.Rounded.ChevronLeft
+    APPLY_PROFILE -> Icons.Rounded.Tune
 }

@@ -222,6 +222,48 @@ fun BackupScreen(onBack: () -> Unit) {
                     }
                 }
             }
+            item(key = "folder") {
+                // Copie de chaque sauvegarde automatique dans un dossier choisi (cloud, carte…).
+                val pickFolder = androidx.activity.compose.rememberLauncherForActivityResult(
+                    androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree(),
+                ) { uri ->
+                    if (uri != null) {
+                        runCatching {
+                            context.contentResolver.takePersistableUriPermission(
+                                uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                            )
+                        }
+                        scope.launch { SettingsRepository.update(context) { it.copy(backup = it.backup.copy(folderUri = uri.toString())) } }
+                    }
+                }
+                Card(
+                    modifier = Modifier.fillMaxWidth().cascade(2),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                ) {
+                    val folder = settings.backup.folderUri
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.backup_folder)) },
+                        supportingContent = {
+                            Text(
+                                folder?.let { android.net.Uri.decode(it.substringAfterLast("/")).substringAfter(":") }
+                                    ?: stringResource(R.string.backup_folder_desc),
+                            )
+                        },
+                        trailingContent = {
+                            Row {
+                                if (folder != null) {
+                                    androidx.compose.material3.TextButton(onClick = {
+                                        scope.launch { SettingsRepository.update(context) { it.copy(backup = it.backup.copy(folderUri = null)) } }
+                                    }) { Text(stringResource(R.string.backup_folder_remove)) }
+                                }
+                                FilledTonalButton(onClick = { pickFolder.launch(null) }) { Text(stringResource(R.string.backup_folder_pick)) }
+                            }
+                        },
+                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                    )
+                }
+            }
             item(key = "list-title") {
                 Text(
                     stringResource(R.string.backup_auto_list),
