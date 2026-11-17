@@ -39,4 +39,11 @@
     <string name="volet_bg_details">Gérer</string>
     <string name="volet_bg_note">Sans Shizuku, Android ne montre que les applis dont le service a une notification : d’autres peuvent tourner. Active Shizuku pour toutes les voir et les arrêter directement.</string>
     <string name="volet_bg_note_shizuku">Toutes les applis avec un service en cours (via Shizuku). « Arrêter » force leur arrêt.</string>
+    <string name="volet_bg_since_h">depuis %1$d h</string>
+    <string name="volet_bg_since_min">depuis %1$d min</string>
+    <string name="volet_bg_hide">Ne plus afficher %1$s</string>
+    <string name="volet_bg_stop_all">Tout arrêter (%1$d)</string>
+    <string name="volet_bg_hidden_title">Applis en fond masquées</string>
+    <string name="volet_bg_hidden_desc">%1$d appli(s) jamais affichée(s) dans la liste du Volet.</string>
+    <string name="volet_bg_hidden_reset">Tout réafficher</string>
 </resources>

@@ -58,6 +58,8 @@ data class VoletSettings(
     val cardTextScale: Float = 1f,
     /** Lignes de texte d'une notification repliée (1 – 4). */
     val cardCollapsedLines: Int = 2,
+    /** Applis jamais listées dans « Applis en fond » (launcher, clavier…). */
+    val bgHiddenApps: Set<String> = emptySet(),
 ) {
     /** Densité effective des cartes. */
     val effectiveCardDensity: VoletCardDensity

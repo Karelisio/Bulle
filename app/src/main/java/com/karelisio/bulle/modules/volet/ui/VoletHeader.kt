@@ -1,10 +1,13 @@
 package com.karelisio.bulle.modules.volet.ui
 
 import android.content.BroadcastReceiver
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.provider.AlarmClock
+import android.provider.CalendarContract
 import android.provider.Settings
 import android.text.format.DateFormat
 import androidx.compose.animation.AnimatedContent
@@ -13,6 +16,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,10 +26,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Battery0Bar
+import androidx.compose.material.icons.rounded.Battery2Bar
+import androidx.compose.material.icons.rounded.Battery4Bar
+import androidx.compose.material.icons.rounded.Battery6Bar
 import androidx.compose.material.icons.rounded.BatteryChargingFull
-import androidx.compose.material.icons.rounded.BatteryStd
+import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Settings
@@ -41,18 +50,42 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
 import com.karelisio.bulle.modules.volet.VoletHost
+import com.karelisio.bulle.modules.volet.background.BackgroundAppsChip
+import com.karelisio.bulle.modules.volet.background.BackgroundAppsPanel
+import com.karelisio.bulle.modules.volet.background.rememberBackgroundApps
 import kotlinx.coroutines.delay
 import java.util.Date
 
+/** Icône de batterie qui suit le niveau réel (logique pure). */
+internal fun batteryIcon(level: Int, charging: Boolean): ImageVector = when {
+    charging -> Icons.Rounded.BatteryChargingFull
+    level >= 90 -> Icons.Rounded.BatteryFull
+    level >= 60 -> Icons.Rounded.Battery6Bar
+    level >= 35 -> Icons.Rounded.Battery4Bar
+    level >= 12 -> Icons.Rounded.Battery2Bar
+    else -> Icons.Rounded.Battery0Bar
+}
+
 /**
- * En-tête du volet : heure, date, batterie, édition des tuiles, réglages.
- * [compact] (paysage) : heure plus petite, sur une seule ligne avec la date et la batterie.
+ * Taille de l'heure : réduite avec une grande police système pour que la ligne ne déborde
+ * jamais (logique pure : [fontScale] → facteur appliqué à la taille du style).
+ */
+internal fun timeScale(fontScale: Float): Float = (1.15f / fontScale.coerceAtLeast(1f)).coerceIn(0.7f, 1f)
+
+/**
+ * En-tête du volet : heure (appui long : réveils) et boutons sur une ligne, puis date (appui :
+ * agenda) et batterie (appui : utilisation de la batterie) sur toute la largeur — rien n'est
+ * jamais coupé. [compact] (paysage) : tout sur une ligne, plus petit.
  */
 @Composable
 fun VoletHeader(host: VoletHost, compact: Boolean = false) {
@@ -76,89 +109,116 @@ fun VoletHeader(host: VoletHost, compact: Boolean = false) {
         context.registerReceiver(receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))?.let { receiver.onReceive(context, it) }
         onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
-
-    val bgApps = com.karelisio.bulle.modules.volet.background.rememberBackgroundApps()
+    val bgApps = rememberBackgroundApps()
     var bgOpen by remember { mutableStateOf(false) }
+    // Point sur la pastille quand une appli démarre en fond depuis la dernière ouverture de la liste.
+    var seen by remember { mutableStateOf(bgApps.map { it.packageName }.toSet()) }
+    val fresh = bgApps.any { it.packageName !in seen }
+    val toggleBg = {
+        bgOpen = !bgOpen
+        seen = bgApps.map { it.packageName }.toSet()
+    }
+
     if (compact) {
-        CompactHeader(host, now, battery, bgApps.size, bgOpen) { bgOpen = !bgOpen }
-        com.karelisio.bulle.modules.volet.background.BackgroundAppsPanel(host, bgApps, bgOpen)
+        CompactHeader(host, now, battery, bgApps.size, bgOpen, fresh, toggleBg)
+        BackgroundAppsPanel(host, bgApps, bgOpen)
         return
     }
-    Column {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
+    val fontScale = LocalDensity.current.fontScale
+    Column(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             val time = DateFormat.getTimeFormat(context).format(Date(now))
-            AnimatedContent(time, transitionSpec = {
-                (slideInVertically { it } + fadeIn()).togetherWith(slideOutVertically { -it } + fadeOut())
-            }, label = "time") {
-                Text(it, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            val style = MaterialTheme.typography.displaySmall
+            AnimatedContent(
+                time,
+                transitionSpec = { (slideInVertically { it } + fadeIn()).togetherWith(slideOutVertically { -it } + fadeOut()) },
+                label = "time",
+                modifier = Modifier.weight(1f).clickableTime(host),
+            ) {
                 Text(
-                    DateFormat.format("EEEE d MMMM", now).toString().replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    it,
+                    style = style.copy(fontSize = style.fontSize * timeScale(fontScale)),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    softWrap = false,
                 )
-                if (battery.first >= 0) {
-                    Spacer(Modifier.width(10.dp))
-                    Icon(
-                        if (battery.second) Icons.Rounded.BatteryChargingFull else Icons.Rounded.BatteryStd,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                    Text("${battery.first} %", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+            }
+            BackgroundAppsChip(bgApps.size, bgOpen, toggleBg, Modifier.padding(end = 4.dp), dot = fresh)
+            FilledTonalIconButton(onClick = { host.editingTiles = !host.editingTiles }) {
+                Icon(if (host.editingTiles) Icons.Rounded.Check else Icons.Rounded.Edit, contentDescription = stringResource(R.string.volet_edit_tiles))
+            }
+            FilledTonalIconButton(onClick = { host.startActivity(Intent(Settings.ACTION_SETTINGS)) }) {
+                Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.volet_open_settings))
             }
         }
-        // Applis en fond (comme la pastille du volet de MagicOS), à l'échelle des boutons.
-        com.karelisio.bulle.modules.volet.background.BackgroundAppsChip(bgApps.size, bgOpen, { bgOpen = !bgOpen }, Modifier.padding(end = 4.dp))
-        FilledTonalIconButton(onClick = { host.editingTiles = !host.editingTiles }) {
-            Icon(
-                if (host.editingTiles) Icons.Rounded.Check else Icons.Rounded.Edit,
-                contentDescription = stringResource(R.string.volet_edit_tiles),
-            )
-        }
-        FilledTonalIconButton(onClick = { host.startActivity(Intent(Settings.ACTION_SETTINGS)) }) {
-            Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.volet_open_settings))
-        }
+        // Date et batterie : toute la largeur, une seule ligne.
+        DateBatteryRow(host, now, battery, MaterialTheme.typography.titleSmall, iconSize = 22)
+        BackgroundAppsPanel(host, bgApps, bgOpen)
     }
-    com.karelisio.bulle.modules.volet.background.BackgroundAppsPanel(host, bgApps, bgOpen)
+}
+
+/** Heure : appui long → réveils. */
+@OptIn(ExperimentalFoundationApi::class)
+private fun Modifier.clickableTime(host: VoletHost): Modifier = combinedClickable(
+    onClick = {},
+    onLongClick = { host.startActivity(Intent(AlarmClock.ACTION_SHOW_ALARMS)) },
+)
+
+@Composable
+private fun DateBatteryRow(host: VoletHost, now: Long, battery: Pair<Int, Boolean>, style: TextStyle, iconSize: Int, modifier: Modifier = Modifier) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            DateFormat.format("EEEE d MMMM", now).toString().replaceFirstChar { it.uppercase() },
+            style = style,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .clickable {
+                    // Agenda du jour.
+                    val uri = ContentUris.appendId(CalendarContract.CONTENT_URI.buildUpon().appendPath("time"), now).build()
+                    host.startActivity(Intent(Intent.ACTION_VIEW).setData(uri))
+                },
+        )
+        if (battery.first >= 0) {
+            Spacer(Modifier.width(10.dp))
+            Row(
+                Modifier.clickable { host.startActivity(Intent(Intent.ACTION_POWER_USAGE_SUMMARY)) },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(batteryIcon(battery.first, battery.second), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(iconSize.dp))
+                Text("${battery.first} %", style = style, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
+            }
+        }
     }
 }
 
 /** En-tête paysage : une ligne (heure, date, batterie) et des boutons plus petits. */
 @Composable
-private fun CompactHeader(host: VoletHost, now: Long, battery: Pair<Int, Boolean>, bgCount: Int, bgOpen: Boolean, onBg: () -> Unit) {
+private fun CompactHeader(
+    host: VoletHost,
+    now: Long,
+    battery: Pair<Int, Boolean>,
+    bgCount: Int,
+    bgOpen: Boolean,
+    fresh: Boolean,
+    onBg: () -> Unit,
+) {
     val context = LocalContext.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             val time = DateFormat.getTimeFormat(context).format(Date(now))
             AnimatedContent(time, transitionSpec = {
                 (slideInVertically { it } + fadeIn()).togetherWith(slideOutVertically { -it } + fadeOut())
-            }, label = "time") {
-                Text(it, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+            }, label = "time", modifier = Modifier.clickableTime(host)) {
+                Text(it, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, softWrap = false)
             }
             Spacer(Modifier.width(10.dp))
-            Text(
-                DateFormat.format("EEE d MMM", now).toString().replaceFirstChar { it.uppercase() },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-            if (battery.first >= 0) {
-                Spacer(Modifier.width(8.dp))
-                Icon(
-                    if (battery.second) Icons.Rounded.BatteryChargingFull else Icons.Rounded.BatteryStd,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp),
-                )
-                Text("${battery.first} %", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-            }
+            DateBatteryRow(host, now, battery, MaterialTheme.typography.bodyMedium, iconSize = 18, modifier = Modifier.weight(1f, fill = false))
         }
-        com.karelisio.bulle.modules.volet.background.BackgroundAppsChip(bgCount, bgOpen, onBg, Modifier.padding(end = 4.dp), compact = true)
+        BackgroundAppsChip(bgCount, bgOpen, onBg, Modifier.padding(end = 4.dp), compact = true, dot = fresh)
         FilledTonalIconButton(onClick = { host.editingTiles = !host.editingTiles }, modifier = Modifier.size(36.dp)) {
             Icon(
                 if (host.editingTiles) Icons.Rounded.Check else Icons.Rounded.Edit,

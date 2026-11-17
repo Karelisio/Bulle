@@ -37,4 +37,11 @@
     <string name="volet_bg_details">Manage</string>
     <string name="volet_bg_note">Without Shizuku, Android only shows apps whose service has a notification: others may be running. Turn on Shizuku to see them all and stop them directly.</string>
     <string name="volet_bg_note_shizuku">All apps with a running service (via Shizuku). “Stop” force-stops them.</string>
+    <string name="volet_bg_since_h">for %1$d h</string>
+    <string name="volet_bg_since_min">for %1$d min</string>
+    <string name="volet_bg_hide">Stop showing %1$s</string>
+    <string name="volet_bg_stop_all">Stop all (%1$d)</string>
+    <string name="volet_bg_hidden_title">Hidden background apps</string>
+    <string name="volet_bg_hidden_desc">%1$d app(s) never shown in the Panel list.</string>
+    <string name="volet_bg_hidden_reset">Show all again</string>
 </resources>
