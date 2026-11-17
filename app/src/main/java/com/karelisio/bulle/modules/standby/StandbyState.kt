@@ -44,6 +44,16 @@ object StandbyState {
         _conditions.value = on
     }
 
+    /** Dernier toucher sur les commandes de lecture de Veille (elapsedRealtime). */
+    @Volatile
+    var lastMediaTouch: Long = 0L
+        private set
+
+    /** Les commandes de lecture de Veille ont été touchées (pause voulue, pas à relancer). */
+    fun markMediaTouch() {
+        lastMediaTouch = android.os.SystemClock.elapsedRealtime()
+    }
+
     internal fun setKeep(on: Boolean) {
         _keep.value = on
     }

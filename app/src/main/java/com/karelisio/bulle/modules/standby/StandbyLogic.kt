@@ -59,6 +59,15 @@ object StandbyLogic {
     fun keep(source: PowerSource, charger: StandbyCharger, posture: Posture): Boolean =
         chargerMatches(source, charger) && posture != Posture.PORTRAIT
 
+    /**
+     * Relancer la lecture ? Elle jouait à l'ouverture de Veille, s'est arrêtée dans les [windowMs]
+     * suivantes, et personne n'a touché les commandes de Veille entre-temps.
+     */
+    fun shouldResume(wasPlaying: Boolean, playingNow: Boolean, startedAt: Long, now: Long, lastTouch: Long, windowMs: Long = RESUME_WINDOW_MS): Boolean =
+        wasPlaying && !playingNow && now - startedAt in 0..windowMs && lastTouch < startedAt
+
+    const val RESUME_WINDOW_MS = 8_000L
+
     /** Dans la plage horaire [start, end[ (minutes), y compris à cheval sur minuit. */
     fun inWindow(minute: Int, start: Int, end: Int): Boolean = when {
         start == end -> false

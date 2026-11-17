@@ -93,4 +93,13 @@ class V096Test {
         assertFalse(StandbyLogic.keep(PowerSource.AC, StandbyCharger.ANY, Posture.PORTRAIT))
         assertFalse(StandbyLogic.keep(PowerSource.NONE, StandbyCharger.ANY, Posture.LANDSCAPE))
     }
+
+    @Test
+    fun musicCutByStandbyIsResumedOnce() {
+        assertTrue(StandbyLogic.shouldResume(wasPlaying = true, playingNow = false, startedAt = 1_000, now = 3_000, lastTouch = 0))
+        // Pause voulue (commandes de Veille touchées), trop tard, ou musique qui ne jouait pas : rien.
+        assertFalse(StandbyLogic.shouldResume(true, false, 1_000, 3_000, lastTouch = 2_000))
+        assertFalse(StandbyLogic.shouldResume(true, false, 1_000, 20_000, 0))
+        assertFalse(StandbyLogic.shouldResume(false, false, 1_000, 3_000, 0))
+    }
 }

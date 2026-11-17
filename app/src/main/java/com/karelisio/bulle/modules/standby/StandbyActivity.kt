@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -49,6 +50,7 @@ import java.util.Calendar
 class StandbyActivity : ComponentActivity() {
 
     private val exiting = mutableStateOf(false)
+    private val startedAt = android.os.SystemClock.elapsedRealtime()
     private val lux = MutableStateFlow<Float?>(null)
     private var sensors: SensorManager? = null
 
@@ -124,6 +126,20 @@ class StandbyActivity : ComponentActivity() {
         val islandRect = remember(controller) {
             controller?.state?.value?.geometry?.takeIf { it.width > 0 }?.let { g ->
                 Rect(Offset((g.centerX - g.width / 2).toFloat(), g.top.toFloat()), Size(g.width.toFloat(), g.height.toFloat()))
+            }
+        }
+        // Musique coupée à l'ouverture de Veille (lecteur qui se met en pause quand une activité
+        // passe devant) : relancée une fois si personne n'a touché les commandes.
+        val music = contents.filterIsInstance<com.karelisio.bulle.modules.music.MusicContent>().firstOrNull()
+        val wasPlaying = remember(controller) { music?.playback?.isPlaying == true }
+        var resumed by remember { mutableStateOf(false) }
+        LaunchedEffect(music?.playback?.isPlaying) {
+            val m = music ?: return@LaunchedEffect
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (!resumed && StandbyLogic.shouldResume(wasPlaying, m.playback.isPlaying, startedAt, now, StandbyState.lastMediaTouch)) {
+                resumed = true
+                IslandLog.log("Veille : lecture reprise (coupée à l'ouverture par ${m.track.packageName})")
+                runCatching { m.controller.transportControls.play() }
             }
         }
         val locked = getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true

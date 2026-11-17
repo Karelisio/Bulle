@@ -79,6 +79,7 @@ import com.karelisio.bulle.modules.music.ui.SyncedLyrics
 import com.karelisio.bulle.modules.music.ui.outputIcon
 import com.karelisio.bulle.modules.music.ui.outputLabel
 import com.karelisio.bulle.modules.standby.EchoThought
+import com.karelisio.bulle.modules.standby.StandbyState
 import com.karelisio.bulle.modules.weather.WeatherKind
 import com.karelisio.bulle.modules.weather.WeatherRepository
 import com.karelisio.bulle.modules.weather.formatTemperature
@@ -270,6 +271,7 @@ fun MusicPanel(music: MusicContent?) {
                     value = shown,
                     onValueChange = { dragging = it },
                     onValueChangeFinished = {
+                        StandbyState.markMediaTouch()
                         dragging?.let { controls.seekTo((it * duration).toLong()) }
                         dragging = null
                     },
@@ -284,7 +286,7 @@ fun MusicPanel(music: MusicContent?) {
             }
             // Commandes sur toute la largeur (aucune n'est rognée dans un panneau étroit).
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { controls.skipToPrevious() }) { Icon(Icons.Rounded.SkipPrevious, stringResource(R.string.action_previous_track), Modifier.size(32.dp)) }
+                IconButton(onClick = { StandbyState.markMediaTouch(); controls.skipToPrevious() }) { Icon(Icons.Rounded.SkipPrevious, stringResource(R.string.action_previous_track), Modifier.size(32.dp)) }
                 IconButton(onClick = { controls.seekTo((position - 10_000L).coerceAtLeast(0L)) }) {
                     Icon(Icons.Rounded.Replay10, stringResource(R.string.standby_back10), Modifier.size(28.dp))
                 }
@@ -292,13 +294,13 @@ fun MusicPanel(music: MusicContent?) {
                     playing = music.playback.isPlaying,
                     accent = music.accent,
                     contentDescription = stringResource(R.string.action_play_pause),
-                    onClick = { if (music.playback.isPlaying) controls.pause() else controls.play() },
+                    onClick = { StandbyState.markMediaTouch(); if (music.playback.isPlaying) controls.pause() else controls.play() },
                     size = 56.dp,
                 )
                 IconButton(onClick = { controls.seekTo(if (duration > 0) (position + 10_000L).coerceAtMost(duration) else position + 10_000L) }) {
                     Icon(Icons.Rounded.Forward10, stringResource(R.string.standby_forward10), Modifier.size(28.dp))
                 }
-                IconButton(onClick = { controls.skipToNext() }) { Icon(Icons.Rounded.SkipNext, stringResource(R.string.action_next_track), Modifier.size(32.dp)) }
+                IconButton(onClick = { StandbyState.markMediaTouch(); controls.skipToNext() }) { Icon(Icons.Rounded.SkipNext, stringResource(R.string.action_next_track), Modifier.size(32.dp)) }
             }
         }
     }
