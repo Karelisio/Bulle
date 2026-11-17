@@ -416,3 +416,29 @@ fun EchoPanel(thought: EchoThought?) {
         }
     }
 }
+
+/** Compte à rebours (module Compte à rebours) : le prochain événement, « J-12 ». */
+@Composable
+fun CountdownPanel(now: Long) {
+    val context = LocalContext.current
+    val data by remember { com.karelisio.bulle.modules.countdown.CountdownPrefs.store.loaded(context) }.collectAsState()
+    val next = remember(data, now / 60_000L) {
+        com.karelisio.bulle.modules.countdown.CountdownMath.upcoming(data.events, java.time.ZonedDateTime.now()).firstOrNull()
+    }
+    StandbyCard {
+        if (next == null) {
+            Placeholder(Icons.Rounded.Event, stringResource(R.string.standby_countdown_none))
+        } else {
+            val days = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), next.date)
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(20.dp)) {
+                Text(next.event.emoji, style = MaterialTheme.typography.displaySmall)
+                Text(
+                    if (days <= 0) stringResource(R.string.standby_countdown_today) else stringResource(R.string.standby_countdown_days, days),
+                    style = MaterialTheme.typography.displayLarge, fontWeight = FontWeight.Black,
+                    color = androidx.compose.ui.graphics.Color(next.event.color.toInt()),
+                )
+                Text(next.event.name, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}

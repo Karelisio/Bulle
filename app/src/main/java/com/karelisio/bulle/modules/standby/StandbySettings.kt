@@ -8,7 +8,7 @@ enum class StandbyPage { CLOCKS, WIDGETS, MUSIC, PHOTOS, ECHO }
 
 /** Widgets qu'un panneau de Veille peut afficher. */
 @Serializable
-enum class StandbyWidget { CLOCK, DATE, WEATHER, EVENT, BATTERY, LIVE, MUSIC, LYRICS, QUEUE, PHOTOS, ECHO }
+enum class StandbyWidget { CLOCK, DATE, WEATHER, EVENT, BATTERY, LIVE, MUSIC, LYRICS, QUEUE, PHOTOS, ECHO, COUNTDOWN }
 
 /**
  * Composition d'une page : deux panneaux (gauche, droite), chacun une pile de widgets qu'on fait
@@ -69,6 +69,10 @@ data class StandbySettings(
     val autoLaunch: Boolean = true,
     /** Compositions personnalisées des pages (absente = préréglage de la page). */
     val layouts: Map<StandbyPage, StandbyLayout> = emptyMap(),
+    /** Horaire : en charge dans cette plage, Veille s'active même sans être à l'horizontale. */
+    val scheduleEnabled: Boolean = false,
+    val scheduleStart: Int = 22 * 60,
+    val scheduleEnd: Int = 7 * 60,
 ) {
     fun sanitized(): StandbySettings = copy(
         delaySeconds = delaySeconds.coerceIn(DELAY),

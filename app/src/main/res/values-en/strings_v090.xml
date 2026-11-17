@@ -56,4 +56,8 @@
     <string name="home_selftest_photos">StandBy: photo access missing</string>
     <string name="home_selftest_volet">Panel: quick settings permissions missing</string>
     <string name="rel_report">Send a report</string>
+    <string name="backup_folder">Also copy to a folder</string>
+    <string name="backup_folder_desc">Each automatic backup is copied to the chosen folder (Drive, SD card…).</string>
+    <string name="backup_folder_pick">Choose</string>
+    <string name="backup_folder_remove">Remove</string>
 </resources>

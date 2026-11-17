@@ -78,10 +78,25 @@ object BackupStore {
     /** Sauvegarde automatique immédiate des réglages courants. */
     suspend fun backupNow(context: Context, now: Long = System.currentTimeMillis()): File = withContext(Dispatchers.IO) {
         val settings = SettingsRepository.current(context)
-        val file = writeAuto(dir(context), BackupCodec.encode(settings, BuildConfig.VERSION_NAME, now), now)
+        val text = BackupCodec.encode(settings, BuildConfig.VERSION_NAME, now)
+        val file = writeAuto(dir(context), text, now)
+        settings.backup.folderUri?.let { copyToFolder(context, it, folderFileName(now), text) }
         SettingsRepository.update(context) { it.copy(backup = it.backup.copy(lastAutoBackup = now)) }
         file
     }
+
+    /** Nom du fichier copié dans le dossier choisi : un par jour (logique pure). */
+    fun folderFileName(now: Long): String =
+        "bulle-" + java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT).format(java.util.Date(now)) + ".json"
+
+    /** Copie dans le dossier choisi (SAF) ; échec silencieux (dossier retiré, accès révoqué). */
+    fun copyToFolder(context: Context, folder: String, name: String, text: String): Boolean = runCatching {
+        val tree = Uri.parse(folder)
+        val resolver = context.contentResolver
+        val parent = android.provider.DocumentsContract.buildDocumentUriUsingTree(tree, android.provider.DocumentsContract.getTreeDocumentId(tree))
+        val doc = android.provider.DocumentsContract.createDocument(resolver, parent, "application/json", name) ?: return@runCatching false
+        resolver.openOutputStream(doc, "wt")?.use { it.write(text.encodeToByteArray()) } != null
+    }.getOrDefault(false)
 
     /** Export SAF vers [uri]. */
     suspend fun exportTo(context: Context, uri: Uri) = withContext(Dispatchers.IO) {

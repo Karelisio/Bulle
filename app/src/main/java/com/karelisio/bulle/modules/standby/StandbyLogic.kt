@@ -48,7 +48,9 @@ object StandbyLogic {
         charger: StandbyCharger,
         posture: Posture,
         idle: Boolean,
-    ): Boolean = enabled && chargerMatches(source, charger) && posture == Posture.LANDSCAPE && idle
+        /** Dans la plage horaire réglée : l'horizontale n'est plus exigée. */
+        scheduled: Boolean = false,
+    ): Boolean = enabled && chargerMatches(source, charger) && (posture == Posture.LANDSCAPE || scheduled) && idle
 
     /** Dans la plage horaire [start, end[ (minutes), y compris à cheval sur minuit. */
     fun inWindow(minute: Int, start: Int, end: Int): Boolean = when {

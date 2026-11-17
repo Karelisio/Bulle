@@ -284,6 +284,7 @@ private fun WidgetView(w: StandbyWidget, inputs: StandbyInputs, now: Long, music
         StandbyWidget.QUEUE -> QueuePanel(music)
         StandbyWidget.PHOTOS -> PhotosPanel(inputs.settings.albumId)
         StandbyWidget.ECHO -> EchoPanel(inputs.echo)
+        StandbyWidget.COUNTDOWN -> CountdownPanel(now)
     }
 }
 

@@ -58,6 +58,7 @@ fun standbyWidgetLabel(w: StandbyWidget): String = stringResource(
         StandbyWidget.QUEUE -> R.string.standby_w_queue
         StandbyWidget.PHOTOS -> R.string.standby_w_photos
         StandbyWidget.ECHO -> R.string.standby_w_echo
+        StandbyWidget.COUNTDOWN -> R.string.standby_w_countdown
     },
 )
 

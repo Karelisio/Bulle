@@ -74,10 +74,14 @@ class AlertStyleTest {
     }
 
     @Test
-    fun styledWrapsOnlyCustomizedAlerts() {
+    fun styledWrapsEveryAlertWithoutChangingDefaults() {
         val c = ClipboardContent(1)
-        assertSame(c, styled(c, emptyMap()))
-        assertSame(c, styled(c, mapOf("clipboard" to AlertStyle())))
+        // Sans style : habillée (bouton « Ne plus montrer »), mais clé, durée et accent inchangés.
+        val plain = styled(c, emptyMap())
+        assertTrue(plain is StyledAlert)
+        assertEquals(c.key, plain.key)
+        assertEquals(c.timeoutMs, plain.timeoutMs)
+        assertEquals(c.accent, plain.accent)
         val s = styled(c, mapOf("clipboard" to AlertStyle(accent = 0xFFFF5D5D, durationSec = 6)))
         assertTrue(s is StyledAlert)
         assertEquals(c.key, s.key)

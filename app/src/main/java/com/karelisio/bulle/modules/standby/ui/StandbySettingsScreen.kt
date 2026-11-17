@@ -164,6 +164,17 @@ fun StandbySettingsScreen(onBack: () -> Unit) {
                         )
                     },
                 ) { c -> update { it.copy(charger = c) } }
+                ModuleSwitch(stringResource(R.string.standby_schedule), stringResource(R.string.standby_schedule_summary), s.scheduleEnabled) { on ->
+                    update { it.copy(scheduleEnabled = on) }
+                }
+                if (s.scheduleEnabled) {
+                    ModuleSlider(stringResource(R.string.standby_night_start), s.scheduleStart.toFloat(), 0f..1425f, ::hhmm, steps = 94) { v ->
+                        update { it.copy(scheduleStart = v.roundToInt() / 15 * 15) }
+                    }
+                    ModuleSlider(stringResource(R.string.standby_night_end), s.scheduleEnd.toFloat(), 0f..1425f, ::hhmm, steps = 94) { v ->
+                        update { it.copy(scheduleEnd = v.roundToInt() / 15 * 15) }
+                    }
+                }
                 ModuleNote(stringResource(R.string.standby_trigger_note))
                 TextButton(
                     onClick = { OemSettings.openSafely(context, Intent(Settings.ACTION_DREAM_SETTINGS)) },

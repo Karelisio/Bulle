@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.9.6
+**Volet**
+- En-tête : l'heure et les boutons sur une ligne, la date et la batterie sur toute la largeur en dessous — plus rien ne passe à la ligne (« 71 % » se coupait). Heure réduite avec une grande police système.
+- Batterie : icône qui suit le niveau réel ; un appui ouvre l'utilisation de la batterie. Date : un appui ouvre l'agenda du jour. Heure : appui long pour les réveils.
+- Applis en fond : point rouge sur la pastille quand une nouvelle appli démarre ; « depuis 2 h » sous chaque appli ; bouton pour ne plus afficher une appli (liste réglable dans les réglages du Volet, « Tout réafficher ») ; « Tout arrêter » avec Shizuku (musique et appel épargnés) ; appui long sur une appli pour ouvrir sa fiche (batterie, forcer l'arrêt).
+
+**Île et alertes**
+- Alertes dépliées : bouton « Ne plus montrer » qui coupe ce type d'alerte (réactivable dans Contenus › Alertes).
+- Mode éco : pendant l'économie d'énergie, aucun halo (réglable) et pas de goutte sur les Bords.
+
+**Fiabilité**
+- Accueil : carte « Modules » d'auto-test (Halo ou Bords activés mais arrêtés, autorisations manquantes de Veille ou du Volet), avec un bouton pour corriger.
+- « Envoyer un rapport » (Journal de l'île) : version, appareil, état des services et modules, journal — sans données personnelles.
+- Alerte « service coupé » : bouton « Réactiver » en un toucher quand la réactivation automatique (adb) ou Shizuku est disponible.
+
+**Sauvegarde**
+- Chaque sauvegarde automatique peut aussi être copiée dans un dossier choisi (Drive, carte SD…), un fichier par jour.
+
+**Veille**
+- Nouveau widget « Compte à rebours » (J-12, emoji et couleur de l'événement).
+- Activation par horaire : en charge dans la plage choisie, Veille s'active même si le téléphone n'est pas à l'horizontale.
+
+**Qualité**
+- Tests de rendu sur petit écran, grande police et paysage pour l'en-tête du Volet, l'accueil, Fiabilité et Sauvegarde.
+
 ## 0.9.5
 - Volet : pastille des applis en fond à l'échelle des boutons ronds de l'en-tête (même hauteur, à côté du crayon), icône Android et nombre bien lisibles.
 

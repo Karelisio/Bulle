@@ -58,4 +58,8 @@
     <string name="home_selftest_photos">Veille : accès aux photos manquant</string>
     <string name="home_selftest_volet">Volet : autorisations des réglages rapides manquantes</string>
     <string name="rel_report">Envoyer un rapport</string>
+    <string name="backup_folder">Copier aussi dans un dossier</string>
+    <string name="backup_folder_desc">Chaque sauvegarde automatique est copiée dans le dossier choisi (Drive, carte SD…).</string>
+    <string name="backup_folder_pick">Choisir</string>
+    <string name="backup_folder_remove">Retirer</string>
 </resources>
