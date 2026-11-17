@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -69,34 +71,34 @@ fun rememberBackgroundApps(): List<BackgroundApp> {
     return all
 }
 
-/** Pastille « n actives » de l'en-tête du Volet (rien si aucune appli en fond). */
+/**
+ * Pastille des applis en fond : petit Android + nombre, de la hauteur des boutons ronds de
+ * l'en-tête (40 dp, 36 dp en paysage). Rien si aucune appli en fond.
+ */
 @Composable
-fun BackgroundAppsChip(count: Int, open: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun BackgroundAppsChip(count: Int, open: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
     if (count <= 0) return
     val scheme = MaterialTheme.colorScheme
+    val fg = if (open) scheme.onPrimary else scheme.onSecondaryContainer
     Row(
         modifier
+            .height(if (compact) 36.dp else 40.dp)
+            .widthIn(min = if (compact) 36.dp else 40.dp)
             .clip(CircleShape)
             .background(if (open) scheme.primary else scheme.secondaryContainer)
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
     ) {
         Icon(
             Icons.Rounded.Android,
             contentDescription = pluralStringResource(R.plurals.volet_bg_count, count, count),
-            tint = if (open) scheme.onPrimary else scheme.onSecondaryContainer,
-            modifier = Modifier.size(16.dp),
+            tint = fg,
+            modifier = Modifier.size(if (compact) 18.dp else 20.dp),
         )
-        Spacer(Modifier.width(3.dp))
-        Text(
-            "$count",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            color = if (open) scheme.onPrimary else scheme.onSecondaryContainer,
-            maxLines = 1,
-            softWrap = false,
-        )
+        Spacer(Modifier.width(4.dp))
+        Text("$count", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = fg, maxLines = 1, softWrap = false)
     }
 }
 

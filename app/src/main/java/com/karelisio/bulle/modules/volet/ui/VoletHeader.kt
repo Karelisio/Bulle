@@ -108,11 +108,10 @@ fun VoletHeader(host: VoletHost, compact: Boolean = false) {
                     )
                     Text("${battery.first} %", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                // Applis en fond (comme la pastille du volet de MagicOS).
-                Spacer(Modifier.width(10.dp))
-                com.karelisio.bulle.modules.volet.background.BackgroundAppsChip(bgApps.size, bgOpen, { bgOpen = !bgOpen })
             }
         }
+        // Applis en fond (comme la pastille du volet de MagicOS), à l'échelle des boutons.
+        com.karelisio.bulle.modules.volet.background.BackgroundAppsChip(bgApps.size, bgOpen, { bgOpen = !bgOpen }, Modifier.padding(end = 4.dp))
         FilledTonalIconButton(onClick = { host.editingTiles = !host.editingTiles }) {
             Icon(
                 if (host.editingTiles) Icons.Rounded.Check else Icons.Rounded.Edit,
@@ -158,9 +157,8 @@ private fun CompactHeader(host: VoletHost, now: Long, battery: Pair<Int, Boolean
                 )
                 Text("${battery.first} %", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
             }
-            Spacer(Modifier.width(8.dp))
-            com.karelisio.bulle.modules.volet.background.BackgroundAppsChip(bgCount, bgOpen, onBg)
         }
+        com.karelisio.bulle.modules.volet.background.BackgroundAppsChip(bgCount, bgOpen, onBg, Modifier.padding(end = 4.dp), compact = true)
         FilledTonalIconButton(onClick = { host.editingTiles = !host.editingTiles }, modifier = Modifier.size(36.dp)) {
             Icon(
                 if (host.editingTiles) Icons.Rounded.Check else Icons.Rounded.Edit,
