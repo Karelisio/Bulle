@@ -44,4 +44,16 @@
     <string name="volet_bg_hidden_title">Hidden background apps</string>
     <string name="volet_bg_hidden_desc">%1$d app(s) never shown in the Panel list.</string>
     <string name="volet_bg_hidden_reset">Show all again</string>
+    <string name="alerts_never_show">Don’t show again</string>
+    <string name="halo_power_save">Eco mode</string>
+    <string name="halo_power_save_summary">No halo while battery saver is on.</string>
+    <string name="home_selftest_title">Modules</string>
+    <string name="home_selftest_ok">All good: enabled modules running, permissions granted.</string>
+    <string name="home_selftest_fix">Fix</string>
+    <string name="home_selftest_halo">Halo on but stopped</string>
+    <string name="home_selftest_edges">Edges on but stopped</string>
+    <string name="home_selftest_standby">StandBy: MagicOS permissions missing</string>
+    <string name="home_selftest_photos">StandBy: photo access missing</string>
+    <string name="home_selftest_volet">Panel: quick settings permissions missing</string>
+    <string name="rel_report">Send a report</string>
 </resources>

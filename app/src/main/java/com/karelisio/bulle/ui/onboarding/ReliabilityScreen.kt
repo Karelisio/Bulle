@@ -345,7 +345,7 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                 }
             }
             Spacer(Modifier.height(10.dp))
-            Row {
+            FlowRow(verticalArrangement = Arrangement.Center) {
                 androidx.compose.material3.FilledTonalButton(onClick = {
                     val cm = context.getSystemService(android.content.ClipboardManager::class.java)
                     cm.setPrimaryClip(android.content.ClipData.newPlainText("Journal Bulle", com.karelisio.bulle.island.IslandLog.dump()))
@@ -362,6 +362,13 @@ private fun IslandJournalCard(snackbar: SnackbarHostState, modifier: Modifier) {
                         .putExtra(android.content.Intent.EXTRA_TEXT, text)
                     runCatching { context.startActivity(android.content.Intent.createChooser(send, shareTitle)) }
                 }) { Text(shareTitle) }
+                val reportTitle = stringResource(R.string.rel_report)
+                androidx.compose.material3.TextButton(onClick = {
+                    scope.launch {
+                        val s = com.karelisio.bulle.core.settings.SettingsRepository.current(context)
+                        com.karelisio.bulle.system.DiagnosticReport.share(context, s, reportTitle)
+                    }
+                }) { Text(reportTitle) }
                 androidx.compose.material3.TextButton(onClick = { com.karelisio.bulle.island.IslandLog.clear() }) {
                     Text(stringResource(R.string.journal_clear))
                 }

@@ -46,4 +46,16 @@
     <string name="volet_bg_hidden_title">Applis en fond masquées</string>
     <string name="volet_bg_hidden_desc">%1$d appli(s) jamais affichée(s) dans la liste du Volet.</string>
     <string name="volet_bg_hidden_reset">Tout réafficher</string>
+    <string name="alerts_never_show">Ne plus montrer</string>
+    <string name="halo_power_save">Mode éco</string>
+    <string name="halo_power_save_summary">Aucun halo pendant l’économie d’énergie.</string>
+    <string name="home_selftest_title">Modules</string>
+    <string name="home_selftest_ok">Tout fonctionne : modules activés en marche, autorisations accordées.</string>
+    <string name="home_selftest_fix">Corriger</string>
+    <string name="home_selftest_halo">Halo activé mais arrêté</string>
+    <string name="home_selftest_edges">Bords activés mais arrêtés</string>
+    <string name="home_selftest_standby">Veille : autorisations MagicOS manquantes</string>
+    <string name="home_selftest_photos">Veille : accès aux photos manquant</string>
+    <string name="home_selftest_volet">Volet : autorisations des réglages rapides manquantes</string>
+    <string name="rel_report">Envoyer un rapport</string>
 </resources>

@@ -258,6 +258,19 @@ object VoletReliability {
             .setStyle(Notification.BigTextStyle().bigText(text))
             .setContentIntent(open)
             .addAction(Notification.Action.Builder(null, context.getString(R.string.vset_rel_action), fix).build())
+            .apply {
+                // Réactivation en un toucher (adb ou Shizuku), seulement pour l'accessibilité.
+                if (isAccessibility(issue) && com.karelisio.bulle.system.ReenableReceiver.available(context)) {
+                    val reenable = PendingIntent.getBroadcast(
+                        context, 2,
+                        Intent(context, com.karelisio.bulle.system.ReenableReceiver::class.java)
+                            .setAction(com.karelisio.bulle.system.ReenableReceiver.ACTION)
+                            .putExtra(com.karelisio.bulle.system.ReenableReceiver.EXTRA_ID, NOTIFICATION_ID),
+                        flags,
+                    )
+                    addAction(Notification.Action.Builder(null, context.getString(R.string.rel_reenable_now), reenable).build())
+                }
+            }
             .setOnlyAlertOnce(true)
             .setAutoCancel(true)
             .setCategory(Notification.CATEGORY_ERROR)

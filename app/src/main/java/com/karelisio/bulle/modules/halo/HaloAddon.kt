@@ -129,6 +129,8 @@ private class HaloRuntime(private val env: AddonEnv) : AutoCloseable {
         // Veille affiche ses propres cartes de notification.
         if (StandbyState.active.value) return
         val c = candidate(sbn)
+        // Mode éco : économie d'énergie active → pas de halo.
+        if (s.powerSaveOff && service.getSystemService(PowerManager::class.java)?.isPowerSaveMode == true) return
         val screenOn = service.getSystemService(PowerManager::class.java)?.isInteractive != false
         val dnd = service.getSystemService(NotificationManager::class.java)
             ?.currentInterruptionFilter?.let { it != NotificationManager.INTERRUPTION_FILTER_ALL } == true
