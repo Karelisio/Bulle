@@ -302,6 +302,7 @@ private class EdgeRuntime(private val env: AddonEnv) : AutoCloseable {
                         haptic(HapticFeedbackConstants.CONFIRM)
                         fb.state.confirms++
                         IslandLog.log("Bords : ${slot.name.lowercase()} ${e.gesture.name.lowercase()} → ${action.type}")
+                        com.karelisio.bulle.system.ModuleUsage.record(service, com.karelisio.bulle.system.TrackedModule.EDGES)
                         env.controller.runAction(action)
                     }
                     EdgeEvent.SliderStart -> {

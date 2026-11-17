@@ -111,4 +111,8 @@
     <string name="usage_gestures">Des gestes</string>
     <string name="usage_gestures_desc">Zones des Bords pour ouvrir le Volet, le Deck, la recherche…</string>
     <string name="usage_apply">Activer</string>
+    <string name="idle_title">%1$s n’a pas servi depuis 7 jours</string>
+    <string name="idle_text">Le couper économise un peu de batterie et de mémoire. Tu peux le réactiver à tout moment.</string>
+    <string name="idle_keep">Garder</string>
+    <string name="idle_disable">Désactiver</string>
 </resources>

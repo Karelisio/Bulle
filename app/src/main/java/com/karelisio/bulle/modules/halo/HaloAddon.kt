@@ -193,6 +193,7 @@ private class HaloRuntime(private val env: AddonEnv) : AutoCloseable {
             }
         }
         overlay.show(request, HaloDevice.screen(service), HaloLook.of(settings, service.resources.displayMetrics.density))
+        if (request.kind != HaloKind.TEST) com.karelisio.bulle.system.ModuleUsage.record(service, com.karelisio.bulle.system.TrackedModule.HALO)
     }
 
     override fun close() {

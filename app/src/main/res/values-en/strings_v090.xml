@@ -109,4 +109,8 @@
     <string name="usage_gestures">Gestures</string>
     <string name="usage_gestures_desc">Edge zones to open the Panel, the Deck, search…</string>
     <string name="usage_apply">Turn on</string>
+    <string name="idle_title">%1$s hasn’t been used for 7 days</string>
+    <string name="idle_text">Turning it off saves a little battery and memory. You can turn it back on at any time.</string>
+    <string name="idle_keep">Keep</string>
+    <string name="idle_disable">Turn off</string>
 </resources>
