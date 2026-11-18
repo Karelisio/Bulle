@@ -50,6 +50,12 @@ import java.util.Calendar
 class StandbyActivity : ComponentActivity() {
 
     private val exiting = mutableStateOf(false)
+    private val leaving = mutableStateOf(false)
+    private var auto = false
+    /** Accueil / Récents pressés : l'utilisateur quitte Veille volontairement. */
+    private var userLeft = false
+    private val reclaims = ArrayDeque<Long>()
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private val startedAt = android.os.SystemClock.elapsedRealtime()
     private val lux = MutableStateFlow<Float?>(null)
     private var sensors: SensorManager? = null
@@ -75,7 +81,7 @@ class StandbyActivity : ComponentActivity() {
             hide(WindowInsetsCompat.Type.systemBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
-        val auto = intent.getBooleanExtra(StandbyLauncher.EXTRA_AUTO, false)
+        auto = intent.getBooleanExtra(StandbyLauncher.EXTRA_AUTO, false)
         val locked = getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
         // Vérification des autorisations MagicOS : Veille s'est bien affichée.
         if (auto) OemSettings.recordProof(this, OemSettings.Proof.BACKGROUND_POPUP)
@@ -89,12 +95,14 @@ class StandbyActivity : ComponentActivity() {
             override fun handleOnBackPressed() = exit()
         })
         if (auto) {
-            // Débranché ou revenu à la verticale (stable 2 s) : Veille se referme. Une notification,
+            // Débranché ou revenu à la verticale : l'animation de sortie démarre aussitôt et Veille se
+            // referme si c'est confirmé (0,8 s) ; reposé entre-temps, elle revient. Une notification,
             // le verrouillage ou l'appli au premier plan ne la ferment jamais.
             lifecycleScope.launch {
                 StandbyState.keep.collectLatest { keep ->
+                    leaving.value = !keep
                     if (keep) return@collectLatest
-                    kotlinx.coroutines.delay(2_000L)
+                    kotlinx.coroutines.delay(StandbyLogic.LEAVE_CONFIRM_MS)
                     if (!StandbyState.keep.value) {
                         IslandLog.log("Veille : fermée (débranchée ou verticale)")
                         exit()
@@ -148,6 +156,7 @@ class StandbyActivity : ComponentActivity() {
             StandbyInputs(s, night, contents, controller, echo, locked, islandRect),
             exiting = exiting.value,
             onExited = { finish() },
+            leaving = leaving.value,
             onClockChange = { c ->
                 if (c != s.clock) scope.launch { SettingsRepository.update(this@StandbyActivity) { it.copy(standby = it.standby.copy(clock = c)) } }
             },
@@ -165,12 +174,54 @@ class StandbyActivity : ComponentActivity() {
         sensors?.getDefaultSensor(Sensor.TYPE_LIGHT)?.let { sensors?.registerListener(light, it, SensorManager.SENSOR_DELAY_NORMAL) }
     }
 
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        userLeft = false
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        userLeft = true
+    }
+
+    override fun onStart() {
+        super.onStart()
+        handler.removeCallbacksAndMessages(null)
+        userLeft = false
+    }
+
+    /**
+     * Passée derrière une fenêtre du système (écran de verrouillage remonté par une notification
+     * prioritaire, souvent en portrait) : Veille repasse devant si elle doit rester affichée.
+     */
+    override fun onStop() {
+        super.onStop()
+        if (isFinishing) return
+        handler.postDelayed({
+            val now = android.os.SystemClock.elapsedRealtime()
+            while (reclaims.isNotEmpty() && now - reclaims.first() > 60_000L) reclaims.removeFirst()
+            val interactive = getSystemService(android.os.PowerManager::class.java)?.isInteractive == true
+            // Une autre appli ouverte (geste de l'île, Bords…) : on la laisse. L'écran de verrouillage
+            // et la barre système ne comptent pas (ignorés par ForegroundApp).
+            val fg = com.karelisio.bulle.island.ForegroundApp.packageName.value
+            val foreign = fg != null && fg != packageName
+            if (StandbyLogic.shouldReclaim(auto, exiting.value, userLeft, StandbyState.keep.value, interactive, reclaims.size, foreign) && !isFinishing && !isDestroyed) {
+                reclaims.addLast(now)
+                IslandLog.log("Veille : passée derrière le système, retour au premier plan")
+                StandbyLauncher.reclaim(applicationContext)
+            } else if (foreign && auto && StandbyState.keep.value && !exiting.value && !userLeft) {
+                IslandLog.log("Veille : passée derrière $fg, laissée en arrière-plan")
+            }
+        }, RECLAIM_DELAY_MS)
+    }
+
     override fun onPause() {
         sensors?.unregisterListener(light)
         super.onPause()
     }
 
     override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
         StandbyState.setActive(false)
         IslandOcclusion.set(OCCLUSION_TAG, false)
         IslandLog.log("Veille : fermée")
@@ -179,5 +230,6 @@ class StandbyActivity : ComponentActivity() {
 
     companion object {
         const val OCCLUSION_TAG = "standby"
+        private const val RECLAIM_DELAY_MS = 500L
     }
 }

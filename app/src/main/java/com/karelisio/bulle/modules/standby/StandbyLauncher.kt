@@ -17,6 +17,9 @@ object StandbyLauncher {
      */
     internal fun launchAuto(context: Context) = launch(context, auto = true, reason = "branché à l'horizontale")
 
+    /** Veille repasse devant (écran de verrouillage ou notification remontés par le système). */
+    internal fun reclaim(context: Context) = launch(context, auto = true, reason = "retour au premier plan")
+
     private fun launch(context: Context, auto: Boolean, reason: String): Boolean {
         val intent = Intent(context, StandbyActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)

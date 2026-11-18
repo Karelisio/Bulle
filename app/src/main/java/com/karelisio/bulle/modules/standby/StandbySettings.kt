@@ -46,7 +46,7 @@ enum class StandbyNightMode {
 data class StandbySettings(
     val enabled: Boolean = false,
     /** Délai avant activation, une fois branché et à l'horizontale (secondes). */
-    val delaySeconds: Int = 5,
+    val delaySeconds: Int = 2,
     /** Pages actives, dans l'ordre. */
     val pages: List<StandbyPage> = listOf(StandbyPage.CLOCKS, StandbyPage.WIDGETS, StandbyPage.MUSIC, StandbyPage.ECHO),
     /** Album du diaporama (identifiant de dossier MediaStore) et son nom. */
