@@ -18,7 +18,7 @@ object SettingsSearch {
         Routes.VOLET to listOf("volet", "notifications", "réglages rapides", "tuiles", "hauteur", "paysage", "zones", "applis en fond", "shizuku", "flou"),
         Routes.HALO to listOf("halo", "bords lumineux", "edge lighting", "lumière", "pochette", "écran éteint", "charge", "signature", "vague"),
         Routes.EDGES to listOf("bords", "gestes", "goutte", "luminosité", "volume", "curseur", "barre", "retour"),
-        Routes.STANDBY to listOf("veille", "standby", "horloge", "chevet", "nuit", "photos", "diaporama", "widgets", "dream", "économiseur"),
+        Routes.STANDBY to listOf("veille", "standby", "horloge", "chevet", "nuit", "photos", "diaporama", "widgets", "dream", "économiseur", "scène", "scene", "lave", "aurore", "bulles", "constellation", "vagues", "screensaver"),
         Routes.PROFILES to listOf("profils", "travail", "nuit", "jeu", "mode"),
         Routes.RELIABILITY to listOf("fiabilité", "journal", "adb", "shizuku", "réactiver", "rapport", "diagnostic", "magicos", "test"),
         Routes.PERMISSIONS to listOf("autorisations", "permissions", "écran de verrouillage", "pop-up", "photos", "accessibilité"),

@@ -108,6 +108,8 @@ object StandbyLogic {
         StandbyPage.MUSIC -> StandbyLayout(listOf(StandbyWidget.MUSIC), listOf(StandbyWidget.LYRICS, StandbyWidget.QUEUE, StandbyWidget.DATE), 1.3f)
         StandbyPage.PHOTOS -> StandbyLayout(listOf(StandbyWidget.PHOTOS), listOf(StandbyWidget.DATE, StandbyWidget.WEATHER), 1.7f)
         StandbyPage.ECHO -> StandbyLayout(listOf(StandbyWidget.ECHO), listOf(StandbyWidget.DATE), 1.2f)
+        // Plein écran : la scène occupe toute la page (les panneaux ne servent qu'en vue scindée).
+        StandbyPage.SCENE -> StandbyLayout(listOf(StandbyWidget.SCENE), listOf(StandbyWidget.CLOCK), 1.7f)
     }
 
     /** Composition effective : personnalisée, sinon préréglage ; un panneau vide reprend celui du préréglage. */

@@ -84,4 +84,35 @@
     <string name="standby_countdown_days">%1$d days</string>
     <string name="standby_schedule">On a schedule</string>
     <string name="standby_schedule_summary">While charging in this window, StandBy starts even if the phone isn’t sideways.</string>
+    <string name="standby_page_scene">Animated scene</string>
+    <string name="standby_w_scene">Animated scene</string>
+    <string name="standby_section_scene">Animated scene</string>
+    <string name="standby_scene">Scene</string>
+    <string name="standby_scene_lava">Lava</string>
+    <string name="standby_scene_bubbles">Soap bubbles</string>
+    <string name="standby_scene_aurora">Aurora</string>
+    <string name="standby_scene_waves">Waves</string>
+    <string name="standby_scene_stars">Constellation</string>
+    <string name="standby_scene_liquid_clock">Liquid clock</string>
+    <string name="standby_palette">Colours</string>
+    <string name="standby_palette_dynamic">Material You</string>
+    <string name="standby_palette_artwork">Album art</string>
+    <string name="standby_palette_ocean">Ocean</string>
+    <string name="standby_palette_sunset">Sunset</string>
+    <string name="standby_palette_forest">Forest</string>
+    <string name="standby_palette_mono">Grey</string>
+    <string name="standby_scene_speed">Speed</string>
+    <string name="standby_scene_density">Density</string>
+    <string name="standby_scene_cycle">Change scene every</string>
+    <plurals name="standby_scene_cycle_note">
+        <item quantity="one">Scenes rotate every %1$d minute, starting from the chosen one.</item>
+        <item quantity="other">Scenes rotate every %1$d minutes, starting from the chosen one.</item>
+    </plurals>
+    <string name="standby_scene_clock">Clock on top</string>
+    <string name="standby_scene_clock_summary">Full screen: a discreet time and date that move corner every 5 minutes.</string>
+    <string name="standby_scene_react">React to notifications</string>
+    <string name="standby_scene_react_summary">A wave in the app icon’s colour leaves the island and the scene pulses.</string>
+    <string name="standby_scene_eco">Eco mode</string>
+    <string name="standby_scene_eco_summary">In battery saver: 30 fps and fewer elements.</string>
+    <string name="standby_scene_note">“Animated scene” page in full screen, or “Animated scene” widget in a panel of another page (split view). The animation stops when not shown; night mode and burn-in protection apply.</string>
 </resources>

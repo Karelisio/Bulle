@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.10.0
+**Veille : scènes animées**
+- Nouvelle page « Scène animée » en plein écran, et widget « Scène animée » à placer dans un panneau de n'importe quelle page (vue scindée).
+- Six scènes : Lave (gouttes liquides qui fusionnent et se séparent), Bulles de savon (irisées, elles montent et éclatent), Aurore (rideaux de lumière et étoiles qui scintillent), Vagues (amples et rythmées quand la musique joue, lentes sinon), Constellation (points reliés, étoile filante), Horloge liquide (les chiffres fondent et se reforment à chaque minute).
+- Couleurs : Material You, pochette en cours, Océan, Couchant, Forêt ou Gris. Vitesse et densité réglables, rotation automatique des scènes (toutes les 5 à 60 min).
+- Horloge discrète par-dessus, qui change de coin toutes les 5 minutes (anti-marquage OLED) ; mode nuit rouge appliqué.
+- Une notification fait partir de l'île une onde de la couleur de l'icône de l'appli, et la scène pulse.
+- Mode éco : 30 images/s et moins d'éléments en économie d'énergie ; animation arrêtée hors écran, ralentie si les animations système sont coupées.
+- Réglages › Veille › Scène animée (avec aperçu en direct), aussi depuis le crayon de la page.
+
+**Accueil**
+- Tableau de bord : Halo, Bords, Veille et Volet en tuiles (actif, coupé, ou activé mais arrêté), avec interrupteur et accès aux réglages ; profils en un toucher.
+- Assistant « Je veux… » (musique, notifications, horloge de chevet, gestes) : active et règle les bons modules d'un coup, sans rien couper.
+- Un module activé mais inutilisé depuis 7 jours est proposé à la désactivation (« Garder » repousse la question d'un mois).
+
+**Qualité**
+- Moins de travail en fond : la vérification des barres de progression figées ne tourne que lorsqu'il y en a.
+- Code de l'île, des réglages du Volet et des widgets de Veille découpé en fichiers plus petits.
+- CI plus rapide : un seul run par commit (pull request, ou main pour la release) au lieu de deux, tests répartis sur plusieurs processus, compilation en parallèle.
+- Tests des scènes : chacune se dessine, en plein écran, en vue scindée et en mode nuit.
+
 ## 0.9.6
 **Volet**
 - En-tête : l'heure et les boutons sur une ligne, la date et la batterie sur toute la largeur en dessous — plus rien ne passe à la ligne (« 71 % » se coupait). Heure réduite avec une grande police système.
@@ -30,15 +51,7 @@
 - Recherche dans les réglages : champ en haut de l'onglet Réglages, qui trouve n'importe quel écran (« hauteur paysage » → Volet, « goutte » → Bords, « adb » → Fiabilité…).
 - Fiabilité › Performance (24 h) : mémoire moyenne et maximale de Bulle (courbe), temps processeur, baisse de batterie du téléphone hors charge ; une mesure toutes les 15 min, aussi dans « Envoyer un rapport ».
 
-**Accueil**
-- Tableau de bord : Halo, Bords, Veille et Volet en tuiles (actif, coupé, ou activé mais arrêté), avec interrupteur et accès aux réglages ; profils en un toucher.
-- Assistant « Je veux… » (musique, notifications, horloge de chevet, gestes) : active et règle les bons modules d'un coup, sans rien couper.
-- Un module activé mais inutilisé depuis 7 jours est proposé à la désactivation (« Garder » repousse la question d'un mois).
-
 **Qualité**
-- Moins de travail en fond : la vérification des barres de progression figées ne tourne que lorsqu'il y en a.
-- Code de l'île, des réglages du Volet et des widgets de Veille découpé en fichiers plus petits.
-- CI plus rapide : un seul run par commit (pull request, ou main pour la release) au lieu de deux, tests répartis sur plusieurs processus, compilation en parallèle.
 - Tests de rendu sur petit écran, grande police et paysage pour l'en-tête du Volet, l'accueil, Fiabilité et Sauvegarde.
 
 ## 0.9.5

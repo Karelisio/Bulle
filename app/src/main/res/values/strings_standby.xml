@@ -86,4 +86,36 @@
     <string name="standby_countdown_days">J-%1$d</string>
     <string name="standby_schedule">Par horaire</string>
     <string name="standby_schedule_summary">En charge dans cette plage, Veille s’active même si le téléphone n’est pas à l’horizontale.</string>
+    <string name="standby_page_scene">Scène animée</string>
+    <string name="standby_w_scene">Scène animée</string>
+    <string name="standby_section_scene">Scène animée</string>
+    <string name="standby_scene">Scène</string>
+    <string name="standby_scene_lava">Lave</string>
+    <string name="standby_scene_bubbles">Bulles de savon</string>
+    <string name="standby_scene_aurora">Aurore</string>
+    <string name="standby_scene_waves">Vagues</string>
+    <string name="standby_scene_stars">Constellation</string>
+    <string name="standby_scene_liquid_clock">Horloge liquide</string>
+    <string name="standby_palette">Couleurs</string>
+    <string name="standby_palette_dynamic">Material You</string>
+    <string name="standby_palette_artwork">Pochette</string>
+    <string name="standby_palette_ocean">Océan</string>
+    <string name="standby_palette_sunset">Couchant</string>
+    <string name="standby_palette_forest">Forêt</string>
+    <string name="standby_palette_mono">Gris</string>
+    <string name="standby_scene_speed">Vitesse</string>
+    <string name="standby_scene_density">Densité</string>
+    <string name="standby_scene_cycle">Changer de scène toutes les</string>
+    <plurals name="standby_scene_cycle_note">
+        <item quantity="one">Les scènes se succèdent toutes les %1$d minute, à partir de celle choisie.</item>
+        <item quantity="many">Les scènes se succèdent toutes les %1$d de minutes, à partir de celle choisie.</item>
+        <item quantity="other">Les scènes se succèdent toutes les %1$d minutes, à partir de celle choisie.</item>
+    </plurals>
+    <string name="standby_scene_clock">Horloge par-dessus</string>
+    <string name="standby_scene_clock_summary">En plein écran, l’heure et la date discrètes, qui changent de coin toutes les 5 minutes.</string>
+    <string name="standby_scene_react">Réagir aux notifications</string>
+    <string name="standby_scene_react_summary">Une onde de la couleur de l’icône de l’appli part de l’île, la scène pulse.</string>
+    <string name="standby_scene_eco">Mode éco</string>
+    <string name="standby_scene_eco_summary">En économie d’énergie : 30 images/s et moins d’éléments.</string>
+    <string name="standby_scene_note">Page « Scène animée » en plein écran, ou widget « Scène animée » dans un panneau d’une autre page (vue scindée). L’animation s’arrête quand elle n’est pas affichée ; mode nuit et anti-marquage s’appliquent.</string>
 </resources>
