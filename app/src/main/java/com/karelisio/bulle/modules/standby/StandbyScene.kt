@@ -110,6 +110,43 @@ object SceneLogic {
         return anchors[((nowMs / periodMs) % anchors.size).toInt()]
     }
 
+    /** Durée du déplacement de l'horloge d'un coin à l'autre (ms). */
+    const val CLOCK_MOVE_MS = 2_400L
+
+    /** Avancement 0 – 1 du déplacement de l'horloge, [elapsedMs] après son début. */
+    fun clockTransition(elapsedMs: Long, durationMs: Long = CLOCK_MOVE_MS): Float =
+        (elapsedMs.toFloat() / durationMs).coerceIn(0f, 1f)
+
+    /** Phase de disparition (0 – 1) de l'ancienne horloge, pendant les 45 premiers % du déplacement. */
+    fun clockOut(p: Float): Float = (p / 0.45f).coerceIn(0f, 1f)
+
+    /** Phase d'apparition (0 – 1) de la nouvelle horloge, à partir de 40 % du déplacement. */
+    fun clockIn(p: Float): Float = ((p - 0.4f) / 0.6f).coerceIn(0f, 1f)
+
+    /**
+     * Coin haut-gauche du bloc horloge ([blockW] × [blockH]) centré sur [anchor] (fractions de
+     * l'écran [w] × [h]), sans sortir de l'écran ni de la marge [margin].
+     */
+    fun clockOrigin(anchor: Pair<Float, Float>, blockW: Float, blockH: Float, w: Float, h: Float, margin: Float): Pair<Float, Float> {
+        val x = (w * anchor.first - blockW / 2).coerceIn(margin, (w - blockW - margin).coerceAtLeast(margin))
+        val y = (h * anchor.second - blockH / 2).coerceIn(margin, (h - blockH - margin).coerceAtLeast(margin))
+        return x to y
+    }
+
+    /** Pas d'échantillonnage des chiffres (particules) pour en garder au plus [max] environ. */
+    fun glyphStep(w: Int, h: Int, max: Int = 700): Int =
+        kotlin.math.ceil(kotlin.math.sqrt(w.toFloat() * h * 0.3f / max)).toInt().coerceAtLeast(2)
+
+    /** Courbe « retour élastique » (dépasse un peu 1 avant de s'y poser). */
+    fun easeOutBack(x: Float): Float {
+        val c = 1.6f
+        val u = x - 1f
+        return 1f + (c + 1f) * u * u * u + c * u * u
+    }
+
+    /** Courbe douce en S. */
+    fun easeInOut(x: Float): Float = x * x * (3f - 2f * x)
+
     /** Pseudo-aléatoire stable dans [0, 1[ pour l'élément [i] (graine [salt]). */
     fun rand(i: Int, salt: Int): Float {
         var x = i * 374_761_393 + salt * 668_265_263

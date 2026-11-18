@@ -56,6 +56,25 @@ class SceneLogicTest {
     }
 
     @Test
+    fun clockMoveTimingAndPlacement() {
+        assertEquals(0f, SceneLogic.clockTransition(-10), 0f)
+        assertEquals(0.5f, SceneLogic.clockTransition(SceneLogic.CLOCK_MOVE_MS / 2), 1e-3f)
+        assertEquals(1f, SceneLogic.clockTransition(SceneLogic.CLOCK_MOVE_MS * 3), 0f)
+        assertEquals(1f, SceneLogic.clockOut(0.5f), 0f)
+        assertEquals(0f, SceneLogic.clockIn(0.3f), 0f)
+        // Les deux phases se chevauchent un peu : jamais d'écran sans horloge trop longtemps.
+        assertTrue(SceneLogic.clockIn(0.45f) > 0f && SceneLogic.clockOut(0.45f) >= 0.99f)
+        val (x, y) = SceneLogic.clockOrigin(0.95f to 0.95f, 300f, 120f, 1000f, 450f, 20f)
+        assertEquals(680f, x, 0f)
+        assertEquals(310f, y, 0f)
+        val (x2, _) = SceneLogic.clockOrigin(0.5f to 0.5f, 2000f, 120f, 1000f, 450f, 20f)
+        assertEquals(20f, x2, 0f)
+        assertEquals(1f, SceneLogic.easeOutBack(1f), 1e-4f)
+        assertTrue((0..100).any { SceneLogic.easeOutBack(it / 100f) > 1f })
+        assertTrue(SceneLogic.glyphStep(600, 200) >= 2)
+    }
+
+    @Test
     fun randomIsStableAndInRange() {
         repeat(500) { i ->
             val r = SceneLogic.rand(i, 7)
@@ -96,5 +115,19 @@ class SceneLogicTest {
         // Ancien réglage sans scène : valeurs par défaut.
         assertEquals(SceneSettings(), StandbySettings().scene)
         assertEquals(StandbyWidget.SCENE, StandbyLogic.preset(StandbyPage.SCENE).left.single())
+    }
+}
+
+class StandbyReclaimTest {
+    @Test
+    fun reclaimOnlyWhenTheSystemTookOver() {
+        assertTrue(StandbyLogic.shouldReclaim(auto = true, exiting = false, userLeft = false, keep = true, interactive = true, recentReclaims = 0))
+        assertTrue(!StandbyLogic.shouldReclaim(auto = true, exiting = false, userLeft = true, keep = true, interactive = true, recentReclaims = 0))
+        assertTrue(!StandbyLogic.shouldReclaim(auto = true, exiting = false, userLeft = false, keep = true, interactive = false, recentReclaims = 0))
+        assertTrue(!StandbyLogic.shouldReclaim(auto = true, exiting = false, userLeft = false, keep = false, interactive = true, recentReclaims = 0))
+        assertTrue(!StandbyLogic.shouldReclaim(auto = true, exiting = true, userLeft = false, keep = true, interactive = true, recentReclaims = 0))
+        assertTrue(!StandbyLogic.shouldReclaim(auto = false, exiting = false, userLeft = false, keep = true, interactive = true, recentReclaims = 0))
+        assertTrue(!StandbyLogic.shouldReclaim(auto = true, exiting = false, userLeft = false, keep = true, interactive = true, recentReclaims = StandbyLogic.MAX_RECLAIMS))
+        assertTrue(!StandbyLogic.shouldReclaim(auto = true, exiting = false, userLeft = false, keep = true, interactive = true, recentReclaims = 0, foreignApp = true))
     }
 }

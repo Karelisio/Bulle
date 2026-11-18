@@ -5,12 +5,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.PowerManager
 import android.os.SystemClock
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
@@ -55,7 +51,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.math.max
-import kotlin.math.roundToInt
 
 /** Heure « HH:MM » d'un instant. */
 private fun hhmm(ms: Long): String {
@@ -164,7 +159,7 @@ fun StandbySceneView(settings: SceneSettings, music: MusicContent?, fullScreen: 
             }
         }
         Canvas(Modifier.fillMaxSize()) { drawPulse(frame()) }
-        if (fullScreen && s.clock && scene != StandbyScene.LIQUID_CLOCK) SceneClockOverlay()
+        if (fullScreen && s.clock && scene != StandbyScene.LIQUID_CLOCK) SceneClock(scene, colors, { t }, { frameUptime }, reduce)
     }
 }
 
@@ -172,33 +167,6 @@ fun StandbySceneView(settings: SceneSettings, music: MusicContent?, fullScreen: 
 private fun Modifier.gooey(blurPx: Float): Modifier = graphicsLayer {
     renderEffect = gooeyEffect(blurPx)
     compositingStrategy = CompositingStrategy.Offscreen
-}
-
-/** Horloge discrète qui change de coin toutes les 5 minutes (anti-marquage). */
-@Composable
-private fun SceneClockOverlay() {
-    val now = rememberNow(seconds = false)
-    val (ax, ay) = SceneLogic.clockAnchor(now)
-    val x by animateFloatAsState(ax, tween(2_000), label = "sceneClockX")
-    val y by animateFloatAsState(ay, tween(2_000), label = "sceneClockY")
-    Column(
-        Modifier.layout { measurable, constraints ->
-            val p = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                val px = (constraints.maxWidth * x - p.width / 2f).roundToInt().coerceIn(0, (constraints.maxWidth - p.width).coerceAtLeast(0))
-                val py = (constraints.maxHeight * y - p.height / 2f).roundToInt().coerceIn(0, (constraints.maxHeight - p.height).coerceAtLeast(0))
-                p.place(px, py)
-            }
-        },
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(hhmm(now), style = MaterialTheme.typography.displayLarge.copy(fontFeatureSettings = "tnum"), fontWeight = FontWeight.Light, color = Color.White.copy(alpha = 0.85f))
-        Text(
-            DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(now)),
-            style = MaterialTheme.typography.titleSmall,
-            color = Color.White.copy(alpha = 0.55f),
-        )
-    }
 }
 
 /** Couleurs d'une scène selon la palette (Material You, pochette ou fixe). */

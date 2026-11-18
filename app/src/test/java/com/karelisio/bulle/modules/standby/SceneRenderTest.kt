@@ -34,6 +34,7 @@ import com.karelisio.bulle.modules.standby.ui.drawBubbles
 import com.karelisio.bulle.modules.standby.ui.drawLava
 import com.karelisio.bulle.modules.standby.ui.drawLiquidClock
 import com.karelisio.bulle.modules.standby.ui.drawPulse
+import com.karelisio.bulle.modules.standby.ui.drawSceneClockFrame
 import com.karelisio.bulle.modules.standby.ui.drawStars
 import com.karelisio.bulle.modules.standby.ui.drawWaves
 import com.karelisio.bulle.testing.ComposeDispatcherReset
@@ -106,6 +107,19 @@ class SceneRenderTest {
         val style = androidx.compose.ui.text.TextStyle(fontSize = 40.sp)
         val f = SceneFrame(4f, colors, 1f, 0f, Color.White)
         assertTrue("horloge", lit { drawLiquidClock(f, measurer.measure("12:34", style), measurer.measure("12:33", style), 0.5f) } > 200)
+    }
+
+    @Test
+    fun sceneClockStylesAndCornerTransitionsDraw() {
+        val measurer = TextMeasurer(createFontFamilyResolver(context), Density(2f), LayoutDirection.Ltr)
+        // L'horloge liquide est elle-même l'horloge : pas d'horloge par-dessus.
+        for (scene in StandbyScene.entries - StandbyScene.LIQUID_CLOCK) {
+            assertTrue("$scene au repos", lit { drawSceneClockFrame(scene, colors, measurer, 2f, null, 0.78f to 0.22f, 1f) } > 100)
+            for (p in listOf(0f, 0.2f, 0.5f, 0.8f, 0.99f)) {
+                // Chaque étape de la transition dessine quelque chose (rien ne disparaît d'un coup).
+                assertTrue("$scene p=$p", lit { drawSceneClockFrame(scene, colors, measurer, 2f, 0.22f to 0.8f, 0.78f to 0.22f, p) } > 20)
+            }
+        }
     }
 
     @Test

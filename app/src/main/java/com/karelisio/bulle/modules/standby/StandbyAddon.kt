@@ -131,7 +131,8 @@ private class StandbyRuntime(private val env: AddonEnv) : AutoCloseable {
     private fun listen() {
         if (listening) return
         val sensor = sensors?.getDefaultSensor(Sensor.TYPE_GRAVITY) ?: sensors?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) ?: return
-        listening = sensors.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        // Cadence « UI » (~60 ms) : bascule vite détectée ; capteur actif seulement pendant la charge.
+        listening = sensors.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI)
     }
 
     private fun stopListening() {

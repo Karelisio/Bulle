@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.1
+**Veille**
+- Horloge des scènes habillée selon la scène : lave en dégradé lumineux, heure dans une bulle irisée qui flotte, aurore fine qui scintille, horloge qui tangue sur les vagues, chiffres stellaires entourés d'étoiles.
+- Transitions de coin en coin propres à chaque scène : la lave fond et goutte puis renaît en rebondissant, la bulle éclate et se regonfle, l'aurore s'estompe en s'étirant, la vague l'engloutit (ronds dans l'eau) puis la fait remonter, la constellation se désagrège en particules qui volent jusqu'au coin suivant.
+- Points de pagination effacés 3 s après l'ouverture ou un changement de page (anti-marquage OLED) ; ils réapparaissent en balayant.
+- Entrée plus rapide : délai par défaut ramené à 2 s (réglable), bascule à l'horizontale détectée plus vite (capteur actif seulement en charge), animation d'ouverture plus vive.
+- Sortie plus rapide : l'écran redevient l'île dès qu'on redresse le téléphone ou qu'on le débranche ; fermeture confirmée en 0,8 s (au lieu de 2 s), et Veille revient si on le repose entre-temps.
+- Si le système passe devant Veille (écran de verrouillage remonté par une notification prioritaire en Ne pas déranger, souvent en portrait), Veille repasse devant toute seule en une demi-seconde. Jamais écran éteint, après Accueil ou Récents, ou si une autre appli a été ouverte ; au plus 3 fois par minute. Noté dans le Journal.
+
 ## 0.10.0
 **Veille : scènes animées**
 - Nouvelle page « Scène animée » en plein écran, et widget « Scène animée » à placer dans un panneau de n'importe quelle page (vue scindée).

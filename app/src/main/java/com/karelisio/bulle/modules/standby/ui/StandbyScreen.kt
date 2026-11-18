@@ -8,6 +8,7 @@ import android.graphics.RenderEffect
 import android.os.SystemClock
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -121,18 +122,21 @@ fun StandbyScreen(
     exiting: Boolean,
     onExited: () -> Unit,
     onClockChange: (StandbyClock) -> Unit = {},
+    /** Fermeture en cours de confirmation : l'écran commence à redevenir l'île (réversible). */
+    leaving: Boolean = false,
 ) {
     val reduce = rememberReduceMotion()
     val density = LocalDensity.current
     val reveal = remember { Animatable(0f) }
     val exited = rememberUpdatedState(onExited)
-    LaunchedEffect(reduce) {
-        reveal.animateTo(1f, if (reduce) tween(260) else spring(dampingRatio = 0.82f, stiffness = 95f))
-    }
-    LaunchedEffect(exiting) {
-        if (!exiting) return@LaunchedEffect
-        reveal.animateTo(0f, if (reduce) tween(220) else spring(dampingRatio = 1f, stiffness = 260f))
-        exited.value()
+    LaunchedEffect(reduce, leaving, exiting) {
+        if (exiting) {
+            reveal.animateTo(0f, if (reduce) tween(160) else spring(dampingRatio = 1f, stiffness = 420f))
+            exited.value()
+        } else {
+            // Entrée (ou retour si la fermeture est annulée) ; pendant la confirmation, l'île se resserre déjà.
+            reveal.animateTo(if (leaving) 0.8f else 1f, if (reduce) tween(200) else spring(dampingRatio = 0.85f, stiffness = 170f))
+        }
     }
     val now = rememberNow(seconds = true)
     // Anti-marquage OLED : tout le contenu se décale de quelques pixels chaque minute.
@@ -257,8 +261,18 @@ private fun Pages(inputs: StandbyInputs, now: Long, onClockChange: (StandbyClock
             }
         }
         if (pages.size > 1) {
+            // Points de pagination : visibles à l'ouverture et quand on change de page, puis effacés
+            // au bout de 3 s (des pixels fixes marqueraient l'écran OLED).
+            var dots by remember { mutableStateOf(true) }
+            LaunchedEffect(pager.currentPage, pager.isScrollInProgress) {
+                dots = true
+                if (pager.isScrollInProgress) return@LaunchedEffect
+                delay(StandbyLogic.DOTS_VISIBLE_MS)
+                dots = false
+            }
+            val dotsAlpha by animateFloatAsState(if (dots) 1f else 0f, tween(600), label = "standbyDots")
             Row(
-                Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp),
+                Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp).graphicsLayer { alpha = dotsAlpha },
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 repeat(pages.size) { i ->

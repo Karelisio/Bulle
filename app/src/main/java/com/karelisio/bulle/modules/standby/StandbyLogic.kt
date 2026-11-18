@@ -68,6 +68,23 @@ object StandbyLogic {
 
     const val RESUME_WINDOW_MS = 8_000L
 
+    /** Durée de verticale (ou débranchement) confirmée avant la fermeture ; l'animation démarre dès le début. */
+    const val LEAVE_CONFIRM_MS = 800L
+
+    /**
+     * Veille, passée en arrière-plan sans geste de l'utilisateur (écran de verrouillage ou notification
+     * remontés par le système), doit-elle repasser devant ? Jamais écran éteint, ni après Accueil /
+     * Récents, ni quand une autre appli a été ouverte ([foreignApp] : geste, Bords…), ni plus de
+     * [MAX_RECLAIMS] fois par minute (pas de boucle avec le système).
+     */
+    fun shouldReclaim(auto: Boolean, exiting: Boolean, userLeft: Boolean, keep: Boolean, interactive: Boolean, recentReclaims: Int, foreignApp: Boolean = false): Boolean =
+        auto && !exiting && !userLeft && !foreignApp && keep && interactive && recentReclaims < MAX_RECLAIMS
+
+    const val MAX_RECLAIMS = 3
+
+    /** Durée d'affichage des points de pagination après un changement de page (anti-marquage). */
+    const val DOTS_VISIBLE_MS = 3_000L
+
     /** Dans la plage horaire [start, end[ (minutes), y compris à cheval sur minuit. */
     fun inWindow(minute: Int, start: Int, end: Int): Boolean = when {
         start == end -> false
