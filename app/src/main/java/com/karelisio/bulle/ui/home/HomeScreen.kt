@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -152,7 +153,29 @@ fun HomeScreen(onOpen: (String) -> Unit = {}, contentPadding: PaddingValues = Pa
             onAction = { onOpen(if (SelfTestIssue.HALO_STOPPED in issues || SelfTestIssue.EDGES_STOPPED in issues) Routes.RELIABILITY else Routes.PERMISSIONS) },
             modifier = Modifier.cascade(3),
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
+        // Tableau de bord : modules principaux et profils en un toucher.
+        Dashboard(settings, running, onOpen, Modifier.cascade(3))
+        // Modules activés mais jamais utilisés depuis 7 jours : proposer de les couper.
+        var idleTick by remember { mutableStateOf(0) }
+        val idle = remember(settings, idleTick) {
+            com.karelisio.bulle.system.ModuleUsage.idle(
+                context,
+                mapOf(
+                    com.karelisio.bulle.system.TrackedModule.HALO to settings.halo.enabled,
+                    com.karelisio.bulle.system.TrackedModule.EDGES to settings.edges.enabled,
+                    com.karelisio.bulle.system.TrackedModule.STANDBY to settings.standby.enabled,
+                    com.karelisio.bulle.system.TrackedModule.VOLET to settings.volet.enabled,
+                ),
+            )
+        }
+        idle.firstOrNull()?.let { m -> IdleModuleCard(m, onKeep = { com.karelisio.bulle.system.ModuleUsage.snooze(context, m); idleTick++ }) }
+        var usageOpen by remember { mutableStateOf(false) }
+        TextButton(onClick = { usageOpen = true }, modifier = Modifier.align(Alignment.Start)) {
+            Text(stringResource(R.string.usage_open))
+        }
+        if (usageOpen) UsageSheet(onDismiss = { usageOpen = false })
+        Spacer(Modifier.height(16.dp))
         Card(Modifier.fillMaxWidth().cascade(3), shape = MaterialTheme.shapes.extraLarge) {
             Row(
                 Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -211,6 +234,42 @@ private fun ServiceCard(
         onAction = onOpenAccessibility,
         modifier = modifier,
     )
+}
+
+/** « Bords n'a pas servi depuis 7 jours » : Désactiver / Garder. */
+@Composable
+private fun IdleModuleCard(m: com.karelisio.bulle.system.TrackedModule, onKeep: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val name = stringResource(
+        when (m) {
+            com.karelisio.bulle.system.TrackedModule.HALO -> R.string.halo_title
+            com.karelisio.bulle.system.TrackedModule.EDGES -> R.string.edges_title
+            com.karelisio.bulle.system.TrackedModule.STANDBY -> R.string.standby_title
+            com.karelisio.bulle.system.TrackedModule.VOLET -> R.string.home_entry_volet
+        },
+    )
+    Card(Modifier.fillMaxWidth().padding(top = 8.dp), shape = MaterialTheme.shapes.extraLarge) {
+        Column(Modifier.padding(16.dp)) {
+            Text(stringResource(R.string.idle_title, name), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.idle_text), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            androidx.compose.foundation.layout.Row(Modifier.align(Alignment.End)) {
+                TextButton(onClick = onKeep) { Text(stringResource(R.string.idle_keep)) }
+                TextButton(onClick = {
+                    scope.launch {
+                        SettingsRepository.update(context) { s ->
+                            when (m) {
+                                com.karelisio.bulle.system.TrackedModule.HALO -> s.copy(halo = s.halo.copy(enabled = false))
+                                com.karelisio.bulle.system.TrackedModule.EDGES -> s.copy(edges = s.edges.copy(enabled = false))
+                                com.karelisio.bulle.system.TrackedModule.STANDBY -> s.copy(standby = s.standby.copy(enabled = false))
+                                com.karelisio.bulle.system.TrackedModule.VOLET -> s.copy(volet = s.volet.copy(enabled = false))
+                            }
+                        }
+                    }
+                }) { Text(stringResource(R.string.idle_disable)) }
+            }
+        }
+    }
 }
 
 private fun SelfTestIssue.labelRes(): Int = when (this) {

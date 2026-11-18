@@ -173,6 +173,7 @@ class VoletController(
     // --- Glissement depuis une zone de déclenchement ---
 
     override fun onStripDragStart(side: Int) {
+        com.karelisio.bulle.system.ModuleUsage.record(service, com.karelisio.bulle.system.TrackedModule.VOLET)
         zone = zoneForSide(side)
         focusKey = null
         // Depuis les notifications, le premier glissement s'arrête à demi.
@@ -230,6 +231,7 @@ class VoletController(
 
     /** Ouvre le volet sur une notification (depuis l'île). */
     fun openFor(notificationKey: String?) {
+        com.karelisio.bulle.system.ModuleUsage.record(service, com.karelisio.bulle.system.TrackedModule.VOLET)
         if (!settings.enabled || !ensurePanel()) return
         zone = VoletZone.NOTIFICATIONS
         focusKey = notificationKey

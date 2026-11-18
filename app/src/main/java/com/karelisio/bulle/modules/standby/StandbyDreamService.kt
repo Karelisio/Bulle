@@ -60,6 +60,7 @@ class StandbyDreamService : DreamService() {
     override fun onDreamingStarted() {
         super.onDreamingStarted()
         StandbyState.setDreaming(true)
+        com.karelisio.bulle.system.ModuleUsage.record(this, com.karelisio.bulle.system.TrackedModule.STANDBY)
         StandbyState.setActive(true)
         IslandOcclusion.set(StandbyActivity.OCCLUSION_TAG, true)
         IslandLog.log("Veille : économiseur d'écran")

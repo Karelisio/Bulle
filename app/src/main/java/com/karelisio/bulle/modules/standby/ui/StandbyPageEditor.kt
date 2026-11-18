@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.karelisio.bulle.R
+import com.karelisio.bulle.modules.standby.SceneSettings
 import com.karelisio.bulle.modules.standby.StandbyLayout
 import com.karelisio.bulle.modules.standby.StandbyLogic
 import com.karelisio.bulle.modules.standby.StandbyPage
@@ -59,6 +60,7 @@ fun standbyWidgetLabel(w: StandbyWidget): String = stringResource(
         StandbyWidget.PHOTOS -> R.string.standby_w_photos
         StandbyWidget.ECHO -> R.string.standby_w_echo
         StandbyWidget.COUNTDOWN -> R.string.standby_w_countdown
+        StandbyWidget.SCENE -> R.string.standby_w_scene
     },
 )
 
@@ -67,10 +69,20 @@ fun standbyWidgetLabel(w: StandbyWidget): String = stringResource(
  * widgets (retirer, monter, descendre, ajouter) et la largeur du panneau gauche.
  */
 @Composable
-fun StandbyPageEditor(page: StandbyPage, settings: StandbySettings, onChange: (StandbyLayout?) -> Unit) {
+fun StandbyPageEditor(
+    page: StandbyPage,
+    settings: StandbySettings,
+    onScene: (SceneSettings) -> Unit = {},
+    onChange: (StandbyLayout?) -> Unit,
+) {
     val layout = StandbyLogic.layoutFor(page, settings)
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 32.dp)) {
         Text(standbyPageLabel(page), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
+        if (page == StandbyPage.SCENE) {
+            // Plein écran : pas de panneaux, seulement les réglages de la scène.
+            StandbySceneSettings(settings.scene, onScene)
+            return@Column
+        }
         val base = LocalDensity.current
         Box(
             Modifier.padding(horizontal = 16.dp).fillMaxWidth().aspectRatio(19.5f / 9f)

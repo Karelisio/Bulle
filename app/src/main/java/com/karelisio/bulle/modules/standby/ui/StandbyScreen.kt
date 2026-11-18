@@ -236,6 +236,11 @@ private fun Pages(inputs: StandbyInputs, now: Long, onClockChange: (StandbyClock
     Box(Modifier.fillMaxSize()) {
         HorizontalPager(pager, Modifier.fillMaxSize(), key = { pages[it].name }) { i ->
             val page = pages[i]
+            if (page == StandbyPage.SCENE) {
+                // Scène plein écran (la vue scindée passe par le widget Scène).
+                StandbySceneView(inputs.settings.scene, music, fullScreen = true)
+                return@HorizontalPager
+            }
             val layout = StandbyLogic.layoutFor(page, inputs.settings)
             Row(Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Box(Modifier.weight(layout.leftWeight).fillMaxHeight()) {
@@ -285,6 +290,7 @@ private fun WidgetView(w: StandbyWidget, inputs: StandbyInputs, now: Long, music
         StandbyWidget.PHOTOS -> PhotosPanel(inputs.settings.albumId)
         StandbyWidget.ECHO -> EchoPanel(inputs.echo)
         StandbyWidget.COUNTDOWN -> CountdownPanel(now)
+        StandbyWidget.SCENE -> SceneWidget(inputs.settings.scene, music)
     }
 }
 

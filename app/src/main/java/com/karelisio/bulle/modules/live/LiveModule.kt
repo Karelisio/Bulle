@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flatMapLatest
 
 /**
  * Module « Live updates » : minuteurs, chronos, guidage, livraisons, VTC, téléchargements…
@@ -43,10 +44,16 @@ object LiveModule : IslandModule {
 
         val staleness = LiveStaleness()
         // Revérifie régulièrement : une progression figée doit disparaître même sans nouvelle notification.
-        val tick = kotlinx.coroutines.flow.flow {
-            while (true) {
+        // … mais seulement quand une barre de progression est suivie (économie de batterie).
+        val tracking = kotlinx.coroutines.flow.MutableStateFlow(false)
+        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+        val tick = tracking.flatMapLatest { on ->
+            kotlinx.coroutines.flow.flow {
                 emit(Unit)
-                kotlinx.coroutines.delay(LiveStaleness.CHECK_MS)
+                while (on) {
+                    kotlinx.coroutines.delay(LiveStaleness.CHECK_MS)
+                    emit(Unit)
+                }
             }
         }
         return combine(
@@ -63,6 +70,7 @@ object LiveModule : IslandModule {
                 .toList()
             staleness.retain(activities.mapTo(HashSet()) { it.second.key })
             val fresh = activities.filterNot { (_, a) -> staleness.isStale(a, now) }
+            tracking.value = staleness.tracking
             firstSeen.keys.retainAll(fresh.mapTo(HashSet()) { it.second.key })
             visuals.keys.retainAll(firstSeen.keys)
             val contents = fresh.map { (sbn, a) ->

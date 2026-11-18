@@ -81,6 +81,7 @@ class StandbyActivity : ComponentActivity() {
         if (auto) OemSettings.recordProof(this, OemSettings.Proof.BACKGROUND_POPUP)
         if (locked) OemSettings.recordProof(this, OemSettings.Proof.LOCKSCREEN)
         StandbyState.setActive(true)
+        com.karelisio.bulle.system.ModuleUsage.record(this, com.karelisio.bulle.system.TrackedModule.STANDBY)
         IslandOcclusion.set(OCCLUSION_TAG, true)
         IslandLog.log("Veille : affichée" + if (auto) " (automatique)" else "")
 

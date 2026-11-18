@@ -27,6 +27,9 @@ class LiveStaleness(private val staleMs: Long = STALE_MS) {
         return now - previous.since >= staleMs
     }
 
+    /** Au moins une progression suivie (sinon inutile de revérifier régulièrement). */
+    val tracking: Boolean get() = seen.isNotEmpty()
+
     /** Oublie les activités disparues. */
     fun retain(keys: Set<String>) {
         seen.keys.retainAll(keys)

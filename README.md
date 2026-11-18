@@ -23,7 +23,7 @@ Une « Dynamic Island » pour Android : une bulle animée posée autour du trou 
 - **Volet** (0.2.0) : volet de notifications et de réglages rapides Material You à la place de celui de MagicOS, sans root (glisser depuis le haut, à gauche ou à droite de l'île). Shizuku facultatif pour basculer Wi-Fi, données, NFC et mode avion.
 - **Halo** (0.9.0) : à chaque notification, un halo lumineux fait le tour de l'écran (coins arrondis réels, caméra contournée), synchronisé avec l'île ; styles signature, trait, pulsation, vague, dégradé, étincelles ; couleur de l'icône, de la pochette, Material You ou fixe ; rose pulsé pour Écho ; option écran éteint et halo de charge.
 - **Bords** (0.9.0) : zones invisibles le long des bords (glisser le long du bord, double toucher, appui long, glisser vers l'intérieur en option) vers les actions de geste ; curseur luminosité / volume avec jauge ; goutte liquide ; geste Retour préservé.
-- **Veille** (0.9.0) : mode StandBy en charge à l'horizontale (économiseur d'écran ou activité de secours) : horloges, widgets, musique et paroles, diaporama, Écho ; mode nuit rouge, anti-marquage OLED.
+- **Veille** (0.9.0) : mode StandBy en charge à l'horizontale (économiseur d'écran ou activité de secours) : horloges, widgets, musique et paroles, diaporama, Écho, scènes animées (lave, bulles, aurore, vagues, constellation, horloge liquide) en plein écran ou en vue scindée ; mode nuit rouge, anti-marquage OLED.
 - **Fiabilité** : service au premier plan discret, surveillance WorkManager, redémarrage au boot, tuiles Réglages rapides (île, Halo, Bords, Veille), tests des modules et Journal de l'île.
 
 ## Architecture

@@ -4,11 +4,11 @@ import kotlinx.serialization.Serializable
 
 /** Pages de Veille (balayer pour changer). */
 @Serializable
-enum class StandbyPage { CLOCKS, WIDGETS, MUSIC, PHOTOS, ECHO }
+enum class StandbyPage { CLOCKS, WIDGETS, MUSIC, PHOTOS, ECHO, SCENE }
 
 /** Widgets qu'un panneau de Veille peut afficher. */
 @Serializable
-enum class StandbyWidget { CLOCK, DATE, WEATHER, EVENT, BATTERY, LIVE, MUSIC, LYRICS, QUEUE, PHOTOS, ECHO, COUNTDOWN }
+enum class StandbyWidget { CLOCK, DATE, WEATHER, EVENT, BATTERY, LIVE, MUSIC, LYRICS, QUEUE, PHOTOS, ECHO, COUNTDOWN, SCENE }
 
 /**
  * Composition d'une page : deux panneaux (gauche, droite), chacun une pile de widgets qu'on fait
@@ -73,6 +73,8 @@ data class StandbySettings(
     val scheduleEnabled: Boolean = false,
     val scheduleStart: Int = 22 * 60,
     val scheduleEnd: Int = 7 * 60,
+    /** Scènes animées (page Scène et widget Scène). */
+    val scene: SceneSettings = SceneSettings(),
 ) {
     fun sanitized(): StandbySettings = copy(
         delaySeconds = delaySeconds.coerceIn(DELAY),
@@ -80,6 +82,7 @@ data class StandbySettings(
         nightStart = nightStart.coerceIn(0, 1439),
         nightEnd = nightEnd.coerceIn(0, 1439),
         darkLux = if (darkLux.isNaN()) 4f else darkLux.coerceIn(LUX),
+        scene = scene.sanitized(),
         layouts = layouts.mapValues { (_, l) ->
             l.copy(
                 left = l.left.distinct().take(MAX_STACK),

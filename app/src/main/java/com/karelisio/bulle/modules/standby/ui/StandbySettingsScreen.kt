@@ -82,6 +82,7 @@ fun standbyPageLabel(p: StandbyPage): String = stringResource(
         StandbyPage.MUSIC -> R.string.standby_page_music
         StandbyPage.PHOTOS -> R.string.standby_page_photos
         StandbyPage.ECHO -> R.string.standby_page_echo
+        StandbyPage.SCENE -> R.string.standby_page_scene
     },
 )
 
@@ -214,6 +215,12 @@ fun StandbySettingsScreen(onBack: () -> Unit) {
                 ModuleNote(stringResource(R.string.standby_pages_note))
             }
         }
+        item("scene") {
+            ModuleSection(stringResource(R.string.standby_section_scene))
+            ModuleCard {
+                StandbySceneSettings(s.scene) { sc -> update { it.copy(scene = sc) } }
+            }
+        }
         item("night") {
             ModuleSection(stringResource(R.string.standby_section_night))
             ModuleCard {
@@ -258,7 +265,7 @@ fun StandbySettingsScreen(onBack: () -> Unit) {
 
     editing?.let { page ->
         ModalBottomSheet(onDismissRequest = { editing = null }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-            StandbyPageEditor(page, s) { layout ->
+            StandbyPageEditor(page, s, onScene = { sc -> update { it.copy(scene = sc) } }) { layout ->
                 update { it.copy(layouts = if (layout == null) it.layouts - page else it.layouts + (page to layout)) }
             }
         }

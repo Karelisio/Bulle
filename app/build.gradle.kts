@@ -83,6 +83,8 @@ android {
         unitTests.all { test ->
             // Robolectric : les nombreux tests de rendu dépassent le tas par défaut (512 Mo).
             test.maxHeapSize = "1536m"
+            // Tests répartis sur plusieurs JVM (Robolectric est lent sur un seul cœur).
+            test.maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceIn(1, 4)
             // Miroir optionnel pour les jars Android de Robolectric (-Probolectric.repo=…).
             (project.findProperty("robolectric.repo") as String?)?.let {
                 test.systemProperty("robolectric.dependency.repo.url", it)
